@@ -5,29 +5,37 @@ import { useEffect } from "react";
 export default function Home() {
 
   useEffect(() => {
+    alert("Приложение загрузилось");
+
     const tg = (window as any).Telegram?.WebApp;
-    tg?.ready();
-    tg?.expand();
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      console.log("Telegram WebApp найден");
+    } else {
+      console.log("Telegram WebApp НЕ найден");
+    }
   }, []);
 
   const handleLogin = () => {
+    alert("КНОПКА РАБОТАЕТ ✅");
+
     const tg = (window as any).Telegram?.WebApp;
 
     if (!tg) {
-      alert("Открой через Telegram");
+      alert("❌ Открой через Telegram");
       return;
     }
 
     const user = tg.initDataUnsafe?.user;
 
     if (!user) {
-      alert("Не удалось получить данные");
+      alert("❌ Нет данных пользователя");
       return;
     }
 
-    console.log("USER:", user);
-
-    alert(`Привет, ${user.first_name} 👋`);
+    alert(`🔥 Привет, ${user.first_name}!`);
   };
 
   return (
@@ -40,7 +48,7 @@ export default function Home() {
         </h1>
 
         <p className="text-gray-400 mt-3 text-center">
-          Найди свою энергию 💜
+          Debug режим 🚀
         </p>
 
         <button
@@ -64,7 +72,7 @@ export default function Home() {
 
       <div className="pb-6 px-6 text-center">
         <p className="text-xs text-gray-500">
-          Продолжая, вы принимаете условия использования
+          Проверка системы...
         </p>
       </div>
 
