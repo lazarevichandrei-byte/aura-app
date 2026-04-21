@@ -146,8 +146,16 @@ export default function Profile() {
       </div>
 
       {/* КНОПКА */}
-      <div className="fixed bottom-0 left-0 w-full px-5 pb-6 bg-gradient-to-t from-[#0B0B0F] to-transparent">
-        <button
+      <button
+        className="
+          w-full h-14 rounded-2xl
+          bg-gradient-to-r from-purple-600 to-pink-500
+          shadow-[0_-10px_40px_rgba(123,47,247,0.4)]
+          text-lg font-medium
+        "
+       >
+        Продолжить
+       </button>
           className="
             w-full h-14 rounded-2xl
             bg-gradient-to-r from-purple-600 to-pink-500
