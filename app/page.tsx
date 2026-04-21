@@ -5,10 +5,9 @@ import { useEffect } from "react";
 export default function Home() {
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const tg = (window as any).Telegram?.WebApp;
-      tg?.ready();
-    }
+    const tg = (window as any).Telegram?.WebApp;
+    tg?.ready();
+    tg?.expand();
   }, []);
 
   const handleLogin = () => {
@@ -21,9 +20,14 @@ export default function Home() {
 
     const user = tg.initDataUnsafe?.user;
 
+    if (!user) {
+      alert("Не удалось получить данные");
+      return;
+    }
+
     console.log("USER:", user);
 
-    alert(`Привет, ${user?.first_name}`);
+    alert(`Привет, ${user.first_name} 👋`);
   };
 
   return (
