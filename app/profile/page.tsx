@@ -24,7 +24,7 @@ const extraInterests = [
 export default function Profile() {
   const [selected, setSelected] = useState<string[]>([]);
   const [age, setAge] = useState(22);
-  const [showModal, setShowModal] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   const toggleInterest = (item: string) => {
     if (selected.includes(item)) {
@@ -35,7 +35,10 @@ export default function Profile() {
   };
 
   return (
-    <main className="relative h-screen overflow-y-auto text-white px-5 pt-10 pb-32 bg-gradient-to-b from-[#0B0B0F] via-[#120F1F] to-[#0B0B0F]">
+    <main className="relative h-screen overflow-y-auto text-white px-5 pt-10 pb-32">
+
+      {/* 🔥 ГРАДИЕНТНЫЙ ФОН */}
+      <div className="absolute inset-0 -z-10 bg-[#0B0B0F]" />
 
       {/* Glow */}
       <div className="absolute inset-0 -z-10">
@@ -58,14 +61,15 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* CARD */}
+      {/* 🔥 GLASS CARD */}
       <div className="p-5 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 space-y-5">
 
         {/* Имя */}
         <div>
           <p className="text-sm text-gray-400 mb-1">Имя</p>
           <input
-            className="w-full bg-transparent outline-none text-white"
+            placeholder="Например: Алина"
+            className="w-full bg-transparent outline-none text-white placeholder-gray-500"
           />
         </div>
 
@@ -86,7 +90,8 @@ export default function Profile() {
         <div>
           <p className="text-sm text-gray-400 mb-1">Город</p>
           <input
-            className="w-full bg-transparent outline-none text-white"
+            placeholder="Например: Москва"
+            className="w-full bg-transparent outline-none text-white placeholder-gray-500"
           />
         </div>
 
@@ -95,7 +100,8 @@ export default function Profile() {
           <p className="text-sm text-gray-400 mb-1">О себе</p>
           <textarea
             rows={3}
-            className="w-full bg-transparent outline-none text-white"
+            placeholder="Расскажи немного о себе... ✨"
+            className="w-full bg-transparent outline-none text-white placeholder-gray-500 resize-none"
           />
         </div>
       </div>
@@ -105,7 +111,8 @@ export default function Profile() {
         <p className="mb-3 text-gray-400">Интересы</p>
 
         <div className="flex flex-wrap gap-3">
-          {baseInterests.map((item) => {
+
+          {[...baseInterests, ...(showMore ? extraInterests : [])].map((item) => {
             const active = selected.includes(item);
 
             return (
@@ -127,54 +134,16 @@ export default function Profile() {
           })}
 
           {/* + кнопка */}
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-4 py-2 rounded-full bg-white/5 border border-white/10"
-          >
-            +
-          </button>
+          {!showMore && (
+            <button
+              onClick={() => setShowMore(true)}
+              className="px-4 py-2 rounded-full bg-white/5 border border-white/10"
+            >
+              +
+            </button>
+          )}
         </div>
       </div>
-
-      {/* МОДАЛКА */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end z-50">
-
-          <div className="w-full bg-[#111] rounded-t-3xl p-5">
-            <h2 className="text-lg mb-4">Добавить интересы</h2>
-
-            <div className="flex flex-wrap gap-3">
-              {extraInterests.map((item) => {
-                const active = selected.includes(item);
-
-                return (
-                  <button
-                    key={item}
-                    onClick={() => toggleInterest(item)}
-                    className={`
-                      px-4 py-2 rounded-full text-sm
-                      ${
-                        active
-                          ? "bg-gradient-to-r from-purple-600 to-pink-500"
-                          : "bg-white/5 border border-white/10"
-                      }
-                    `}
-                  >
-                    {item}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => setShowModal(false)}
-              className="mt-6 w-full h-12 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500"
-            >
-              Готово
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* КНОПКА */}
       <div className="fixed bottom-0 left-0 w-full px-5 pb-6 bg-gradient-to-t from-[#0B0B0F] to-transparent">
@@ -184,6 +153,7 @@ export default function Profile() {
             bg-gradient-to-r from-purple-600 to-pink-500
             shadow-[0_0_30px_rgba(123,47,247,0.7)]
             text-lg font-medium
+            active:scale-95 transition
           "
         >
           Продолжить
