@@ -5,52 +5,47 @@ import { useEffect } from "react";
 export default function Home() {
 
   useEffect(() => {
-    alert("Приложение загрузилось");
-
     const tg = (window as any).Telegram?.WebApp;
-
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      console.log("Telegram WebApp найден");
-    } else {
-      console.log("Telegram WebApp НЕ найден");
-    }
+    tg?.ready();
+    tg?.expand();
   }, []);
 
   const handleLogin = () => {
-    alert("КНОПКА РАБОТАЕТ ✅");
-
     const tg = (window as any).Telegram?.WebApp;
 
     if (!tg) {
-      alert("❌ Открой через Telegram");
+      alert("Открой через Telegram");
       return;
     }
 
     const user = tg.initDataUnsafe?.user;
 
     if (!user) {
-      alert("❌ Нет данных пользователя");
+      alert("Нет данных");
       return;
     }
 
-    alert(`🔥 Привет, ${user.first_name}!`);
+    // 👉 Переход на страницу профиля
+    window.location.href = "/profile";
   };
 
   return (
     <main className="h-screen w-full bg-[#0B0B0F] text-white flex flex-col justify-between">
 
+      {/* Центр */}
       <div className="flex flex-col items-center justify-center flex-1 px-6">
 
+        {/* Лого */}
         <h1 className="text-5xl font-bold tracking-wide">
           Aura
         </h1>
 
+        {/* Подзаголовок */}
         <p className="text-gray-400 mt-3 text-center">
-          Debug режим 🚀
+          Найди свою энергию 💜
         </p>
 
+        {/* Кнопка */}
         <button
           onClick={handleLogin}
           className="
@@ -70,9 +65,10 @@ export default function Home() {
 
       </div>
 
+      {/* Низ */}
       <div className="pb-6 px-6 text-center">
         <p className="text-xs text-gray-500">
-          Проверка системы...
+          Продолжая, вы принимаете условия использования
         </p>
       </div>
 
