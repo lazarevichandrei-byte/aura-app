@@ -12,6 +12,7 @@ const interestsList = [
 
 export default function Profile() {
   const [selected, setSelected] = useState<string[]>([]);
+  const [age, setAge] = useState(22);
 
   const toggleInterest = (item: string) => {
     if (selected.includes(item)) {
@@ -22,10 +23,13 @@ export default function Profile() {
   };
 
   return (
-    <main className="relative h-screen overflow-hidden text-white flex flex-col px-5 pt-10
-      bg-gradient-to-b from-[#0B0B0F] via-[#120F1F] to-[#0B0B0F]">
-
-      {/* 🔥 Фиолетовое свечение */}
+    <main
+      className="
+      relative h-screen overflow-hidden text-white flex flex-col px-5 pt-10
+      bg-gradient-to-b from-[#0B0B0F] via-[#120F1F] to-[#0B0B0F]
+    "
+    >
+      {/* 🔥 Glow фон */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-purple-600 opacity-20 blur-[120px] rounded-full" />
       </div>
@@ -48,30 +52,56 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Поля */}
-      <div className="space-y-4">
+      {/* 🔥 CARD */}
+      <div
+        className="
+        mt-2 p-5 rounded-3xl
+        bg-white/5 backdrop-blur-2xl
+        border border-white/10
+        space-y-5
+      "
+      >
+        {/* Имя */}
+        <div>
+          <p className="text-sm text-gray-400 mb-1">Имя</p>
+          <input
+            placeholder="Алина"
+            className="w-full bg-transparent outline-none text-white"
+          />
+        </div>
 
-        <input
-          placeholder="Имя"
-          className="w-full p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 placeholder-gray-400"
-        />
+        {/* Возраст */}
+        <div>
+          <p className="text-sm text-gray-400 mb-1">Возраст: {age}</p>
 
-        <input
-          placeholder="Возраст"
-          className="w-full p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 placeholder-gray-400"
-        />
+          <input
+            type="range"
+            min="18"
+            max="60"
+            value={age}
+            onChange={(e) => setAge(Number(e.target.value))}
+            className="w-full accent-purple-500"
+          />
+        </div>
 
-        <input
-          placeholder="Город"
-          className="w-full p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 placeholder-gray-400"
-        />
+        {/* Город */}
+        <div>
+          <p className="text-sm text-gray-400 mb-1">Город</p>
+          <input
+            placeholder="Москва"
+            className="w-full bg-transparent outline-none text-white"
+          />
+        </div>
 
-        <textarea
-          placeholder="О себе"
-          rows={3}
-          className="w-full p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 placeholder-gray-400"
-        />
-
+        {/* О себе */}
+        <div>
+          <p className="text-sm text-gray-400 mb-1">О себе</p>
+          <textarea
+            rows={3}
+            placeholder="Люблю путешествия и новые впечатления ✈️✨"
+            className="w-full bg-transparent outline-none text-white"
+          />
+        </div>
       </div>
 
       {/* Интересы */}
@@ -100,7 +130,7 @@ export default function Profile() {
             );
           })}
 
-          {/* + кнопка */}
+          {/* + */}
           <button className="px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
             +
           </button>
@@ -119,7 +149,6 @@ export default function Profile() {
       >
         Продолжить
       </button>
-
     </main>
   );
 }
