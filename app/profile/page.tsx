@@ -37,7 +37,7 @@ export default function Profile() {
   return (
     <main className="relative h-screen overflow-y-auto text-white px-5 pt-10 pb-32">
 
-      {/* 🔥 ГРАДИЕНТНЫЙ ФОН */}
+      {/* ФОН */}
       <div className="absolute inset-0 -z-10 bg-[#0B0B0F]" />
 
       {/* Glow */}
@@ -54,17 +54,15 @@ export default function Profile() {
       <div className="flex justify-center mb-6">
         <div className="relative">
           <div className="w-32 h-32 rounded-full border-4 border-purple-500 shadow-[0_0_25px_rgba(123,47,247,0.6)] bg-gray-700" />
-
           <div className="absolute bottom-0 right-0 bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">
             📷
           </div>
         </div>
       </div>
 
-      {/* 🔥 GLASS CARD */}
+      {/* CARD */}
       <div className="p-5 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 space-y-5">
 
-        {/* Имя */}
         <div>
           <p className="text-sm text-gray-400 mb-1">Имя</p>
           <input
@@ -73,7 +71,6 @@ export default function Profile() {
           />
         </div>
 
-        {/* Возраст */}
         <div>
           <p className="text-sm text-gray-400 mb-1">Возраст: {age}</p>
           <input
@@ -86,7 +83,6 @@ export default function Profile() {
           />
         </div>
 
-        {/* Город */}
         <div>
           <p className="text-sm text-gray-400 mb-1">Город</p>
           <input
@@ -95,7 +91,6 @@ export default function Profile() {
           />
         </div>
 
-        {/* О себе */}
         <div>
           <p className="text-sm text-gray-400 mb-1">О себе</p>
           <textarea
@@ -111,7 +106,6 @@ export default function Profile() {
         <p className="mb-3 text-gray-400">Интересы</p>
 
         <div className="flex flex-wrap gap-3">
-
           {[...baseInterests, ...(showMore ? extraInterests : [])].map((item) => {
             const active = selected.includes(item);
 
@@ -133,7 +127,6 @@ export default function Profile() {
             );
           })}
 
-          {/* + кнопка */}
           {!showMore && (
             <button
               onClick={() => setShowMore(true)}
@@ -145,21 +138,17 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* КНОПКА */}
-      <button
-        className="
-          w-full h-14 rounded-2xl
-          bg-gradient-to-r from-purple-600 to-pink-500
-          shadow-[0_-10px_40px_rgba(123,47,247,0.4)]
-          text-lg font-medium
-        "
-       >
-        Продолжить
-       </button>
+      {/* ФИКС КНОПКА С НОРМАЛЬНЫМ ФОНОМ */}
+      <div className="
+        fixed bottom-0 left-0 w-full px-5 pb-6
+        backdrop-blur-xl
+        bg-gradient-to-t from-[#0B0B0F]/90 via-[#0B0B0F]/40 to-transparent
+      ">
+        <button
           className="
             w-full h-14 rounded-2xl
             bg-gradient-to-r from-purple-600 to-pink-500
-            shadow-[0_0_30px_rgba(123,47,247,0.7)]
+            shadow-[0_-10px_40px_rgba(123,47,247,0.4)]
             text-lg font-medium
             active:scale-95 transition
           "
