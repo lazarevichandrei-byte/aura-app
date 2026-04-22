@@ -4,29 +4,8 @@ import { useState } from "react";
 
 export default function Profile() {
   const [age, setAge] = useState(22);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [open, setOpen] = useState(false);
-
-  const interests = [
-    "Путешествия",
-    "Музыка",
-    "Спорт",
-    "Кино",
-    "Фотография",
-    "Игры",
-    "Бизнес",
-    "Еда",
-    "Йога",
-    "Авто",
-  ];
-
-  const toggle = (item: string) => {
-    if (selected.includes(item)) {
-      setSelected(selected.filter((i) => i !== item));
-    } else {
-      setSelected([...selected, item]);
-    }
-  };
+  const [gender, setGender] = useState("female");
+  const [search, setSearch] = useState("female");
 
   return (
     <div style={styles.wrapper}>
@@ -34,7 +13,10 @@ export default function Profile() {
 
         {/* HEADER */}
         <div style={styles.header}>
-          <div style={styles.avatar}></div>
+          <div style={styles.avatarWrapper}>
+            <div style={styles.avatar}></div>
+            <div style={styles.camera}>📷</div>
+          </div>
 
           <div>
             <h2 style={styles.title}>Создание профиля</h2>
@@ -44,40 +26,89 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ИМЯ */}
-        <div style={styles.block}>
-          <p style={styles.label}>Имя</p>
-          <input placeholder="Введите имя" style={styles.input} />
-        </div>
-
-        {/* ВОЗРАСТ */}
-        <div style={styles.block}>
-          <div style={styles.row}>
-            <p style={styles.label}>Возраст</p>
-            <span style={styles.age}>{age}</span>
+        {/* ИМЯ + ВОЗРАСТ */}
+        <div style={styles.row}>
+          <div style={styles.inputBox}>
+            <p style={styles.label}>Имя</p>
+            <input defaultValue="Алина" style={styles.input} />
           </div>
 
-          <input
-            type="range"
-            min="18"
-            max="60"
-            value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
-            style={styles.slider}
-          />
+          <div style={styles.inputBox}>
+            <p style={styles.label}>Возраст</p>
+            <div style={{ fontWeight: 600 }}>{age}</div>
+            <input
+              type="range"
+              min="18"
+              max="60"
+              value={age}
+              onChange={(e) => setAge(Number(e.target.value))}
+              style={styles.slider}
+            />
+          </div>
+        </div>
+
+        {/* ПОЛ */}
+        <div style={styles.block}>
+          <p style={styles.label}>Пол</p>
+
+          <div style={styles.buttons}>
+            <button
+              onClick={() => setGender("female")}
+              style={{
+                ...styles.option,
+                ...(gender === "female" && styles.active),
+              }}
+            >
+              ♀ Женщина
+            </button>
+
+            <button
+              onClick={() => setGender("male")}
+              style={{
+                ...styles.option,
+                ...(gender === "male" && styles.active),
+              }}
+            >
+              ♂ Мужчина
+            </button>
+          </div>
+        </div>
+
+        {/* КОГО ИЩЕШЬ */}
+        <div style={styles.block}>
+          <p style={styles.label}>Кого ищешь</p>
+
+          <div style={styles.buttons}>
+            {["male", "female", "any"].map((item) => (
+              <button
+                key={item}
+                onClick={() => setSearch(item)}
+                style={{
+                  ...styles.option,
+                  ...(search === item && styles.active),
+                }}
+              >
+                {item === "male"
+                  ? "Парня"
+                  : item === "female"
+                  ? "Девушку"
+                  : "Без разницы"}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ГОРОД */}
         <div style={styles.block}>
           <p style={styles.label}>Город</p>
-          <input placeholder="Введите город" style={styles.input} />
+          <input defaultValue="Москва" style={styles.input} />
         </div>
 
         {/* О СЕБЕ */}
         <div style={styles.block}>
           <p style={styles.label}>О себе</p>
           <textarea
-            placeholder="Расскажите о себе..."
+            defaultValue="Люблю путешествия и новые впечатления ✈️✨"
             style={styles.textarea}
           />
         </div>
@@ -87,56 +118,20 @@ export default function Profile() {
           <p style={styles.label}>Интересы</p>
 
           <div style={styles.tags}>
-            {selected.map((item) => (
-              <span key={item} style={styles.tagActive}>
-                {item}
+            {["Путешествия", "Музыка", "Спорт", "Кино"].map((t) => (
+              <span key={t} style={styles.tag}>
+                {t}
               </span>
             ))}
 
-            <span style={styles.tagAdd} onClick={() => setOpen(true)}>
-              +
-            </span>
+            <span style={styles.tag}>+</span>
           </div>
         </div>
 
         {/* КНОПКА */}
-        <button style={styles.submit}>
-          Продолжить
-        </button>
+        <button style={styles.submit}>Продолжить</button>
 
       </div>
-
-      {/* МОДАЛКА */}
-      {open && (
-        <div style={styles.modalBg} onClick={() => setOpen(false)}>
-          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-
-            <h3 style={{ marginBottom: 12 }}>Выбери интересы</h3>
-
-            <div style={styles.tags}>
-              {interests.map((item) => (
-                <span
-                  key={item}
-                  onClick={() => toggle(item)}
-                  style={{
-                    ...styles.tag,
-                    ...(selected.includes(item) && styles.tagActive),
-                  }}
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-
-            <button
-              style={{ ...styles.submit, marginTop: 16 }}
-              onClick={() => setOpen(false)}
-            >
-              Готово
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -146,11 +141,11 @@ const styles: any = {
     minHeight: "100vh",
     background: "#F5F7FB",
     padding: "20px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "-apple-system, sans-serif",
   },
 
   card: {
-    background: "#FFFFFF",
+    background: "#fff",
     borderRadius: "24px",
     padding: "20px",
     boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
@@ -164,11 +159,27 @@ const styles: any = {
     marginBottom: "20px",
   },
 
+  avatarWrapper: {
+    position: "relative",
+  },
+
   avatar: {
     width: "80px",
     height: "80px",
     borderRadius: "50%",
-    background: "#E5E7EB",
+    background: "#ddd",
+    border: "3px solid #2A7BFF",
+  },
+
+  camera: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    background: "#2A7BFF",
+    color: "#fff",
+    borderRadius: "50%",
+    padding: "6px",
+    fontSize: "12px",
   },
 
   title: {
@@ -181,8 +192,16 @@ const styles: any = {
     color: "#6B7280",
   },
 
-  block: {
-    marginBottom: "16px",
+  row: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  inputBox: {
+    flex: 1,
+    background: "#F9FAFB",
+    borderRadius: "16px",
+    padding: "12px",
   },
 
   label: {
@@ -193,35 +212,47 @@ const styles: any = {
 
   input: {
     width: "100%",
-    padding: "12px",
-    borderRadius: "14px",
-    border: "1px solid #E5E7EB",
-    fontSize: "15px",
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    fontSize: "16px",
   },
 
   textarea: {
     width: "100%",
-    padding: "12px",
-    borderRadius: "14px",
-    border: "1px solid #E5E7EB",
-    fontSize: "15px",
+    border: "none",
+    outline: "none",
+    background: "transparent",
     resize: "none",
-  },
-
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  age: {
-    fontWeight: "600",
+    fontSize: "16px",
   },
 
   slider: {
     width: "100%",
-    marginTop: "8px",
     accentColor: "#2A7BFF",
+  },
+
+  block: {
+    marginTop: "14px",
+  },
+
+  buttons: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "8px",
+  },
+
+  option: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#EEF1F6",
+  },
+
+  active: {
+    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
+    color: "white",
   },
 
   tags: {
@@ -236,50 +267,17 @@ const styles: any = {
     border: "1px solid #2A7BFF",
     color: "#2A7BFF",
     fontSize: "14px",
-    cursor: "pointer",
-  },
-
-  tagActive: {
-    padding: "8px 12px",
-    borderRadius: "999px",
-    background: "#2A7BFF",
-    color: "#fff",
-    fontSize: "14px",
-  },
-
-  tagAdd: {
-    padding: "8px 12px",
-    borderRadius: "999px",
-    border: "1px dashed #9CA3AF",
-    cursor: "pointer",
   },
 
   submit: {
+    marginTop: "20px",
     width: "100%",
     height: "56px",
     borderRadius: "16px",
     border: "none",
     color: "white",
     fontSize: "16px",
-    fontWeight: "500",
     background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
     boxShadow: "0 8px 20px rgba(42,123,255,0.3)",
-  },
-
-  modalBg: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.4)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  modal: {
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "20px",
-    width: "90%",
-    maxWidth: "400px",
   },
 };
