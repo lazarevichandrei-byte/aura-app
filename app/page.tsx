@@ -1,17 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter();
-
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
       tg.ready();
       tg.expand();
+
       tg.setBackgroundColor("#0B0B0F");
       tg.setHeaderColor("#0B0B0F");
 
@@ -20,22 +18,8 @@ export default function Home() {
   }, []);
 
   const handleLogin = () => {
-    const tg = (window as any).Telegram?.WebApp;
-
-    if (!tg) {
-      alert("Открой через Telegram");
-      return;
-    }
-
-    const user = tg.initDataUnsafe?.user;
-
-    if (!user) {
-      alert("Нет данных");
-      return;
-    }
-
-    // 🔥 переход (правильный)
-    router.push("/profile");
+    // 🔥 простой и надежный переход
+    window.location.href = "/profile";
   };
 
   return (
@@ -49,9 +33,49 @@ export default function Home() {
         padding: "40px 20px",
         background: "#0B0B0F",
         color: "white",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <div style={{ marginTop: "120px", textAlign: "center" }}>
+      {/* 💜 фон glow */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+        <div
+          style={{
+            position: "absolute",
+            width: "300px",
+            height: "300px",
+            background: "rgba(123,47,247,0.25)",
+            filter: "blur(120px)",
+            top: "-80px",
+            left: "-80px",
+            borderRadius: "50%",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            width: "300px",
+            height: "300px",
+            background: "rgba(241,7,163,0.25)",
+            filter: "blur(120px)",
+            bottom: "-80px",
+            right: "-80px",
+            borderRadius: "50%",
+          }}
+        />
+      </div>
+
+      {/* 🔥 центр */}
+      <div
+        style={{
+          zIndex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginTop: "120px",
+        }}
+      >
+        {/* AURA */}
         <h1
           style={{
             fontSize: "56px",
@@ -60,19 +84,28 @@ export default function Home() {
             background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            textShadow: "0 0 25px rgba(123,47,247,0.5)",
           }}
         >
           AURA
         </h1>
 
-        <p style={{ color: "#aaa", marginTop: "10px" }}>
+        <p
+          style={{
+            color: "#aaa",
+            marginTop: "12px",
+            fontSize: "16px",
+          }}
+        >
           Найди свою энергию 💜
         </p>
       </div>
 
+      {/* 🔥 кнопка */}
       <button
         onClick={handleLogin}
         style={{
+          zIndex: 1,
           width: "100%",
           maxWidth: "400px",
           height: "58px",
@@ -81,12 +114,28 @@ export default function Home() {
           background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
           color: "white",
           fontSize: "17px",
+          fontWeight: "600",
+          boxShadow: "0 10px 30px rgba(123,47,247,0.5)",
+          transition: "0.2s",
         }}
+        onMouseDown={(e) =>
+          (e.currentTarget.style.transform = "scale(0.97)")
+        }
+        onMouseUp={(e) =>
+          (e.currentTarget.style.transform = "scale(1)")
+        }
       >
-        Войти через Telegram
+        ✈️ Войти через Telegram
       </button>
 
-      <p style={{ fontSize: "12px", color: "#666" }}>
+      {/* низ */}
+      <p
+        style={{
+          zIndex: 1,
+          fontSize: "12px",
+          color: "#666",
+        }}
+      >
         Продолжая, вы принимаете условия
       </p>
     </main>
