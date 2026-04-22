@@ -123,20 +123,24 @@ export default function Profile() {
           </div>
         </div>
 
-       {/* ГОРОД */}
-    <div style={styles.inputBox}>
-      <p style={styles.label}>Город</p>
-      <input placeholder="Введите город" style={styles.input} />
-    </div>
+        {/* ГОРОД */}
+        <div style={styles.block}>
+          <div style={styles.inputBox}>
+            <p style={styles.label}>Город</p>
+            <input placeholder="Введите город" style={styles.input} />
+          </div>
+        </div>
 
-       {/* О СЕБЕ */}
-    <div style={styles.inputBox}>
-      <p style={styles.label}>О себе</p>
-      <textarea
-        placeholder="Расскажите о себе..."
-        style={styles.textarea}
-      />
-    </div>
+        {/* О СЕБЕ */}
+        <div style={styles.block}>
+          <div style={styles.inputBox}>
+            <p style={styles.label}>О себе</p>
+            <textarea
+              placeholder="Расскажите о себе..."
+              style={styles.textarea}
+            />
+          </div>
+        </div>
 
         {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
@@ -176,11 +180,9 @@ export default function Profile() {
   );
 }
 
-
-
 const styles: any = {
   wrapper: {
-    minHeight: "60px",
+    minHeight: "100vh",
     background: "#F5F7FB",
     padding: "20px",
     fontFamily: "-apple-system, sans-serif",
@@ -244,6 +246,7 @@ const styles: any = {
     background: "#F9FAFB",
     borderRadius: "16px",
     padding: "12px",
+    border: "1px solid rgba(0,0,0,0.03)",
   },
 
   label: {
@@ -252,26 +255,28 @@ const styles: any = {
     marginBottom: "6px",
   },
 
-input: {
-  width: "100%",
-  border: "none",
-  outline: "none",
-  background: "transparent",
-  fontSize: "16px",
-  fontWeight: "500", // ← одинаковый стиль
-  fontFamily: "-apple-system",
-},
+  input: {
+    width: "100%",
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    fontSize: "16px",
+    fontWeight: "500",
+    fontFamily: "-apple-system",
+  },
 
-textarea: {
-  width: "100%",
-  border: "none",
-  outline: "none",
-  background: "transparent",
-  resize: "none",
-  fontSize: "16px",
-  fontWeight: "500", // ← одинаковый стиль
-  fontFamily: "-apple-system",
-},
+  textarea: {
+    width: "100%",
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    resize: "none",
+    fontSize: "16px",
+    fontWeight: "500",
+    fontFamily: "-apple-system",
+    minHeight: "60px",
+    lineHeight: "1.4",
+  },
 
   slider: {
     width: "100%",
@@ -294,6 +299,7 @@ textarea: {
     borderRadius: "14px",
     border: "none",
     background: "#EEF1F6",
+    cursor: "pointer",
   },
 
   active: {
@@ -313,6 +319,7 @@ textarea: {
     border: "1px solid #2A7BFF",
     color: "#2A7BFF",
     fontSize: "14px",
+    cursor: "pointer",
   },
 
   tagActive: {
