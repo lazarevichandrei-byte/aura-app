@@ -1,127 +1,126 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
+  const router = useRouter();
+
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
       tg.ready();
       tg.expand();
+
+      tg.setBackgroundColor("#ffffff");
+      tg.setHeaderColor("#ffffff");
+
+      document.body.style.background = "#ffffff";
     }
   }, []);
 
   const handleLogin = () => {
     const tg = (window as any).Telegram?.WebApp;
 
-    // 👉 если не в Telegram — всё равно пускаем дальше (для теста)
-    window.location.href = "/profile";
+    if (!tg) {
+      alert("Открой через Telegram");
+      return;
+    }
+
+    router.push("/profile");
   };
 
   return (
-    <div style={styles.wrapper}>
-      
-      {/* glow */}
-      <div style={styles.glowLeft}></div>
-      <div style={styles.glowRight}></div>
-
-      {/* контент */}
-      <div style={styles.content}>
-        <h1 style={styles.title}>Aura</h1>
+    <main style={styles.container}>
+      {/* Контент */}
+      <div style={styles.center}>
+        <h1 style={styles.logo}>Aura</h1>
 
         <p style={styles.subtitle}>
-          Найди свою энергию 💜
+          Найди свою энергию 💙
         </p>
 
-        <button onClick={handleLogin} style={styles.button}>
-          ✈️ Войти через Telegram
+        <button style={styles.button} onClick={handleLogin}>
+          <span style={styles.icon}>✈️</span>
+          Войти через Telegram
         </button>
       </div>
 
-      <p style={styles.footer}>
-        Продолжая, вы принимаете условия использования
-      </p>
-    </div>
+      {/* Футер */}
+      <div style={styles.footer}>
+        <p>
+          Продолжая, вы принимаете
+        </p>
+        <p style={styles.links}>
+          Условия использования и Политику конфиденциальности
+        </p>
+      </div>
+    </main>
   );
 }
 
 const styles: any = {
-  wrapper: {
-    height: "100vh",
-    background: "#0B0B0F",
-    color: "white",
+  container: {
+    minHeight: "100vh",
+    background: "#ffffff",
     display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    padding: "20px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+  },
+
+  center: {
+    display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "column",
-    position: "relative",
-    overflow: "hidden",
-    fontFamily: "Arial",
+    flex: 1,
   },
 
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    zIndex: 2,
-  },
-
-  title: {
-    fontSize: "48px",
-    fontWeight: "bold",
-    background: "linear-gradient(90deg,#a855f7,#ec4899)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    textShadow: "0 0 20px rgba(168,85,247,0.6)",
+  logo: {
+    fontSize: "42px",
+    fontWeight: "500",
+    color: "#000",
+    marginBottom: "10px",
+    letterSpacing: "-1px",
   },
 
   subtitle: {
-    marginTop: "10px",
-    color: "#aaa",
+    fontSize: "16px",
+    color: "#666",
+    marginBottom: "40px",
   },
 
   button: {
-    marginTop: "40px",
-    width: "280px",
-    height: "56px",
-    borderRadius: "30px",
-    border: "none",
-    fontSize: "18px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    background: "linear-gradient(90deg,#2AABEE,#1E96E6)",
     color: "white",
-    cursor: "pointer",
-    background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
-    boxShadow: "0 0 30px rgba(123,47,247,0.7)",
+    border: "none",
+    borderRadius: "16px",
+    height: "56px",
+    padding: "0 24px",
+    fontSize: "17px",
+    fontWeight: "500",
+    boxShadow: "0 8px 20px rgba(42,171,238,0.4)",
+  },
+
+  icon: {
+    fontSize: "18px",
   },
 
   footer: {
-    position: "absolute",
-    bottom: "20px",
-    fontSize: "12px",
-    color: "#666",
     textAlign: "center",
-    padding: "0 20px",
+    fontSize: "12px",
+    color: "#999",
+    marginBottom: "10px",
   },
 
-  glowLeft: {
-    position: "absolute",
-    left: "-150px",
-    top: "50%",
-    width: "300px",
-    height: "300px",
-    background: "purple",
-    filter: "blur(120px)",
-    opacity: 0.3,
-  },
-
-  glowRight: {
-    position: "absolute",
-    right: "-150px",
-    bottom: "100px",
-    width: "300px",
-    height: "300px",
-    background: "pink",
-    filter: "blur(120px)",
-    opacity: 0.3,
+  links: {
+    color: "#2AABEE",
+    marginTop: "4px",
   },
 };
