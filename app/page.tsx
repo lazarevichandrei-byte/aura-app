@@ -10,8 +10,11 @@ export default function Home() {
       tg.ready();
       tg.expand();
 
+      // фикс Telegram темы
       tg.setBackgroundColor("#0B0B0F");
       tg.setHeaderColor("#0B0B0F");
+
+      document.body.style.background = "#0B0B0F";
     }
   }, []);
 
@@ -35,38 +38,46 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center px-6 bg-[#0B0B0F] text-white">
-
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "24px",
+        background: "#0B0B0F",
+        color: "white",
+      }}
+    >
       {/* Заголовок */}
-      <h1 className="text-5xl font-bold tracking-wide mb-4">
+      <h1 style={{ fontSize: "48px", fontWeight: "bold" }}>
         Aura
       </h1>
 
       {/* Подзаголовок */}
-      <p className="text-gray-400 text-center mb-10">
+      <p style={{ color: "#aaa", marginTop: "8px" }}>
         Найди свою энергию 💜
       </p>
 
       {/* КНОПКА */}
       <button
         onClick={handleLogin}
-        className="
-          w-full max-w-sm h-14 rounded-2xl
-          text-lg font-medium text-white
-
-          !bg-gradient-to-r
-          !from-purple-600
-          !to-pink-500
-
-          shadow-[0_0_30px_rgba(123,47,247,0.7)]
-
-          active:scale-95
-          transition
-        "
+        style={{
+          marginTop: "40px",
+          width: "100%",
+          maxWidth: "400px",
+          height: "56px",
+          borderRadius: "16px",
+          background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
+          color: "white",
+          fontSize: "18px",
+          border: "none",
+          boxShadow: "0 0 30px rgba(123,47,247,0.7)",
+        }}
       >
         Войти через Telegram
       </button>
-
     </main>
   );
 }
