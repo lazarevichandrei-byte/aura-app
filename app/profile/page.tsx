@@ -176,6 +176,8 @@ export default function Profile() {
   );
 }
 
+
+
 const styles: any = {
   wrapper: {
     minHeight: "100vh",
@@ -288,7 +290,6 @@ const styles: any = {
     borderRadius: "14px",
     border: "none",
     background: "#EEF1F6",
-    cursor: "pointer",
   },
 
   active: {
@@ -308,13 +309,11 @@ const styles: any = {
     border: "1px solid #2A7BFF",
     color: "#2A7BFF",
     fontSize: "14px",
-    cursor: "pointer",
   },
 
   tagActive: {
     background: "#2A7BFF",
     color: "#fff",
-    border: "1px solid #2A7BFF",
   },
 
   submit: {
