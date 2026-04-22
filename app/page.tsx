@@ -110,7 +110,7 @@ export default function Home() {
             fontSize: "16px",
           }}
         >
-          Найди свою энергию 💜
+          
         </p>
       </div>
 
