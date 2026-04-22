@@ -9,135 +9,73 @@ export default function Home() {
     if (tg) {
       tg.ready();
       tg.expand();
-
       tg.setBackgroundColor("#0B0B0F");
       tg.setHeaderColor("#0B0B0F");
-
-      document.body.style.background = "#0B0B0F";
     }
+
+    document.body.style.background = "#0B0B0F";
   }, []);
 
   const handleLogin = () => {
-    // 🔥 простой и надежный переход
+    const tg = (window as any).Telegram?.WebApp;
+
+    if (!tg) {
+      alert("Открой через Telegram");
+      return;
+    }
+
     window.location.href = "/profile";
   };
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "40px 20px",
-        background: "#0B0B0F",
-        color: "white",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* 💜 фон glow */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-        <div
-          style={{
-            position: "absolute",
-            width: "300px",
-            height: "300px",
-            background: "rgba(123,47,247,0.25)",
-            filter: "blur(120px)",
-            top: "-80px",
-            left: "-80px",
-            borderRadius: "50%",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            width: "300px",
-            height: "300px",
-            background: "rgba(241,7,163,0.25)",
-            filter: "blur(120px)",
-            bottom: "-80px",
-            right: "-80px",
-            borderRadius: "50%",
-          }}
-        />
-      </div>
+    <main className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden px-6">
 
-      {/* 🔥 центр */}
-      <div
-        style={{
-          zIndex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          marginTop: "120px",
-        }}
-      >
-        {/* AURA */}
-        <h1
-          style={{
-            fontSize: "56px",
-            fontWeight: 700,
-            letterSpacing: "10px",
-            background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            textShadow: "0 0 25px rgba(123,47,247,0.5)",
-          }}
-        >
-          AURA
-        </h1>
+      {/* 🌌 ФОН */}
+      <div className="absolute inset-0 bg-[#0B0B0F] -z-10" />
 
-        <p
-          style={{
-            color: "#aaa",
-            marginTop: "12px",
-            fontSize: "16px",
-          }}
-        >
-          Найди свою энергию 💜
-        </p>
-      </div>
+      {/* Glow слева */}
+      <div className="absolute -left-40 top-1/2 w-[300px] h-[300px] bg-purple-600 opacity-30 blur-[120px] rounded-full" />
 
-      {/* 🔥 кнопка */}
+      {/* Glow справа */}
+      <div className="absolute -right-40 bottom-20 w-[300px] h-[300px] bg-pink-500 opacity-30 blur-[120px] rounded-full" />
+
+      {/* 💜 ЛОГО */}
+      <h1 className="text-5xl font-semibold tracking-wide bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]">
+        Aura
+      </h1>
+
+      {/* Подзаголовок */}
+      <p className="text-gray-400 mt-3 text-center">
+        Найди свою энергию 💜
+      </p>
+
+      {/* 🚀 КНОПКА */}
       <button
         onClick={handleLogin}
-        style={{
-          zIndex: 1,
-          width: "100%",
-          maxWidth: "400px",
-          height: "58px",
-          borderRadius: "20px",
-          border: "none",
-          background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
-          color: "white",
-          fontSize: "17px",
-          fontWeight: "600",
-          boxShadow: "0 10px 30px rgba(123,47,247,0.5)",
-          transition: "0.2s",
-        }}
-        onMouseDown={(e) =>
-          (e.currentTarget.style.transform = "scale(0.97)")
-        }
-        onMouseUp={(e) =>
-          (e.currentTarget.style.transform = "scale(1)")
-        }
+        className="
+          mt-10
+          w-full max-w-[320px]
+          h-14
+          rounded-full
+          bg-gradient-to-r from-purple-600 to-pink-500
+          shadow-[0_0_30px_rgba(123,47,247,0.8)]
+          flex items-center justify-center gap-3
+          text-lg font-medium
+          active:scale-95 transition
+        "
       >
-        ✈️ Войти через Telegram
+        {/* иконка */}
+        <span className="text-xl">✈️</span>
+
+        Войти через Telegram
       </button>
 
-      {/* низ */}
-      <p
-        style={{
-          zIndex: 1,
-          fontSize: "12px",
-          color: "#666",
-        }}
-      >
-        Продолжая, вы принимаете условия
+      {/* 📄 ТЕКСТ ВНИЗУ */}
+      <p className="absolute bottom-6 text-xs text-gray-500 text-center px-6">
+        Продолжая, вы принимаете <br />
+        Условия использования и Политику конфиденциальности
       </p>
+
     </main>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const interests = [
   "Путешествия",
@@ -8,73 +8,189 @@ const interests = [
   "Спорт",
   "Кино",
   "Фотография",
+  "Игры",
+  "Еда",
+  "Технологии",
 ];
 
 export default function Profile() {
-  const [age, setAge] = useState(22);
   const [selected, setSelected] = useState<string[]>([]);
+  const [age, setAge] = useState(22);
+
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp;
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+  }, []);
 
   const toggle = (item: string) => {
-    setSelected((prev) =>
-      prev.includes(item)
-        ? prev.filter((i) => i !== item)
-        : [...prev, item]
-    );
+    if (selected.includes(item)) {
+      setSelected(selected.filter((i) => i !== item));
+    } else {
+      setSelected([...selected, item]);
+    }
   };
 
   return (
-    <main className="min-h-screen bg-[#0B0B0F] text-white px-5 py-8">
-
-      <h1 className="text-2xl text-center mb-6">
+    <main
+      style={{
+        minHeight: "100vh",
+        padding: "20px",
+        paddingBottom: "120px",
+        background: "#0B0B0F",
+        color: "white",
+      }}
+    >
+      {/* 🔥 Заголовок */}
+      <h1
+        style={{
+          fontSize: "24px",
+          textAlign: "center",
+          marginBottom: "20px",
+        }}
+      >
         Создание профиля
       </h1>
 
-      <div className="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-5">
+      {/* 📸 Фото */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+        <div
+          style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+            background: "#1A1A22",
+            border: "3px solid #7B2FF7",
+          }}
+        />
+      </div>
 
-        <input placeholder="Имя" className="w-full bg-transparent outline-none" />
+      {/* 🔥 КАРТОЧКА */}
+      <div
+        style={{
+          background: "#15151C",
+          borderRadius: "20px",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        {/* Имя */}
+        <input
+          placeholder="Имя"
+          style={{
+            background: "#1F1F27",
+            border: "none",
+            borderRadius: "12px",
+            padding: "12px",
+            color: "white",
+          }}
+        />
 
+        {/* Возраст */}
         <div>
-          <p>Возраст: {age}</p>
+          <p style={{ color: "#aaa", marginBottom: "5px" }}>
+            Возраст: {age}
+          </p>
           <input
             type="range"
             min="18"
             max="60"
             value={age}
             onChange={(e) => setAge(Number(e.target.value))}
-            className="w-full accent-purple-500"
+            style={{ width: "100%" }}
           />
         </div>
 
-        <input placeholder="Город" className="w-full bg-transparent outline-none" />
+        {/* Город */}
+        <input
+          placeholder="Город"
+          style={{
+            background: "#1F1F27",
+            border: "none",
+            borderRadius: "12px",
+            padding: "12px",
+            color: "white",
+          }}
+        />
 
-        <textarea placeholder="О себе..." className="w-full bg-transparent outline-none" />
-
+        {/* О себе */}
+        <textarea
+          placeholder="О себе"
+          rows={3}
+          style={{
+            background: "#1F1F27",
+            border: "none",
+            borderRadius: "12px",
+            padding: "12px",
+            color: "white",
+            resize: "none",
+          }}
+        />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {interests.map((item) => {
-          const active = selected.includes(item);
+      {/* 🔥 ИНТЕРЕСЫ */}
+      <div style={{ marginTop: "25px" }}>
+        <p style={{ marginBottom: "10px", color: "#aaa" }}>
+          Интересы
+        </p>
 
-          return (
-            <button
-              key={item}
-              onClick={() => toggle(item)}
-              className={`px-4 py-2 rounded-full ${
-                active
-                  ? "bg-purple-600"
-                  : "bg-white/10"
-              }`}
-            >
-              {item}
-            </button>
-          );
-        })}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          {interests.map((item) => {
+            const active = selected.includes(item);
+
+            return (
+              <button
+                key={item}
+                onClick={() => toggle(item)}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "20px",
+                  border: "none",
+                  fontSize: "14px",
+                  background: active
+                    ? "linear-gradient(90deg, #7B2FF7, #F107A3)"
+                    : "#1F1F27",
+                  color: "white",
+                }}
+              >
+                {item}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <button className="mt-8 w-full h-14 rounded-2xl bg-purple-600">
-        Продолжить
-      </button>
-
+      {/* 🔥 КНОПКА СНИЗУ */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          padding: "15px",
+          background: "linear-gradient(to top, #0B0B0F, transparent)",
+        }}
+      >
+        <button
+          style={{
+            width: "100%",
+            height: "55px",
+            borderRadius: "16px",
+            border: "none",
+            fontSize: "16px",
+            fontWeight: "600",
+            background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
+            color: "white",
+          }}
+        >
+          Продолжить
+        </button>
+      </div>
     </main>
   );
 }
