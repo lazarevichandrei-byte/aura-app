@@ -50,7 +50,7 @@ export default function Home() {
         overflow: "hidden",
       }}
     >
-      {/* 💜 мягкий glow фон */}
+      {/* 💜 фон glow */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <div
           style={{
@@ -88,16 +88,16 @@ export default function Home() {
           marginTop: "120px",
         }}
       >
-        {/* AURA градиент */}
+        {/* AURA */}
         <h1
           style={{
-            fontSize: "52px",
-            fontWeight: "700",
-            letterSpacing: "6px",
+            fontSize: "56px",
+            fontWeight: 700,
+            letterSpacing: "10px",
             background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            textShadow: "0 0 25px rgba(123,47,247,0.4)",
+            textShadow: "0 0 25px rgba(123,47,247,0.5)",
           }}
         >
           AURA
@@ -127,7 +127,7 @@ export default function Home() {
           background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
           color: "white",
           fontSize: "17px",
-          fontWeight: "500",
+          fontWeight: "600",
           boxShadow: "0 10px 30px rgba(123,47,247,0.5)",
           transition: "0.2s",
         }}
