@@ -1,27 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Profile() {
+  const [age, setAge] = useState(22);
   const [gender, setGender] = useState("Женщина");
-  const [looking, setLooking] = useState("Девушку");
-  const [selected, setSelected] = useState<string[]>([]);
-  const [showMore, setShowMore] = useState(false);
 
-  const base = ["Путешествия", "Музыка", "Спорт", "Кино", "Фотография"];
-  const extra = ["Игры", "Бизнес", "Еда", "Йога", "Авто"];
-
-  const toggle = (item: string) => {
-    if (selected.includes(item)) {
-      setSelected(selected.filter((i) => i !== item));
-    } else {
-      setSelected([...selected, item]);
-    }
-  };
+  useEffect(() => {
+    document.body.style.background = "#0B0B0F";
+  }, []);
 
   return (
     <div style={styles.wrapper}>
-      
+
       {/* glow */}
       <div style={styles.glow1}></div>
       <div style={styles.glow2}></div>
@@ -35,60 +26,32 @@ export default function Profile() {
           <div>
             <h1 style={styles.title}>Создание профиля</h1>
             <p style={styles.subtitle}>
-              Расскажи о себе, чтобы найти близких по духу людей 💜
+              Расскажи о себе 💜
             </p>
           </div>
         </div>
 
-        {/* ИМЯ + ВОЗРАСТ */}
-        <div style={styles.row}>
-          <div style={styles.card}>
-            <p style={styles.label}>Имя</p>
-            <input placeholder="Алина" style={styles.input} />
-          </div>
+        {/* ИМЯ */}
+        <div style={styles.card}>
+          <p style={styles.label}>Имя</p>
+          <input placeholder="Алина" style={styles.input} />
+        </div>
 
-          <div style={styles.card}>
+        {/* ВОЗРАСТ */}
+        <div style={styles.card}>
+          <div style={styles.ageRow}>
             <p style={styles.label}>Возраст</p>
-            <input type="range" min="18" max="60" style={{ width: "100%" }} />
+            <span style={styles.ageValue}>{age}</span>
           </div>
-        </div>
 
-        {/* ПОЛ */}
-        <div style={styles.card}>
-          <p style={styles.label}>Пол</p>
-          <div style={styles.flex}>
-            {["Женщина", "Мужчина"].map((g) => (
-              <button
-                key={g}
-                onClick={() => setGender(g)}
-                style={{
-                  ...styles.choice,
-                  ...(gender === g ? styles.active : {}),
-                }}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* КОГО ИЩЕШЬ */}
-        <div style={styles.card}>
-          <p style={styles.label}>Кого ищешь</p>
-          <div style={styles.flex}>
-            {["Парня", "Девушку", "Без разницы"].map((g) => (
-              <button
-                key={g}
-                onClick={() => setLooking(g)}
-                style={{
-                  ...styles.choice,
-                  ...(looking === g ? styles.active : {}),
-                }}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
+          <input
+            type="range"
+            min="18"
+            max="60"
+            value={age}
+            onChange={(e) => setAge(Number(e.target.value))}
+            style={styles.slider}
+          />
         </div>
 
         {/* ГОРОД */}
@@ -104,36 +67,6 @@ export default function Profile() {
             placeholder="Люблю путешествия ✈️✨"
             style={styles.textarea}
           />
-        </div>
-
-        {/* ИНТЕРЕСЫ */}
-        <div style={styles.card}>
-          <p style={styles.label}>Интересы</p>
-
-          <div style={styles.tags}>
-            {[...base, ...(showMore ? extra : [])].map((item) => {
-              const active = selected.includes(item);
-
-              return (
-                <div
-                  key={item}
-                  onClick={() => toggle(item)}
-                  style={{
-                    ...styles.tag,
-                    ...(active ? styles.tagActive : {}),
-                  }}
-                >
-                  {item}
-                </div>
-              );
-            })}
-
-            {!showMore && (
-              <div onClick={() => setShowMore(true)} style={styles.tag}>
-                +
-              </div>
-            )}
-          </div>
         </div>
 
         {/* КНОПКА */}
@@ -153,33 +86,34 @@ const styles: any = {
     color: "white",
     padding: "20px",
     position: "relative",
-    fontFamily: "Arial",
+    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
   },
 
   container: {
     maxWidth: "420px",
     margin: "0 auto",
+    animation: "fade 0.6s ease",
   },
 
   header: {
     display: "flex",
-    gap: "15px",
     alignItems: "center",
-    marginBottom: "20px",
+    gap: "16px",
+    marginBottom: "25px",
   },
 
   avatar: {
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    background: "#333",
-    border: "2px solid #a855f7",
-    boxShadow: "0 0 20px rgba(168,85,247,0.7)",
+    width: "90px",
+    height: "90px",
+    borderRadius: "50%", // 🔥 теперь идеально круглый
+    background: "linear-gradient(145deg,#2a2a2f,#1a1a1f)",
+    border: "3px solid #a855f7",
+    boxShadow: "0 0 25px rgba(168,85,247,0.6)",
   },
 
   title: {
     fontSize: "20px",
-    fontWeight: "bold",
+    fontWeight: "600",
   },
 
   subtitle: {
@@ -187,25 +121,20 @@ const styles: any = {
     color: "#aaa",
   },
 
-  row: {
-    display: "flex",
-    gap: "10px",
-  },
-
   card: {
     background: "rgba(255,255,255,0.05)",
-    padding: "15px",
-    borderRadius: "16px",
-    border: "1px solid rgba(255,255,255,0.1)",
-    backdropFilter: "blur(10px)",
-    marginBottom: "10px",
-    flex: 1,
+    padding: "16px",
+    borderRadius: "18px",
+    border: "1px solid rgba(255,255,255,0.08)",
+    backdropFilter: "blur(14px)",
+    marginBottom: "14px",
+    transition: "0.3s",
   },
 
   label: {
     fontSize: "12px",
     color: "#aaa",
-    marginBottom: "5px",
+    marginBottom: "6px",
   },
 
   input: {
@@ -214,6 +143,8 @@ const styles: any = {
     border: "none",
     borderBottom: "1px solid #333",
     color: "white",
+    fontSize: "15px",
+    outline: "none",
   },
 
   textarea: {
@@ -222,61 +153,46 @@ const styles: any = {
     border: "none",
     borderBottom: "1px solid #333",
     color: "white",
+    fontSize: "15px",
+    outline: "none",
   },
 
-  flex: {
+  ageRow: {
     display: "flex",
-    gap: "10px",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
-  choice: {
-    flex: 1,
-    padding: "10px",
-    borderRadius: "20px",
-    background: "#222",
-    border: "none",
-    color: "white",
-    cursor: "pointer",
+  ageValue: {
+    fontSize: "16px",
+    fontWeight: "600",
+    color: "#fff",
   },
 
-  active: {
-    background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
-    boxShadow: "0 0 15px rgba(123,47,247,0.7)",
-  },
-
-  tags: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "10px",
-  },
-
-  tag: {
-    padding: "8px 14px",
-    borderRadius: "20px",
-    background: "#222",
-    cursor: "pointer",
-  },
-
-  tagActive: {
-    background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
+  slider: {
+    width: "100%",
+    marginTop: "10px",
+    accentColor: "#a855f7",
   },
 
   button: {
-    marginTop: "20px",
+    marginTop: "25px",
     width: "100%",
-    height: "56px",
+    height: "58px",
     borderRadius: "20px",
     border: "none",
     fontSize: "18px",
+    fontWeight: "600",
     color: "white",
     background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
-    boxShadow: "0 0 30px rgba(123,47,247,0.7)",
+    boxShadow: "0 10px 40px rgba(123,47,247,0.5)",
+    transition: "0.2s",
   },
 
   glow1: {
     position: "absolute",
-    top: "-100px",
-    left: "-100px",
+    top: "-120px",
+    left: "-120px",
     width: "300px",
     height: "300px",
     background: "purple",
@@ -286,8 +202,8 @@ const styles: any = {
 
   glow2: {
     position: "absolute",
-    bottom: "-100px",
-    right: "-100px",
+    bottom: "-120px",
+    right: "-120px",
     width: "300px",
     height: "300px",
     background: "pink",
