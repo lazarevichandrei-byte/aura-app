@@ -2,7 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* базовый стиль */
+/* Сброс */
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+/* Твой фон */
 body {
   background: #0B0B0F;
   color: white;
