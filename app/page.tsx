@@ -9,73 +9,119 @@ export default function Home() {
     if (tg) {
       tg.ready();
       tg.expand();
-      tg.setBackgroundColor("#0B0B0F");
-      tg.setHeaderColor("#0B0B0F");
     }
-
-    document.body.style.background = "#0B0B0F";
   }, []);
 
   const handleLogin = () => {
     const tg = (window as any).Telegram?.WebApp;
 
-    if (!tg) {
-      alert("Открой через Telegram");
-      return;
-    }
-
+    // 👉 если не в Telegram — всё равно пускаем дальше (для теста)
     window.location.href = "/profile";
   };
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden px-6">
+    <div style={styles.wrapper}>
+      
+      {/* glow */}
+      <div style={styles.glowLeft}></div>
+      <div style={styles.glowRight}></div>
 
-      {/* 🌌 ФОН */}
-      <div className="absolute inset-0 bg-[#0B0B0F] -z-10" />
+      {/* контент */}
+      <div style={styles.content}>
+        <h1 style={styles.title}>Aura</h1>
 
-      {/* Glow слева */}
-      <div className="absolute -left-40 top-1/2 w-[300px] h-[300px] bg-purple-600 opacity-30 blur-[120px] rounded-full" />
+        <p style={styles.subtitle}>
+          Найди свою энергию 💜
+        </p>
 
-      {/* Glow справа */}
-      <div className="absolute -right-40 bottom-20 w-[300px] h-[300px] bg-pink-500 opacity-30 blur-[120px] rounded-full" />
+        <button onClick={handleLogin} style={styles.button}>
+          ✈️ Войти через Telegram
+        </button>
+      </div>
 
-      {/* 💜 ЛОГО */}
-      <h1 className="text-5xl font-semibold tracking-wide bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]">
-        Aura
-      </h1>
-
-      {/* Подзаголовок */}
-      <p className="text-gray-400 mt-3 text-center">
-        Найди свою энергию 💜
+      <p style={styles.footer}>
+        Продолжая, вы принимаете условия использования
       </p>
-
-      {/* 🚀 КНОПКА */}
-      <button
-        onClick={handleLogin}
-        className="
-          mt-10
-          w-full max-w-[320px]
-          h-14
-          rounded-full
-          bg-gradient-to-r from-purple-600 to-pink-500
-          shadow-[0_0_30px_rgba(123,47,247,0.8)]
-          flex items-center justify-center gap-3
-          text-lg font-medium
-          active:scale-95 transition
-        "
-      >
-        {/* иконка */}
-        <span className="text-xl">✈️</span>
-
-        Войти через Telegram
-      </button>
-
-      {/* 📄 ТЕКСТ ВНИЗУ */}
-      <p className="absolute bottom-6 text-xs text-gray-500 text-center px-6">
-        Продолжая, вы принимаете <br />
-        Условия использования и Политику конфиденциальности
-      </p>
-
-    </main>
+    </div>
   );
 }
+
+const styles: any = {
+  wrapper: {
+    height: "100vh",
+    background: "#0B0B0F",
+    color: "white",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
+    position: "relative",
+    overflow: "hidden",
+    fontFamily: "Arial",
+  },
+
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    zIndex: 2,
+  },
+
+  title: {
+    fontSize: "48px",
+    fontWeight: "bold",
+    background: "linear-gradient(90deg,#a855f7,#ec4899)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    textShadow: "0 0 20px rgba(168,85,247,0.6)",
+  },
+
+  subtitle: {
+    marginTop: "10px",
+    color: "#aaa",
+  },
+
+  button: {
+    marginTop: "40px",
+    width: "280px",
+    height: "56px",
+    borderRadius: "30px",
+    border: "none",
+    fontSize: "18px",
+    color: "white",
+    cursor: "pointer",
+    background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
+    boxShadow: "0 0 30px rgba(123,47,247,0.7)",
+  },
+
+  footer: {
+    position: "absolute",
+    bottom: "20px",
+    fontSize: "12px",
+    color: "#666",
+    textAlign: "center",
+    padding: "0 20px",
+  },
+
+  glowLeft: {
+    position: "absolute",
+    left: "-150px",
+    top: "50%",
+    width: "300px",
+    height: "300px",
+    background: "purple",
+    filter: "blur(120px)",
+    opacity: 0.3,
+  },
+
+  glowRight: {
+    position: "absolute",
+    right: "-150px",
+    bottom: "100px",
+    width: "300px",
+    height: "300px",
+    background: "pink",
+    filter: "blur(120px)",
+    opacity: 0.3,
+  },
+};
