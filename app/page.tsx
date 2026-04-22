@@ -31,52 +31,55 @@ export default function Home() {
         padding: "40px 20px",
         background: "#05050A",
         color: "white",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      {/* 🔥 ФОН С ГЛОУ */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          overflow: "hidden",
-        }}
-      >
+      {/* 🔥 ГЛОУ ФОН */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <div
           style={{
             position: "absolute",
-            width: "300px",
-            height: "300px",
+            width: "500px",
+            height: "500px",
             background: "radial-gradient(circle, #7B2FF7, transparent)",
-            filter: "blur(120px)",
-            top: "-50px",
-            left: "-50px",
+            filter: "blur(160px)",
+            top: "-100px",
+            left: "-100px",
             opacity: 0.6,
           }}
         />
+
         <div
           style={{
             position: "absolute",
-            width: "300px",
-            height: "300px",
+            width: "500px",
+            height: "500px",
             background: "radial-gradient(circle, #F107A3, transparent)",
-            filter: "blur(120px)",
-            bottom: "-50px",
-            right: "-50px",
+            filter: "blur(160px)",
+            bottom: "-100px",
+            right: "-100px",
             opacity: 0.6,
           }}
         />
       </div>
 
-      {/* 🔥 ЛОГО + НАЗВАНИЕ */}
-      <div style={{ zIndex: 1, textAlign: "center", marginTop: "80px" }}>
+      {/* 🔥 ЛОГО */}
+      <div
+        style={{
+          zIndex: 1,
+          textAlign: "center",
+          marginTop: "100px",
+        }}
+      >
         <div
           style={{
-            fontSize: "80px",
+            fontSize: "90px",
             fontWeight: "bold",
             background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            textShadow: "0 0 40px rgba(123,47,247,0.6)",
           }}
         >
           A
@@ -84,12 +87,13 @@ export default function Home() {
 
         <div
           style={{
-            fontSize: "40px",
-            letterSpacing: "10px",
+            fontSize: "42px",
+            letterSpacing: "12px",
             marginTop: "10px",
             background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            textShadow: "0 0 25px rgba(241,7,163,0.6)",
           }}
         >
           AURA
@@ -103,19 +107,28 @@ export default function Home() {
           zIndex: 1,
           width: "100%",
           maxWidth: "400px",
-          height: "60px",
-          borderRadius: "30px",
+          height: "64px",
+          borderRadius: "40px",
           border: "none",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "12px",
+          gap: "10px",
           fontSize: "18px",
-          fontWeight: "500",
+          fontWeight: "600",
           color: "white",
           background: "linear-gradient(90deg, #7B2FF7, #F107A3)",
-          boxShadow: "0 0 40px rgba(123,47,247,0.6)",
+          boxShadow:
+            "0 10px 40px rgba(123,47,247,0.6), 0 0 20px rgba(241,7,163,0.5)",
+          transform: "translateY(0)",
+          transition: "0.2s",
         }}
+        onMouseDown={(e) =>
+          (e.currentTarget.style.transform = "scale(0.97)")
+        }
+        onMouseUp={(e) =>
+          (e.currentTarget.style.transform = "scale(1)")
+        }
       >
         ✈️ Войти через Telegram
       </button>
