@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
@@ -21,19 +21,19 @@ export default function Home() {
   }, []);
 
   const handleLogin = () => {
-    const tg = (window as any).Telegram?.WebApp;
+    console.log("CLICK");
 
-    if (!tg) {
-      alert("Открой через Telegram");
-      return;
-    }
-
+    // основной переход
     router.push("/profile");
+
+    // fallback (если Telegram тупит)
+    setTimeout(() => {
+      window.location.href = "/profile";
+    }, 100);
   };
 
   return (
     <main style={styles.container}>
-      {/* Контент */}
       <div style={styles.center}>
         <h1 style={styles.logo}>Aura</h1>
 
@@ -42,16 +42,12 @@ export default function Home() {
         </p>
 
         <button style={styles.button} onClick={handleLogin}>
-          <span style={styles.icon}>✈️</span>
-          Войти через Telegram
+          ✈️ Войти через Telegram
         </button>
       </div>
 
-      {/* Футер */}
       <div style={styles.footer}>
-        <p>
-          Продолжая, вы принимаете
-        </p>
+        <p>Продолжая, вы принимаете</p>
         <p style={styles.links}>
           Условия использования и Политику конфиденциальности
         </p>
@@ -84,7 +80,6 @@ const styles: any = {
     fontWeight: "500",
     color: "#000",
     marginBottom: "10px",
-    letterSpacing: "-1px",
   },
 
   subtitle: {
@@ -94,9 +89,6 @@ const styles: any = {
   },
 
   button: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
     background: "linear-gradient(90deg,#2AABEE,#1E96E6)",
     color: "white",
     border: "none",
@@ -108,15 +100,10 @@ const styles: any = {
     boxShadow: "0 8px 20px rgba(42,171,238,0.4)",
   },
 
-  icon: {
-    fontSize: "18px",
-  },
-
   footer: {
     textAlign: "center",
     fontSize: "12px",
     color: "#999",
-    marginBottom: "10px",
   },
 
   links: {
