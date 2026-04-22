@@ -25,18 +25,22 @@ export default function Home() {
       return;
     }
 
-    // переход на профиль
+    // 👉 переход на профиль
     window.location.href = "/profile";
   };
 
   return (
-    <main className="h-screen w-full bg-black text-white flex flex-col justify-center items-center px-6">
+    <main className="h-screen w-full bg-[#0B0B0F] text-white flex flex-col justify-center items-center px-6">
 
       <h1 className="text-4xl font-bold">Aura</h1>
 
+      <p className="text-gray-400 mt-2">
+        Найди свою энергию 💜
+      </p>
+
       <button
         onClick={handleLogin}
-        className="mt-10 w-full max-w-sm h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500"
+        className="mt-10 w-full max-w-sm h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 shadow-[0_0_30px_rgba(123,47,247,0.7)]"
       >
         Войти через Telegram
       </button>
