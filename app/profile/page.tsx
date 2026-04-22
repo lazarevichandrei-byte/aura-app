@@ -1,27 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function Profile() {
   const [age, setAge] = useState(22);
   const [gender, setGender] = useState("female");
   const [search, setSearch] = useState("female");
 
+  const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [bio, setBio] = useState("");
+
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
-    "Игры",
-    "Бизнес",
-    "Еда",
-    "Йога",
-    "Авто",
-    "Книги",
-    "Технологии",
-    "Искусство",
-    "Танцы",
-    "Природа",
+    "Игры","Бизнес","Еда","Йога","Авто",
+    "Книги","Технологии","Искусство","Танцы","Природа",
   ];
 
   const toggle = (item: string) => {
@@ -32,148 +29,173 @@ export default function Profile() {
     }
   };
 
+  // 🔥 загрузка профиля
+  useEffect(() => {
+    const loadProfile = async () => {
+      const tg = (window as any).Telegram?.WebApp;
+      const user = tg?.initDataUnsafe?.user;
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("telegram_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      if (data) {
+        setName(data.name || "");
+        setCity(data.city || "");
+        setBio(data.bio || "");
+        setAge(data.age || 22);
+        setGender(data.gender || "female");
+        setSearch(data.looking || "female");
+        setSelected(data.interests || []);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  // 🚀 сохранение
+  const handleSave = async () => {
+    const tg = (window as any).Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
+
+    if (!user) {
+      alert("Открой через Telegram");
+      return;
+    }
+
+    const { error } = await supabase.from("users").upsert(
+      {
+        telegram_id: user.id,
+        name,
+        age,
+        gender,
+        looking: search,
+        city,
+        bio,
+        interests: selected,
+      },
+      { onConflict: "telegram_id" }
+    );
+
+    if (error) {
+      console.log(error);
+      alert("Ошибка");
+    } else {
+      alert("Сохранено ✅");
+    }
+  };
+
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div style={styles.avatarWrapper}>
-            <div style={styles.avatar}></div>
-            <div style={styles.camera}>📷</div>
-          </div>
+        <h2>Профиль</h2>
 
-          <div>
-            <h2 style={styles.title}>Создание профиля</h2>
-            <p style={styles.subtitle}>
-              Расскажи о себе, чтобы найти близких по духу 💙
-            </p>
-          </div>
+        <input
+          placeholder="Имя"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={styles.input}
+        />
+
+        <input
+          placeholder="Город"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          style={styles.input}
+        />
+
+        <textarea
+          placeholder="О себе"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          style={styles.textarea}
+        />
+
+        <p>Возраст: {age}</p>
+        <input
+          type="range"
+          min="18"
+          max="60"
+          value={age}
+          onChange={(e) => setAge(Number(e.target.value))}
+        />
+
+        {/* Пол */}
+        <div style={styles.buttons}>
+          <button
+            onClick={() => setGender("female")}
+            style={{ ...styles.option, ...(gender === "female" && styles.active) }}
+          >
+            Женщина
+          </button>
+
+          <button
+            onClick={() => setGender("male")}
+            style={{ ...styles.option, ...(gender === "male" && styles.active) }}
+          >
+            Мужчина
+          </button>
         </div>
 
-        {/* ИМЯ + ВОЗРАСТ */}
-        <div style={styles.row}>
-          <div style={styles.inputBox}>
-            <p style={styles.label}>Имя</p>
-            <input placeholder="Введите имя" style={styles.input} />
-          </div>
-
-          <div style={styles.inputBox}>
-            <p style={styles.label}>Возраст</p>
-            <div style={{ fontWeight: 600 }}>{age}</div>
-            <input
-              type="range"
-              min="18"
-              max="60"
-              value={age}
-              onChange={(e) => setAge(Number(e.target.value))}
-              style={styles.slider}
-            />
-          </div>
-        </div>
-
-        {/* ПОЛ */}
-        <div style={styles.block}>
-          <p style={styles.label}>Пол</p>
-
-          <div style={styles.buttons}>
+        {/* Кого ищешь */}
+        <div style={styles.buttons}>
+          {["female", "male", "any"].map((item) => (
             <button
-              onClick={() => setGender("female")}
+              key={item}
+              onClick={() => setSearch(item)}
               style={{
                 ...styles.option,
-                ...(gender === "female" && styles.active),
+                ...(search === item && styles.active),
               }}
             >
-              ♀ Женщина
+              {item === "female"
+                ? "Девушку"
+                : item === "male"
+                ? "Парня"
+                : "Любого"}
             </button>
-
-            <button
-              onClick={() => setGender("male")}
-              style={{
-                ...styles.option,
-                ...(gender === "male" && styles.active),
-              }}
-            >
-              ♂ Мужчина
-            </button>
-          </div>
+          ))}
         </div>
 
-        {/* КОГО ИЩЕШЬ */}
-        <div style={styles.block}>
-          <p style={styles.label}>Кого ищешь</p>
+        {/* Интересы */}
+        <div>
+          {[...base, ...(showMore ? extra : [])].map((t) => {
+            const active = selected.includes(t);
 
-          <div style={styles.buttons}>
-            {["male", "female", "any"].map((item) => (
-              <button
-                key={item}
-                onClick={() => setSearch(item)}
+            return (
+              <span
+                key={t}
+                onClick={() => toggle(t)}
                 style={{
-                  ...styles.option,
-                  ...(search === item && styles.active),
+                  ...styles.tag,
+                  ...(active && styles.tagActive),
                 }}
               >
-                {item === "male"
-                  ? "Парня"
-                  : item === "female"
-                  ? "Девушку"
-                  : "Без разницы"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ГОРОД */}
-        <div style={styles.block}>
-          <div style={styles.inputBox}>
-            <p style={styles.label}>Город</p>
-            <input placeholder="Введите город" style={styles.input} />
-          </div>
-        </div>
-
-        {/* О СЕБЕ */}
-        <div style={styles.block}>
-          <div style={styles.inputBox}>
-            <p style={styles.label}>О себе</p>
-            <textarea
-              placeholder="Расскажите о себе..."
-              style={styles.textarea}
-            />
-          </div>
-        </div>
-
-        {/* ИНТЕРЕСЫ */}
-        <div style={styles.block}>
-          <p style={styles.label}>Интересы</p>
-
-          <div style={styles.tags}>
-            {[...base, ...(showMore ? extra : [])].map((t) => {
-              const active = selected.includes(t);
-
-              return (
-                <span
-                  key={t}
-                  onClick={() => toggle(t)}
-                  style={{
-                    ...styles.tag,
-                    ...(active ? styles.tagActive : {}),
-                  }}
-                >
-                  {t}
-                </span>
-              );
-            })}
-
-            {!showMore && (
-              <span style={styles.tag} onClick={() => setShowMore(true)}>
-                +
+                {t}
               </span>
-            )}
-          </div>
+            );
+          })}
+
+          {!showMore && (
+            <span style={styles.tag} onClick={() => setShowMore(true)}>
+              +
+            </span>
+          )}
         </div>
 
-        {/* КНОПКА */}
-        <button style={styles.submit}>Продолжить</button>
+        <button onClick={handleSave} style={styles.submit}>
+          Сохранить
+        </button>
 
       </div>
     </div>
@@ -185,141 +207,55 @@ const styles: any = {
     minHeight: "100vh",
     background: "#F5F7FB",
     padding: "20px",
-    fontFamily: "-apple-system, sans-serif",
   },
 
   card: {
     background: "#fff",
-    borderRadius: "24px",
     padding: "20px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-    maxWidth: "420px",
+    borderRadius: "20px",
+    maxWidth: "400px",
     margin: "0 auto",
-  },
-
-  header: {
-    display: "flex",
-    gap: "15px",
-    marginBottom: "20px",
-  },
-
-  avatarWrapper: {
-    position: "relative",
-  },
-
-  avatar: {
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    background: "#ddd",
-    border: "3px solid #2A7BFF",
-  },
-
-  camera: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    background: "#2A7BFF",
-    color: "#fff",
-    borderRadius: "50%",
-    padding: "6px",
-    fontSize: "12px",
-  },
-
-  title: {
-    fontSize: "20px",
-    fontWeight: "600",
-  },
-
-  subtitle: {
-    fontSize: "14px",
-    color: "#6B7280",
-  },
-
-  row: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  inputBox: {
-    flex: 1,
-    background: "#F9FAFB",
-    borderRadius: "16px",
-    padding: "12px",
-    border: "1px solid rgba(0,0,0,0.03)",
-  },
-
-  label: {
-    fontSize: "12px",
-    color: "#6B7280",
-    marginBottom: "6px",
   },
 
   input: {
     width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    fontSize: "16px",
-    fontWeight: "500",
-    fontFamily: "-apple-system",
+    marginBottom: "10px",
+    padding: "10px",
   },
 
   textarea: {
     width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    resize: "none",
-    fontSize: "16px",
-    fontWeight: "500",
-    fontFamily: "-apple-system",
-    minHeight: "60px",
-    lineHeight: "1.4",
-  },
-
-  slider: {
-    width: "100%",
-    accentColor: "#2A7BFF",
-  },
-
-  block: {
-    marginTop: "14px",
+    marginBottom: "10px",
+    padding: "10px",
   },
 
   buttons: {
     display: "flex",
     gap: "10px",
-    marginTop: "8px",
+    marginBottom: "10px",
   },
 
   option: {
     flex: 1,
     padding: "10px",
-    borderRadius: "14px",
+    borderRadius: "10px",
     border: "none",
     background: "#EEF1F6",
     cursor: "pointer",
   },
 
   active: {
-    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
-    color: "white",
-  },
-
-  tags: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "8px",
+    background: "#2A7BFF",
+    color: "#fff",
   },
 
   tag: {
-    padding: "8px 12px",
-    borderRadius: "999px",
+    padding: "6px 10px",
     border: "1px solid #2A7BFF",
-    color: "#2A7BFF",
-    fontSize: "14px",
+    margin: "4px",
+    display: "inline-block",
     cursor: "pointer",
+    borderRadius: "20px",
   },
 
   tagActive: {
@@ -330,12 +266,11 @@ const styles: any = {
   submit: {
     marginTop: "20px",
     width: "100%",
-    height: "56px",
-    borderRadius: "16px",
+    padding: "12px",
+    borderRadius: "12px",
     border: "none",
-    color: "white",
-    fontSize: "16px",
-    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
-    boxShadow: "0 8px 20px rgba(42,123,255,0.3)",
+    background: "#2A7BFF",
+    color: "#fff",
+    cursor: "pointer",
   },
 };
