@@ -123,20 +123,20 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ГОРОД */}
-        <div style={styles.block}>
-          <p style={styles.label}>Город</p>
-          <input placeholder="Введите город" style={styles.input} />
-        </div>
+       {/* ГОРОД */}
+    <div style={styles.inputBox}>
+      <p style={styles.label}>Город</p>
+      <input placeholder="Введите город" style={styles.input} />
+    </div>
 
-        {/* О СЕБЕ */}
-        <div style={styles.block}>
-          <p style={styles.label}>О себе</p>
-          <textarea
-            placeholder="Расскажите о себе..."
-            style={styles.textarea}
-          />
-        </div>
+       {/* О СЕБЕ */}
+    <div style={styles.inputBox}>
+      <p style={styles.label}>О себе</p>
+      <textarea
+        placeholder="Расскажите о себе..."
+        style={styles.textarea}
+      />
+    </div>
 
         {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
@@ -180,7 +180,7 @@ export default function Profile() {
 
 const styles: any = {
   wrapper: {
-    minHeight: "100vh",
+    minHeight: "60px",
     background: "#F5F7FB",
     padding: "20px",
     fontFamily: "-apple-system, sans-serif",
@@ -252,22 +252,26 @@ const styles: any = {
     marginBottom: "6px",
   },
 
-  input: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    fontSize: "16px",
-  },
+input: {
+  width: "100%",
+  border: "none",
+  outline: "none",
+  background: "transparent",
+  fontSize: "16px",
+  fontWeight: "500", // ← одинаковый стиль
+  fontFamily: "-apple-system",
+},
 
-  textarea: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    resize: "none",
-    fontSize: "16px",
-  },
+textarea: {
+  width: "100%",
+  border: "none",
+  outline: "none",
+  background: "transparent",
+  resize: "none",
+  fontSize: "16px",
+  fontWeight: "500", // ← одинаковый стиль
+  fontFamily: "-apple-system",
+},
 
   slider: {
     width: "100%",
