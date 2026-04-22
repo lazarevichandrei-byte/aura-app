@@ -1,72 +1,135 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function Profile() {
   const [age, setAge] = useState(22);
-
-  useEffect(() => {
-    document.body.style.background = "#0B0B0F";
-  }, []);
+  const [gender, setGender] = useState("female");
+  const [search, setSearch] = useState("female");
 
   return (
     <div style={styles.wrapper}>
-      {/* glow */}
-      <div style={styles.glowTop}></div>
-      <div style={styles.glowBottom}></div>
-
-      <div style={styles.container}>
+      <div style={styles.card}>
 
         {/* HEADER */}
         <div style={styles.header}>
-          <div style={styles.avatar}></div>
-
-          <h1 style={styles.title}>Создание профиля</h1>
-
-          <p style={styles.subtitle}>
-            Расскажи о себе, чтобы найти близких по духу 💜
-          </p>
-        </div>
-
-        {/* КАРТОЧКИ */}
-        <div style={styles.card}>
-          <p style={styles.label}>Имя</p>
-          <input placeholder="Алина" style={styles.input} />
-        </div>
-
-        <div style={styles.card}>
-          <div style={styles.row}>
-            <p style={styles.label}>Возраст</p>
-            <span style={styles.age}>{age}</span>
+          <div style={styles.avatarWrapper}>
+            <div style={styles.avatar}></div>
+            <div style={styles.camera}>📷</div>
           </div>
 
-          <input
-            type="range"
-            min="18"
-            max="60"
-            value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
-            style={styles.slider}
-          />
+          <div>
+            <h2 style={styles.title}>Создание профиля</h2>
+            <p style={styles.subtitle}>
+              Расскажи о себе, чтобы найти близких по духу 💙
+            </p>
+          </div>
         </div>
 
-        <div style={styles.card}>
+        {/* ИМЯ + ВОЗРАСТ */}
+        <div style={styles.row}>
+          <div style={styles.inputBox}>
+            <p style={styles.label}>Имя</p>
+            <input defaultValue="Алина" style={styles.input} />
+          </div>
+
+          <div style={styles.inputBox}>
+            <p style={styles.label}>Возраст</p>
+            <div style={{ fontWeight: 600 }}>{age}</div>
+            <input
+              type="range"
+              min="18"
+              max="60"
+              value={age}
+              onChange={(e) => setAge(Number(e.target.value))}
+              style={styles.slider}
+            />
+          </div>
+        </div>
+
+        {/* ПОЛ */}
+        <div style={styles.block}>
+          <p style={styles.label}>Пол</p>
+
+          <div style={styles.buttons}>
+            <button
+              onClick={() => setGender("female")}
+              style={{
+                ...styles.option,
+                ...(gender === "female" && styles.active),
+              }}
+            >
+              ♀ Женщина
+            </button>
+
+            <button
+              onClick={() => setGender("male")}
+              style={{
+                ...styles.option,
+                ...(gender === "male" && styles.active),
+              }}
+            >
+              ♂ Мужчина
+            </button>
+          </div>
+        </div>
+
+        {/* КОГО ИЩЕШЬ */}
+        <div style={styles.block}>
+          <p style={styles.label}>Кого ищешь</p>
+
+          <div style={styles.buttons}>
+            {["male", "female", "any"].map((item) => (
+              <button
+                key={item}
+                onClick={() => setSearch(item)}
+                style={{
+                  ...styles.option,
+                  ...(search === item && styles.active),
+                }}
+              >
+                {item === "male"
+                  ? "Парня"
+                  : item === "female"
+                  ? "Девушку"
+                  : "Без разницы"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ГОРОД */}
+        <div style={styles.block}>
           <p style={styles.label}>Город</p>
-          <input placeholder="Москва" style={styles.input} />
+          <input defaultValue="Москва" style={styles.input} />
         </div>
 
-        <div style={styles.card}>
+        {/* О СЕБЕ */}
+        <div style={styles.block}>
           <p style={styles.label}>О себе</p>
           <textarea
-            placeholder="Люблю путешествия ✈️✨"
+            defaultValue="Люблю путешествия и новые впечатления ✈️✨"
             style={styles.textarea}
           />
         </div>
 
+        {/* ИНТЕРЕСЫ */}
+        <div style={styles.block}>
+          <p style={styles.label}>Интересы</p>
+
+          <div style={styles.tags}>
+            {["Путешествия", "Музыка", "Спорт", "Кино"].map((t) => (
+              <span key={t} style={styles.tag}>
+                {t}
+              </span>
+            ))}
+
+            <span style={styles.tag}>+</span>
+          </div>
+        </div>
+
         {/* КНОПКА */}
-        <button style={styles.button}>
-          Продолжить
-        </button>
+        <button style={styles.submit}>Продолжить</button>
 
       </div>
     </div>
@@ -76,132 +139,145 @@ export default function Profile() {
 const styles: any = {
   wrapper: {
     minHeight: "100vh",
-    background: "#0B0B0F",
-    color: "white",
+    background: "#F5F7FB",
     padding: "20px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-    position: "relative",
+    fontFamily: "-apple-system, sans-serif",
   },
 
-  container: {
+  card: {
+    background: "#fff",
+    borderRadius: "24px",
+    padding: "20px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
     maxWidth: "420px",
     margin: "0 auto",
   },
 
   header: {
-    textAlign: "center",
-    marginBottom: "25px",
+    display: "flex",
+    gap: "15px",
+    marginBottom: "20px",
+  },
+
+  avatarWrapper: {
+    position: "relative",
   },
 
   avatar: {
-    width: "110px",
-    height: "110px",
+    width: "80px",
+    height: "80px",
     borderRadius: "50%",
-    margin: "0 auto 15px",
-    background: "linear-gradient(145deg,#2a2a2f,#1a1a1f)",
-    border: "3px solid #a855f7",
-    boxShadow: "0 0 30px rgba(168,85,247,0.7)",
+    background: "#ddd",
+    border: "3px solid #2A7BFF",
+  },
+
+  camera: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    background: "#2A7BFF",
+    color: "#fff",
+    borderRadius: "50%",
+    padding: "6px",
+    fontSize: "12px",
   },
 
   title: {
-    fontSize: "22px",
+    fontSize: "20px",
     fontWeight: "600",
   },
 
   subtitle: {
     fontSize: "14px",
-    color: "#aaa",
-    marginTop: "6px",
+    color: "#6B7280",
   },
 
-  card: {
-    background: "rgba(255,255,255,0.04)",
-    padding: "18px",
-    borderRadius: "20px",
-    border: "1px solid rgba(255,255,255,0.08)",
-    backdropFilter: "blur(16px)",
-    marginBottom: "14px",
+  row: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  inputBox: {
+    flex: 1,
+    background: "#F9FAFB",
+    borderRadius: "16px",
+    padding: "12px",
   },
 
   label: {
-    fontSize: "13px",
-    color: "#aaa",
+    fontSize: "12px",
+    color: "#6B7280",
     marginBottom: "6px",
   },
 
   input: {
     width: "100%",
-    background: "transparent",
     border: "none",
-    borderBottom: "1px solid #333",
-    color: "white",
-    fontSize: "16px",
     outline: "none",
-    paddingBottom: "6px",
+    background: "transparent",
+    fontSize: "16px",
   },
 
   textarea: {
     width: "100%",
-    background: "transparent",
     border: "none",
-    borderBottom: "1px solid #333",
-    color: "white",
-    fontSize: "16px",
     outline: "none",
+    background: "transparent",
     resize: "none",
-    paddingBottom: "6px",
-  },
-
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  age: {
     fontSize: "16px",
-    fontWeight: "600",
   },
 
   slider: {
     width: "100%",
-    marginTop: "10px",
-    accentColor: "#a855f7",
+    accentColor: "#2A7BFF",
   },
 
-  button: {
+  block: {
+    marginTop: "14px",
+  },
+
+  buttons: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "8px",
+  },
+
+  option: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#EEF1F6",
+  },
+
+  active: {
+    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
+    color: "white",
+  },
+
+  tags: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+  },
+
+  tag: {
+    padding: "8px 12px",
+    borderRadius: "999px",
+    border: "1px solid #2A7BFF",
+    color: "#2A7BFF",
+    fontSize: "14px",
+  },
+
+  submit: {
     marginTop: "20px",
     width: "100%",
-    height: "60px",
-    borderRadius: "20px",
+    height: "56px",
+    borderRadius: "16px",
     border: "none",
-    fontSize: "18px",
-    fontWeight: "600",
     color: "white",
-    background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
-    boxShadow: "0 10px 40px rgba(123,47,247,0.6)",
-  },
-
-  glowTop: {
-    position: "absolute",
-    top: "-120px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "300px",
-    height: "300px",
-    background: "purple",
-    filter: "blur(120px)",
-    opacity: 0.2,
-  },
-
-  glowBottom: {
-    position: "absolute",
-    bottom: "-120px",
-    right: "-100px",
-    width: "300px",
-    height: "300px",
-    background: "pink",
-    filter: "blur(120px)",
-    opacity: 0.2,
+    fontSize: "16px",
+    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
+    boxShadow: "0 8px 20px rgba(42,123,255,0.3)",
   },
 };
