@@ -1,16 +1,11 @@
 import "./globals.css";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: any) {
   return (
     <html lang="ru">
-      <head>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-      </head>
-      <body>{children}</body>
+      <body className="bg-[#0B0B0F] text-white">
+        {children}
+      </body>
     </html>
   );
 }

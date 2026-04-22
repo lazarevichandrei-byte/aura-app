@@ -3,11 +3,15 @@
 import { useEffect } from "react";
 
 export default function Home() {
-
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
-    tg?.ready();
-    tg?.expand();
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor("#0B0B0F");
+      tg.setBackgroundColor("#0B0B0F");
+    }
   }, []);
 
   const handleLogin = () => {
@@ -29,15 +33,9 @@ export default function Home() {
   };
 
   return (
-    <main className="relative h-screen w-full text-white flex flex-col justify-center items-center px-6 bg-[#0B0B0F]">
+    <main className="min-h-screen bg-[#0B0B0F] text-white flex flex-col justify-center items-center px-6">
 
-      {/* 🔥 Glow */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-purple-600 opacity-20 blur-[120px] rounded-full" />
-      </div>
-
-      {/* Логотип */}
-      <h1 className="text-5xl font-bold tracking-wide">
+      <h1 className="text-5xl font-bold tracking-wide text-center">
         Aura
       </h1>
 
@@ -45,17 +43,20 @@ export default function Home() {
         Найди свою энергию 💜
       </p>
 
-      {/* Кнопка */}
       <button
         onClick={handleLogin}
         className="
           mt-12
-          w-full max-w-sm
-          h-14
+          w-full max-w-sm h-14
           rounded-2xl
-          bg-gradient-to-r from-purple-600 to-pink-500
+          text-lg font-medium text-white
+
+          !bg-gradient-to-r
+          !from-purple-600
+          !to-pink-500
+
           shadow-[0_0_30px_rgba(123,47,247,0.8)]
-          text-white text-lg font-medium
+
           active:scale-95 transition
         "
       >
