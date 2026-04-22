@@ -3,10 +3,12 @@
 import { useState } from "react";
 
 export default function Profile() {
+  const [gender, setGender] = useState("Женщина");
+  const [looking, setLooking] = useState("Девушку");
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
-  const base = ["Путешествия", "Музыка", "Спорт", "Кино", "Фото"];
+  const base = ["Путешествия", "Музыка", "Спорт", "Кино", "Фотография"];
   const extra = ["Игры", "Бизнес", "Еда", "Йога", "Авто"];
 
   const toggle = (item: string) => {
@@ -19,46 +21,93 @@ export default function Profile() {
 
   return (
     <div style={styles.wrapper}>
-
+      
       {/* glow */}
       <div style={styles.glow1}></div>
       <div style={styles.glow2}></div>
 
-      <div style={styles.content}>
-        
-        <h1 style={styles.title}>Создание профиля</h1>
+      <div style={styles.container}>
 
-        {/* Аватар */}
-        <div style={styles.avatarWrapper}>
+        {/* HEADER */}
+        <div style={styles.header}>
           <div style={styles.avatar}></div>
-          <div style={styles.camera}>📷</div>
-        </div>
-
-        {/* CARD */}
-        <div style={styles.card}>
 
           <div>
+            <h1 style={styles.title}>Создание профиля</h1>
+            <p style={styles.subtitle}>
+              Расскажи о себе, чтобы найти близких по духу людей 💜
+            </p>
+          </div>
+        </div>
+
+        {/* ИМЯ + ВОЗРАСТ */}
+        <div style={styles.row}>
+          <div style={styles.card}>
             <p style={styles.label}>Имя</p>
-            <input placeholder="Например: Алина" style={styles.input} />
+            <input placeholder="Алина" style={styles.input} />
           </div>
 
-          <div>
-            <p style={styles.label}>Город</p>
-            <input placeholder="Например: Москва" style={styles.input} />
+          <div style={styles.card}>
+            <p style={styles.label}>Возраст</p>
+            <input type="range" min="18" max="60" style={{ width: "100%" }} />
           </div>
-
-          <div>
-            <p style={styles.label}>О себе</p>
-            <textarea
-              placeholder="Расскажи немного о себе... ✨"
-              style={styles.textarea}
-            />
-          </div>
-
         </div>
 
-        {/* Интересы */}
-        <div style={{ marginTop: 20 }}>
+        {/* ПОЛ */}
+        <div style={styles.card}>
+          <p style={styles.label}>Пол</p>
+          <div style={styles.flex}>
+            {["Женщина", "Мужчина"].map((g) => (
+              <button
+                key={g}
+                onClick={() => setGender(g)}
+                style={{
+                  ...styles.choice,
+                  ...(gender === g ? styles.active : {}),
+                }}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* КОГО ИЩЕШЬ */}
+        <div style={styles.card}>
+          <p style={styles.label}>Кого ищешь</p>
+          <div style={styles.flex}>
+            {["Парня", "Девушку", "Без разницы"].map((g) => (
+              <button
+                key={g}
+                onClick={() => setLooking(g)}
+                style={{
+                  ...styles.choice,
+                  ...(looking === g ? styles.active : {}),
+                }}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ГОРОД */}
+        <div style={styles.card}>
+          <p style={styles.label}>Город</p>
+          <input placeholder="Москва" style={styles.input} />
+        </div>
+
+        {/* О СЕБЕ */}
+        <div style={styles.card}>
+          <p style={styles.label}>О себе</p>
+          <textarea
+            placeholder="Люблю путешествия ✈️✨"
+            style={styles.textarea}
+          />
+        </div>
+
+        {/* ИНТЕРЕСЫ */}
+        <div style={styles.card}>
           <p style={styles.label}>Интересы</p>
 
           <div style={styles.tags}>
@@ -80,10 +129,7 @@ export default function Profile() {
             })}
 
             {!showMore && (
-              <div
-                onClick={() => setShowMore(true)}
-                style={styles.tag}
-              >
+              <div onClick={() => setShowMore(true)} style={styles.tag}>
                 +
               </div>
             )}
@@ -110,55 +156,54 @@ const styles: any = {
     fontFamily: "Arial",
   },
 
-  content: {
-    maxWidth: "400px",
+  container: {
+    maxWidth: "420px",
     margin: "0 auto",
   },
 
-  title: {
-    textAlign: "center",
-    fontSize: "22px",
-    marginBottom: "20px",
-  },
-
-  avatarWrapper: {
+  header: {
     display: "flex",
-    justifyContent: "center",
+    gap: "15px",
+    alignItems: "center",
     marginBottom: "20px",
-    position: "relative",
   },
 
   avatar: {
-    width: "120px",
-    height: "120px",
+    width: "80px",
+    height: "80px",
     borderRadius: "50%",
     background: "#333",
-    border: "3px solid #a855f7",
-    boxShadow: "0 0 25px rgba(168,85,247,0.6)",
+    border: "2px solid #a855f7",
+    boxShadow: "0 0 20px rgba(168,85,247,0.7)",
   },
 
-  camera: {
-    position: "absolute",
-    bottom: "0",
-    right: "calc(50% - 60px)",
-    background: "#222",
-    borderRadius: "50%",
-    padding: "8px",
+  title: {
+    fontSize: "20px",
+    fontWeight: "bold",
+  },
+
+  subtitle: {
+    fontSize: "13px",
+    color: "#aaa",
+  },
+
+  row: {
+    display: "flex",
+    gap: "10px",
   },
 
   card: {
     background: "rgba(255,255,255,0.05)",
-    borderRadius: "20px",
     padding: "15px",
-    backdropFilter: "blur(10px)",
+    borderRadius: "16px",
     border: "1px solid rgba(255,255,255,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
+    backdropFilter: "blur(10px)",
+    marginBottom: "10px",
+    flex: 1,
   },
 
   label: {
-    fontSize: "13px",
+    fontSize: "12px",
     color: "#aaa",
     marginBottom: "5px",
   },
@@ -169,7 +214,6 @@ const styles: any = {
     border: "none",
     borderBottom: "1px solid #333",
     color: "white",
-    padding: "6px 0",
   },
 
   textarea: {
@@ -178,33 +222,47 @@ const styles: any = {
     border: "none",
     borderBottom: "1px solid #333",
     color: "white",
-    padding: "6px 0",
-    resize: "none",
+  },
+
+  flex: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  choice: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: "20px",
+    background: "#222",
+    border: "none",
+    color: "white",
+    cursor: "pointer",
+  },
+
+  active: {
+    background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
+    boxShadow: "0 0 15px rgba(123,47,247,0.7)",
   },
 
   tags: {
     display: "flex",
     flexWrap: "wrap",
     gap: "10px",
-    marginTop: "10px",
   },
 
   tag: {
     padding: "8px 14px",
     borderRadius: "20px",
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    fontSize: "13px",
+    background: "#222",
     cursor: "pointer",
   },
 
   tagActive: {
     background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
-    boxShadow: "0 0 15px rgba(123,47,247,0.7)",
   },
 
   button: {
-    marginTop: "30px",
+    marginTop: "20px",
     width: "100%",
     height: "56px",
     borderRadius: "20px",
