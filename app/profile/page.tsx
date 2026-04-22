@@ -23,28 +23,25 @@ export default function Profile() {
   };
 
   return (
-    <main className="relative min-h-screen px-5 pt-10 pb-32 text-white overflow-y-auto">
+    <main className="relative min-h-screen text-white px-5 pt-10 pb-32 overflow-y-auto bg-[#0B0B0F]">
 
-      {/* 🔥 ФОН */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#0B0B0F] via-[#120F1F] to-[#0B0B0F]" />
-
-      {/* glow */}
+      {/* 🔥 Glow (как вчера) */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[350px] h-[350px] bg-purple-600 opacity-20 blur-[120px] rounded-full" />
       </div>
 
-      {/* title */}
+      {/* Заголовок */}
       <h1 className="text-2xl font-semibold text-center mb-6">
         Создание профиля
       </h1>
 
-      {/* avatar */}
+      {/* Фото */}
       <div className="flex justify-center mb-6">
         <div className="w-32 h-32 rounded-full border-4 border-purple-500 shadow-[0_0_25px_rgba(123,47,247,0.6)] bg-gray-700" />
       </div>
 
-      {/* card */}
-      <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 space-y-5">
+      {/* КАРТОЧКА */}
+      <div className="bg-[#15151c] border border-white/10 rounded-3xl p-5 space-y-5">
 
         <div>
           <p className="text-sm text-gray-400 mb-1">Имя</p>
@@ -78,7 +75,7 @@ export default function Profile() {
 
       </div>
 
-      {/* interests */}
+      {/* Интересы */}
       <div className="mt-6">
         <p className="text-gray-400 mb-3">Интересы</p>
 
@@ -92,8 +89,8 @@ export default function Profile() {
                 onClick={() => toggle(item)}
                 className={`px-4 py-2 rounded-full text-sm ${
                   active
-                    ? "bg-gradient-to-r from-purple-600 to-pink-500 shadow-[0_0_15px_rgba(123,47,247,0.6)]"
-                    : "bg-white/5 border border-white/10 text-gray-300"
+                    ? "bg-purple-600 shadow-[0_0_15px_rgba(123,47,247,0.6)]"
+                    : "bg-[#1c1c24] border border-white/10 text-gray-300"
                 }`}
               >
                 {item}
@@ -103,9 +100,9 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* button */}
-      <div className="fixed bottom-0 left-0 w-full px-5 pb-6 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/80 to-transparent">
-        <button className="w-full h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 shadow-[0_0_30px_rgba(123,47,247,0.7)] text-lg">
+      {/* КНОПКА */}
+      <div className="fixed bottom-0 left-0 w-full px-5 pb-6 bg-gradient-to-t from-black via-black/80 to-transparent">
+        <button className="w-full h-14 rounded-2xl bg-purple-600 shadow-[0_0_30px_rgba(123,47,247,0.7)] text-lg">
           Продолжить
         </button>
       </div>
