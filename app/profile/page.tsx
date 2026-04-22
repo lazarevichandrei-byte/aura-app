@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 
 export default function Profile() {
   const [age, setAge] = useState(22);
-  const [gender, setGender] = useState("Женщина");
 
   useEffect(() => {
     document.body.style.background = "#0B0B0F";
@@ -12,10 +11,9 @@ export default function Profile() {
 
   return (
     <div style={styles.wrapper}>
-
       {/* glow */}
-      <div style={styles.glow1}></div>
-      <div style={styles.glow2}></div>
+      <div style={styles.glowTop}></div>
+      <div style={styles.glowBottom}></div>
 
       <div style={styles.container}>
 
@@ -23,25 +21,23 @@ export default function Profile() {
         <div style={styles.header}>
           <div style={styles.avatar}></div>
 
-          <div>
-            <h1 style={styles.title}>Создание профиля</h1>
-            <p style={styles.subtitle}>
-              Расскажи о себе 💜
-            </p>
-          </div>
+          <h1 style={styles.title}>Создание профиля</h1>
+
+          <p style={styles.subtitle}>
+            Расскажи о себе, чтобы найти близких по духу 💜
+          </p>
         </div>
 
-        {/* ИМЯ */}
+        {/* КАРТОЧКИ */}
         <div style={styles.card}>
           <p style={styles.label}>Имя</p>
           <input placeholder="Алина" style={styles.input} />
         </div>
 
-        {/* ВОЗРАСТ */}
         <div style={styles.card}>
-          <div style={styles.ageRow}>
+          <div style={styles.row}>
             <p style={styles.label}>Возраст</p>
-            <span style={styles.ageValue}>{age}</span>
+            <span style={styles.age}>{age}</span>
           </div>
 
           <input
@@ -54,13 +50,11 @@ export default function Profile() {
           />
         </div>
 
-        {/* ГОРОД */}
         <div style={styles.card}>
           <p style={styles.label}>Город</p>
           <input placeholder="Москва" style={styles.input} />
         </div>
 
-        {/* О СЕБЕ */}
         <div style={styles.card}>
           <p style={styles.label}>О себе</p>
           <textarea
@@ -85,54 +79,52 @@ const styles: any = {
     background: "#0B0B0F",
     color: "white",
     padding: "20px",
-    position: "relative",
     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+    position: "relative",
   },
 
   container: {
     maxWidth: "420px",
     margin: "0 auto",
-    animation: "fade 0.6s ease",
   },
 
   header: {
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
+    textAlign: "center",
     marginBottom: "25px",
   },
 
   avatar: {
-    width: "90px",
-    height: "90px",
-    borderRadius: "50%", // 🔥 теперь идеально круглый
+    width: "110px",
+    height: "110px",
+    borderRadius: "50%",
+    margin: "0 auto 15px",
     background: "linear-gradient(145deg,#2a2a2f,#1a1a1f)",
     border: "3px solid #a855f7",
-    boxShadow: "0 0 25px rgba(168,85,247,0.6)",
+    boxShadow: "0 0 30px rgba(168,85,247,0.7)",
   },
 
   title: {
-    fontSize: "20px",
+    fontSize: "22px",
     fontWeight: "600",
   },
 
   subtitle: {
-    fontSize: "13px",
+    fontSize: "14px",
     color: "#aaa",
+    marginTop: "6px",
   },
 
   card: {
-    background: "rgba(255,255,255,0.05)",
-    padding: "16px",
-    borderRadius: "18px",
+    background: "rgba(255,255,255,0.04)",
+    padding: "18px",
+    borderRadius: "20px",
     border: "1px solid rgba(255,255,255,0.08)",
-    backdropFilter: "blur(14px)",
+    backdropFilter: "blur(16px)",
     marginBottom: "14px",
-    transition: "0.3s",
   },
 
   label: {
-    fontSize: "12px",
+    fontSize: "13px",
     color: "#aaa",
     marginBottom: "6px",
   },
@@ -143,8 +135,9 @@ const styles: any = {
     border: "none",
     borderBottom: "1px solid #333",
     color: "white",
-    fontSize: "15px",
+    fontSize: "16px",
     outline: "none",
+    paddingBottom: "6px",
   },
 
   textarea: {
@@ -153,20 +146,21 @@ const styles: any = {
     border: "none",
     borderBottom: "1px solid #333",
     color: "white",
-    fontSize: "15px",
+    fontSize: "16px",
     outline: "none",
+    resize: "none",
+    paddingBottom: "6px",
   },
 
-  ageRow: {
+  row: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
   },
 
-  ageValue: {
+  age: {
     fontSize: "16px",
     fontWeight: "600",
-    color: "#fff",
   },
 
   slider: {
@@ -176,23 +170,23 @@ const styles: any = {
   },
 
   button: {
-    marginTop: "25px",
+    marginTop: "20px",
     width: "100%",
-    height: "58px",
+    height: "60px",
     borderRadius: "20px",
     border: "none",
     fontSize: "18px",
     fontWeight: "600",
     color: "white",
     background: "linear-gradient(90deg,#7B2FF7,#F107A3)",
-    boxShadow: "0 10px 40px rgba(123,47,247,0.5)",
-    transition: "0.2s",
+    boxShadow: "0 10px 40px rgba(123,47,247,0.6)",
   },
 
-  glow1: {
+  glowTop: {
     position: "absolute",
     top: "-120px",
-    left: "-120px",
+    left: "50%",
+    transform: "translateX(-50%)",
     width: "300px",
     height: "300px",
     background: "purple",
@@ -200,10 +194,10 @@ const styles: any = {
     opacity: 0.2,
   },
 
-  glow2: {
+  glowBottom: {
     position: "absolute",
     bottom: "-120px",
-    right: "-120px",
+    right: "-100px",
     width: "300px",
     height: "300px",
     background: "pink",
