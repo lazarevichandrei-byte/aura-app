@@ -93,6 +93,8 @@ export default function Profile() {
         .getPublicUrl(fileName);
 
       setPhotos((prev) => [...prev, data.publicUrl]);
+    } else {
+      alert("Ошибка загрузки: " + error.message);
     }
 
     setUploading(false);
@@ -108,13 +110,19 @@ export default function Profile() {
   const handleSubmit = async () => {
     if (!telegramId || uploading) return;
 
+    console.log("SUBMIT CLICK");
+
     const newErrors = {
       name: name.trim().length === 0,
       city: city.trim().length === 0,
     };
 
     setErrors(newErrors);
-    if (newErrors.name || newErrors.city) return;
+
+    if (newErrors.name || newErrors.city) {
+      alert("Заполни имя и город");
+      return;
+    }
 
     const { error } = await supabase.from("users").upsert({
       telegram_id: telegramId,
@@ -129,8 +137,10 @@ export default function Profile() {
     });
 
     if (error) {
-      alert(error.message);
+      console.log(error);
+      alert("Ошибка: " + error.message);
     } else {
+      alert("Сохранилось!");
       window.location.href = window.location.origin + "/home";
     }
   };
@@ -142,7 +152,7 @@ export default function Profile() {
       <div style={styles.card}>
 
         <div style={styles.photoCenter}>
-          <div style={styles.addPhoto}>
+          <label style={styles.addPhoto}>
             📷
             <input
               type="file"
@@ -159,7 +169,7 @@ export default function Profile() {
                 e.target.value = "";
               }}
             />
-          </div>
+          </label>
         </div>
 
         <div style={styles.row}>
