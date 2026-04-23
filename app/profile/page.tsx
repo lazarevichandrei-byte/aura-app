@@ -76,7 +76,7 @@ export default function Profile() {
           <div>
             <h2 style={styles.title}>Создание профиля</h2>
             <p style={styles.subtitle}>
-              Расскажи о себе 💙
+              Расскажи о себе, чтобы найти близких по духу 💙
             </p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function Profile() {
         </div>
 
         {/* ГОРОД */}
-        <div style={styles.block}>
+        <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input
             value={city}
@@ -170,7 +170,7 @@ export default function Profile() {
         </div>
 
         {/* О СЕБЕ */}
-        <div style={styles.block}>
+        <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea
             value={bio}
@@ -282,10 +282,10 @@ const styles: any = {
   },
 
   inputBox: {
-    flex: 1,
     background: "#F9FAFB",
     borderRadius: "16px",
     padding: "12px",
+    marginTop: "12px",
   },
 
   label: {
@@ -347,7 +347,8 @@ const styles: any = {
   },
 
   tag: {
-    padding: "8px 12px",
+    padding: "6px 10px",
+    fontSize: "12px",
     borderRadius: "999px",
     border: "1px solid #2A7BFF",
     color: "#2A7BFF",
