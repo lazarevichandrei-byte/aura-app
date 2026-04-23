@@ -139,7 +139,7 @@ export default function Profile() {
       return;
     }
 
-    window.location.href = "/home";
+    window.location.replace("/home");
   };
 
   if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
@@ -157,7 +157,6 @@ export default function Profile() {
           <div style={styles.plus}>+</div>
         </div>
 
-        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
@@ -171,7 +170,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
@@ -180,7 +178,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
@@ -192,32 +189,14 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
-        {/* BIO */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
-        </div>
-
-        {/* ИНТЕРЕСЫ */}
-        <div style={styles.block}>
-          <p style={styles.label}>Интересы</p>
-          <div style={styles.tags}>
-            {[...base, ...(showMore ? extra : [])].map(t=>{
-              const active = selected.includes(t);
-              return (
-                <span key={t} onClick={()=>toggle(t)} style={{...styles.tag,...(active&&styles.tagActive)}}>
-                  {t}
-                </span>
-              );
-            })}
-            {!showMore && <span style={styles.tag} onClick={()=>setShowMore(true)}>+</span>}
-          </div>
         </div>
 
         <button
@@ -283,9 +262,9 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-  mainAvatar:{width:"90px",height:"90px",borderRadius:"50%",objectFit:"cover"},
-  emptyAvatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
-  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
+  mainAvatar:{width:"100px",height:"100px",borderRadius:"50%",objectFit:"cover"},
+  emptyAvatar:{width:"100px",height:"100px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 50px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"22px",height:"22px",display:"flex",alignItems:"center",justifyContent:"center"},
 
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
@@ -298,10 +277,6 @@ const styles:any = {
   option:{flex:1,padding:"8px",borderRadius:"12px",border:"none",background:"#E7F3FF",fontSize:"13px"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
-  tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
-  tag:{padding:"6px 10px",borderRadius:"999px",background:"#E7F3FF"},
-  tagActive:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
-
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center"},
@@ -309,26 +284,23 @@ const styles:any = {
     display:"grid",
     gridTemplateColumns:"repeat(4, 1fr)",
     gap:"10px",
-    padding:"20px",
-    width:"100%",
-    maxWidth:"420px"
+    padding:"20px"
   },
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"10px"},
 
-  addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+  addPhoto:{width:"100%",aspectRatio:"3/4",borderRadius:"10px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px"},
 
   deleteBtn:{
     position:"absolute",
-    top:"50%",
-    left:"50%",
-    transform:"translate(-50%, -50%)",
-    background:"rgba(0,0,0,0.6)",
+    top:"6px",
+    right:"6px",
+    background:"rgba(0,0,0,0.7)",
     color:"#fff",
     border:"none",
     borderRadius:"50%",
-    width:"30px",
-    height:"30px",
+    width:"26px",
+    height:"26px",
     display:"flex",
     alignItems:"center",
     justifyContent:"center"
