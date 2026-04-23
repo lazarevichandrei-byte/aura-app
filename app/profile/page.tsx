@@ -18,11 +18,9 @@ export default function Profile() {
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
-  // ✅ ошибки
   const [errors, setErrors] = useState({
     name: false,
     city: false,
-    bio: false,
   });
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
@@ -39,7 +37,6 @@ export default function Profile() {
     "Природа",
   ];
 
-  // ✅ валидация
   const isValid =
     name.trim().length > 0 &&
     city.trim().length > 0;
@@ -93,12 +90,11 @@ export default function Profile() {
     const newErrors = {
       name: name.trim().length === 0,
       city: city.trim().length === 0,
-      bio: bio.trim().length < 10,
     };
 
     setErrors(newErrors);
 
-    if (newErrors.name || newErrors.city || newErrors.bio) {
+    if (newErrors.name || newErrors.city) {
       return;
     }
 
@@ -238,19 +234,13 @@ export default function Profile() {
 
         {/* BIO */}
         <div style={styles.inputBox}>
-          <p style={styles.label}>О себе</p>
+          <p style={styles.label}>О себе (не обязательно)</p>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="Расскажите о себе..."
-            style={{
-              ...styles.textarea,
-              border: errors.bio ? "1px solid red" : "none",
-            }}
+            placeholder="Пару слов о себе..."
+            style={styles.textarea}
           />
-          {errors.bio && (
-            <p style={styles.error}>Минимум 10 символов</p>
-          )}
         </div>
 
         {/* ИНТЕРЕСЫ */}
@@ -392,8 +382,9 @@ const styles: any = {
   },
 
   active: {
-    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
-    color: "white",
+    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+    color: "#fff",
+    boxShadow: "0 10px 25px rgba(42,171,238,0.35)",
   },
 
   tags: { display: "flex", flexWrap: "wrap", gap: "8px" },
@@ -411,9 +402,12 @@ const styles: any = {
     marginTop: "20px",
     width: "100%",
     height: "56px",
-    borderRadius: "16px",
+    borderRadius: "18px",
     border: "none",
-    color: "white",
-    background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
+    color: "#fff",
+    fontSize: "16px",
+    fontWeight: "600",
+    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+    boxShadow: "0 10px 25px rgba(42,171,238,0.35)",
   },
 };
