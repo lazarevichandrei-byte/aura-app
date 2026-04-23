@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function Profile() {
+  const router = useRouter();
+
   const [age, setAge] = useState(22);
   const [gender, setGender] = useState("female");
   const [search, setSearch] = useState("female");
@@ -37,9 +40,40 @@ export default function Profile() {
     }
   };
 
+  // 🔥 АВТОЗАГРУЗКА ПРОФИЛЯ
+  useEffect(() => {
+    const loadProfile = async () => {
+      const tg = (window as any).Telegram?.WebApp;
+      const user = tg?.initDataUnsafe?.user;
+
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("telegram_id", user.id)
+        .single();
+
+      if (data) {
+        setName(data.name || "");
+        setAge(data.age || 22);
+        setGender(data.gender || "female");
+        setSearch(data.looking || "female");
+        setCity(data.city || "");
+        setBio(data.bio || "");
+        setSelected(data.interests || []);
+      } else {
+        // 👉 первый вход — имя из Telegram
+        setName(user.first_name || "");
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  // 🔥 СОХРАНЕНИЕ
   const handleSubmit = async () => {
     const tg = (window as any).Telegram?.WebApp;
-
     const userId = tg?.initDataUnsafe?.user?.id ?? null;
 
     if (!name) {
@@ -68,7 +102,7 @@ export default function Profile() {
     if (error) {
       alert("Ошибка: " + error.message);
     } else {
-      alert("Профиль сохранен 🚀");
+      router.push("/home");
     }
   };
 
@@ -76,6 +110,7 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
+        {/* HEADER */}
         <div style={styles.header}>
           <div style={styles.avatarWrapper}>
             <div style={styles.avatar}></div>
@@ -90,6 +125,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
@@ -115,9 +151,9 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
-
           <div style={styles.buttons}>
             <button
               onClick={() => setGender("female")}
@@ -141,9 +177,9 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
-
           <div style={styles.buttons}>
             {["male", "female", "any"].map((item) => (
               <button
@@ -164,6 +200,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input
@@ -174,6 +211,7 @@ export default function Profile() {
           />
         </div>
 
+        {/* О СЕБЕ */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea
@@ -184,6 +222,7 @@ export default function Profile() {
           />
         </div>
 
+        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
 
@@ -213,6 +252,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* КНОПКА */}
         <button style={styles.submit} onClick={handleSubmit}>
           Продолжить
         </button>

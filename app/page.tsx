@@ -2,124 +2,36 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "./lib/supabase";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const tg = (window as any).Telegram?.WebApp;
+    const checkUser = async () => {
+      const tg = (window as any).Telegram?.WebApp;
+      const user = tg?.initDataUnsafe?.user;
 
-    if (!tg) return;
+      if (!user) {
+        router.push("/profile");
+        return;
+      }
 
-    tg.ready();
-    tg.expand();
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("telegram_id", user.id)
+        .single();
 
-    tg.setBackgroundColor("#ffffff");
-    tg.setHeaderColor("#ffffff");
+      if (data) {
+        router.push("/home");
+      } else {
+        router.push("/profile");
+      }
+    };
 
-    document.body.style.background = "#ffffff";
+    checkUser();
   }, []);
 
-  const handleLogin = () => {
-    const tg = (window as any).Telegram?.WebApp;
-
-    // 👉 если не Telegram — просто пускаем дальше
-    if (!tg) {
-      router.push("/profile");
-      return;
-    }
-
-    // 👉 даже если user вдруг не пришёл — НЕ блокируем
-    const user = tg.initDataUnsafe?.user;
-
-    console.log("USER:", user);
-
-    router.push("/profile");
-
-    // fallback (иногда нужно)
-    setTimeout(() => {
-      window.location.href = "/profile";
-    }, 200);
-  };
-
-  return (
-    <main style={styles.container}>
-      <div style={styles.center}>
-        <h1 style={styles.logo}>Aura</h1>
-
-        <p style={styles.subtitle}>
-          Найди свою энергию 💙
-        </p>
-
-        <button style={styles.button} onClick={handleLogin}>
-          ✈️ Войти через Telegram
-        </button>
-      </div>
-
-      <div style={styles.footer}>
-        <p>Продолжая, вы принимаете</p>
-        <p style={styles.links}>
-          Условия использования и Политику конфиденциальности
-        </p>
-      </div>
-    </main>
-  );
+  return <div>Загрузка...</div>;
 }
-
-const styles: any = {
-  container: {
-    minHeight: "100vh",
-    background: "#ffffff",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    padding: "20px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-  },
-
-  center: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-
-  logo: {
-    fontSize: "42px",
-    fontWeight: "600",
-    color: "#000",
-    marginBottom: "10px",
-  },
-
-  subtitle: {
-    fontSize: "16px",
-    color: "#6B7280",
-    marginBottom: "40px",
-  },
-
-  button: {
-    background: "linear-gradient(90deg,#2AABEE,#1E96E6)",
-    color: "white",
-    border: "none",
-    borderRadius: "16px",
-    height: "56px",
-    padding: "0 24px",
-    fontSize: "17px",
-    fontWeight: "500",
-    boxShadow: "0 8px 20px rgba(42,171,238,0.4)",
-    cursor: "pointer",
-    transition: "0.2s",
-  },
-
-  footer: {
-    textAlign: "center",
-    fontSize: "12px",
-    color: "#9CA3AF",
-  },
-
-  links: {
-    color: "#2AABEE",
-    marginTop: "4px",
-  },
-};
