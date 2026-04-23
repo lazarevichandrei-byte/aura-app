@@ -218,7 +218,10 @@ export default function Profile() {
 
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
+          <div
+            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+            onClick={(e)=>e.stopPropagation()}
+          >
 
             <label style={styles.addPhoto}>
               +
@@ -291,44 +294,15 @@ const styles:any = {
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  gallery:{
-    display:"grid",
-    gridTemplateColumns:"repeat(4,1fr)",
-    gap:"10px",
-    padding:"20px",
-    width:"100%"
-  },
+  galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
+
+  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
 
   galleryItem:{position:"relative"},
 
-  galleryImg:{
-    width:"100%",
-    aspectRatio:"3/4",
-    borderRadius:"12px",
-    objectFit:"cover"
-  },
+  galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
-  addPhoto:{
-    width:"100%",
-    aspectRatio:"3/4",
-    borderRadius:"12px",
-    background:"#E7F3FF",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    fontSize:"26px",
-    cursor:"pointer"
-  },
+  addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
 
-  deleteBtn:{
-    position:"absolute",
-    top:6,
-    right:6,
-    background:"rgba(0,0,0,0.6)",
-    color:"#fff",
-    border:"none",
-    borderRadius:"50%",
-    width:"22px",
-    height:"22px"
-  }
+  deleteBtn:{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"22px",height:"22px"}
 };
