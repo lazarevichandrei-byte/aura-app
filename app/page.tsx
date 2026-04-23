@@ -9,9 +9,9 @@ export default function StartPage() {
 
   useEffect(() => {
     const init = async () => {
-      const tg = (window as any).Telegram?.WebApp;
+      const tg = (window as any)?.Telegram?.WebApp;
 
-      // если вдруг не через Telegram — отправляем на профиль
+      // если не в Telegram
       if (!tg) {
         router.replace("/profile");
         return;
@@ -22,8 +22,8 @@ export default function StartPage() {
 
       const user = tg.initDataUnsafe?.user;
 
-      // если Telegram не передал пользователя
-      if (!user || !user.id) {
+      // если нет пользователя
+      if (!user?.id) {
         router.replace("/profile");
         return;
       }
@@ -33,7 +33,7 @@ export default function StartPage() {
           .from("users")
           .select("*")
           .eq("telegram_id", user.id)
-          .maybeSingle(); // 👈 безопаснее чем single()
+          .maybeSingle();
 
         if (error) {
           console.error("SUPABASE ERROR:", error);
@@ -41,15 +41,11 @@ export default function StartPage() {
           return;
         }
 
-        // 👉 есть профиль → свайпы
         if (data) {
           router.replace("/home");
-        } 
-        // 👉 нет профиля → создать
-        else {
+        } else {
           router.replace("/profile");
         }
-
       } catch (e) {
         console.error("INIT ERROR:", e);
         router.replace("/profile");
@@ -57,10 +53,10 @@ export default function StartPage() {
     };
 
     init();
-  }, []);
+  }, [router]);
 
   return (
-    <div style={{ padding: 20, textAlign: "center" }}>
+    <div className="flex h-screen items-center justify-center">
       <p>Загрузка...</p>
     </div>
   );
