@@ -9,19 +9,24 @@ export default function Home() {
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
 
-    if (tg) {
-      tg.ready();
-      tg.expand();
-
-      // стиль под Telegram
-      tg.setBackgroundColor("#ffffff");
-      tg.setHeaderColor("#ffffff");
-
-      document.body.style.background = "#ffffff";
-
-      // 🔥 можно посмотреть пользователя
-      console.log("TG USER:", tg.initDataUnsafe?.user);
+    if (!tg) {
+      console.log("❌ Telegram WebApp НЕ найден");
+      return;
     }
+
+    // 🔥 инициализация
+    tg.ready();
+    tg.expand();
+
+    // 🎨 стили под Telegram
+    tg.setBackgroundColor("#ffffff");
+    tg.setHeaderColor("#ffffff");
+
+    document.body.style.background = "#ffffff";
+
+    // 🔥 ВАЖНО — лог всех данных
+    console.log("INIT DATA:", tg.initDataUnsafe);
+    console.log("TG USER:", tg.initDataUnsafe?.user);
   }, []);
 
   const handleLogin = () => {
@@ -29,19 +34,26 @@ export default function Home() {
 
     const tg = (window as any).Telegram?.WebApp;
 
-    // 👉 если НЕ в Telegram
     if (!tg) {
-      console.log("NOT IN TELEGRAM");
+      console.log("❌ НЕ внутри Telegram");
       router.push("/profile");
       return;
     }
 
-    // 👉 если в Telegram
-    console.log("IN TELEGRAM:", tg.initDataUnsafe?.user);
+    const user = tg.initDataUnsafe?.user;
 
+    if (!user) {
+      console.log("❌ USER НЕ ПРИШЕЛ:", tg.initDataUnsafe);
+      alert("Telegram не передал пользователя ❗");
+      return;
+    }
+
+    console.log("✅ USER:", user);
+
+    // 🔥 нормальный переход
     router.push("/profile");
 
-    // fallback (если роутер не сработает)
+    // fallback
     setTimeout(() => {
       window.location.href = "/profile";
     }, 200);

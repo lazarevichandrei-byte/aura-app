@@ -37,18 +37,16 @@ export default function Profile() {
     }
   };
 
-  // 🔥 ГЛАВНАЯ ФУНКЦИЯ (Telegram + Supabase)
+  // 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ
   const handleSubmit = async () => {
     console.log("CLICK");
 
     const tg = (window as any).Telegram?.WebApp;
-    const user = tg?.initDataUnsafe?.user;
 
-    // ❗ если не через Telegram
-    if (!user) {
-      alert("Открой через Telegram ❗");
-      return;
-    }
+    // 🔥 смотрим что реально приходит
+    console.log("INIT DATA:", tg?.initDataUnsafe);
+
+    const userId = tg?.initDataUnsafe?.user?.id ?? null;
 
     if (!name) {
       alert("Введите имя");
@@ -57,7 +55,7 @@ export default function Profile() {
 
     const { error } = await supabase.from("users").insert([
       {
-        telegram_id: user.id,
+        telegram_id: userId,
         name,
         age,
         gender,
@@ -80,7 +78,6 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        {/* HEADER */}
         <div style={styles.header}>
           <div style={styles.avatarWrapper}>
             <div style={styles.avatar}></div>
@@ -95,7 +92,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
@@ -121,7 +117,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
 
@@ -148,7 +143,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
 
@@ -172,7 +166,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input
@@ -183,7 +176,6 @@ export default function Profile() {
           />
         </div>
 
-        {/* О СЕБЕ */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea
@@ -194,7 +186,6 @@ export default function Profile() {
           />
         </div>
 
-        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
 
@@ -224,7 +215,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КНОПКА */}
         <button style={styles.submit} onClick={handleSubmit}>
           Продолжить
         </button>
