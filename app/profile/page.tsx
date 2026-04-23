@@ -66,7 +66,6 @@ export default function Profile() {
 
         if (data.avatar_url) {
           setPhotos([data.avatar_url]);
-          setMainIndex(0);
         }
       }
 
@@ -141,13 +140,13 @@ export default function Profile() {
       <div style={styles.card}>
 
         {/* АВАТАР */}
-        <div style={styles.avatarWrapper}>
-          <img
-            src={photos[mainIndex] || "/placeholder.png"}
-            style={styles.mainAvatar}
-            onClick={() => setActivePhoto(true)}
-          />
-          <div style={styles.camera}>📷</div>
+        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
+          {photos.length > 0 ? (
+            <img src={photos[mainIndex]} style={styles.mainAvatar} />
+          ) : (
+            <div style={styles.emptyAvatar}>👤</div>
+          )}
+          <div style={styles.plus}>+</div>
         </div>
                 <div style={styles.row}>
           <div style={styles.inputBox}>
@@ -225,30 +224,43 @@ export default function Profile() {
               />
             </label>
 
-            {photos.map((p, i) => (
-              <div key={i} style={styles.galleryItem}>
-                <img src={p} style={styles.galleryImg} />
+            {photos.map((p, i) => {
+              const isMain = i === mainIndex;
 
-                <button
-                  style={styles.starBtn}
-                  onClick={() => setMainIndex(i)}
-                >
-                  ⭐
-                </button>
+              return (
+                <div key={i} style={styles.galleryItem}>
+                  <img
+                    src={p}
+                    style={{
+                      ...styles.galleryImg,
+                      border: isMain ? "2px solid #2AABEE" : "none"
+                    }}
+                    onClick={() => setMainIndex(i)}
+                  />
 
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => {
-                    setPhotos((prev) =>
-                      prev.filter((_, index) => index !== i)
-                    );
-                    if (mainIndex === i) setMainIndex(0);
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+                  {!isMain && (
+                    <button
+                      style={styles.mainBtn}
+                      onClick={() => setMainIndex(i)}
+                    >
+                      Сделать главной
+                    </button>
+                  )}
+
+                  <button
+                    style={styles.deleteBtn}
+                    onClick={() => {
+                      setPhotos((prev) =>
+                        prev.filter((_, index) => index !== i)
+                      );
+                      if (mainIndex === i) setMainIndex(0);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -261,8 +273,9 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-  mainAvatar:{width:"90px",height:"90px",borderRadius:"50%",objectFit:"cover",cursor:"pointer"},
-  camera:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",padding:"6px"},
+  mainAvatar:{width:"90px",height:"90px",borderRadius:"50%",objectFit:"cover"},
+  emptyAvatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"32px"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
 
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
@@ -277,13 +290,13 @@ const styles:any = {
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
-  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000},
-  gallery:{display:"flex",gap:"10px",overflowX:"auto",padding:"20px"},
+  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center"},
+  gallery:{display:"flex",gap:"12px",overflowX:"auto",padding:"20px"},
   galleryItem:{position:"relative"},
-  galleryImg:{width:"120px",height:"120px",borderRadius:"12px",objectFit:"cover"},
+  galleryImg:{width:"120px",height:"160px",borderRadius:"12px",objectFit:"cover",flexShrink:0},
 
-  addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"},
+  addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  starBtn:{position:"absolute",bottom:5,left:5,background:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"},
+  mainBtn:{position:"absolute",bottom:5,left:"50%",transform:"translateX(-50%)",background:"#fff",border:"none",borderRadius:"8px",fontSize:"10px",padding:"2px 6px"},
   deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
 };
