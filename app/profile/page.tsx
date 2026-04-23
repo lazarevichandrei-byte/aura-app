@@ -60,7 +60,6 @@ export default function Profile() {
         .maybeSingle();
 
       if (data) {
-        setPhotos(data.photos || []);
         setName(data.name || "");
         setAge(data.age || 22);
         setGender(data.gender || "female");
@@ -68,6 +67,7 @@ export default function Profile() {
         setCity(data.city || "");
         setBio(data.bio || "");
         setSelected(data.interests || []);
+        if (data.avatar_url) setPhotos([data.avatar_url]);
       }
 
       setLoading(false);
@@ -110,8 +110,6 @@ export default function Profile() {
   const handleSubmit = async () => {
     if (!telegramId || uploading) return;
 
-    console.log("SUBMIT CLICK");
-
     const newErrors = {
       name: name.trim().length === 0,
       city: city.trim().length === 0,
@@ -133,14 +131,12 @@ export default function Profile() {
       city,
       bio,
       interests: selected,
-      photos,
+      avatar_url: photos[0] || null,
     });
 
     if (error) {
-      console.log(error);
       alert("Ошибка: " + error.message);
     } else {
-      alert("Сохранилось!");
       window.location.href = window.location.origin + "/home";
     }
   };
@@ -152,27 +148,14 @@ export default function Profile() {
       <div style={styles.card}>
 
         <div style={styles.photoCenter}>
-          <label style={styles.addPhoto}>
+          <div
+            style={styles.addPhoto}
+            onClick={() => setActivePhoto("gallery")}
+          >
             📷
-            <input
-              type="file"
-              multiple
-              hidden
-              onChange={async (e) => {
-                const files = e.target.files;
-                if (!files) return;
-
-                for (let i = 0; i < files.length; i++) {
-                  await uploadPhoto(files[i]);
-                }
-
-                e.target.value = "";
-              }}
-            />
-          </label>
+          </div>
         </div>
-
-        <div style={styles.row}>
+                <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
             <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
@@ -184,7 +167,8 @@ export default function Profile() {
             <input type="range" min="18" max="60" value={age} onChange={(e)=>setAge(Number(e.target.value))}/>
           </div>
         </div>
-                <div style={styles.block}>
+
+        <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
             <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>♀ Женщина</button>
@@ -240,15 +224,36 @@ export default function Profile() {
 
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(null)}>
-          <div style={styles.gallery}>
+          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
+
+            <label style={styles.addPhoto}>
+              +
+              <input
+                type="file"
+                multiple
+                hidden
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (!files) return;
+
+                  for (let i = 0; i < files.length; i++) {
+                    await uploadPhoto(files[i]);
+                  }
+
+                  e.target.value = "";
+                }}
+              />
+            </label>
+
             {photos.map((p, i) => (
               <div key={i} style={styles.galleryItem}>
                 <img src={p} style={styles.viewerImg} />
                 <button
                   style={styles.deleteBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPhotos((prev) => prev.filter((_, index) => index !== i));
+                  onClick={() => {
+                    setPhotos((prev) =>
+                      prev.filter((_, index) => index !== i)
+                    );
                   }}
                 >
                   ✕
@@ -281,7 +286,7 @@ const styles:any = {
   tagActive:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000},
-  viewerImg:{maxWidth:"90%",maxHeight:"90%",borderRadius:"12px"},
+  viewerImg:{width:"120px",height:"120px",borderRadius:"12px",objectFit:"cover"},
   gallery:{display:"flex",gap:"10px",overflowX:"auto"},
   galleryItem:{position:"relative"},
   deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
