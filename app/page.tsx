@@ -9,51 +9,34 @@ export default function Home() {
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
 
-    if (!tg) {
-      console.log("❌ Telegram WebApp НЕ найден");
-      return;
-    }
+    if (!tg) return;
 
-    // 🔥 инициализация
     tg.ready();
     tg.expand();
 
-    // 🎨 стили под Telegram
     tg.setBackgroundColor("#ffffff");
     tg.setHeaderColor("#ffffff");
 
     document.body.style.background = "#ffffff";
-
-    // 🔥 ВАЖНО — лог всех данных
-    console.log("INIT DATA:", tg.initDataUnsafe);
-    console.log("TG USER:", tg.initDataUnsafe?.user);
   }, []);
 
   const handleLogin = () => {
-    console.log("CLICK LOGIN");
-
     const tg = (window as any).Telegram?.WebApp;
 
+    // 👉 если не Telegram — просто пускаем дальше
     if (!tg) {
-      console.log("❌ НЕ внутри Telegram");
       router.push("/profile");
       return;
     }
 
+    // 👉 даже если user вдруг не пришёл — НЕ блокируем
     const user = tg.initDataUnsafe?.user;
 
-    if (!user) {
-      console.log("❌ USER НЕ ПРИШЕЛ:", tg.initDataUnsafe);
-      alert("Telegram не передал пользователя ❗");
-      return;
-    }
+    console.log("USER:", user);
 
-    console.log("✅ USER:", user);
-
-    // 🔥 нормальный переход
     router.push("/profile");
 
-    // fallback
+    // fallback (иногда нужно)
     setTimeout(() => {
       window.location.href = "/profile";
     }, 200);
