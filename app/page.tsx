@@ -1,62 +1,75 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 export default function Page() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      try {
-        const tg = (window as any).Telegram?.WebApp;
+      const tg = (window as any).Telegram?.WebApp;
 
-        if (tg) {
-          tg.ready();
-          tg.expand();
-          tg.setBackgroundColor("#ffffff");
-          tg.setHeaderColor("#ffffff");
-        }
-
-        const user = tg?.initDataUnsafe?.user;
-
-        // ❗ если Telegram не дал пользователя
-        if (!user) {
-          console.log("No Telegram user");
-          return;
-        }
-
-        // 🔍 проверяем есть ли пользователь в базе
-        const { data } = await supabase
-          .from("users")
-          .select("*")
-          .eq("telegram_id", user.id)
-          .maybeSingle();
-
-        // ✅ если нет → профиль
-        if (!data) {
-          router.replace("/profile");
-          return;
-        }
-
-        // ✅ если есть → home
-        router.replace("/home");
-      } catch (e) {
-        console.log("INIT ERROR:", e);
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.setBackgroundColor("#ffffff");
+        tg.setHeaderColor("#ffffff");
       }
+
+      const user = tg?.initDataUnsafe?.user;
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("telegram_id", user.id)
+        .maybeSingle();
+
+      if (data) {
+        router.replace("/home");
+        return;
+      }
+
+      // 👇 новый пользователь — показываем кнопку
+      setLoading(false);
     };
 
     init();
   }, []);
 
+  const handleStart = () => {
+    router.push("/profile");
+  };
+
+  if (loading) {
+    return (
+      <div style={{ padding: 20 }}>
+        Загрузка...
+      </div>
+    );
+  }
+
   return (
-    <div style={styles.container}>
+    <main style={styles.container}>
       <div style={styles.center}>
         <h1 style={styles.logo}>Aura</h1>
-        <p style={styles.subtitle}>Загрузка...</p>
+
+        <p style={styles.subtitle}>
+          Найди свою энергию 💙
+        </p>
+
+        <button style={styles.button} onClick={handleStart}>
+          ✈️ Начать
+        </button>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -65,8 +78,8 @@ const styles: any = {
     minHeight: "100vh",
     background: "#ffffff",
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
     fontFamily: "-apple-system, sans-serif",
   },
 
@@ -81,6 +94,17 @@ const styles: any = {
   },
 
   subtitle: {
+    marginBottom: "40px",
     color: "#666",
+  },
+
+  button: {
+    background: "linear-gradient(90deg,#2AABEE,#1E96E6)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "16px",
+    height: "56px",
+    padding: "0 24px",
+    fontSize: "16px",
   },
 };
