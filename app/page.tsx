@@ -18,13 +18,12 @@ export default function Page() {
           tg.expand();
           tg.setBackgroundColor("#ffffff");
           tg.setHeaderColor("#ffffff");
-
           document.body.style.background = "#ffffff";
         }
 
         const user = tg?.initDataUnsafe?.user;
 
-        // ❗ если нет Telegram → показываем экран
+        // если Telegram не дал пользователя → просто показываем экран
         if (!user) {
           setLoading(false);
           return;
@@ -36,13 +35,13 @@ export default function Page() {
           .eq("telegram_id", user.id)
           .maybeSingle();
 
-        // ✅ если есть → home
+        // если пользователь уже есть → сразу домой
         if (data) {
           router.replace("/home");
           return;
         }
 
-        // ✅ если новый → показываем кнопку
+        // новый пользователь → показываем кнопку
         setLoading(false);
       } catch (e) {
         console.log("INIT ERROR:", e);
@@ -53,14 +52,15 @@ export default function Page() {
     init();
   }, []);
 
+  // 🔥 НАДЁЖНЫЙ ПЕРЕХОД (фикс Telegram бага)
   const handleLogin = () => {
-    router.push("/profile");
+    window.location.href = "/profile";
   };
 
-  // 🔹 ЗАГРУЗКА (но не вечная)
+  // экран загрузки
   if (loading) {
     return (
-      <main style={styles.container}>
+      <main style={styles.wrapper}>
         <div style={styles.center}>
           <h1 style={styles.logo}>Aura</h1>
           <p style={styles.subtitle}>Загрузка...</p>
@@ -69,9 +69,9 @@ export default function Page() {
     );
   }
 
-  // 🔹 ОСНОВНОЙ ЭКРАН
+  // основной экран
   return (
-    <main style={styles.container}>
+    <main style={styles.wrapper}>
       <div style={styles.center}>
         <h1 style={styles.logo}>Aura</h1>
 
@@ -95,58 +95,60 @@ export default function Page() {
 }
 
 const styles: any = {
-  container: {
+  wrapper: {
     minHeight: "100vh",
     background: "#ffffff",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    padding: "20px",
+    padding: "24px",
     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
   },
 
   center: {
+    flex: 1,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    flex: 1,
   },
 
   logo: {
-    fontSize: "42px",
-    fontWeight: "500",
+    fontSize: "48px",
+    fontWeight: "600",
+    letterSpacing: "-1px",
     color: "#000",
-    marginBottom: "10px",
   },
 
   subtitle: {
     fontSize: "16px",
-    color: "#666",
-    marginBottom: "40px",
+    color: "#6B7280",
+    marginTop: "8px",
+    marginBottom: "48px",
   },
 
   button: {
-    background: "linear-gradient(90deg,#2AABEE,#1E96E6)",
-    color: "white",
-    border: "none",
-    borderRadius: "16px",
+    width: "100%",
+    maxWidth: "320px",
     height: "56px",
-    padding: "0 24px",
+    borderRadius: "18px",
+    border: "none",
     fontSize: "17px",
-    fontWeight: "500",
-    boxShadow: "0 8px 20px rgba(42,171,238,0.4)",
+    fontWeight: "600",
+    color: "#fff",
+    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+    boxShadow: "0 10px 25px rgba(42,171,238,0.35)",
     cursor: "pointer",
   },
 
   footer: {
     textAlign: "center",
     fontSize: "12px",
-    color: "#999",
+    color: "#9CA3AF",
   },
 
   links: {
-    color: "#2AABEE",
     marginTop: "4px",
+    color: "#2AABEE",
   },
 };
