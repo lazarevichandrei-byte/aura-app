@@ -134,7 +134,6 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        {/* АВАТАР */}
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
             <img src={photos[mainIndex]} style={styles.avatar} />
@@ -199,46 +198,67 @@ export default function Profile() {
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div style={styles.galleryWrap} onClick={(e)=>e.stopPropagation()}>
 
-            <label style={styles.bigAdd}>
-              +
-              <input
-                type="file"
-                multiple
-                hidden
-                onChange={async (e) => {
-                  const files = e.target.files;
-                  if (!files) return;
+            {photos.length === 0 ? (
+              <div style={styles.centerAdd}>
+                <label style={styles.bigAdd}>
+                  +
+                  <input
+                    type="file"
+                    multiple
+                    hidden
+                    onChange={async (e) => {
+                      const files = e.target.files;
+                      if (!files) return;
 
-                  for (let i = 0; i < files.length; i++) {
-                    await uploadPhoto(files[i]);
-                  }
-                }}
-              />
-            </label>
-
-            <div style={styles.grid}>
-              {photos.map((p, i) => (
-                <div key={i} style={styles.gridItem}>
-                  <img
-                    src={p}
-                    style={{
-                      ...styles.gridImg,
-                      border: i === mainIndex ? "2px solid #2AABEE" : "none"
+                      for (let i = 0; i < files.length; i++) {
+                        await uploadPhoto(files[i]);
+                      }
                     }}
-                    onClick={() => setMainIndex(i)}
                   />
+                </label>
+              </div>
+            ) : (
+              <div style={styles.grid}>
+                <label style={styles.gridItem}>
+                  <div style={styles.gridImg}>+</div>
+                  <input
+                    type="file"
+                    multiple
+                    hidden
+                    onChange={async (e) => {
+                      const files = e.target.files;
+                      if (!files) return;
 
-                  <button
-                    style={styles.deleteBtn}
-                    onClick={() => {
-                      setPhotos((prev) => prev.filter((_, index) => index !== i));
+                      for (let i = 0; i < files.length; i++) {
+                        await uploadPhoto(files[i]);
+                      }
                     }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
+                  />
+                </label>
+
+                {photos.map((p, i) => (
+                  <div key={i} style={styles.gridItem}>
+                    <img
+                      src={p}
+                      style={{
+                        ...styles.gridImg,
+                        border: i === mainIndex ? "2px solid #2AABEE" : "none"
+                      }}
+                      onClick={() => setMainIndex(i)}
+                    />
+
+                    <button
+                      style={styles.deleteBtn}
+                      onClick={() => {
+                        setPhotos((prev) => prev.filter((_, index) => index !== i));
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
           </div>
         </div>
@@ -272,13 +292,15 @@ const styles:any = {
 
   galleryWrap:{width:"100%",padding:"20px"},
 
-  bigAdd:{width:"100%",height:"120px",borderRadius:"16px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"40px",marginBottom:"20px"},
+  centerAdd:{display:"flex",justifyContent:"center",marginBottom:"20px"},
+
+  bigAdd:{width:"70%",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"40px"},
 
   grid:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px"},
 
   gridItem:{position:"relative"},
 
-  gridImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"12px"},
+  gridImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center"},
 
   deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"26px",height:"26px"}
 };
