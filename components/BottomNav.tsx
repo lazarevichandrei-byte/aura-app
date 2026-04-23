@@ -8,11 +8,11 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   const tabs = [
-    { icon: Home, label: "Home", path: "/home" },
-    { icon: MessageCircle, label: "Messages", path: "/matches" },
-    { icon: Search, label: "Search", path: "/search" },
-    { icon: Clock, label: "History", path: "/history" },
-    { icon: User, label: "Profile", path: "/profile" },
+    { icon: Home, path: "/home" },
+    { icon: MessageCircle, path: "/matches" },
+    { icon: Search, path: "/search" },
+    { icon: Clock, path: "/history" },
+    { icon: User, path: "/profile" },
   ];
 
   return (
@@ -22,7 +22,7 @@ export default function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: "75px",
+        height: "70px",
         background: "#fff",
         borderTop: "1px solid #eee",
         display: "flex",
@@ -41,15 +41,23 @@ export default function BottomNav() {
             onClick={() => router.push(tab.path)}
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              fontSize: "12px",
-              color: active ? "#ff4d8d" : "#999",
+              justifyContent: "center",
+              width: "50px",
+              height: "50px",
+              borderRadius: "12px",
+              background: active
+                ? "linear-gradient(135deg, #4facfe, #2979ff)"
+                : "transparent",
               cursor: "pointer",
+              transition: "0.2s",
             }}
           >
-            <Icon size={24} strokeWidth={2} />
-            <span style={{ marginTop: "4px" }}>{tab.label}</span>
+            <Icon
+              size={24}
+              strokeWidth={2}
+              color={active ? "#fff" : "#999"}
+            />
           </div>
         );
       })}
