@@ -134,6 +134,7 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
+        {/* АВАТАР */}
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
             <img src={photos[mainIndex]} style={styles.avatar} />
@@ -143,6 +144,7 @@ export default function Profile() {
           <div style={styles.plus}>+</div>
         </div>
 
+        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
@@ -156,6 +158,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
@@ -164,6 +167,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
@@ -174,16 +178,19 @@ export default function Profile() {
             ))}
           </div>
         </div>
-                <div style={styles.inputBox}>
+                {/* ГОРОД */}
+        <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
+        {/* О СЕБЕ */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
+        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
           <div style={styles.tags}>
@@ -195,9 +202,7 @@ export default function Profile() {
                 </span>
               );
             })}
-            {!showMore && (
-              <span style={styles.tag} onClick={() => setShowMore(true)}>+</span>
-            )}
+            {!showMore && <span style={styles.tag} onClick={() => setShowMore(true)}>+</span>}
           </div>
         </div>
 
@@ -210,6 +215,45 @@ export default function Profile() {
         </button>
 
       </div>
+
+      {/* ГАЛЕРЕЯ */}
+      {activePhoto && (
+        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
+          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
+
+            <label style={styles.addPhoto}>
+              +
+              <input type="file" multiple hidden onChange={async (e)=>{
+                const files = e.target.files;
+                if (!files) return;
+                for (let i=0;i<files.length;i++) {
+                  await uploadPhoto(files[i]);
+                }
+              }}/>
+            </label>
+
+            {photos.map((p,i)=>(
+              <div key={i} style={styles.galleryItem}>
+                <img
+                  src={p}
+                  onClick={()=>setMainIndex(i)}
+                  style={{
+                    ...styles.galleryImg,
+                    border:i===mainIndex?"3px solid #2AABEE":"none"
+                  }}
+                />
+                <button
+                  style={styles.deleteBtn}
+                  onClick={()=>setPhotos(prev=>prev.filter((_,index)=>index!==i))}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -230,10 +274,7 @@ const styles:any = {
 
   block:{marginTop:"14px"},
 
-  // 🔥 ВОТ ИЗМЕНЕНИЕ
   buttons:{display:"flex",gap:"8px"},
-
-  // 🔥 ВОТ ИЗМЕНЕНИЕ
   option:{
     flex:1,
     padding:"8px 6px",
@@ -251,5 +292,15 @@ const styles:any = {
   tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid #2AABEE",color:"#2AABEE",background:"#fff"},
   tagActive:{background:"#2AABEE",color:"#fff"},
 
-  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"}
+  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
+
+  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
+
+  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
+  galleryItem:{position:"relative"},
+  galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
+
+  addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
+
+  deleteBtn:{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"22px",height:"22px"}
 };
