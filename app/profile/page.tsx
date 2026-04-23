@@ -37,7 +37,12 @@ export default function Profile() {
     }
   };
 
-  const saveProfile = async () => {
+  const handleSubmit = async () => {
+    if (!name) {
+      alert("Введите имя");
+      return;
+    }
+
     const { error } = await supabase.from("users").insert([
       {
         name,
@@ -53,7 +58,7 @@ export default function Profile() {
     if (error) {
       alert(error.message);
     } else {
-      alert("Сохранено ✅");
+      alert("Профиль создан ✅");
     }
   };
 
@@ -70,7 +75,9 @@ export default function Profile() {
 
           <div>
             <h2 style={styles.title}>Создание профиля</h2>
-            <p style={styles.subtitle}>Расскажи о себе 💙</p>
+            <p style={styles.subtitle}>
+              Расскажи о себе 💙
+            </p>
           </div>
         </div>
 
@@ -204,7 +211,7 @@ export default function Profile() {
         </div>
 
         {/* КНОПКА */}
-        <button style={styles.submit} onClick={saveProfile}>
+        <button style={styles.submit} onClick={handleSubmit}>
           Продолжить
         </button>
 
@@ -218,6 +225,7 @@ const styles: any = {
     minHeight: "100vh",
     background: "#F5F7FB",
     padding: "20px",
+    fontFamily: "-apple-system, sans-serif",
   },
 
   card: {
@@ -291,6 +299,7 @@ const styles: any = {
     border: "none",
     outline: "none",
     background: "transparent",
+    fontSize: "16px",
   },
 
   textarea: {
@@ -299,6 +308,7 @@ const styles: any = {
     outline: "none",
     background: "transparent",
     resize: "none",
+    fontSize: "16px",
   },
 
   slider: {
