@@ -23,10 +23,18 @@ export default function Home() {
   const handleLogin = () => {
     console.log("CLICK LOGIN");
 
-    // основной переход
+    const tg = (window as any).Telegram?.WebApp;
+
+    // 👉 если НЕ в Telegram — просто переход
+    if (!tg) {
+      router.push("/profile");
+      return;
+    }
+
+    // 👉 если в Telegram
     router.push("/profile");
 
-    // fallback если Telegram WebApp тупит
+    // fallback (Telegram иногда тупит)
     setTimeout(() => {
       window.location.href = "/profile";
     }, 150);
