@@ -16,12 +16,11 @@ export default function Profile() {
   const [bio, setBio] = useState("");
 
   const [photos, setPhotos] = useState<string[]>([]);
+  const [mainIndex, setMainIndex] = useState(0);
   const [uploading, setUploading] = useState(false);
 
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
-
-  const [activePhoto, setActivePhoto] = useState<string | null>(null);
 
   const [errors, setErrors] = useState({
     name: false,
@@ -67,7 +66,11 @@ export default function Profile() {
         setCity(data.city || "");
         setBio(data.bio || "");
         setSelected(data.interests || []);
-        if (data.avatar_url) setPhotos([data.avatar_url]);
+
+        if (data.avatar_url) {
+          setPhotos([data.avatar_url]);
+          setMainIndex(0);
+        }
       }
 
       setLoading(false);
@@ -131,7 +134,7 @@ export default function Profile() {
       city,
       bio,
       interests: selected,
-      avatar_url: photos[0] || null,
+      avatar_url: photos[mainIndex] || null,
     });
 
     if (error) {
@@ -147,15 +150,54 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div style={styles.photoCenter}>
-          <div
-            style={styles.addPhoto}
-            onClick={() => setActivePhoto("gallery")}
-          >
-            📷
-          </div>
+        {/* ФОТО */}
+        <div style={styles.photoRow}>
+          {photos.map((p, i) => (
+            <div key={i} style={styles.photoWrap}>
+              <img
+                src={p}
+                style={{
+                  ...styles.photo,
+                  border: i === mainIndex ? "2px solid #2AABEE" : "none"
+                }}
+                onClick={() => setMainIndex(i)}
+              />
+
+              <button
+                style={styles.deleteBtn}
+                onClick={() => {
+                  setPhotos((prev) =>
+                    prev.filter((_, index) => index !== i)
+                  );
+                  if (mainIndex === i) setMainIndex(0);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          <label style={styles.addPhoto}>
+            +
+            <input
+              type="file"
+              multiple
+              hidden
+              onChange={async (e) => {
+                const files = e.target.files;
+                if (!files) return;
+
+                for (let i = 0; i < files.length; i++) {
+                  await uploadPhoto(files[i]);
+                }
+
+                e.target.value = "";
+              }}
+            />
+          </label>
         </div>
-                <div style={styles.row}>
+                {/* ИМЯ + ВОЗРАСТ */}
+        <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
             <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
@@ -168,6 +210,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
@@ -176,6 +219,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
@@ -187,16 +231,19 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
+        {/* BIO */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
+        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
           <div style={styles.tags}>
@@ -212,6 +259,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* КНОПКА */}
         <button
           disabled={!isValid || uploading}
           style={{...styles.submit,opacity:isValid?1:0.5}}
@@ -221,48 +269,6 @@ export default function Profile() {
         </button>
 
       </div>
-
-      {activePhoto && (
-        <div style={styles.viewer} onClick={() => setActivePhoto(null)}>
-          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
-
-            <label style={styles.addPhoto}>
-              +
-              <input
-                type="file"
-                multiple
-                hidden
-                onChange={async (e) => {
-                  const files = e.target.files;
-                  if (!files) return;
-
-                  for (let i = 0; i < files.length; i++) {
-                    await uploadPhoto(files[i]);
-                  }
-
-                  e.target.value = "";
-                }}
-              />
-            </label>
-
-            {photos.map((p, i) => (
-              <div key={i} style={styles.galleryItem}>
-                <img src={p} style={styles.viewerImg} />
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => {
-                    setPhotos((prev) =>
-                      prev.filter((_, index) => index !== i)
-                    );
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -270,24 +276,28 @@ export default function Profile() {
 const styles:any = {
   wrapper:{minHeight:"100vh",background:"#F5F7FB",padding:"20px"},
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
-  photoCenter:{display:"flex",justifyContent:"center",marginBottom:"20px"},
+
+  photoRow:{display:"flex",gap:"10px",overflowX:"auto",marginBottom:"20px"},
+  photoWrap:{position:"relative"},
+  photo:{width:"70px",height:"70px",borderRadius:"50%",objectFit:"cover",cursor:"pointer"},
   addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"},
+
+  deleteBtn:{position:"absolute",top:0,right:0,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"22px",height:"22px"},
+
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
   label:{fontSize:"12px",color:"#6B7280"},
-  input:{width:"100%",border:"none",background:"transparent",outline:"none",WebkitTapHighlightColor:"transparent"},
-  textarea:{width:"100%",border:"none",background:"transparent",outline:"none",WebkitTapHighlightColor:"transparent"},
+  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
+  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
+
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
   option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
+
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
   tag:{padding:"6px 10px",borderRadius:"999px",background:"#E7F3FF"},
   tagActive:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
-  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
-  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000},
-  viewerImg:{width:"120px",height:"120px",borderRadius:"12px",objectFit:"cover"},
-  gallery:{display:"flex",gap:"10px",overflowX:"auto"},
-  galleryItem:{position:"relative"},
-  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
+
+  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"}
 };
