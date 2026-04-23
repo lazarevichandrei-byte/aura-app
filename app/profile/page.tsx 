@@ -48,7 +48,6 @@ export default function Profile() {
       setTelegramId(user.id);
       setName(user.first_name || "");
 
-      // 🔥 Проверяем есть ли пользователь
       const { data } = await supabase
         .from("users")
         .select("*")
@@ -112,7 +111,6 @@ export default function Profile() {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-
         {/* HEADER */}
         <div style={styles.header}>
           <div style={styles.avatarWrapper}>
@@ -261,7 +259,6 @@ export default function Profile() {
         <button style={styles.submit} onClick={handleSubmit}>
           Продолжить
         </button>
-
       </div>
     </div>
   );
