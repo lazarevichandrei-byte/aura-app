@@ -129,7 +129,8 @@ export default function Profile() {
   };
 
   if (loading) return <div>Loading...</div>;
-    return (
+
+  return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
@@ -154,55 +155,66 @@ export default function Profile() {
             <input type="range" min="18" max="60" value={age} onChange={(e)=>setAge(Number(e.target.value))}/>
           </div>
         </div>
-
+                {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
-            <button style={{...styles.option,...(gender==="female"&&styles.active)}} onClick={()=>setGender("female")}>Женщина</button>
-            <button style={{...styles.option,...(gender==="male"&&styles.active)}} onClick={()=>setGender("male")}>Мужчина</button>
+            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>Женщина</button>
+            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>Мужчина</button>
           </div>
         </div>
 
+        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
-              <button
-                key={item}
-                onClick={()=>setSearch(item)}
-                style={{...styles.option,...(search===item&&styles.active)}}
-              >
+              <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
                 {item==="male"?"Парня":item==="female"?"Девушку":"Без разницы"}
               </button>
             ))}
           </div>
         </div>
 
+        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
+        {/* О СЕБЕ */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
+        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
+
           <div style={styles.tags}>
-            {[...base, ...(showMore ? extra : [])].map(t=>{
+            {[...base, ...(showMore ? extra : [])].map((t) => {
               const active = selected.includes(t);
+
               return (
                 <span
                   key={t}
-                  onClick={()=>toggle(t)}
-                  style={{...styles.tag,...(active && styles.tagActive)}}
+                  onClick={() => toggle(t)}
+                  style={{
+                    ...styles.tag,
+                    ...(active ? styles.tagActive : {}),
+                  }}
                 >
                   {t}
                 </span>
               );
             })}
+
+            {!showMore && (
+              <span style={styles.tag} onClick={() => setShowMore(true)}>
+                +
+              </span>
+            )}
           </div>
         </div>
 
@@ -225,35 +237,28 @@ export default function Profile() {
 
             <label style={styles.addPhoto}>
               +
-              <input
-                type="file"
-                multiple
-                hidden
-                onChange={async (e) => {
-                  const files = e.target.files;
-                  if (!files) return;
-
-                  for (let i = 0; i < files.length; i++) {
-                    await uploadPhoto(files[i]);
-                  }
-                }}
-              />
+              <input type="file" multiple hidden onChange={async (e)=>{
+                const files = e.target.files;
+                if (!files) return;
+                for (let i=0;i<files.length;i++) {
+                  await uploadPhoto(files[i]);
+                }
+              }}/>
             </label>
 
-            {photos.map((p, i) => (
+            {photos.map((p,i)=>(
               <div key={i} style={styles.galleryItem}>
                 <img
                   src={p}
                   onClick={()=>setMainIndex(i)}
                   style={{
                     ...styles.galleryImg,
-                    border: i===mainIndex ? "3px solid #2AABEE" : "none"
+                    border:i===mainIndex?"3px solid #2AABEE":"none"
                   }}
                 />
-
                 <button
                   style={styles.deleteBtn}
-                  onClick={() => setPhotos(prev => prev.filter((_,index)=>index!==i))}
+                  onClick={()=>setPhotos(prev=>prev.filter((_,index)=>index!==i))}
                 >
                   ✕
                 </button>
@@ -283,7 +288,7 @@ const styles:any = {
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
-  option:{flex:1,padding:"14px",borderRadius:"18px",border:"none",background:"#E7F3FF"},
+  option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
@@ -299,7 +304,6 @@ const styles:any = {
   gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
 
   galleryItem:{position:"relative"},
-
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
   addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
