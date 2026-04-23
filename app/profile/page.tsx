@@ -1,7 +1,7 @@
 "use client";
 console.log("TEST SAVE");
 import { useState } from "react";
-import { supabase } from "@/app/lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export default function Profile() {
   const [age, setAge] = useState(22);
