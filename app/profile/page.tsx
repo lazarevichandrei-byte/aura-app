@@ -73,7 +73,7 @@ export default function Profile() {
     };
 
     init();
-  }, []); 
+  }, []);
     const uploadPhoto = async (file: File) => {
     if (!telegramId) return;
 
@@ -107,7 +107,15 @@ export default function Profile() {
   };
 
   const handleSubmit = async () => {
-    if (!telegramId || uploading) return;
+    if (!telegramId) {
+      alert("Нет Telegram ID");
+      return;
+    }
+
+    if (uploading) {
+      alert("Дождись загрузки фото");
+      return;
+    }
 
     if (!name.trim() || !city.trim()) {
       alert("Заполни имя и город");
@@ -127,10 +135,11 @@ export default function Profile() {
     });
 
     if (error) {
-      alert("Ошибка: " + error.message);
-    } else {
-      window.location.href = window.location.origin + "/home";
+      alert(error.message);
+      return;
     }
+
+    window.location.href = "/home";
   };
 
   if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
@@ -211,7 +220,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КНОПКА */}
         <button
           disabled={!isValid || uploading}
           style={{...styles.submit,opacity:isValid?1:0.5}}
@@ -287,7 +295,7 @@ const styles:any = {
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
-  option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
+  option:{flex:1,padding:"8px",borderRadius:"12px",border:"none",background:"#E7F3FF",fontSize:"13px"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
@@ -301,12 +309,28 @@ const styles:any = {
     display:"grid",
     gridTemplateColumns:"repeat(4, 1fr)",
     gap:"10px",
-    padding:"20px"
+    padding:"20px",
+    width:"100%",
+    maxWidth:"420px"
   },
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"10px"},
 
   addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
+  deleteBtn:{
+    position:"absolute",
+    top:"50%",
+    left:"50%",
+    transform:"translate(-50%, -50%)",
+    background:"rgba(0,0,0,0.6)",
+    color:"#fff",
+    border:"none",
+    borderRadius:"50%",
+    width:"30px",
+    height:"30px",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center"
+  }
 };
