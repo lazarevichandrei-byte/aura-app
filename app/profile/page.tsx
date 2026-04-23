@@ -273,201 +273,40 @@ export default function Profile() {
 }
 
 const styles:any = {
-  wrapper:{
-    minHeight:"100vh",
-    background:"#F5F7FB",
-    padding:"20px"
-  },
+  wrapper:{minHeight:"100vh",background:"#F5F7FB",padding:"20px"},
+  card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
-  card:{
-    background:"#fff",
-    borderRadius:"24px",
-    padding:"20px",
-    maxWidth:"420px",
-    margin:"0 auto"
-  },
+  avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
+  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  avatarWrapper:{
-    display:"flex",
-    justifyContent:"center",
-    marginBottom:"20px",
-    position:"relative"
-  },
+  row:{display:"flex",gap:"10px"},
+  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+  label:{fontSize:"12px",color:"#6B7280"},
+  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
+  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
-  mainAvatar:{
-    width:"90px",
-    height:"90px",
-    borderRadius:"50%",
-    objectFit:"cover"
-  },
+  block:{marginTop:"14px"},
+  buttons:{display:"flex",gap:"10px"},
+  option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
+  active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
-  emptyAvatar:{
-    width:"90px",
-    height:"90px",
-    borderRadius:"50%",
-    background:"#E7F3FF",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    fontSize:"32px"
-  },
+  tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
+  tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid #2AABEE",color:"#2AABEE",background:"#fff"},
+  tagActive:{background:"#2AABEE",color:"#fff"},
 
-  plus:{
-    position:"absolute",
-    bottom:0,
-    right:"calc(50% - 45px)",
-    background:"#2AABEE",
-    color:"#fff",
-    borderRadius:"50%",
-    width:"22px",
-    height:"22px",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center"
-  },
+  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
-  row:{
-    display:"flex",
-    gap:"10px"
-  },
+  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  inputBox:{
-    background:"#F9FAFB",
-    borderRadius:"16px",
-    padding:"12px",
-    marginTop:"12px",
-    flex:1
-  },
+  galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
-  label:{
-    fontSize:"12px",
-    color:"#6B7280"
-  },
+  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
 
-  input:{
-    width:"100%",
-    border:"none",
-    background:"transparent",
-    outline:"none"
-  },
+  galleryItem:{position:"relative"},
+  galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
-  textarea:{
-    width:"100%",
-    border:"none",
-    background:"transparent",
-    outline:"none"
-  },
+  addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
 
-  block:{
-    marginTop:"14px"
-  },
-
-  // 🔥 ГЛАВНОЕ — СЕТКА ДЛЯ КНОПОК
-  buttons:{
-    display:"grid",
-    gridTemplateColumns:"1fr 1fr",
-    gap:"10px"
-  },
-
-  // 🔥 УМЕНЬШЕННЫЕ КНОПКИ
-  option:{
-    padding:"10px 8px",
-    borderRadius:"14px",
-    border:"none",
-    background:"#E7F3FF",
-    fontSize:"13px",
-    fontWeight:"500"
-  },
-
-  active:{
-    background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",
-    color:"#fff"
-  },
-
-  // 🔥 ИНТЕРЕСЫ С ОБВОДКОЙ
-  tags:{
-    display:"flex",
-    flexWrap:"wrap",
-    gap:"8px",
-    marginTop:"10px"
-  },
-
-  tag:{
-    padding:"6px 10px",
-    borderRadius:"999px",
-    border:"1px solid #2AABEE",
-    color:"#2AABEE",
-    background:"#fff"
-  },
-
-  tagActive:{
-    background:"#2AABEE",
-    color:"#fff"
-  },
-
-  submit:{
-    marginTop:"20px",
-    width:"100%",
-    height:"56px",
-    borderRadius:"18px",
-    border:"none",
-    color:"#fff",
-    background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"
-  },
-
-  // 📸 ГАЛЕРЕЯ 4 В РЯД
-  viewer:{
-    position:"fixed",
-    top:0,
-    left:0,
-    width:"100%",
-    height:"100%",
-    background:"rgba(0,0,0,0.9)",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center"
-  },
-
-  gallery:{
-    display:"grid",
-    gridTemplateColumns:"repeat(4,1fr)",
-    gap:"10px",
-    padding:"20px",
-    width:"100%",
-    maxWidth:"420px"
-  },
-
-  galleryItem:{
-    position:"relative"
-  },
-
-  galleryImg:{
-    width:"100%",
-    aspectRatio:"3/4",
-    borderRadius:"12px",
-    objectFit:"cover"
-  },
-
-  addPhoto:{
-    width:"100%",
-    aspectRatio:"3/4",
-    borderRadius:"12px",
-    background:"#E7F3FF",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    fontSize:"28px"
-  },
-
-  deleteBtn:{
-    position:"absolute",
-    top:"6px",
-    right:"6px",
-    background:"rgba(0,0,0,0.6)",
-    color:"#fff",
-    border:"none",
-    borderRadius:"50%",
-    width:"26px",
-    height:"26px"
-  }
+  deleteBtn:{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"22px",height:"22px"}
 };
