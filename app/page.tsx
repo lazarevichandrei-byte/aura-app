@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "./lib/supabase";
 import { useRouter } from "next/navigation";
 
 export default function Profile() {
@@ -40,7 +40,7 @@ export default function Profile() {
     }
   };
 
-  // 🔥 АВТОЗАГРУЗКА
+  // 🔥 загрузка профиля
   useEffect(() => {
     const loadProfile = async () => {
       const tg = (window as any).Telegram?.WebApp;
@@ -70,7 +70,7 @@ export default function Profile() {
     loadProfile();
   }, []);
 
-  // 🔥 СОХРАНЕНИЕ
+  // 🔥 сохранение
   const handleSubmit = async () => {
     const tg = (window as any).Telegram?.WebApp;
     const userId = tg?.initDataUnsafe?.user?.id ?? null;
@@ -108,7 +108,6 @@ export default function Profile() {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-
         {/* HEADER */}
         <div style={styles.header}>
           <div style={styles.avatarWrapper}>
@@ -255,7 +254,6 @@ export default function Profile() {
         <button style={styles.submit} onClick={handleSubmit}>
           Продолжить
         </button>
-
       </div>
     </div>
   );
