@@ -134,7 +134,6 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        {/* АВАТАР */}
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
             <img src={photos[mainIndex]} style={styles.avatar} />
@@ -144,7 +143,6 @@ export default function Profile() {
           <div style={styles.plus}>+</div>
         </div>
 
-        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
@@ -158,7 +156,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
@@ -167,7 +164,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
@@ -178,19 +174,16 @@ export default function Profile() {
             ))}
           </div>
         </div>
-                {/* ГОРОД */}
-        <div style={styles.inputBox}>
+                <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
-        {/* О СЕБЕ */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
-        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
           <div style={styles.tags}>
@@ -216,19 +209,25 @@ export default function Profile() {
 
       </div>
 
-      {/* ГАЛЕРЕЯ */}
+      {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
+          <div
+            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+            onClick={(e)=>e.stopPropagation()}
+          >
 
             <label style={styles.addPhoto}>
               +
               <input type="file" multiple hidden onChange={async (e)=>{
                 const files = e.target.files;
                 if (!files) return;
+
                 for (let i=0;i<files.length;i++) {
                   await uploadPhoto(files[i]);
                 }
+
+                e.target.value = "";
               }}/>
             </label>
 
@@ -296,7 +295,10 @@ const styles:any = {
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
+  galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
+
   gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
+
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
