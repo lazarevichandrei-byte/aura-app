@@ -37,16 +37,27 @@ export default function Profile() {
     }
   };
 
+  // 🔥 ГЛАВНАЯ ФУНКЦИЯ (Telegram + Supabase)
   const handleSubmit = async () => {
     console.log("CLICK");
+
+    const tg = (window as any).Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
+
+    // ❗ если не через Telegram
+    if (!user) {
+      alert("Открой через Telegram ❗");
+      return;
+    }
 
     if (!name) {
       alert("Введите имя");
       return;
     }
 
-    const { data, error } = await supabase.from("users").insert([
+    const { error } = await supabase.from("users").insert([
       {
+        telegram_id: user.id,
         name,
         age,
         gender,
@@ -57,12 +68,11 @@ export default function Profile() {
       },
     ]);
 
-    console.log("RESULT:", data, error);
-
     if (error) {
+      console.error(error);
       alert("Ошибка: " + error.message);
     } else {
-      alert("Профиль создан ✅");
+      alert("Профиль сохранен 🚀");
     }
   };
 

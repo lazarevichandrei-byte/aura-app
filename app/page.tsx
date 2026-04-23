@@ -13,10 +13,14 @@ export default function Home() {
       tg.ready();
       tg.expand();
 
+      // стиль под Telegram
       tg.setBackgroundColor("#ffffff");
       tg.setHeaderColor("#ffffff");
 
       document.body.style.background = "#ffffff";
+
+      // 🔥 можно посмотреть пользователя
+      console.log("TG USER:", tg.initDataUnsafe?.user);
     }
   }, []);
 
@@ -25,19 +29,22 @@ export default function Home() {
 
     const tg = (window as any).Telegram?.WebApp;
 
-    // 👉 если НЕ в Telegram — просто переход
+    // 👉 если НЕ в Telegram
     if (!tg) {
+      console.log("NOT IN TELEGRAM");
       router.push("/profile");
       return;
     }
 
     // 👉 если в Telegram
+    console.log("IN TELEGRAM:", tg.initDataUnsafe?.user);
+
     router.push("/profile");
 
-    // fallback (Telegram иногда тупит)
+    // fallback (если роутер не сработает)
     setTimeout(() => {
       window.location.href = "/profile";
-    }, 150);
+    }, 200);
   };
 
   return (
