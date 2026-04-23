@@ -1,5 +1,5 @@
 "use client";
-console.log("TEST SAVE");
+
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -38,12 +38,14 @@ export default function Profile() {
   };
 
   const handleSubmit = async () => {
+    console.log("CLICK");
+
     if (!name) {
       alert("Введите имя");
       return;
     }
 
-    const { error } = await supabase.from("users").insert([
+    const { data, error } = await supabase.from("users").insert([
       {
         name,
         age,
@@ -55,8 +57,10 @@ export default function Profile() {
       },
     ]);
 
+    console.log("RESULT:", data, error);
+
     if (error) {
-      alert(error.message);
+      alert("Ошибка: " + error.message);
     } else {
       alert("Профиль создан ✅");
     }
@@ -286,6 +290,7 @@ const styles: any = {
     borderRadius: "16px",
     padding: "12px",
     marginTop: "12px",
+    flex: 1,
   },
 
   label: {
@@ -370,5 +375,6 @@ const styles: any = {
     fontSize: "16px",
     background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
     boxShadow: "0 8px 20px rgba(42,123,255,0.3)",
+    cursor: "pointer",
   },
 };
