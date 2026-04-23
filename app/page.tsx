@@ -21,15 +21,15 @@ export default function Home() {
   }, []);
 
   const handleLogin = () => {
-    console.log("CLICK");
+    console.log("CLICK LOGIN");
 
     // основной переход
     router.push("/profile");
 
-    // fallback (если Telegram тупит)
+    // fallback если Telegram WebApp тупит
     setTimeout(() => {
       window.location.href = "/profile";
-    }, 100);
+    }, 150);
   };
 
   return (
@@ -77,14 +77,14 @@ const styles: any = {
 
   logo: {
     fontSize: "42px",
-    fontWeight: "500",
+    fontWeight: "600",
     color: "#000",
     marginBottom: "10px",
   },
 
   subtitle: {
     fontSize: "16px",
-    color: "#666",
+    color: "#6B7280",
     marginBottom: "40px",
   },
 
@@ -98,12 +98,14 @@ const styles: any = {
     fontSize: "17px",
     fontWeight: "500",
     boxShadow: "0 8px 20px rgba(42,171,238,0.4)",
+    cursor: "pointer",
+    transition: "0.2s",
   },
 
   footer: {
     textAlign: "center",
     fontSize: "12px",
-    color: "#999",
+    color: "#9CA3AF",
   },
 
   links: {
