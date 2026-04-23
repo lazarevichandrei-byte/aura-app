@@ -18,55 +18,58 @@ export default function Page() {
           tg.expand();
           tg.setBackgroundColor("#ffffff");
           tg.setHeaderColor("#ffffff");
+
+          document.body.style.background = "#ffffff";
         }
 
         const user = tg?.initDataUnsafe?.user;
 
-        // ❗ Если Telegram не дал пользователя — просто показываем кнопку
+        // ❗ если нет Telegram → показываем экран
         if (!user) {
           setLoading(false);
           return;
         }
 
-        // 🔍 Проверяем есть ли пользователь в базе
         const { data } = await supabase
           .from("users")
           .select("*")
           .eq("telegram_id", user.id)
           .maybeSingle();
 
-        // ✅ Если пользователь есть → HOME
+        // ✅ если есть → home
         if (data) {
           router.replace("/home");
           return;
         }
 
-        // ✅ Если нет → показываем кнопку
+        // ✅ если новый → показываем кнопку
         setLoading(false);
       } catch (e) {
         console.log("INIT ERROR:", e);
-        setLoading(false); // ❗ чтобы не зависало
+        setLoading(false);
       }
     };
 
     init();
   }, []);
 
-  const handleStart = () => {
+  const handleLogin = () => {
     router.push("/profile");
   };
 
-  // 🔹 экран загрузки (но не вечный)
+  // 🔹 ЗАГРУЗКА (но не вечная)
   if (loading) {
     return (
-      <div style={styles.loading}>
-        <h1>Aura</h1>
-        <p>Загрузка...</p>
-      </div>
+      <main style={styles.container}>
+        <div style={styles.center}>
+          <h1 style={styles.logo}>Aura</h1>
+          <p style={styles.subtitle}>Загрузка...</p>
+        </div>
+      </main>
     );
   }
 
-  // 🔹 главный экран
+  // 🔹 ОСНОВНОЙ ЭКРАН
   return (
     <main style={styles.container}>
       <div style={styles.center}>
@@ -76,56 +79,74 @@ export default function Page() {
           Найди свою энергию 💙
         </p>
 
-        <button style={styles.button} onClick={handleStart}>
-          ✈️ Начать
+        <button style={styles.button} onClick={handleLogin}>
+          ✈️ Войти через Telegram
         </button>
+      </div>
+
+      <div style={styles.footer}>
+        <p>Продолжая, вы принимаете</p>
+        <p style={styles.links}>
+          Условия использования и Политику конфиденциальности
+        </p>
       </div>
     </main>
   );
 }
 
 const styles: any = {
-  loading: {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "-apple-system, sans-serif",
-  },
-
   container: {
     minHeight: "100vh",
     background: "#ffffff",
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    fontFamily: "-apple-system, sans-serif",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    padding: "20px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
   },
 
   center: {
-    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
 
   logo: {
     fontSize: "42px",
     fontWeight: "500",
+    color: "#000",
     marginBottom: "10px",
   },
 
   subtitle: {
-    marginBottom: "40px",
+    fontSize: "16px",
     color: "#666",
+    marginBottom: "40px",
   },
 
   button: {
     background: "linear-gradient(90deg,#2AABEE,#1E96E6)",
-    color: "#fff",
+    color: "white",
     border: "none",
     borderRadius: "16px",
     height: "56px",
     padding: "0 24px",
-    fontSize: "16px",
+    fontSize: "17px",
+    fontWeight: "500",
+    boxShadow: "0 8px 20px rgba(42,171,238,0.4)",
     cursor: "pointer",
+  },
+
+  footer: {
+    textAlign: "center",
+    fontSize: "12px",
+    color: "#999",
+  },
+
+  links: {
+    color: "#2AABEE",
+    marginTop: "4px",
   },
 };
