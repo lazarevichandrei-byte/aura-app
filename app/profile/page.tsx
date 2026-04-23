@@ -50,7 +50,7 @@ export default function Profile() {
         name,
         age,
         gender,
-        looking_for: search,
+        looking: search,
         city,
         bio,
         interests: selected,
