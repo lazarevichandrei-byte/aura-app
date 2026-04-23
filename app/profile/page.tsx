@@ -93,8 +93,7 @@ export default function Profile() {
 
     setUploading(false);
   };
-
-  const toggle = (item: string) => {
+    const toggle = (item: string) => {
     setSelected((prev) =>
       prev.includes(item)
         ? prev.filter((i) => i !== item)
@@ -159,8 +158,8 @@ export default function Profile() {
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
-            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>Женщина</button>
-            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>Мужчина</button>
+            <button style={{...styles.option,...(gender==="female"&&styles.active)}} onClick={()=>setGender("female")}>Женщина</button>
+            <button style={{...styles.option,...(gender==="male"&&styles.active)}} onClick={()=>setGender("male")}>Мужчина</button>
           </div>
         </div>
 
@@ -168,7 +167,8 @@ export default function Profile() {
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
-              <button key={item}
+              <button
+                key={item}
                 onClick={()=>setSearch(item)}
                 style={{...styles.option,...(search===item&&styles.active)}}
               >
@@ -194,7 +194,8 @@ export default function Profile() {
             {[...base, ...(showMore ? extra : [])].map(t=>{
               const active = selected.includes(t);
               return (
-                <span key={t}
+                <span
+                  key={t}
                   onClick={()=>toggle(t)}
                   style={{...styles.tag,...(active && styles.tagActive)}}
                 >
@@ -214,7 +215,8 @@ export default function Profile() {
         </button>
 
       </div>
-            {activePhoto && (
+
+      {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
 
@@ -239,9 +241,13 @@ export default function Profile() {
               <div key={i} style={styles.galleryItem}>
                 <img
                   src={p}
-                  style={styles.galleryImg}
-                  onClick={() => setMainIndex(i)}
+                  onClick={()=>setMainIndex(i)}
+                  style={{
+                    ...styles.galleryImg,
+                    border: i===mainIndex ? "3px solid #2AABEE" : "none"
+                  }}
                 />
+
                 <button
                   style={styles.deleteBtn}
                   onClick={() => setPhotos(prev => prev.filter((_,index)=>index!==i))}
@@ -274,11 +280,11 @@ const styles:any = {
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
-  option:{flex:1,padding:"12px",borderRadius:"16px",border:"none",background:"#E7F3FF"},
+  option:{flex:1,padding:"14px",borderRadius:"18px",border:"none",background:"#E7F3FF"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
-  tag:{padding:"6px 10px",borderRadius:"999px",background:"#E7F3FF"},
+  tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid #2AABEE",color:"#2AABEE",background:"#fff"},
   tagActive:{background:"#2AABEE",color:"#fff"},
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
@@ -289,7 +295,8 @@ const styles:any = {
     display:"grid",
     gridTemplateColumns:"repeat(4,1fr)",
     gap:"10px",
-    padding:"20px"
+    padding:"20px",
+    width:"100%"
   },
 
   galleryItem:{position:"relative"},
@@ -309,13 +316,14 @@ const styles:any = {
     display:"flex",
     alignItems:"center",
     justifyContent:"center",
-    fontSize:"20px"
+    fontSize:"26px",
+    cursor:"pointer"
   },
 
   deleteBtn:{
     position:"absolute",
-    top:5,
-    right:5,
+    top:6,
+    right:6,
     background:"rgba(0,0,0,0.6)",
     color:"#fff",
     border:"none",
