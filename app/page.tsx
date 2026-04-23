@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "./lib/supabase";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "./lib/supabase";
 
 export default function Profile() {
   const router = useRouter();
