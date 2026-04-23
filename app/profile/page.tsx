@@ -31,16 +31,13 @@ export default function Profile() {
   ];
 
   const isValid = name.trim().length > 0 && city.trim().length > 0;
-
-  useEffect(() => {
+    useEffect(() => {
     const init = async () => {
       const tg = (window as any).Telegram?.WebApp;
 
       if (tg) {
         tg.ready();
         tg.expand();
-        tg.setBackgroundColor("#ffffff");
-        tg.setHeaderColor("#ffffff");
       }
 
       const user = tg?.initDataUnsafe?.user;
@@ -74,7 +71,8 @@ export default function Profile() {
 
     init();
   }, []);
-    const uploadPhoto = async (file: File) => {
+
+  const uploadPhoto = async (file: File) => {
     if (!telegramId) return;
 
     setUploading(true);
@@ -91,8 +89,6 @@ export default function Profile() {
         .getPublicUrl(fileName);
 
       setPhotos((prev) => [...prev, data.publicUrl]);
-    } else {
-      alert("Ошибка загрузки: " + error.message);
     }
 
     setUploading(false);
@@ -107,15 +103,7 @@ export default function Profile() {
   };
 
   const handleSubmit = async () => {
-    if (!telegramId) {
-      alert("Нет Telegram ID");
-      return;
-    }
-
-    if (uploading) {
-      alert("Дождись загрузки фото");
-      return;
-    }
+    if (!telegramId || uploading) return;
 
     if (!name.trim() || !city.trim()) {
       alert("Заполни имя и город");
@@ -135,14 +123,13 @@ export default function Profile() {
     });
 
     if (error) {
-      alert(error.message);
-      return;
+      alert("Ошибка: " + error.message);
+    } else {
+      window.location.href = "/home";
     }
-
-    window.location.replace("/home");
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
     return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
@@ -150,9 +137,9 @@ export default function Profile() {
         {/* АВАТАР */}
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
-            <img src={photos[mainIndex]} style={styles.mainAvatar} />
+            <img src={photos[mainIndex]} style={styles.avatar} />
           ) : (
-            <div style={styles.emptyAvatar}>👤</div>
+            <div style={styles.avatar}>👤</div>
           )}
           <div style={styles.plus}>+</div>
         </div>
@@ -204,15 +191,15 @@ export default function Profile() {
           style={{...styles.submit,opacity:isValid?1:0.5}}
           onClick={handleSubmit}
         >
-          {uploading ? "Загрузка..." : "Продолжить"}
+          Продолжить
         </button>
 
       </div>
             {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
+          <div style={styles.galleryWrap} onClick={(e)=>e.stopPropagation()}>
 
-            <label style={styles.addPhoto}>
+            <label style={styles.bigAdd}>
               +
               <input
                 type="file"
@@ -229,27 +216,30 @@ export default function Profile() {
               />
             </label>
 
-            {photos.map((p, i) => (
-              <div key={i} style={styles.galleryItem}>
-                <img
-                  src={p}
-                  style={{
-                    ...styles.galleryImg,
-                    border: i === mainIndex ? "2px solid #2AABEE" : "none"
-                  }}
-                  onClick={() => setMainIndex(i)}
-                />
+            <div style={styles.grid}>
+              {photos.map((p, i) => (
+                <div key={i} style={styles.gridItem}>
+                  <img
+                    src={p}
+                    style={{
+                      ...styles.gridImg,
+                      border: i === mainIndex ? "2px solid #2AABEE" : "none"
+                    }}
+                    onClick={() => setMainIndex(i)}
+                  />
 
-                <button
-                  style={styles.deleteBtn}
-                  onClick={() => {
-                    setPhotos((prev) => prev.filter((_, index) => index !== i));
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+                  <button
+                    style={styles.deleteBtn}
+                    onClick={() => {
+                      setPhotos((prev) => prev.filter((_, index) => index !== i));
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+
           </div>
         </div>
       )}
@@ -262,9 +252,8 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-  mainAvatar:{width:"100px",height:"100px",borderRadius:"50%",objectFit:"cover"},
-  emptyAvatar:{width:"100px",height:"100px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
-  plus:{position:"absolute",bottom:0,right:"calc(50% - 50px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"22px",height:"22px",display:"flex",alignItems:"center",justifyContent:"center"},
+  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"22px",height:"22px",display:"flex",alignItems:"center",justifyContent:"center"},
 
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
@@ -274,35 +263,22 @@ const styles:any = {
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
-  option:{flex:1,padding:"8px",borderRadius:"12px",border:"none",background:"#E7F3FF",fontSize:"13px"},
+  option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center"},
-  gallery:{
-    display:"grid",
-    gridTemplateColumns:"repeat(4, 1fr)",
-    gap:"10px",
-    padding:"20px"
-  },
-  galleryItem:{position:"relative"},
-  galleryImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"10px"},
 
-  addPhoto:{width:"100%",aspectRatio:"3/4",borderRadius:"10px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px"},
+  galleryWrap:{width:"100%",padding:"20px"},
 
-  deleteBtn:{
-    position:"absolute",
-    top:"6px",
-    right:"6px",
-    background:"rgba(0,0,0,0.7)",
-    color:"#fff",
-    border:"none",
-    borderRadius:"50%",
-    width:"26px",
-    height:"26px",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center"
-  }
+  bigAdd:{width:"100%",height:"120px",borderRadius:"16px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"40px",marginBottom:"20px"},
+
+  grid:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px"},
+
+  gridItem:{position:"relative"},
+
+  gridImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"12px"},
+
+  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"26px",height:"26px"}
 };
