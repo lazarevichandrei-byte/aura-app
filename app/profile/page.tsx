@@ -60,10 +60,7 @@ export default function Profile() {
         setCity(data.city || "");
         setBio(data.bio || "");
         setSelected(data.interests || []);
-
-        if (data.avatar_url) {
-          setPhotos([data.avatar_url]);
-        }
+        if (data.avatar_url) setPhotos([data.avatar_url]);
       }
 
       setLoading(false);
@@ -74,7 +71,6 @@ export default function Profile() {
 
   const uploadPhoto = async (file: File) => {
     if (!telegramId) return;
-
     setUploading(true);
 
     const fileName = `${telegramId}_${Date.now()}.jpg`;
@@ -123,7 +119,7 @@ export default function Profile() {
     });
 
     if (error) {
-      alert("Ошибка: " + error.message);
+      alert(error.message);
     } else {
       window.location.href = "/home";
     }
@@ -157,6 +153,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
@@ -165,25 +162,58 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
-              <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
+              <button key={item}
+                onClick={()=>setSearch(item)}
+                style={{...styles.option,...(search===item&&styles.active)}}
+              >
                 {item==="male"?"Парня":item==="female"?"Девушку":"Без разницы"}
               </button>
             ))}
           </div>
         </div>
 
+        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
+        {/* BIO */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
+        </div>
+
+        {/* ИНТЕРЕСЫ */}
+        <div style={styles.block}>
+          <p style={styles.label}>Интересы</p>
+          <div style={styles.tags}>
+            {[...base, ...(showMore ? extra : [])].map((t) => {
+              const active = selected.includes(t);
+              return (
+                <span
+                  key={t}
+                  onClick={() => toggle(t)}
+                  style={{
+                    ...styles.tag,
+                    ...(active ? styles.tagActive : {}),
+                  }}
+                >
+                  {t}
+                </span>
+              );
+            })}
+            {!showMore && (
+              <span style={styles.tag} onClick={() => setShowMore(true)}>
+                +
+              </span>
+            )}
+          </div>
         </div>
 
         <button
@@ -197,71 +227,24 @@ export default function Profile() {
       </div>
             {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div style={styles.galleryWrap} onClick={(e)=>e.stopPropagation()}>
+          <div style={styles.modal} onClick={(e)=>e.stopPropagation()}>
 
-            {photos.length === 0 ? (
-              <div style={styles.centerAdd}>
-                <label style={styles.bigAdd}>
-                  +
-                  <input
-                    type="file"
-                    multiple
-                    hidden
-                    onChange={async (e) => {
-                      const files = e.target.files;
-                      if (!files) return;
+            <label style={styles.bigAdd}>
+              +
+              <input
+                type="file"
+                multiple
+                hidden
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (!files) return;
 
-                      for (let i = 0; i < files.length; i++) {
-                        await uploadPhoto(files[i]);
-                      }
-                    }}
-                  />
-                </label>
-              </div>
-            ) : (
-              <div style={styles.grid}>
-                <label style={styles.gridItem}>
-                  <div style={styles.addTile}>+</div>
-                  <input
-                    type="file"
-                    multiple
-                    hidden
-                    onChange={async (e) => {
-                      const files = e.target.files;
-                      if (!files) return;
-
-                      for (let i = 0; i < files.length; i++) {
-                        await uploadPhoto(files[i]);
-                      }
-                    }}
-                  />
-                </label>
-
-                {photos.map((p, i) => (
-                  <div key={i} style={styles.gridItem}>
-                    <img
-                      src={p}
-                      style={{
-                        ...styles.gridImg,
-                        border: i === mainIndex ? "2px solid #2AABEE" : "none"
-                      }}
-                      onClick={() => setMainIndex(i)}
-                    />
-
-                    <button
-                      style={styles.deleteBtn}
-                      onClick={() => {
-                        setPhotos((prev) =>
-                          prev.filter((_, index) => index !== i)
-                        );
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  for (let i = 0; i < files.length; i++) {
+                    await uploadPhoto(files[i]);
+                  }
+                }}
+              />
+            </label>
 
           </div>
         </div>
@@ -286,26 +269,18 @@ const styles:any = {
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
-  option:{flex:1,padding:"12px",borderRadius:"16px",border:"none",background:"#E7F3FF",fontSize:"14px"},
+  option:{flex:1,padding:"12px",borderRadius:"16px",border:"none",background:"#E7F3FF"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
+
+  tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
+  tag:{padding:"6px 10px",borderRadius:"999px",background:"#E7F3FF"},
+  tagActive:{background:"#2AABEE",color:"#fff"},
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
-  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center"},
+  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  galleryWrap:{width:"100%",padding:"20px"},
+  modal:{width:"60%",aspectRatio:"3/4"}, // ВАЖНО: уменьшено в 2 раза
 
-  centerAdd:{display:"flex",justifyContent:"center",marginBottom:"20px"},
-
-  bigAdd:{width:"60%",aspectRatio:"3/4",borderRadius:"16px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px"},
-
-  grid:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px"},
-
-  gridItem:{position:"relative"},
-
-  gridImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"12px"},
-
-  addTile:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
-
-  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"26px",height:"26px"}
+  bigAdd:{width:"100%",height:"100%",borderRadius:"16px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px"}
 };
