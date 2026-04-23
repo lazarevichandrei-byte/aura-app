@@ -15,6 +15,9 @@ export default function Profile() {
   const [city, setCity] = useState("");
   const [bio, setBio] = useState("");
 
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
@@ -45,7 +48,6 @@ export default function Profile() {
     const init = async () => {
       const tg = (window as any).Telegram?.WebApp;
 
-      // ✅ Telegram init (как на первом экране)
       if (tg) {
         tg.ready();
         tg.expand();
@@ -54,7 +56,6 @@ export default function Profile() {
         document.body.style.background = "#ffffff";
       }
 
-      // ✅ защита от отсутствия Telegram
       if (!tg || !tg.initDataUnsafe) {
         setLoading(false);
         return;
@@ -77,6 +78,7 @@ export default function Profile() {
         .maybeSingle();
 
       if (data) {
+        setAvatar(data.avatar_url || null);
         setName(data.name || "");
         setAge(data.age || 22);
         setGender(data.gender || "female");
@@ -91,6 +93,40 @@ export default function Profile() {
 
     init();
   }, []);
+
+  // ✅ ВАЖНО: функция теперь ВНЕ useEffect
+  const uploadAvatar = async (file: File) => {
+    try {
+      if (!telegramId) return;
+
+      setUploading(true);
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${telegramId}.${fileExt}`;
+
+      const { error } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, file, {
+          upsert: true,
+        });
+
+      if (error) {
+        alert("Ошибка загрузки: " + error.message);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+
+      setAvatar(data.publicUrl);
+    } catch (e) {
+      console.log(e);
+      alert("Ошибка загрузки");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const toggle = (item: string) => {
     if (selected.includes(item)) {
@@ -110,9 +146,7 @@ export default function Profile() {
 
     setErrors(newErrors);
 
-    if (newErrors.name || newErrors.city) {
-      return;
-    }
+    if (newErrors.name || newErrors.city) return;
 
     const { error } = await supabase.from("users").upsert({
       telegram_id: telegramId,
@@ -123,12 +157,12 @@ export default function Profile() {
       city,
       bio,
       interests: selected,
+      avatar_url: avatar,
     });
 
     if (error) {
       alert("Ошибка: " + error.message);
     } else {
-      // ✅ исправленный переход
       window.location.href = "/home";
     }
   };
@@ -142,7 +176,35 @@ export default function Profile() {
       <div style={styles.card}>
         <div style={styles.header}>
           <div style={styles.avatarWrapper}>
-            <div style={styles.avatar}></div>
+            <label style={styles.avatar}>
+              {avatar ? (
+                <img
+                  src={avatar}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <span style={{ fontSize: 12, color: "#999" }}>
+                  {uploading ? "Загрузка..." : "Добавить"}
+                </span>
+              )}
+
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    uploadAvatar(e.target.files[0]);
+                  }
+                }}
+              />
+            </label>
+
             <div style={styles.camera}>📷</div>
           </div>
 
@@ -153,6 +215,8 @@ export default function Profile() {
             </p>
           </div>
         </div>
+
+        {/* дальше твой код без изменений */}
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
