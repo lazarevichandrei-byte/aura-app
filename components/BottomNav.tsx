@@ -1,13 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Home,
-  Home as HomeOutline,
-  Search,
-  Heart,
-  User,
-} from "lucide-react";
+import { Home, MessageCircle, Search, Clock, User } from "lucide-react";
 
 export default function BottomNav() {
   const router = useRouter();
@@ -15,8 +9,9 @@ export default function BottomNav() {
 
   const tabs = [
     { icon: Home, path: "/home" },
+    { icon: MessageCircle, path: "/matches" },
     { icon: Search, path: "/search" },
-    { icon: Heart, path: "/matches" },
+    { icon: Clock, path: "/history" },
     { icon: User, path: "/profile" },
   ];
 
@@ -27,13 +22,13 @@ export default function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: "60px",
+        height: "70px",
         background: "#fff",
         borderTop: "1px solid #eee",
         display: "flex",
         justifyContent: "space-around",
         alignItems: "center",
-        paddingBottom: "6px",
+        zIndex: 100,
       }}
     >
       {tabs.map((tab, i) => {
@@ -50,14 +45,18 @@ export default function BottomNav() {
               justifyContent: "center",
               width: "50px",
               height: "50px",
+              borderRadius: "12px",
+              background: active
+                ? "linear-gradient(135deg, #4facfe, #2979ff)"
+                : "transparent",
               cursor: "pointer",
+              transition: "0.2s",
             }}
           >
             <Icon
-              size={26}
+              size={24}
               strokeWidth={2}
-              color={active ? "#2979FF" : "#B0B0B0"}
-              fill={active ? "#2979FF" : "none"}
+              color={active ? "#fff" : "#999"}
             />
           </div>
         );
