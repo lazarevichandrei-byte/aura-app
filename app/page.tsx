@@ -2,62 +2,33 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "./lib/supabase";
+import { supabase } from "@/lib/supabase";
 
-export default function StartPage() {
+export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
     const init = async () => {
-      const tg = (window as any)?.Telegram?.WebApp;
+      const tg = (window as any).Telegram?.WebApp;
+      const user = tg?.initDataUnsafe?.user;
 
-      // если не в Telegram
-      if (!tg) {
-        router.replace("/profile");
-        return;
-      }
+      if (!user) return;
 
-      tg.ready();
-      tg.expand();
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("telegram_id", user.id)
+        .single();
 
-      const user = tg.initDataUnsafe?.user;
-
-      // если нет пользователя
-      if (!user?.id) {
-        router.replace("/profile");
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("telegram_id", user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error("SUPABASE ERROR:", error);
-          router.replace("/profile");
-          return;
-        }
-
-        if (data) {
-          router.replace("/home");
-        } else {
-          router.replace("/profile");
-        }
-      } catch (e) {
-        console.error("INIT ERROR:", e);
-        router.replace("/profile");
+      if (data) {
+        router.push("/home");
+      } else {
+        router.push("/profile");
       }
     };
 
     init();
-  }, [router]);
+  }, []);
 
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <p>Загрузка...</p>
-    </div>
-  );
+  return <div className="p-4">Loading...</div>;
 }
