@@ -10,35 +10,43 @@ export default function Page() {
 
   useEffect(() => {
     const init = async () => {
-      const tg = (window as any).Telegram?.WebApp;
+      try {
+        const tg = (window as any).Telegram?.WebApp;
 
-      if (tg) {
-        tg.ready();
-        tg.expand();
-        tg.setBackgroundColor("#ffffff");
-        tg.setHeaderColor("#ffffff");
-      }
+        if (tg) {
+          tg.ready();
+          tg.expand();
+          tg.setBackgroundColor("#ffffff");
+          tg.setHeaderColor("#ffffff");
+        }
 
-      const user = tg?.initDataUnsafe?.user;
+        const user = tg?.initDataUnsafe?.user;
 
-      if (!user) {
+        // ❗ Если Telegram не дал пользователя — просто показываем кнопку
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        // 🔍 Проверяем есть ли пользователь в базе
+        const { data } = await supabase
+          .from("users")
+          .select("*")
+          .eq("telegram_id", user.id)
+          .maybeSingle();
+
+        // ✅ Если пользователь есть → HOME
+        if (data) {
+          router.replace("/home");
+          return;
+        }
+
+        // ✅ Если нет → показываем кнопку
         setLoading(false);
-        return;
+      } catch (e) {
+        console.log("INIT ERROR:", e);
+        setLoading(false); // ❗ чтобы не зависало
       }
-
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("telegram_id", user.id)
-        .maybeSingle();
-
-      if (data) {
-        router.replace("/home");
-        return;
-      }
-
-      // 👇 новый пользователь — показываем кнопку
-      setLoading(false);
     };
 
     init();
@@ -48,14 +56,17 @@ export default function Page() {
     router.push("/profile");
   };
 
+  // 🔹 экран загрузки (но не вечный)
   if (loading) {
     return (
-      <div style={{ padding: 20 }}>
-        Загрузка...
+      <div style={styles.loading}>
+        <h1>Aura</h1>
+        <p>Загрузка...</p>
       </div>
     );
   }
 
+  // 🔹 главный экран
   return (
     <main style={styles.container}>
       <div style={styles.center}>
@@ -74,6 +85,15 @@ export default function Page() {
 }
 
 const styles: any = {
+  loading: {
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "-apple-system, sans-serif",
+  },
+
   container: {
     minHeight: "100vh",
     background: "#ffffff",
@@ -106,5 +126,6 @@ const styles: any = {
     height: "56px",
     padding: "0 24px",
     fontSize: "16px",
+    cursor: "pointer",
   },
 };
