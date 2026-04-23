@@ -42,8 +42,7 @@ export default function Profile() {
   // ✅ валидация
   const isValid =
     name.trim().length > 0 &&
-    city.trim().length > 0 &&
-    bio.trim().length >= 10;
+    city.trim().length > 0;
 
   useEffect(() => {
     const init = async () => {
