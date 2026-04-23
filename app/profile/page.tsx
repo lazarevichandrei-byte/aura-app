@@ -28,21 +28,11 @@ export default function Profile() {
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
-    "Игры",
-    "Бизнес",
-    "Еда",
-    "Йога",
-    "Авто",
-    "Книги",
-    "Технологии",
-    "Искусство",
-    "Танцы",
-    "Природа",
+    "Игры","Бизнес","Еда","Йога","Авто",
+    "Книги","Технологии","Искусство","Танцы","Природа",
   ];
 
-  const isValid =
-    name.trim().length > 0 &&
-    city.trim().length > 0;
+  const isValid = name.trim().length > 0 && city.trim().length > 0;
 
   useEffect(() => {
     const init = async () => {
@@ -94,21 +84,17 @@ export default function Profile() {
     init();
   }, []);
 
-  // ✅ ВАЖНО: функция теперь ВНЕ useEffect
   const uploadAvatar = async (file: File) => {
     try {
       if (!telegramId) return;
 
       setUploading(true);
 
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${telegramId}.${fileExt}`;
+      const fileName = `${telegramId}.jpg`;
 
       const { error } = await supabase.storage
         .from("avatars")
-        .upload(fileName, file, {
-          upsert: true,
-        });
+        .upload(fileName, file, { upsert: true });
 
       if (error) {
         alert("Ошибка загрузки: " + error.message);
@@ -119,7 +105,9 @@ export default function Profile() {
         .from("avatars")
         .getPublicUrl(fileName);
 
-      setAvatar(data.publicUrl);
+      if (data?.publicUrl) {
+        setAvatar(data.publicUrl);
+      }
     } catch (e) {
       console.log(e);
       alert("Ошибка загрузки");
@@ -129,15 +117,15 @@ export default function Profile() {
   };
 
   const toggle = (item: string) => {
-    if (selected.includes(item)) {
-      setSelected(selected.filter((i) => i !== item));
-    } else {
-      setSelected([...selected, item]);
-    }
+    setSelected((prev) =>
+      prev.includes(item)
+        ? prev.filter((i) => i !== item)
+        : [...prev, item]
+    );
   };
 
   const handleSubmit = async () => {
-    if (!telegramId) return;
+    if (!telegramId || uploading) return;
 
     const newErrors = {
       name: name.trim().length === 0,
@@ -145,7 +133,6 @@ export default function Profile() {
     };
 
     setErrors(newErrors);
-
     if (newErrors.name || newErrors.city) return;
 
     const { error } = await supabase.from("users").upsert({
@@ -192,19 +179,17 @@ export default function Profile() {
                   {uploading ? "Загрузка..." : "Добавить"}
                 </span>
               )}
-
               <input
                 type="file"
                 accept="image/*"
                 style={{ display: "none" }}
                 onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    uploadAvatar(e.target.files[0]);
-                  }
+                  const file = e.target.files?.[0];
+                  if (file) uploadAvatar(file);
+                  e.target.value = "";
                 }}
               />
             </label>
-
             <div style={styles.camera}>📷</div>
           </div>
 
@@ -216,26 +201,20 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* дальше твой код без изменений */}
-
+        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Введите имя"
-              style={{
-                ...styles.input,
-                border: errors.name ? "1px solid red" : "none",
-              }}
+              style={styles.input}
             />
-            {errors.name && <p style={styles.error}>Введите имя</p>}
           </div>
 
           <div style={styles.inputBox}>
             <p style={styles.label}>Возраст</p>
-            <div style={{ fontWeight: 600 }}>{age}</div>
+            <div>{age}</div>
             <input
               type="range"
               min="18"
@@ -247,238 +226,94 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
-            <button
-              onClick={() => setGender("female")}
-              style={{
-                ...styles.option,
-                ...(gender === "female" && styles.active),
-              }}
-            >
+            <button onClick={() => setGender("female")} style={styles.option}>
               ♀ Женщина
             </button>
-
-            <button
-              onClick={() => setGender("male")}
-              style={{
-                ...styles.option,
-                ...(gender === "male" && styles.active),
-              }}
-            >
+            <button onClick={() => setGender("male")} style={styles.option}>
               ♂ Мужчина
             </button>
           </div>
         </div>
 
+        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
-            {["male", "female", "any"].map((item) => (
-              <button
-                key={item}
-                onClick={() => setSearch(item)}
-                style={{
-                  ...styles.option,
-                  ...(search === item && styles.active),
-                }}
-              >
-                {item === "male"
-                  ? "Парня"
-                  : item === "female"
-                  ? "Девушку"
-                  : "Без разницы"}
+            {["male","female","any"].map((item) => (
+              <button key={item} onClick={() => setSearch(item)} style={styles.option}>
+                {item === "male" ? "Парня" : item === "female" ? "Девушку" : "Без разницы"}
               </button>
             ))}
           </div>
         </div>
 
+        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
-          <input
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Введите город"
-            style={{
-              ...styles.input,
-              border: errors.city ? "1px solid red" : "none",
-            }}
-          />
-          {errors.city && <p style={styles.error}>Введите город</p>}
+          <input value={city} onChange={(e) => setCity(e.target.value)} style={styles.input}/>
         </div>
 
+        {/* BIO */}
         <div style={styles.inputBox}>
-          <p style={styles.label}>О себе (не обязательно)</p>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Пару слов о себе..."
-            style={styles.textarea}
-          />
+          <p style={styles.label}>О себе</p>
+          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
+        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
           <div style={styles.tags}>
-            {[...base, ...(showMore ? extra : [])].map((t) => {
-              const active = selected.includes(t);
-
-              return (
-                <span
-                  key={t}
-                  onClick={() => toggle(t)}
-                  style={{
-                    ...styles.tag,
-                    ...(active ? styles.tagActive : {}),
-                  }}
-                >
-                  {t}
-                </span>
-              );
-            })}
-
+            {[...base, ...(showMore ? extra : [])].map((t) => (
+              <span key={t} onClick={()=>toggle(t)} style={styles.tag}>{t}</span>
+            ))}
             {!showMore && (
-              <span style={styles.tag} onClick={() => setShowMore(true)}>
-                +
-              </span>
+              <span style={styles.tag} onClick={()=>setShowMore(true)}>+</span>
             )}
           </div>
         </div>
 
         <button
-          style={{
-            ...styles.submit,
-            opacity: isValid ? 1 : 0.5,
-            pointerEvents: isValid ? "auto" : "none",
-          }}
+          disabled={!isValid || uploading}
+          style={styles.submit}
           onClick={handleSubmit}
         >
-          Продолжить
+          {uploading ? "Загрузка..." : "Продолжить"}
         </button>
       </div>
     </div>
   );
 }
 
-const styles: any = {
-  wrapper: {
-    minHeight: "100vh",
-    background: "#F5F7FB",
-    padding: "20px",
-    fontFamily: "-apple-system, sans-serif",
-  },
-
-  card: {
-    background: "#fff",
-    borderRadius: "24px",
-    padding: "20px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-    maxWidth: "420px",
-    margin: "0 auto",
-  },
-
-  header: {
-    display: "flex",
-    gap: "15px",
-    marginBottom: "20px",
-  },
-
-  avatarWrapper: { position: "relative" },
-
-  avatar: {
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    background: "#ddd",
-    border: "3px solid #2A7BFF",
-  },
-
-  camera: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    background: "#2A7BFF",
-    color: "#fff",
-    borderRadius: "50%",
-    padding: "6px",
-    fontSize: "12px",
-  },
-
-  title: { fontSize: "20px", fontWeight: "600" },
-  subtitle: { fontSize: "14px", color: "#6B7280" },
-
-  row: { display: "flex", gap: "10px" },
-
-  inputBox: {
-    background: "#F9FAFB",
-    borderRadius: "16px",
-    padding: "12px",
-    marginTop: "12px",
-    flex: 1,
-  },
-
-  label: { fontSize: "12px", color: "#6B7280" },
-
-  input: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
-  },
-
-  textarea: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-    background: "transparent",
-  },
-
-  error: {
-    color: "red",
-    fontSize: "12px",
-    marginTop: "4px",
-  },
-
-  slider: { width: "100%" },
-
-  block: { marginTop: "14px" },
-
-  buttons: { display: "flex", gap: "10px" },
-
-  option: {
-    flex: 1,
-    padding: "10px",
-    borderRadius: "14px",
-    border: "none",
-    background: "#E7F3FF",
-  },
-
-  active: {
-    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-    color: "#fff",
-  },
-
-  tags: { display: "flex", flexWrap: "wrap", gap: "8px" },
-
-  tag: {
-    padding: "6px 10px",
-    borderRadius: "999px",
-    border: "1px solid #2A7BFF",
-    color: "#2A7BFF",
-  },
-
-  tagActive: { background: "#2A7BFF", color: "#fff" },
-
-  submit: {
-    marginTop: "20px",
-    width: "100%",
-    height: "56px",
-    borderRadius: "18px",
-    border: "none",
-    color: "#fff",
-    fontSize: "16px",
-    fontWeight: "600",
-    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-  },
+const styles:any = {
+  wrapper:{minHeight:"100vh",background:"#F5F7FB",padding:"20px"},
+  card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
+  header:{display:"flex",gap:"15px"},
+  avatarWrapper:{position:"relative"},
+  avatar:{width:"80px",height:"80px",borderRadius:"50%",background:"#ddd"},
+  camera:{position:"absolute",bottom:0,right:0},
+  title:{fontSize:"20px"},
+  subtitle:{fontSize:"14px"},
+  row:{display:"flex",gap:"10px"},
+  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+  input:{width:"100%",border:"none",background:"transparent"},
+  textarea:{width:"100%",border:"none"},
+  block:{marginTop:"14px"},
+  buttons:{display:"flex",gap:"10px"},
+  option:{flex:1,padding:"10px",borderRadius:"14px",background:"#E7F3FF",border:"none"},
+  tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
+  tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid #2A7BFF"},
+  slider:{width:"100%"},
+  submit:{
+    marginTop:"20px",
+    width:"100%",
+    height:"56px",
+    borderRadius:"18px",
+    border:"none",
+    color:"#fff",
+    background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"
+  }
 };
