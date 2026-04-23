@@ -123,7 +123,6 @@ export default function Profile() {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-        {/* HEADER */}
         <div style={styles.header}>
           <div style={styles.avatarWrapper}>
             <div style={styles.avatar}></div>
@@ -138,7 +137,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
@@ -168,7 +166,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
@@ -194,7 +191,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
@@ -217,7 +213,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ГОРОД */}
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input
@@ -232,7 +227,6 @@ export default function Profile() {
           {errors.city && <p style={styles.error}>Введите город</p>}
         </div>
 
-        {/* BIO */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе (не обязательно)</p>
           <textarea
@@ -243,7 +237,6 @@ export default function Profile() {
           />
         </div>
 
-        {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
           <div style={styles.tags}>
@@ -272,7 +265,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* КНОПКА */}
         <button
           style={{
             ...styles.submit,
@@ -378,13 +370,12 @@ const styles: any = {
     padding: "10px",
     borderRadius: "14px",
     border: "none",
-    background: "#EEF1F6",
+    background: "#E7F3FF", // 🔥 изменено
   },
 
   active: {
     background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
     color: "#fff",
-    boxShadow: "0 10px 25px rgba(42,171,238,0.35)",
   },
 
   tags: { display: "flex", flexWrap: "wrap", gap: "8px" },
@@ -408,6 +399,5 @@ const styles: any = {
     fontSize: "16px",
     fontWeight: "600",
     background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-    boxShadow: "0 10px 25px rgba(42,171,238,0.35)",
   },
 };

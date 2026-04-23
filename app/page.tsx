@@ -23,7 +23,6 @@ export default function Page() {
 
         const user = tg?.initDataUnsafe?.user;
 
-        // если Telegram не дал пользователя → просто показываем экран
         if (!user) {
           setLoading(false);
           return;
@@ -35,13 +34,11 @@ export default function Page() {
           .eq("telegram_id", user.id)
           .maybeSingle();
 
-        // если пользователь уже есть → сразу домой
         if (data) {
           router.replace("/home");
           return;
         }
 
-        // новый пользователь → показываем кнопку
         setLoading(false);
       } catch (e) {
         console.log("INIT ERROR:", e);
@@ -52,26 +49,24 @@ export default function Page() {
     init();
   }, []);
 
-  // 🔥 НАДЁЖНЫЙ ПЕРЕХОД (фикс Telegram бага)
   const handleLogin = () => {
-    window.location.href = "/profile";
+    router.push("/profile");
   };
 
-  // экран загрузки
   if (loading) {
     return (
-      <main style={styles.wrapper}>
+      <div style={styles.wrapper}>
         <div style={styles.center}>
           <h1 style={styles.logo}>Aura</h1>
           <p style={styles.subtitle}>Загрузка...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
-  // основной экран
   return (
     <main style={styles.wrapper}>
+      {/* CENTER */}
       <div style={styles.center}>
         <h1 style={styles.logo}>Aura</h1>
 
@@ -84,6 +79,7 @@ export default function Page() {
         </button>
       </div>
 
+      {/* FOOTER */}
       <div style={styles.footer}>
         <p>Продолжая, вы принимаете</p>
         <p style={styles.links}>
