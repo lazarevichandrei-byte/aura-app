@@ -1,17 +1,17 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { FiHome, FiSearch, FiHeart, FiUser } from "react-icons/fi";
+import { Home, Search, Heart, User } from "lucide-react";
 
 export default function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
 
   const tabs = [
-    { icon: FiHome, path: "/home" },
-    { icon: FiSearch, path: "/search" },
-    { icon: FiHeart, path: "/matches" },
-    { icon: FiUser, path: "/profile" },
+    { icon: Home, path: "/home" },
+    { icon: Search, path: "/search" },
+    { icon: Heart, path: "/matches" },
+    { icon: User, path: "/profile" },
   ];
 
   return (
@@ -21,7 +21,7 @@ export default function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: "70px",
+        height: "65px",
         background: "#fff",
         borderTop: "1px solid #eee",
         display: "flex",
@@ -31,8 +31,8 @@ export default function BottomNav() {
       }}
     >
       {tabs.map((tab, i) => {
-        const active = pathname === tab.path;
         const Icon = tab.icon;
+        const active = pathname === tab.path;
 
         return (
           <div
@@ -40,11 +40,14 @@ export default function BottomNav() {
             onClick={() => router.push(tab.path)}
             style={{
               cursor: "pointer",
-              color: active ? "#2979FF" : "#B0B0B0",
-              transition: "0.2s",
             }}
           >
-            <Icon size={26} />
+            <Icon
+              size={26}
+              strokeWidth={2}
+              color={active ? "#2979FF" : "#999"}
+              fill={active ? "#2979FF" : "none"}
+            />
           </div>
         );
       })}
