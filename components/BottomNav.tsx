@@ -45,18 +45,20 @@ export default function BottomNav() {
               justifyContent: "center",
               width: "50px",
               height: "50px",
-              borderRadius: "12px",
-              background: active
-                ? "linear-gradient(135deg, #4facfe, #2979ff)"
-                : "transparent",
-              cursor: "pointer",
+              borderRadius: "14px",
+              background: active ? "rgba(41,121,255,0.1)" : "transparent",
+              border: active ? "1.5px solid #2979ff" : "1.5px solid transparent",
+              boxShadow: active
+                ? "0 0 10px rgba(41,121,255,0.25)"
+                : "none",
               transition: "0.2s",
+              cursor: "pointer",
             }}
           >
             <Icon
               size={24}
-              strokeWidth={2}
-              color={active ? "#fff" : "#999"}
+              strokeWidth={1.8}
+              color={active ? "#2979ff" : "#999"}
             />
           </div>
         );
