@@ -44,7 +44,23 @@ export default function Profile() {
   useEffect(() => {
     const init = async () => {
       const tg = (window as any).Telegram?.WebApp;
-      const user = tg?.initDataUnsafe?.user;
+
+      // ✅ Telegram init (как на первом экране)
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.setBackgroundColor("#ffffff");
+        tg.setHeaderColor("#ffffff");
+        document.body.style.background = "#ffffff";
+      }
+
+      // ✅ защита от отсутствия Telegram
+      if (!tg || !tg.initDataUnsafe) {
+        setLoading(false);
+        return;
+      }
+
+      const user = tg.initDataUnsafe.user;
 
       if (!user) {
         setLoading(false);
@@ -112,7 +128,8 @@ export default function Profile() {
     if (error) {
       alert("Ошибка: " + error.message);
     } else {
-      window.location.href = window.location.origin + "/home";
+      // ✅ исправленный переход
+      window.location.href = "/home";
     }
   };
 
@@ -370,7 +387,7 @@ const styles: any = {
     padding: "10px",
     borderRadius: "14px",
     border: "none",
-    background: "#E7F3FF", // 🔥 изменено
+    background: "#E7F3FF",
   },
 
   active: {

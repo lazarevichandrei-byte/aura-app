@@ -21,7 +21,13 @@ export default function Page() {
           document.body.style.background = "#ffffff";
         }
 
-        const user = tg?.initDataUnsafe?.user;
+        // ✅ ДОБАВЛЕНО: защита от отсутствия Telegram
+        if (!tg || !tg.initDataUnsafe) {
+          setLoading(false);
+          return;
+        }
+
+        const user = tg.initDataUnsafe.user;
 
         if (!user) {
           setLoading(false);
@@ -35,7 +41,8 @@ export default function Page() {
           .maybeSingle();
 
         if (data) {
-          router.replace("/home");
+          // ✅ ИЗМЕНЕНО: стабильный переход для Telegram
+          window.location.href = "/home";
           return;
         }
 
@@ -50,7 +57,8 @@ export default function Page() {
   }, []);
 
   const handleLogin = () => {
-    router.push("/profile");
+    // ✅ ИЗМЕНЕНО: вместо router.push
+    window.location.href = "/profile";
   };
 
   if (loading) {
@@ -133,7 +141,6 @@ const styles: any = {
     fontWeight: "600",
     color: "#fff",
     background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-    boxShadow: "0 10px 25px rgba(42,171,238,0.35)",
     cursor: "pointer",
   },
 
