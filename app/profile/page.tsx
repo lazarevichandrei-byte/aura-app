@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
 export default function Profile() {
-  const router = useRouter();
-
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
@@ -21,6 +18,13 @@ export default function Profile() {
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
+  // ✅ ошибки
+  const [errors, setErrors] = useState({
+    name: false,
+    city: false,
+    bio: false,
+  });
+
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
     "Игры",
@@ -34,6 +38,12 @@ export default function Profile() {
     "Танцы",
     "Природа",
   ];
+
+  // ✅ валидация
+  const isValid =
+    name.trim().length > 0 &&
+    city.trim().length > 0 &&
+    bio.trim().length >= 10;
 
   useEffect(() => {
     const init = async () => {
@@ -81,8 +91,15 @@ export default function Profile() {
   const handleSubmit = async () => {
     if (!telegramId) return;
 
-    if (!name) {
-      alert("Введите имя");
+    const newErrors = {
+      name: name.trim().length === 0,
+      city: city.trim().length === 0,
+      bio: bio.trim().length < 10,
+    };
+
+    setErrors(newErrors);
+
+    if (newErrors.name || newErrors.city || newErrors.bio) {
       return;
     }
 
@@ -100,7 +117,7 @@ export default function Profile() {
     if (error) {
       alert("Ошибка: " + error.message);
     } else {
-      router.push("/home");
+      window.location.href = window.location.origin + "/home";
     }
   };
 
@@ -134,8 +151,12 @@ export default function Profile() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Введите имя"
-              style={styles.input}
+              style={{
+                ...styles.input,
+                border: errors.name ? "1px solid red" : "none",
+              }}
             />
+            {errors.name && <p style={styles.error}>Введите имя</p>}
           </div>
 
           <div style={styles.inputBox}>
@@ -155,7 +176,6 @@ export default function Profile() {
         {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
-
           <div style={styles.buttons}>
             <button
               onClick={() => setGender("female")}
@@ -182,7 +202,6 @@ export default function Profile() {
         {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
-
           <div style={styles.buttons}>
             {["male", "female", "any"].map((item) => (
               <button
@@ -210,25 +229,34 @@ export default function Profile() {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             placeholder="Введите город"
-            style={styles.input}
+            style={{
+              ...styles.input,
+              border: errors.city ? "1px solid red" : "none",
+            }}
           />
+          {errors.city && <p style={styles.error}>Введите город</p>}
         </div>
 
-        {/* О СЕБЕ */}
+        {/* BIO */}
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="Расскажите о себе..."
-            style={styles.textarea}
+            style={{
+              ...styles.textarea,
+              border: errors.bio ? "1px solid red" : "none",
+            }}
           />
+          {errors.bio && (
+            <p style={styles.error}>Минимум 10 символов</p>
+          )}
         </div>
 
         {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
-
           <div style={styles.tags}>
             {[...base, ...(showMore ? extra : [])].map((t) => {
               const active = selected.includes(t);
@@ -256,7 +284,14 @@ export default function Profile() {
         </div>
 
         {/* КНОПКА */}
-        <button style={styles.submit} onClick={handleSubmit}>
+        <button
+          style={{
+            ...styles.submit,
+            opacity: isValid ? 1 : 0.5,
+            pointerEvents: isValid ? "auto" : "none",
+          }}
+          onClick={handleSubmit}
+        >
           Продолжить
         </button>
       </div>
@@ -287,9 +322,7 @@ const styles: any = {
     marginBottom: "20px",
   },
 
-  avatarWrapper: {
-    position: "relative",
-  },
+  avatarWrapper: { position: "relative" },
 
   avatar: {
     width: "80px",
@@ -310,20 +343,10 @@ const styles: any = {
     fontSize: "12px",
   },
 
-  title: {
-    fontSize: "20px",
-    fontWeight: "600",
-  },
+  title: { fontSize: "20px", fontWeight: "600" },
+  subtitle: { fontSize: "14px", color: "#6B7280" },
 
-  subtitle: {
-    fontSize: "14px",
-    color: "#6B7280",
-  },
-
-  row: {
-    display: "flex",
-    gap: "10px",
-  },
+  row: { display: "flex", gap: "10px" },
 
   inputBox: {
     background: "#F9FAFB",
@@ -333,18 +356,13 @@ const styles: any = {
     flex: 1,
   },
 
-  label: {
-    fontSize: "12px",
-    color: "#6B7280",
-    marginBottom: "6px",
-  },
+  label: { fontSize: "12px", color: "#6B7280" },
 
   input: {
     width: "100%",
     border: "none",
     outline: "none",
     background: "transparent",
-    fontSize: "16px",
   },
 
   textarea: {
@@ -352,24 +370,19 @@ const styles: any = {
     border: "none",
     outline: "none",
     background: "transparent",
-    resize: "none",
-    fontSize: "16px",
   },
 
-  slider: {
-    width: "100%",
-    accentColor: "#2A7BFF",
+  error: {
+    color: "red",
+    fontSize: "12px",
+    marginTop: "4px",
   },
 
-  block: {
-    marginTop: "14px",
-  },
+  slider: { width: "100%" },
 
-  buttons: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "8px",
-  },
+  block: { marginTop: "14px" },
+
+  buttons: { display: "flex", gap: "10px" },
 
   option: {
     flex: 1,
@@ -377,7 +390,6 @@ const styles: any = {
     borderRadius: "14px",
     border: "none",
     background: "#EEF1F6",
-    cursor: "pointer",
   },
 
   active: {
@@ -385,25 +397,16 @@ const styles: any = {
     color: "white",
   },
 
-  tags: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "8px",
-  },
+  tags: { display: "flex", flexWrap: "wrap", gap: "8px" },
 
   tag: {
     padding: "6px 10px",
-    fontSize: "12px",
     borderRadius: "999px",
     border: "1px solid #2A7BFF",
     color: "#2A7BFF",
-    cursor: "pointer",
   },
 
-  tagActive: {
-    background: "#2A7BFF",
-    color: "#fff",
-  },
+  tagActive: { background: "#2A7BFF", color: "#fff" },
 
   submit: {
     marginTop: "20px",
@@ -412,9 +415,6 @@ const styles: any = {
     borderRadius: "16px",
     border: "none",
     color: "white",
-    fontSize: "16px",
     background: "linear-gradient(90deg,#2A7BFF,#1C5EFF)",
-    boxShadow: "0 8px 20px rgba(42,123,255,0.3)",
-    cursor: "pointer",
   },
 };
