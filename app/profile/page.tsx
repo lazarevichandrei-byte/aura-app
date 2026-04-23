@@ -39,6 +39,8 @@ export default function Profile() {
       if (tg) {
         tg.ready();
         tg.expand();
+        tg.setBackgroundColor("#ffffff");
+        tg.setHeaderColor("#ffffff");
       }
 
       const user = tg?.initDataUnsafe?.user;
@@ -71,7 +73,7 @@ export default function Profile() {
     };
 
     init();
-  }, []);
+  }, []); 
     const uploadPhoto = async (file: File) => {
     if (!telegramId) return;
 
@@ -89,6 +91,8 @@ export default function Profile() {
         .getPublicUrl(fileName);
 
       setPhotos((prev) => [...prev, data.publicUrl]);
+    } else {
+      alert("Ошибка загрузки: " + error.message);
     }
 
     setUploading(false);
@@ -122,68 +126,58 @@ export default function Profile() {
       avatar_url: photos[mainIndex] || null,
     });
 
-    if (!error) {
-      window.location.href = "/home";
+    if (error) {
+      alert("Ошибка: " + error.message);
+    } else {
+      window.location.href = window.location.origin + "/home";
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-
-  return (
+  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
+    return (
     <div style={styles.wrapper}>
-      <div style={styles.card}></div>
-              {/* АВАТАР */}
-        <label style={styles.avatarWrapper}>
+      <div style={styles.card}>
+
+        {/* АВАТАР */}
+        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
-            <img src={photos[mainIndex]} style={styles.avatar} />
+            <img src={photos[mainIndex]} style={styles.mainAvatar} />
           ) : (
-            <div style={styles.avatar}>👤</div>
+            <div style={styles.emptyAvatar}>👤</div>
           )}
-
-          <input
-            type="file"
-            multiple
-            hidden
-            onChange={async (e) => {
-              const files = e.target.files;
-              if (!files) return;
-
-              for (let i = 0; i < files.length; i++) {
-                await uploadPhoto(files[i]);
-              }
-            }}
-          />
-        </label>
+          <div style={styles.plus}>+</div>
+        </div>
 
         {/* ИМЯ + ВОЗРАСТ */}
         <div style={styles.row}>
           <div style={styles.inputBox}>
-            <p>Имя</p>
-            <input value={name} onChange={(e)=>setName(e.target.value)} />
+            <p style={styles.label}>Имя</p>
+            <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
           </div>
 
           <div style={styles.inputBox}>
-            <p>Возраст</p>
+            <p style={styles.label}>Возраст</p>
+            <div>{age}</div>
             <input type="range" min="18" max="60" value={age} onChange={(e)=>setAge(Number(e.target.value))}/>
           </div>
         </div>
 
         {/* ПОЛ */}
         <div style={styles.block}>
-          <p>Пол</p>
+          <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
-            <button onClick={()=>setGender("female")} style={gender==="female"?styles.active:styles.option}>Женщина</button>
-            <button onClick={()=>setGender("male")} style={gender==="male"?styles.active:styles.option}>Мужчина</button>
+            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>♀ Женщина</button>
+            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>♂ Мужчина</button>
           </div>
         </div>
 
         {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
-          <p>Кого ищешь</p>
+          <p style={styles.label}>Кого ищешь</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
-              <button key={item} onClick={()=>setSearch(item)} style={search===item?styles.active:styles.option}>
-                {item==="male"?"Парня":item==="female"?"Девушку":"Любого"}
+              <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
+                {item==="male"?"Парня":item==="female"?"Девушку":"Без разницы"}
               </button>
             ))}
           </div>
@@ -191,24 +185,128 @@ export default function Profile() {
 
         {/* ГОРОД */}
         <div style={styles.inputBox}>
-          <p>Город</p>
-          <input value={city} onChange={(e)=>setCity(e.target.value)} />
+          <p style={styles.label}>Город</p>
+          <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
+        </div>
+
+        {/* BIO */}
+        <div style={styles.inputBox}>
+          <p style={styles.label}>О себе</p>
+          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
         {/* ИНТЕРЕСЫ */}
-        <div style={styles.tags}>
-          {[...base, ...(showMore ? extra : [])].map(t=>(
-            <span key={t} onClick={()=>toggle(t)} style={selected.includes(t)?styles.tagActive:styles.tag}>
-              {t}
-            </span>
-          ))}
+        <div style={styles.block}>
+          <p style={styles.label}>Интересы</p>
+          <div style={styles.tags}>
+            {[...base, ...(showMore ? extra : [])].map(t=>{
+              const active = selected.includes(t);
+              return (
+                <span key={t} onClick={()=>toggle(t)} style={{...styles.tag,...(active&&styles.tagActive)}}>
+                  {t}
+                </span>
+              );
+            })}
+            {!showMore && <span style={styles.tag} onClick={()=>setShowMore(true)}>+</span>}
+          </div>
         </div>
 
-        <button style={styles.submit} onClick={handleSubmit}>
-          Продолжить
+        {/* КНОПКА */}
+        <button
+          disabled={!isValid || uploading}
+          style={{...styles.submit,opacity:isValid?1:0.5}}
+          onClick={handleSubmit}
+        >
+          {uploading ? "Загрузка..." : "Продолжить"}
         </button>
 
       </div>
+            {activePhoto && (
+        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
+          <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
+
+            <label style={styles.addPhoto}>
+              +
+              <input
+                type="file"
+                multiple
+                hidden
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (!files) return;
+
+                  for (let i = 0; i < files.length; i++) {
+                    await uploadPhoto(files[i]);
+                  }
+                }}
+              />
+            </label>
+
+            {photos.map((p, i) => (
+              <div key={i} style={styles.galleryItem}>
+                <img
+                  src={p}
+                  style={{
+                    ...styles.galleryImg,
+                    border: i === mainIndex ? "2px solid #2AABEE" : "none"
+                  }}
+                  onClick={() => setMainIndex(i)}
+                />
+
+                <button
+                  style={styles.deleteBtn}
+                  onClick={() => {
+                    setPhotos((prev) => prev.filter((_, index) => index !== i));
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const styles:any = {
+  wrapper:{minHeight:"100vh",background:"#F5F7FB",padding:"20px"},
+  card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
+
+  avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
+  mainAvatar:{width:"90px",height:"90px",borderRadius:"50%",objectFit:"cover"},
+  emptyAvatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
+
+  row:{display:"flex",gap:"10px"},
+  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+  label:{fontSize:"12px",color:"#6B7280"},
+  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
+  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
+
+  block:{marginTop:"14px"},
+  buttons:{display:"flex",gap:"10px"},
+  option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
+  active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
+
+  tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
+  tag:{padding:"6px 10px",borderRadius:"999px",background:"#E7F3FF"},
+  tagActive:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
+
+  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
+
+  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center"},
+  gallery:{
+    display:"grid",
+    gridTemplateColumns:"repeat(4, 1fr)",
+    gap:"10px",
+    padding:"20px"
+  },
+  galleryItem:{position:"relative"},
+  galleryImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"10px"},
+
+  addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+
+  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
+};
