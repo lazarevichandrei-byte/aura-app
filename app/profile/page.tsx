@@ -134,6 +134,7 @@ export default function Profile() {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
+        {/* АВАТАР */}
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
             <img src={photos[mainIndex]} style={styles.avatar} />
@@ -220,7 +221,7 @@ export default function Profile() {
             ) : (
               <div style={styles.grid}>
                 <label style={styles.gridItem}>
-                  <div style={styles.gridImg}>+</div>
+                  <div style={styles.addTile}>+</div>
                   <input
                     type="file"
                     multiple
@@ -250,7 +251,9 @@ export default function Profile() {
                     <button
                       style={styles.deleteBtn}
                       onClick={() => {
-                        setPhotos((prev) => prev.filter((_, index) => index !== i));
+                        setPhotos((prev) =>
+                          prev.filter((_, index) => index !== i)
+                        );
                       }}
                     >
                       ✕
@@ -283,7 +286,7 @@ const styles:any = {
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
-  option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
+  option:{flex:1,padding:"12px",borderRadius:"16px",border:"none",background:"#E7F3FF",fontSize:"14px"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
@@ -294,13 +297,15 @@ const styles:any = {
 
   centerAdd:{display:"flex",justifyContent:"center",marginBottom:"20px"},
 
-  bigAdd:{width:"70%",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"40px"},
+  bigAdd:{width:"60%",aspectRatio:"3/4",borderRadius:"16px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px"},
 
   grid:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px"},
 
   gridItem:{position:"relative"},
 
-  gridImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center"},
+  gridImg:{width:"100%",aspectRatio:"3/4",objectFit:"cover",borderRadius:"12px"},
+
+  addTile:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
 
   deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"26px",height:"26px"}
 };
