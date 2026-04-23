@@ -97,8 +97,7 @@ export default function Profile() {
 
     setUploading(false);
   };
-
-  const toggle = (item: string) => {
+    const toggle = (item: string) => {
     setSelected((prev) =>
       prev.includes(item)
         ? prev.filter((i) => i !== item)
@@ -129,39 +128,38 @@ export default function Profile() {
       photos,
     });
 
-    if (!error) window.location.href = "/home";
+    if (error) {
+      alert(error.message);
+    } else {
+      window.location.href = window.location.origin + "/home";
+    }
   };
 
   if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
-    return (
+
+  return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        {/* ФОТО */}
-        <div style={styles.photoRow}>
-          {photos.map((p, i) => (
-            <img
-              key={i}
-              src={p}
-              style={styles.photo}
-              onClick={() => setActivePhoto(p)}
-            />
-          ))}
+        <div style={styles.photoCenter}>
+          <div style={styles.addPhoto}>
+            📷
+            <input
+              type="file"
+              multiple
+              hidden
+              onChange={async (e) => {
+                const files = e.target.files;
+                if (!files) return;
 
-          {photos.length < 5 && (
-            <label style={styles.addPhoto}>
-              📷
-              <input
-                type="file"
-                hidden
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) uploadPhoto(file);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-          )}
+                for (let i = 0; i < files.length; i++) {
+                  await uploadPhoto(files[i]);
+                }
+
+                e.target.value = "";
+              }}
+            />
+          </div>
         </div>
 
         <div style={styles.row}>
@@ -176,8 +174,7 @@ export default function Profile() {
             <input type="range" min="18" max="60" value={age} onChange={(e)=>setAge(Number(e.target.value))}/>
           </div>
         </div>
-
-        <div style={styles.block}>
+                <div style={styles.block}>
           <p style={styles.label}>Пол</p>
           <div style={styles.buttons}>
             <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>♀ Женщина</button>
@@ -233,7 +230,22 @@ export default function Profile() {
 
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(null)}>
-          <img src={activePhoto} style={styles.viewerImg} />
+          <div style={styles.gallery}>
+            {photos.map((p, i) => (
+              <div key={i} style={styles.galleryItem}>
+                <img src={p} style={styles.viewerImg} />
+                <button
+                  style={styles.deleteBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPhotos((prev) => prev.filter((_, index) => index !== i));
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -243,22 +255,24 @@ export default function Profile() {
 const styles:any = {
   wrapper:{minHeight:"100vh",background:"#F5F7FB",padding:"20px"},
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
-  photoRow:{display:"flex",gap:"10px",marginBottom:"15px"},
-  photo:{width:"60px",height:"60px",borderRadius:"50%",objectFit:"cover",cursor:"pointer"},
-  addPhoto:{width:"60px",height:"60px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"},
+  photoCenter:{display:"flex",justifyContent:"center",marginBottom:"20px"},
+  addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"},
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
   label:{fontSize:"12px",color:"#6B7280"},
-  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
-  textarea:{width:"100%",border:"none",background:"transparent"},
+  input:{width:"100%",border:"none",background:"transparent",outline:"none",WebkitTapHighlightColor:"transparent"},
+  textarea:{width:"100%",border:"none",background:"transparent",outline:"none",WebkitTapHighlightColor:"transparent"},
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
   option:{flex:1,padding:"10px",borderRadius:"14px",border:"none",background:"#E7F3FF"},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
-  tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid #2A7BFF"},
-  tagActive:{background:"#2A7BFF",color:"#fff"},
+  tag:{padding:"6px 10px",borderRadius:"999px",background:"#E7F3FF"},
+  tagActive:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000},
-  viewerImg:{maxWidth:"90%",maxHeight:"90%",borderRadius:"12px"}
+  viewerImg:{maxWidth:"90%",maxHeight:"90%",borderRadius:"12px"},
+  gallery:{display:"flex",gap:"10px",overflowX:"auto"},
+  galleryItem:{position:"relative"},
+  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
 };
