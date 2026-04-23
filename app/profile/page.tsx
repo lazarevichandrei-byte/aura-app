@@ -20,15 +20,9 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 
   const [selected, setSelected] = useState<string[]>([]);
-  const [showMore, setShowMore] = useState(false);
-
   const [activePhoto, setActivePhoto] = useState(false);
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
-  const extra = [
-    "Игры","Бизнес","Еда","Йога","Авто",
-    "Книги","Технологии","Искусство","Танцы","Природа",
-  ];
 
   const isValid = name.trim().length > 0 && city.trim().length > 0;
 
@@ -39,8 +33,6 @@ export default function Profile() {
       if (tg) {
         tg.ready();
         tg.expand();
-        tg.setBackgroundColor("#ffffff");
-        tg.setHeaderColor("#ffffff");
       }
 
       const user = tg?.initDataUnsafe?.user;
@@ -129,7 +121,7 @@ export default function Profile() {
     if (error) {
       alert("Ошибка: " + error.message);
     } else {
-      window.location.href = window.location.origin + "/home";
+      window.location.href = "/home";
     }
   };
 
@@ -148,7 +140,8 @@ export default function Profile() {
           )}
           <div style={styles.plus}>+</div>
         </div>
-                <div style={styles.row}>
+
+        <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
             <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
@@ -169,25 +162,9 @@ export default function Profile() {
           </div>
         </div>
 
-        <div style={styles.block}>
-          <p style={styles.label}>Кого ищешь</p>
-          <div style={styles.buttons}>
-            {["male","female","any"].map(item=>(
-              <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
-                {item==="male"?"Парня":item==="female"?"Девушку":"Без разницы"}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
-        </div>
-
-        <div style={styles.inputBox}>
-          <p style={styles.label}>О себе</p>
-          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
         <button
@@ -199,13 +176,13 @@ export default function Profile() {
         </button>
 
       </div>
-
-      {/* ГАЛЕРЕЯ */}
+            {/* ГАЛЕРЕЯ */}
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div style={styles.gallery} onClick={(e)=>e.stopPropagation()}>
 
-            <label style={styles.addPhoto}>
+            {/* + */}
+            <label style={styles.addPhotoGrid}>
               +
               <input
                 type="file"
@@ -243,7 +220,7 @@ export default function Profile() {
                       style={styles.mainBtn}
                       onClick={() => setMainIndex(i)}
                     >
-                      Сделать главной
+                      Главная
                     </button>
                   )}
 
@@ -253,7 +230,6 @@ export default function Profile() {
                       setPhotos((prev) =>
                         prev.filter((_, index) => index !== i)
                       );
-                      if (mainIndex === i) setMainIndex(0);
                     }}
                   >
                     ✕
@@ -281,7 +257,6 @@ const styles:any = {
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
   label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
-  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
   block:{marginTop:"14px"},
   buttons:{display:"flex",gap:"10px"},
@@ -291,12 +266,57 @@ const styles:any = {
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.9)",display:"flex",alignItems:"center",justifyContent:"center"},
-  gallery:{display:"flex",gap:"12px",overflowX:"auto",padding:"20px"},
+  
+  gallery:{
+    display:"grid",
+    gridTemplateColumns:"repeat(4,1fr)",
+    gap:"10px",
+    padding:"20px",
+    maxHeight:"80vh",
+    overflowY:"auto"
+  },
+
   galleryItem:{position:"relative"},
-  galleryImg:{width:"120px",height:"160px",borderRadius:"12px",objectFit:"cover",flexShrink:0},
 
-  addPhoto:{width:"70px",height:"70px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center"},
+  galleryImg:{
+    width:"100%",
+    aspectRatio:"3/4",
+    borderRadius:"12px",
+    objectFit:"cover"
+  },
 
-  mainBtn:{position:"absolute",bottom:5,left:"50%",transform:"translateX(-50%)",background:"#fff",border:"none",borderRadius:"8px",fontSize:"10px",padding:"2px 6px"},
-  deleteBtn:{position:"absolute",top:5,right:5,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"24px",height:"24px"}
+  addPhotoGrid:{
+    width:"100%",
+    aspectRatio:"3/4",
+    borderRadius:"12px",
+    background:"#E7F3FF",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    fontSize:"24px"
+  },
+
+  mainBtn:{
+    position:"absolute",
+    bottom:5,
+    left:"50%",
+    transform:"translateX(-50%)",
+    background:"#fff",
+    border:"none",
+    borderRadius:"8px",
+    fontSize:"10px",
+    padding:"2px 6px"
+  },
+
+  deleteBtn:{
+    position:"absolute",
+    top:5,
+    right:5,
+    background:"rgba(0,0,0,0.6)",
+    color:"#fff",
+    border:"none",
+    borderRadius:"50%",
+    width:"24px",
+    height:"24px"
+  }
 };
