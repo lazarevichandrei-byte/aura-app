@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "./lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export default function Home() {
   const router = useRouter();
@@ -33,5 +33,5 @@ export default function Home() {
     checkUser();
   }, []);
 
-  return <div>Загрузка...</div>;
+  return <div style={{ padding: 20 }}>Загрузка...</div>;
 }
