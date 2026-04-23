@@ -56,9 +56,9 @@ export default function Profile() {
     ]);
 
     if (error) {
-      alert("Ошибка: " + error.message);
+      alert(error.message);
     } else {
-      alert("Профиль сохранен ✅");
+      alert("Профиль создан ✅");
     }
   };
 
@@ -110,6 +110,7 @@ export default function Profile() {
         {/* ПОЛ */}
         <div style={styles.block}>
           <p style={styles.label}>Пол</p>
+
           <div style={styles.buttons}>
             <button
               onClick={() => setGender("female")}
@@ -120,6 +121,7 @@ export default function Profile() {
             >
               ♀ Женщина
             </button>
+
             <button
               onClick={() => setGender("male")}
               style={{
@@ -135,6 +137,7 @@ export default function Profile() {
         {/* КОГО ИЩЕШЬ */}
         <div style={styles.block}>
           <p style={styles.label}>Кого ищешь</p>
+
           <div style={styles.buttons}>
             {["male", "female", "any"].map((item) => (
               <button
@@ -180,9 +183,11 @@ export default function Profile() {
         {/* ИНТЕРЕСЫ */}
         <div style={styles.block}>
           <p style={styles.label}>Интересы</p>
+
           <div style={styles.tags}>
             {[...base, ...(showMore ? extra : [])].map((t) => {
               const active = selected.includes(t);
+
               return (
                 <span
                   key={t}
@@ -277,7 +282,6 @@ const styles: any = {
   },
 
   inputBox: {
-    flex: 1,
     background: "#F9FAFB",
     borderRadius: "16px",
     padding: "12px",
