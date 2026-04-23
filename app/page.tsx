@@ -4,43 +4,64 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "./lib/supabase";
 
-export default function Home() {
+export default function StartPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkUser = async () => {
+    const init = async () => {
       const tg = (window as any).Telegram?.WebApp;
-      const user = tg?.initDataUnsafe?.user;
 
-      if (!user) {
-        router.push("/profile");
+      // если вдруг не через Telegram — отправляем на профиль
+      if (!tg) {
+        router.replace("/profile");
         return;
       }
 
-      const telegram_id = user.id;
+      tg.ready();
+      tg.expand();
 
-      // 🔥 проверяем есть ли пользователь
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("telegram_id", telegram_id)
-        .single();
+      const user = tg.initDataUnsafe?.user;
 
-      if (data) {
-        // ✅ уже есть → свайпы
-        router.push("/home");
-      } else {
-        // 🆕 первый раз → профиль
-        router.push("/profile");
+      // если Telegram не передал пользователя
+      if (!user || !user.id) {
+        router.replace("/profile");
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("telegram_id", user.id)
+          .maybeSingle(); // 👈 безопаснее чем single()
+
+        if (error) {
+          console.error("SUPABASE ERROR:", error);
+          router.replace("/profile");
+          return;
+        }
+
+        // 👉 есть профиль → свайпы
+        if (data) {
+          router.replace("/home");
+        } 
+        // 👉 нет профиля → создать
+        else {
+          router.replace("/profile");
+        }
+
+      } catch (e) {
+        console.error("INIT ERROR:", e);
+        router.replace("/profile");
       }
     };
 
-    checkUser();
+    init();
   }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      Загрузка...
+    <div style={{ padding: 20, textAlign: "center" }}>
+      <p>Загрузка...</p>
     </div>
   );
 }
