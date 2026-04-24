@@ -326,8 +326,8 @@ position:"absolute",
 left:0,
 right:0,
 bottom:0,          // начинается С САМОГО НИЗА фото
-height:"45%",      // доходит до надписей
-zIndex:5,
+height:"55%",      // доходит до надписей
+zIndex:4,
 pointerEvents:"none",
 background:`
 linear-gradient(
