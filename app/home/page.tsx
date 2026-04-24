@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
 
-export default function Home() {
+export default function Home(){
 
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
@@ -21,17 +21,18 @@ const [skipPressed,setSkipPressed]=useState(false);
 const [likePressed,setLikePressed]=useState(false);
 const [boostPressed,setBoostPressed]=useState(false);
 
-const startX=useRef(0);
+const startX = useRef<number>(0);
 
-const currentUserId =
-typeof window !== "undefined" &&
+const currentUserId=
+typeof window!=="undefined" &&
 (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id
-? Number((window as any).Telegram.WebApp.initDataUnsafe.user.id)
-: 123;
-
+? Number(
+(window as any).Telegram.WebApp.initDataUnsafe.user.id
+)
+:123;
 
 useEffect(()=>{
- loadUsers();
+loadUsers();
 },[]);
 
 
@@ -53,7 +54,7 @@ currentUser?.photos?.length
 ? currentUser.photos
 : currentUser?.avatar_url
 ? [currentUser.avatar_url]
-: [];
+:[];
 
 
 function nextUser(){
@@ -63,26 +64,47 @@ setIndex(prev=>prev+1);
 }
 
 
-/* FIXED */
+/* MATCH */
 async function handleLike(){
 
 if(!currentUser) return;
 
-/* force popup test — должен показываться сразу */
+const likedUserId=currentUser.telegram_id;
+
+await supabase
+.from("likes")
+.upsert(
+{
+from_user:currentUserId,
+to_user:likedUserId
+},
+{
+onConflict:"from_user,to_user"
+}
+);
+
+const {data:reverseLike}=await supabase
+.from("likes")
+.select("*")
+.eq("from_user",likedUserId)
+.eq("to_user",currentUserId)
+.maybeSingle();
+
+if(reverseLike){
+
 setMatchedUser(currentUser);
 setShowMatch(true);
 return;
 
 }
 
+nextUser();
+
+}
 
 function handleSkip(){
 nextUser();
 }
-
-
-
-/* SWIPE */
 function touchStart(e:any){
 startX.current=e.touches[0].clientX;
 setDragging(true);
@@ -90,11 +112,9 @@ setDragging(true);
 
 function touchMove(e:any){
 if(!dragging) return;
-
-const move=
-e.touches[0].clientX-startX.current;
-
-setDragX(move);
+setDragX(
+e.touches[0].clientX-startX.current
+);
 }
 
 function touchEnd(){
@@ -115,7 +135,6 @@ setDragX(0);
 
 }
 
-
 function changePhoto(e:any){
 
 if(!photos.length) return;
@@ -124,9 +143,17 @@ const rect=e.currentTarget.getBoundingClientRect();
 const x=e.clientX-rect.left;
 
 if(x<rect.width/2){
-setPhotoIndex(p=>p===0 ? photos.length-1 : p-1);
+setPhotoIndex(p=>
+p===0
+? photos.length-1
+:p-1
+);
 }else{
-setPhotoIndex(p=>p===photos.length-1 ? 0 : p+1);
+setPhotoIndex(p=>
+p===photos.length-1
+?0
+:p+1
+);
 }
 
 }
@@ -153,49 +180,10 @@ height:"66vh",
 borderRadius:36,
 overflow:"hidden",
 background:"#fff",
-boxShadow:"0 10px 30px rgba(0,0,0,.06)",
-transform:dragging
-?`translateX(${dragX}px) rotate(${dragX/24}deg)`
-:`translateX(${dragX}px)`,
-transition:dragging
-?"none"
-:"all .28s cubic-bezier(.2,.8,.2,1)"
+boxShadow:
+"0 10px 30px rgba(0,0,0,.06)"
 }}
 >
-
-{dragX>35 &&(
-<div style={{
-position:"absolute",
-top:85,
-right:35,
-zIndex:20,
-border:"3px solid #2F80FF",
-color:"#2F80FF",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(12deg)"
-}}>
-LIKE
-</div>
-)}
-
-{dragX<-35 &&(
-<div style={{
-position:"absolute",
-top:85,
-left:35,
-zIndex:20,
-border:"3px solid #ff6a6a",
-color:"#ff6a6a",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(-12deg)"
-}}>
-NOPE
-</div>
-)}
 
 <img
 src={photos[photoIndex]}
@@ -206,27 +194,26 @@ objectFit:"cover"
 }}
 />
 
-<div onClick={changePhoto}
+<div
+onClick={changePhoto}
 style={{
 position:"absolute",
-inset:0,
-zIndex:4
-}}/>
+inset:0
+}}
+/>
 
 <div
 style={{
 position:"absolute",
 top:26,
 left:26,
-zIndex:12,
 background:"rgba(80,80,80,.45)",
-backdropFilter:"blur(10px)",
 padding:"12px 18px",
 borderRadius:18,
 color:"#fff"
 }}
 >
-{photoIndex+1} / {photos.length}
+{photoIndex+1}/{photos.length}
 </div>
 
 <div
@@ -236,17 +223,15 @@ left:0,
 right:0,
 bottom:0,
 height:"55%",
-zIndex:4,
-pointerEvents:"none",
-background:`linear-gradient(
+background:`
+linear-gradient(
 to top,
-#ffffff 0%,
-rgba(255,255,255,.98) 18%,
-rgba(255,255,255,.92) 35%,
-rgba(255,255,255,.72) 55%,
-rgba(255,255,255,.42) 72%,
+#fff 0%,
+rgba(255,255,255,.95) 30%,
+rgba(255,255,255,.45) 70%,
 rgba(255,255,255,0) 100%
-)`
+)
+`
 }}
 />
 
@@ -255,57 +240,20 @@ style={{
 position:"absolute",
 left:30,
 right:30,
-bottom:26,
-zIndex:8
+bottom:26
 }}
 >
-
-<h2 style={{margin:0,fontSize:18,fontWeight:600}}>
+<h2>
 {currentUser.name}, {currentUser.age}
 </h2>
 
-<div style={{
-marginTop:4,
-fontSize:13,
-color:"#70717C"
-}}>
-📍 {currentUser.city}, 2 км от вас
-</div>
-
-<p style={{
-marginTop:8,
-marginBottom:10,
-fontSize:14,
-lineHeight:1.3,
-maxWidth:"82%"
-}}>
-{currentUser.bio || "Люблю путешествия и новые впечатления ✈✨"}
+<p>
+📍 {currentUser.city}
 </p>
 
-<div style={{
-display:"flex",
-flexWrap:"wrap",
-gap:8
-}}>
-{(
-currentUser.interests || [
-"Путешествия","Музыка","Спорт","Кино","Фото"
-]
-).map((tag:string)=>(
-<div key={tag}
-style={{
-padding:"6px 11px",
-borderRadius:999,
-background:"#EEF5FF",
-color:"#4D8DFF",
-fontSize:11.5
-}}
->
-{tag}
-</div>
-))}
-</div>
-
+<p>
+{currentUser.bio}
+</p>
 </div>
 
 </div>
@@ -314,12 +262,12 @@ style={{
 marginTop:24,
 display:"flex",
 justifyContent:"center",
-alignItems:"center",
 gap:26
 }}
 >
 
-<button onClick={()=>{
+<button
+onClick={()=>{
 setSkipPressed(true);
 setTimeout(()=>{
 setSkipPressed(false);
@@ -327,18 +275,22 @@ handleSkip();
 },180);
 }}
 style={{
-width:72,height:72,borderRadius:"50%",
+width:72,
+height:72,
+borderRadius:"50%",
 border:"none",
 background:skipPressed
 ? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
 :"#fff"
-}}>
+}}
+>
 <X
 size={30}
-color={skipPressed ? "white":"#98A0AE"}
+color={skipPressed ? "white" : "#98A0AE"}
 strokeWidth={2.6}
 />
 </button>
+
 
 <button
 onClick={()=>{
@@ -365,10 +317,28 @@ stroke="white"
 />
 </button>
 
-<button>
+
+<button
+onClick={()=>{
+setBoostPressed(true);
+setTimeout(()=>{
+setBoostPressed(false);
+},180);
+}}
+style={{
+width:72,
+height:72,
+borderRadius:"50%",
+border:"none",
+background:boostPressed
+? "linear-gradient(135deg,#FFD95A,#FFB800)"
+:"#fff"
+}}
+>
 <Sparkles
 size={28}
-color="#98A0AE"
+color={boostPressed ? "white" : "#98A0AE"}
+strokeWidth={2.3}
 />
 </button>
 
@@ -376,15 +346,13 @@ color="#98A0AE"
 
 </>
 )}
-
-/* MOVED OUTSIDE currentUser */
 {showMatch && (
 <div
 style={{
 position:"fixed",
 inset:0,
 zIndex:9999,
-background:"linear-gradient(180deg,#0E1734 0%,#122A66 100%)",
+background:"#fff",
 display:"flex",
 justifyContent:"center",
 alignItems:"center"
@@ -394,61 +362,72 @@ alignItems:"center"
 style={{
 width:"100%",
 maxWidth:420,
-padding:"34px 28px",
+padding:"34px 32px",
 textAlign:"center"
 }}
 >
 
-<div
-style={{
-fontSize:42,
-fontWeight:800,
-color:"#fff"
-}}
->
-✨ Aura Sync
-</div>
+<h1>
+Это мэтч! 💙
+</h1>
 
 <div
 style={{
-color:"rgba(255,255,255,.85)",
-marginTop:12,
-marginBottom:44
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+margin:"30px 0"
 }}
 >
-Ваши ауры совпали
+
+<img
+src="/me.jpg"
+style={{
+width:145,
+height:145,
+borderRadius:"50%"
+}}
+/>
+
+<div
+style={{
+margin:"0 -18px",
+width:70,
+height:70,
+borderRadius:"50%",
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+background:
+"linear-gradient(135deg,#4FACFE,#2979FF)"
+}}
+>
+<Heart
+size={34}
+fill="white"
+stroke="white"
+/>
 </div>
 
 <img
 src={matchedUser?.avatar_url}
 style={{
-width:118,
-height:118,
-borderRadius:"50%",
-border:"5px solid white"
+width:145,
+height:145,
+borderRadius:"50%"
 }}
 />
 
-<button
-style={{
-width:"100%",
-height:64,
-marginTop:34,
-borderRadius:22
-}}
->
-Начать диалог
+</div>
+
+<button>
+✈ Написать сообщение
 </button>
 
 <button
 onClick={()=>{
 setShowMatch(false);
 nextUser();
-}}
-style={{
-marginTop:14,
-width:"100%",
-height:64
 }}
 >
 Продолжить поиск
