@@ -68,15 +68,46 @@ setDragX(0);
 setIndex(prev=>prev+1);
 }
 
-
 async function handleLike(){
 
 if(!currentUser) return;
 
-console.log("LIKE CLICKED");
+const likedUserId=currentUser.telegram_id;
+
+/* сохранить лайк */
+await supabase
+.from("likes")
+.upsert(
+{
+from_user:currentUserId,
+to_user:likedUserId
+},
+{
+onConflict:"from_user,to_user"
+}
+);
+
+
+/* ищем ответный лайк */
+const {data:rows}=await supabase
+.from("likes")
+.select("id")
+.eq("from_user",likedUserId)
+.eq("to_user",currentUserId);
+
+
+/* взаимный лайк -> popup */
+if(rows && rows.length>0){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
+return;
+
+}
+
+
+/* пока не мэтч */
+nextUser();
 
 }
 
