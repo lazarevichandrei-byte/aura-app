@@ -24,19 +24,37 @@ time:"16:15",
 avatar:"/girl2.jpg"
 },
 {
+name:"Алексей",
+msg:"Отправил тебе фото",
+time:"15:02",
+avatar:"/guy2.jpg"
+},
+{
 name:"Екатерина",
 msg:"Ты был прав, фильм супер! 🎬",
 time:"14:20",
 unread:1,
 avatar:"/girl3.jpg"
+},
+{
+name:"Иван",
+msg:"Договорились!",
+time:"Вчера",
+avatar:"/guy3.jpg"
+},
+{
+name:"Полина",
+msg:"Посмотрим, что будет дальше 😉",
+time:"Вчера",
+avatar:"/girl4.jpg"
 }
 ];
 
-const matches=[
-"/girl1.jpg",
-"/girl2.jpg",
-"/girl3.jpg",
-"/girl4.jpg"
+const matches = [
+{img:"/girl1.jpg",name:"Алина"},
+{img:"/girl2.jpg",name:"Мария"},
+{img:"/girl3.jpg",name:"Екатерина"},
+{img:"/girl4.jpg",name:"Полина"},
 ];
 
 export default function Chats(){
@@ -45,8 +63,10 @@ return(
 <div
 style={{
 minHeight:"100vh",
-background:"#fff",
-padding:"34px 22px 120px"
+background:"#FCFCFE",
+padding:"18px 16px 110px",
+maxWidth:430,
+margin:"0 auto"
 }}
 >
 
@@ -60,90 +80,91 @@ alignItems:"center"
 >
 <h1 style={{
 margin:0,
-fontSize:42,
+fontSize:34,
 fontWeight:700,
-letterSpacing:"-.5px"
+letterSpacing:"-.8px"
 }}>
 Чаты
 </h1>
 
-<div style={{
-display:"flex",
-gap:14
-}}>
+<div style={{display:"flex",gap:12}}>
 <div style={circleBtn}>≡</div>
 <div style={circleBtn}>＋</div>
 </div>
-
 </div>
 
 
-
 {/* SEARCH */}
-<div style={{
-marginTop:30,
-height:58,
-borderRadius:22,
-background:"#F4F6FA",
+<div
+style={{
+marginTop:20,
+height:52,
+borderRadius:18,
+background:"#F4F4F8",
 display:"flex",
 alignItems:"center",
-padding:"0 22px",
-fontSize:19,
-color:"#A2A5B0"
-}}>
+padding:"0 18px",
+fontSize:18,
+color:"#A3A8B3"
+}}
+>
 🔍 Поиск
 </div>
 
 
 
-
-{/* MATCH STORIES */}
+{/* STORIES */}
 <div
 style={{
 display:"flex",
-gap:22,
+gap:14,
 overflowX:"auto",
-marginTop:34,
-paddingBottom:14
+marginTop:26,
+paddingBottom:8
 }}
 >
 
 <div style={{textAlign:"center"}}>
-<div style={{
-width:82,
-height:82,
+<div
+style={{
+width:68,
+height:68,
 borderRadius:"50%",
 background:"#EEF4FF",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:32
-}}>
+fontSize:30
+}}
+>
 💙
 </div>
 
 <div style={{
-marginTop:10,
-fontSize:14,
-fontWeight:500
+marginTop:6,
+fontSize:13
 }}>
 Мои пары
 </div>
 </div>
 
 
-{matches.map((img,i)=>(
+{matches.map((item,i)=>(
+
 <div key={i} style={{textAlign:"center"}}>
 
-<div style={{
-width:82,
-height:82,
+<div
+style={{
+position:"relative",
+width:68,
+height:68,
 borderRadius:"50%",
-padding:3,
+padding:2.5,
 border:"2px solid #2F80FF"
-}}>
+}}
+>
 <img
-src={img}
+src={item.img}
 style={{
 width:"100%",
 height:"100%",
@@ -151,102 +172,121 @@ borderRadius:"50%",
 objectFit:"cover"
 }}
 />
+
+{i<3 &&(
+<div style={{
+position:"absolute",
+right:-1,
+bottom:4,
+width:14,
+height:14,
+background:"#47C73B",
+border:"2px solid white",
+borderRadius:"50%"
+}}/>
+)}
+
 </div>
 
 <div style={{
-marginTop:10,
-fontSize:14,
-fontWeight:500
+fontSize:13,
+marginTop:6
 }}>
-{["Алина","Мария","Екатерина","Полина"][i]}
+{item.name}
 </div>
 
 </div>
+
 ))}
 
 </div>
 
 
 
-
 {/* CHAT LIST */}
-<div style={{marginTop:36}}>
+<div style={{marginTop:24}}>
 
-{chats.map((chat)=>(
+{chats.map(chat=>(
+
 <div
 key={chat.name}
 style={{
 display:"flex",
 alignItems:"center",
-padding:"24px 0",
-borderBottom:"1px solid #F2F2F5"
+padding:"15px 0",
+borderBottom:"1px solid #F1F2F5"
 }}
 >
 
 <img
 src={chat.avatar}
 style={{
-width:74,
-height:74,
+width:60,
+height:60,
 borderRadius:"50%",
 objectFit:"cover"
 }}
 />
 
 
-<div style={{
+<div
+style={{
 flex:1,
-marginLeft:18
-}}>
-
-<div style={{
-fontSize:22,
+marginLeft:14
+}}
+>
+<div
+style={{
+fontSize:18,
 fontWeight:600
-}}>
+}}
+>
 {chat.name}
 </div>
 
-<div style={{
-marginTop:7,
-fontSize:16,
-lineHeight:1.4,
-color:"#7B7E88"
-}}>
+<div
+style={{
+fontSize:15,
+color:"#8A8F9B",
+marginTop:4
+}}
+>
 {chat.msg}
 </div>
-
 </div>
 
 
-
-<div style={{
+<div
+style={{
 display:"flex",
 flexDirection:"column",
 alignItems:"flex-end",
-gap:12
-}}>
+gap:10
+}}
+>
 
 <div style={{
 fontSize:14,
-color:"#9AA0AE"
+color:"#A0A5B0"
 }}>
 {chat.time}
 </div>
 
-
-{chat.unread && (
-<div style={{
-width:28,
-height:28,
+{chat.unread &&(
+<div
+style={{
+width:24,
+height:24,
 borderRadius:"50%",
 background:"#2F80FF",
 color:"#fff",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:13,
+fontSize:12,
 fontWeight:700
-}}>
+}}
+>
 {chat.unread}
 </div>
 )}
@@ -254,6 +294,7 @@ fontWeight:700
 </div>
 
 </div>
+
 ))}
 
 </div>
@@ -265,13 +306,13 @@ fontWeight:700
 )
 }
 
-const circleBtn={
-width:50,
-height:50,
+const circleBtn = {
+width:42,
+height:42,
 borderRadius:"50%",
-background:"#F5F6FA",
+background:"#F4F6FB",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:22
-}
+fontSize:20
+};
