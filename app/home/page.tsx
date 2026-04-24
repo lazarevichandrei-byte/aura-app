@@ -23,14 +23,12 @@ const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
 
-
 const currentUserId =
 typeof window !== "undefined" &&
 (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id
-? Number(
-(window as any).Telegram.WebApp.initDataUnsafe.user.id
-)
+? Number((window as any).Telegram.WebApp.initDataUnsafe.user.id)
 : 123;
+
 
 useEffect(()=>{
  loadUsers();
@@ -65,105 +63,17 @@ setIndex(prev=>prev+1);
 }
 
 
-/* -------- FIXED MATCH LOGIC ONLY -------- */
+/* FIXED */
 async function handleLike(){
 
 if(!currentUser) return;
 
-const likedUserId=currentUser.telegram_id;
-
-
-/* обычный insert вместо upsert */
-await supabase
-.from("likes")
-.insert({
-from_user:currentUserId,
-to_user:likedUserId
-});
-
-
-/* DEBUG */
-console.log(
-"LIKE SAVED:",
-currentUserId,
-"->",
-likedUserId
-);
-
-
-/* ищем обратный лайк */
-const {data:reverseLike,error}=await supabase
-.from("likes")
-.select("*")
-.eq("from_user",likedUserId)
-.eq("to_user",currentUserId)
-.maybeSingle();
-
-
-console.log("reverseLike =",reverseLike);
-console.log("error =",error);
-
-
-/* ЕСЛИ взаимный лайк */
-if(reverseLike){
-
-const user1=Math.min(
-currentUserId,
-likedUserId
-);
-
-const user2=Math.max(
-currentUserId,
-likedUserId
-);
-
-
-/* создаем match если нет */
-const {data:existingMatch}=await supabase
-.from("matches")
-.select("*")
-.eq("user1",user1)
-.eq("user2",user2)
-.maybeSingle();
-
-
-if(!existingMatch){
-
-await supabase
-.from("matches")
-.insert({
-user1,
-user2
-});
-
-}
-
-
-/* popup ALWAYS */
-async function handleLike(){
-
-if(!currentUser) return;
-
+/* force popup test — должен показываться сразу */
 setMatchedUser(currentUser);
 setShowMatch(true);
-
 return;
 
 }
-
-/* форс ререндер popup */
-setTimeout(()=>{
-setShowMatch(true);
-},100);
-
-return;
-}
-
-
-nextUser();
-
-}
-/* -------- END FIX -------- */
 
 
 function handleSkip(){
@@ -179,14 +89,12 @@ setDragging(true);
 }
 
 function touchMove(e:any){
-
 if(!dragging) return;
 
 const move=
 e.touches[0].clientX-startX.current;
 
 setDragX(move);
-
 }
 
 function touchEnd(){
@@ -206,6 +114,8 @@ return;
 setDragX(0);
 
 }
+
+
 function changePhoto(e:any){
 
 if(!photos.length) return;
@@ -233,7 +143,6 @@ padding:"18px 18px 118px"
 
 {currentUser && (
 <>
-
 <div
 onTouchStart={touchStart}
 onTouchMove={touchMove}
@@ -253,6 +162,7 @@ transition:dragging
 :"all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
+
 {dragX>35 &&(
 <div style={{
 position:"absolute",
@@ -289,7 +199,6 @@ NOPE
 
 <img
 src={photos[photoIndex]}
-alt=""
 style={{
 width:"100%",
 height:"100%",
@@ -297,14 +206,12 @@ objectFit:"cover"
 }}
 />
 
-<div
-onClick={changePhoto}
+<div onClick={changePhoto}
 style={{
 position:"absolute",
 inset:0,
 zIndex:4
-}}
-/>
+}}/>
 
 <div
 style={{
@@ -322,7 +229,6 @@ color:"#fff"
 {photoIndex+1} / {photos.length}
 </div>
 
-
 <div
 style={{
 position:"absolute",
@@ -332,8 +238,7 @@ bottom:0,
 height:"55%",
 zIndex:4,
 pointerEvents:"none",
-background:`
-linear-gradient(
+background:`linear-gradient(
 to top,
 #ffffff 0%,
 rgba(255,255,255,.98) 18%,
@@ -341,8 +246,7 @@ rgba(255,255,255,.92) 35%,
 rgba(255,255,255,.72) 55%,
 rgba(255,255,255,.42) 72%,
 rgba(255,255,255,0) 100%
-)
-`
+)`
 }}
 />
 
@@ -368,32 +272,27 @@ color:"#70717C"
 📍 {currentUser.city}, 2 км от вас
 </div>
 
-<p
-style={{
+<p style={{
 marginTop:8,
 marginBottom:10,
 fontSize:14,
 lineHeight:1.3,
 maxWidth:"82%"
-}}
->
+}}>
 {currentUser.bio || "Люблю путешествия и новые впечатления ✈✨"}
 </p>
 
-<div
-style={{
+<div style={{
 display:"flex",
 flexWrap:"wrap",
 gap:8
-}}
->
+}}>
 {(
 currentUser.interests || [
 "Путешествия","Музыка","Спорт","Кино","Фото"
 ]
 ).map((tag:string)=>(
-<div
-key={tag}
+<div key={tag}
 style={{
 padding:"6px 11px",
 borderRadius:999,
@@ -408,6 +307,7 @@ fontSize:11.5
 </div>
 
 </div>
+
 </div>
 <div
 style={{
@@ -419,8 +319,7 @@ gap:26
 }}
 >
 
-<button
-onClick={()=>{
+<button onClick={()=>{
 setSkipPressed(true);
 setTimeout(()=>{
 setSkipPressed(false);
@@ -428,30 +327,18 @@ handleSkip();
 },180);
 }}
 style={{
-width:72,
-height:72,
-borderRadius:"50%",
+width:72,height:72,borderRadius:"50%",
 border:"none",
 background:skipPressed
 ? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
-:"#fff",
-transform:skipPressed?"scale(1.08)":"scale(1)",
-transition:"all .18s ease",
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-boxShadow:skipPressed
-?"0 12px 30px rgba(255,95,162,.35)"
-:"0 10px 30px rgba(0,0,0,.06)"
-}}
->
+:"#fff"
+}}>
 <X
 size={30}
 color={skipPressed ? "white":"#98A0AE"}
 strokeWidth={2.6}
 />
 </button>
-
 
 <button
 onClick={()=>{
@@ -468,60 +355,29 @@ borderRadius:"50%",
 border:"none",
 background:likePressed
 ? "linear-gradient(135deg,#FF5E73,#FF304F)"
-:"linear-gradient(135deg,#4FACFE,#2979FF)",
-transform:likePressed?"scale(1.09)":"scale(1)",
-transition:"all .18s ease",
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-boxShadow:likePressed
-?"0 14px 34px rgba(255,64,100,.42)"
-:"0 12px 28px rgba(41,121,255,.35)"
+:"linear-gradient(135deg,#4FACFE,#2979FF)"
 }}
 >
 <Heart
 size={38}
 fill="white"
 stroke="white"
-strokeWidth={2.5}
 />
 </button>
 
-
-<button
-onClick={()=>{
-setBoostPressed(true);
-setTimeout(()=>setBoostPressed(false),180);
-}}
-style={{
-width:72,
-height:72,
-borderRadius:"50%",
-border:"none",
-background:boostPressed
-? "linear-gradient(135deg,#FFD95A,#FFB800)"
-:"#fff",
-transform:boostPressed?"scale(1.08)":"scale(1)",
-transition:"all .18s ease",
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-boxShadow:boostPressed
-?"0 12px 30px rgba(255,196,0,.35)"
-:"0 10px 30px rgba(0,0,0,.06)"
-}}
->
+<button>
 <Sparkles
 size={28}
-color={boostPressed ? "white":"#98A0AE"}
-strokeWidth={2.3}
+color="#98A0AE"
 />
 </button>
 
 </div>
 
+</>
+)}
 
-
+/* MOVED OUTSIDE currentUser */
 {showMatch && (
 <div
 style={{
@@ -542,6 +398,7 @@ padding:"34px 28px",
 textAlign:"center"
 }}
 >
+
 <div
 style={{
 fontSize:42,
@@ -577,10 +434,7 @@ style={{
 width:"100%",
 height:64,
 marginTop:34,
-border:"none",
-borderRadius:22,
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
-color:"#fff"
+borderRadius:22
 }}
 >
 Начать диалог
@@ -594,8 +448,7 @@ nextUser();
 style={{
 marginTop:14,
 width:"100%",
-height:64,
-borderRadius:22
+height:64
 }}
 >
 Продолжить поиск
@@ -603,9 +456,6 @@ borderRadius:22
 
 </div>
 </div>
-)}
-
-</>
 )}
 
 <BottomNav/>
