@@ -275,7 +275,7 @@ position:"absolute",
 left:0,
 right:0,
 bottom:0,
-height:"46%",
+height:"30%",
 zIndex:5,
 pointerEvents:"none",
 background:`
