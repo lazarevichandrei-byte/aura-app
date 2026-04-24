@@ -659,48 +659,50 @@ marginBottom:38
 
 
 <button
-onClick={()=>{
-setShowMatch(false);
-router.push(`/chat/${matchedUser?.telegram_id}`);
-}}
 style={{
-width:"78%",
-height:52,
-marginTop:28,
+width:"82%",
+height:58,
+marginTop:30,
 border:"none",
-borderRadius:999,
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
-color:"#fff",
-fontSize:17,
-fontWeight:600,
+borderRadius:18,
+background:"linear-gradient(135deg,#42A5FF,#1976FF)",
 display:"flex",
-justifyContent:"center",
 alignItems:"center",
-position:"relative",
-boxShadow:"0 12px 30px rgba(41,121,255,.28)"
+justifyContent:"center",
+gap:16,
+padding:"0 24px"
 }}
 >
-
 <div
 style={{
-position:"absolute",
-left:18,
-width:30,
-height:30,
+width:34,
+height:34,
 borderRadius:"50%",
 background:"#fff",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:15
+flexShrink:0
+}}
+>
+<span
+style={{
+color:"#1976FF",
+fontSize:18,
+fontWeight:700,
+lineHeight:1
 }}
 >
 ✈
+</span>
 </div>
 
 <span
 style={{
-transform:"translateX(8px)"
+color:"#fff",
+fontSize:18,
+fontWeight:500,
+lineHeight:1
 }}
 >
 Написать сообщение
