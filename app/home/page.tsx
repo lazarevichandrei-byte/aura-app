@@ -317,29 +317,37 @@ fontSize:18
 {photoIndex+1} / {photos.length}
 </div>
 
+<div
+style={{
+position:"absolute",
+left:30,
+right:30,
+bottom:26,
+zIndex:8
+}}
+></div>
 
-
-{/* SOFT WHITE FADE */}
+{/* bottom fog from very bottom */}
 <div
 style={{
 position:"absolute",
 left:0,
 right:0,
 bottom:0,
-height:"58%",
+height:"60%",
 zIndex:5,
 pointerEvents:"none",
 
 background:
 "linear-gradient(to top,\
 #ffffff 0%,\
-#ffffff 35%,\
-rgba(255,255,255,.98) 52%,\
-rgba(255,255,255,.82) 68%,\
-rgba(255,255,255,.45) 84%,\
+#ffffff 40%,\
+rgba(255,255,255,.98) 55%,\
+rgba(255,255,255,.82) 70%,\
+rgba(255,255,255,.45) 86%,\
 rgba(255,255,255,0) 100%)",
 
-filter:"blur(22px)"
+filter:"blur(24px)"
 }}
 />
 
