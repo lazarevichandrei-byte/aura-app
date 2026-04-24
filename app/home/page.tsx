@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 export default function Home() {
-  
+const router = useRouter();  
 
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
@@ -653,40 +653,28 @@ marginBottom:38
 понравились друг другу
 </div>
 
-
-
 <button
+onClick={()=>{
+setShowMatch(false);
+router.push(`/chat/${matchedUser?.telegram_id}`);
+}}
 style={{
 width:"78%",
-height:54,
-marginTop:30,
+height:52,
+marginTop:28,
 border:"none",
-borderRadius:16,
-background:"linear-gradient(135deg,#3EA1FF,#1976FF)",
+borderRadius:999,
+background:"linear-gradient(135deg,#4FACFE,#2979FF)",
 color:"#fff",
-fontSize:18,
-fontWeight:500,
+fontSize:17,
+fontWeight:600,
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-gap:12,
-boxShadow:"0 8px 24px rgba(41,121,255,.18)"
+boxShadow:"0 12px 30px rgba(41,121,255,.28)"
 }}
 >
-<div style={{
-width:34,
-height:34,
-borderRadius:"50%",
-background:"#fff",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:18
-}}>
-✈
-</div>
-
-Написать сообщение
+💬 Написать сообщение
 </button>
 
 
