@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
 
-export default function Home(){
+export default function Home() {
 
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
@@ -14,20 +14,23 @@ const [photoIndex,setPhotoIndex]=useState(0);
 const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
 
+/* Aura Sync */
+const [showMatch,setShowMatch]=useState(false);
+const [matchedUser,setMatchedUser]=useState<any>(null);
+
+/* button glow states */
 const [skipPressed,setSkipPressed]=useState(false);
-const [boostPressed,setBoostPressed]=useState(false);
 const [likePressed,setLikePressed]=useState(false);
+const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
 
-const currentUserId=123;
-
+const currentUserId=123; // временно
 
 
 useEffect(()=>{
-loadUsers();
+ loadUsers();
 },[]);
-
 
 
 async function loadUsers(){
@@ -40,7 +43,6 @@ const {data}=await supabase
 if(data) setUsers(data);
 
 }
-
 
 
 const currentUser=users[index];
@@ -63,11 +65,13 @@ setIndex(prev=>prev+1);
 
 
 
+/* LIKE + MATCH */
 async function handleLike(){
 
 if(!currentUser) return;
 
 const likedUserId=currentUser.telegram_id;
+
 
 await supabase
 .from("likes")
@@ -83,6 +87,7 @@ const {data:reverseLike}=await supabase
 .eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
 .maybeSingle();
+
 
 
 if(reverseLike){
@@ -115,6 +120,10 @@ user1,
 user2
 });
 
+setMatchedUser(currentUser);
+setShowMatch(true);
+
+return;
 }
 
 }
@@ -132,7 +141,6 @@ nextUser();
 
 
 /* SWIPE */
-
 function touchStart(e:any){
 startX.current=e.touches[0].clientX;
 setDragging(true);
@@ -143,8 +151,7 @@ function touchMove(e:any){
 if(!dragging) return;
 
 const move=
-e.touches[0].clientX
--startX.current;
+e.touches[0].clientX-startX.current;
 
 setDragX(move);
 
@@ -171,15 +178,13 @@ setDragX(0);
 
 
 /* PHOTO TAP */
-
 function changePhoto(e:any){
 
 if(!photos.length) return;
 
-const rect=
-e.currentTarget.getBoundingClientRect();
-
+const rect=e.currentTarget.getBoundingClientRect();
 const x=e.clientX-rect.left;
+
 
 if(x<rect.width/2){
 
@@ -231,8 +236,7 @@ boxShadow:
 "0 10px 30px rgba(0,0,0,.06)",
 
 transform:dragging
-?`translateX(${dragX}px)
-rotate(${dragX/24}deg)`
+?`translateX(${dragX}px) rotate(${dragX/24}deg)`
 :`translateX(${dragX}px)`,
 
 transition:dragging
@@ -242,8 +246,7 @@ transition:dragging
 >
 
 {dragX>35 &&(
-<div
-style={{
+<div style={{
 position:"absolute",
 top:85,
 right:35,
@@ -254,15 +257,13 @@ padding:"10px 18px",
 borderRadius:14,
 fontWeight:700,
 transform:"rotate(12deg)"
-}}
->
+}}>
 LIKE
 </div>
 )}
 
 {dragX<-35 &&(
-<div
-style={{
+<div style={{
 position:"absolute",
 top:85,
 left:35,
@@ -273,8 +274,7 @@ padding:"10px 18px",
 borderRadius:14,
 fontWeight:700,
 transform:"rotate(-12deg)"
-}}
->
+}}>
 NOPE
 </div>
 )}
@@ -289,7 +289,6 @@ objectFit:"cover"
 }}
 />
 
-
 <div
 onClick={changePhoto}
 style={{
@@ -298,7 +297,6 @@ inset:0,
 zIndex:4
 }}
 />
-
 
 <div
 style={{
@@ -319,16 +317,16 @@ fontSize:18
 
 
 
-{/* bottom fog from very bottom */}
 <div
 style={{
 position:"absolute",
 left:0,
 right:0,
-bottom:0,          // начинается С САМОГО НИЗА фото
-height:"55%",      // доходит до надписей
+bottom:0,
+height:"55%",
 zIndex:4,
 pointerEvents:"none",
+
 background:`
 linear-gradient(
 to top,
@@ -343,9 +341,6 @@ rgba(255,255,255,0) 100%
 `
 }}
 />
-
-
-
 <div
 style={{
 position:"absolute",
@@ -422,6 +417,9 @@ fontSize:11.5
 </div>
 
 </div>
+
+
+
 <div
 style={{
 marginTop:24,
@@ -450,11 +448,11 @@ border:"none",
 
 background:skipPressed
 ? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
-: "#fff",
+:"#fff",
 
 transform:skipPressed
-? "scale(1.08)"
-: "scale(1)",
+?"scale(1.08)"
+:"scale(1)",
 
 transition:"all .18s ease",
 
@@ -463,13 +461,13 @@ justifyContent:"center",
 alignItems:"center",
 
 boxShadow:skipPressed
-? "0 12px 30px rgba(255,95,162,.35)"
-: "0 10px 30px rgba(0,0,0,.06)"
+?"0 12px 30px rgba(255,95,162,.35)"
+:"0 10px 30px rgba(0,0,0,.06)"
 }}
 >
 <X
 size={30}
-color={skipPressed ? "white" : "#98A0AE"}
+color={skipPressed ? "white":"#98A0AE"}
 strokeWidth={2.6}
 />
 </button>
@@ -497,8 +495,8 @@ background:likePressed
 : "linear-gradient(135deg,#4FACFE,#2979FF)",
 
 transform:likePressed
-? "scale(1.09)"
-: "scale(1)",
+?"scale(1.09)"
+:"scale(1)",
 
 transition:"all .18s ease",
 
@@ -507,8 +505,8 @@ justifyContent:"center",
 alignItems:"center",
 
 boxShadow:likePressed
-? "0 14px 34px rgba(255,64,100,.42)"
-: "0 12px 28px rgba(41,121,255,.35)"
+?"0 14px 34px rgba(255,64,100,.42)"
+:"0 12px 28px rgba(41,121,255,.35)"
 }}
 >
 <Heart
@@ -538,11 +536,11 @@ border:"none",
 
 background:boostPressed
 ? "linear-gradient(135deg,#FFD95A,#FFB800)"
-: "#fff",
+:"#fff",
 
 transform:boostPressed
-? "scale(1.08)"
-: "scale(1)",
+?"scale(1.08)"
+:"scale(1)",
 
 transition:"all .18s ease",
 
@@ -551,18 +549,22 @@ justifyContent:"center",
 alignItems:"center",
 
 boxShadow:boostPressed
-? "0 12px 30px rgba(255,196,0,.35)"
-: "0 10px 30px rgba(0,0,0,.06)"
+?"0 12px 30px rgba(255,196,0,.35)"
+:"0 10px 30px rgba(0,0,0,.06)"
 }}
 >
 <Sparkles
 size={28}
-color={boostPressed ? "white" : "#98A0AE"}
+color={boostPressed ? "white":"#98A0AE"}
 strokeWidth={2.3}
 />
 </button>
 
 </div>
+
+
+{/* later Aura Sync modal will mount here */}
+{showMatch && null}
 
 </>
 )}
