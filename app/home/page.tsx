@@ -494,135 +494,182 @@ strokeWidth={2.3}
 
 </div>
 
-{showMatch && matchedUser && (
+{showMatch && (
 <div
 style={{
 position:"fixed",
 inset:0,
-zIndex:9999,
-background:"linear-gradient(180deg,#0B1535 0%,#163B8F 100%)",
+zIndex:99999,
+background:"rgba(255,255,255,.92)",
+backdropFilter:"blur(24px)",
 display:"flex",
 justifyContent:"center",
-alignItems:"center"
+alignItems:"center",
+animation:"fadeIn .35s ease"
 }}
 >
+
+<style>{`
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
+
+@keyframes avatarsMeet{
+0%{
+transform:translateX(-55px) scale(.8);
+opacity:0;
+}
+100%{
+transform:translateX(0) scale(1);
+opacity:1;
+}
+}
+
+@keyframes avatarsMeet2{
+0%{
+transform:translateX(55px) scale(.8);
+opacity:0;
+}
+100%{
+transform:translateX(0) scale(1);
+opacity:1;
+}
+}
+
+@keyframes pulseHeart{
+0%{transform:scale(.7)}
+50%{transform:scale(1.12)}
+100%{transform:scale(1)}
+}
+`}</style>
+
+
 <div
 style={{
 width:"100%",
-maxWidth:"420px",
-padding:"34px 30px",
+maxWidth:430,
+padding:"40px 28px",
 textAlign:"center"
 }}
 >
 
 <div
 style={{
-fontSize:"46px",
-fontWeight:800,
-color:"#fff",
-marginBottom:"14px"
+fontSize:44,
+fontWeight:700,
+marginBottom:42
 }}
 >
-✨ Aura Sync
-</div>
-
-<div
-style={{
-fontSize:"18px",
-color:"rgba(255,255,255,.85)",
-marginBottom:"50px"
-}}
->
-Ваши ауры совпали
+Это матч! 💙
 </div>
 
 
+{/* avatars */}
 <div
 style={{
-display:"flex",
-justifyContent:"center",
-alignItems:"center"
-}}
->
-
-<img
-src="/me.jpg"
-alt=""
-style={{
-width:"140px",
-height:"140px",
-borderRadius:"50%",
-objectFit:"cover",
-border:"5px solid white",
-boxShadow:"0 14px 35px rgba(0,0,0,.25)"
-}}
-/>
-
-<div
-style={{
-margin:"0 -18px",
-width:"78px",
-height:"78px",
-borderRadius:"50%",
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-zIndex:2,
-boxShadow:"0 12px 30px rgba(41,121,255,.45)"
+marginBottom:38
+}}
+>
+
+<div
+style={{
+animation:"avatarsMeet .5s ease",
+zIndex:2
+}}
+>
+<img
+src="/me.jpg"
+style={{
+width:148,
+height:148,
+borderRadius:"50%",
+objectFit:"cover",
+border:"4px solid #2F80FF"
+}}
+/>
+</div>
+
+
+<div
+style={{
+margin:"0 -22px",
+width:74,
+height:74,
+borderRadius:"50%",
+background:
+"linear-gradient(135deg,#4FACFE,#2979FF)",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+boxShadow:
+"0 12px 34px rgba(41,121,255,.35)",
+zIndex:4,
+animation:"pulseHeart .8s ease"
 }}
 >
 <Heart
-size={38}
+size={34}
 fill="white"
 stroke="white"
 />
 </div>
 
-<img
-src={matchedUser.avatar_url || "/placeholder.jpg"}
-alt=""
+
+<div
 style={{
-width:"140px",
-height:"140px",
+animation:"avatarsMeet2 .5s ease",
+zIndex:2
+}}
+>
+<img
+src={matchedUser?.avatar_url}
+style={{
+width:148,
+height:148,
 borderRadius:"50%",
 objectFit:"cover",
-border:"5px solid white",
-boxShadow:"0 14px 35px rgba(0,0,0,.25)"
+border:"4px solid #2F80FF"
 }}
 />
+</div>
 
 </div>
 
 
 <div
 style={{
-marginTop:"34px",
-fontSize:"21px",
-fontWeight:500,
-color:"#fff",
-lineHeight:1.45
+fontSize:21,
+lineHeight:1.45,
+color:"#4C4F5D",
+marginBottom:42
 }}
 >
-Ты и {matchedUser.name} понравились друг другу 💙
+Вы и {matchedUser?.name}<br/>
+понравились друг другу
 </div>
+
 
 
 <button
 style={{
 width:"100%",
-height:"66px",
-marginTop:"42px",
+height:68,
 border:"none",
-borderRadius:"24px",
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
+borderRadius:22,
+background:
+"linear-gradient(135deg,#38A3FF,#006DFF)",
 color:"#fff",
-fontSize:"22px",
+fontSize:24,
 fontWeight:600,
-boxShadow:"0 14px 35px rgba(41,121,255,.42)"
+boxShadow:
+"0 14px 35px rgba(0,109,255,.28)"
 }}
 >
-✈ Начать диалог
+✈ Написать сообщение
 </button>
 
 
@@ -632,18 +679,20 @@ setShowMatch(false);
 nextUser();
 }}
 style={{
-marginTop:"16px",
+marginTop:18,
 width:"100%",
-height:"64px",
-borderRadius:"24px",
-background:"transparent",
-border:"2px solid rgba(255,255,255,.35)",
-color:"#fff",
-fontSize:"20px"
+height:68,
+borderRadius:22,
+background:"#fff",
+border:"2px solid #4FACFE",
+color:"#2F80FF",
+fontSize:24,
+fontWeight:500
 }}
 >
 Продолжить поиск
 </button>
+
 
 </div>
 </div>
