@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
-import { motion, useMotionValue, useTransform } from "framer-motion";
 
 export default function Home() {
   const [users, setUsers] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
 
-  // не трогаем текущую логику
-  const currentUserId = 123; // временно
+  const currentUserId = 123;
 
   useEffect(() => {
     loadUsers();
@@ -28,9 +27,15 @@ export default function Home() {
 
   const currentUser = users[index];
 
+  const photos =
+    currentUser?.photos?.length
+      ? currentUser.photos
+      : [currentUser?.avatar_url];
+
   function nextUser() {
     setIndex((prev) => prev + 1);
     setPhotoIndex(0);
+    x.set(0);
   }
 
   async function handleLike() {
@@ -38,13 +43,11 @@ export default function Home() {
 
     const likedUserId = currentUser.telegram_id;
 
-    // like insert — не меняем
     await supabase.from("likes").insert({
       from_user: currentUserId,
       to_user: likedUserId,
     });
 
-    // reciprocal like check
     const { data: reverseLike } = await supabase
       .from("likes")
       .select("*")
@@ -64,10 +67,12 @@ export default function Home() {
         .maybeSingle();
 
       if (!existingMatch) {
-        await supabase.from("matches").insert({
-          user1,
-          user2,
-        });
+        await supabase
+          .from("matches")
+          .insert({
+            user1,
+            user2
+          });
 
         console.log("MATCH!");
       }
@@ -80,403 +85,408 @@ export default function Home() {
     nextUser();
   }
 
-  // SWIPE
   const x = useMotionValue(0);
 
   const rotate = useTransform(
     x,
-    [-250, 0, 250],
-    [-6, 0, 6]
+    [-250,0,250],
+    [-6,0,6]
   );
 
   const likeOpacity = useTransform(
     x,
-    [40, 140],
-    [0, 1]
+    [40,140],
+    [0,1]
   );
 
   const nopeOpacity = useTransform(
     x,
-    [-140, -40],
-    [1, 0]
+    [-140,-40],
+    [1,0]
   );
 
-  function nextPhoto(e: any) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
+  function handlePhotoTap(e:any){
+    const rect=e.currentTarget.getBoundingClientRect();
+    const clickX=e.clientX-rect.left;
 
-    const photos =
-      currentUser?.photos?.length
-        ? currentUser.photos
-        : [currentUser?.avatar_url];
-
-    if (clickX < rect.width / 2) {
-      setPhotoIndex((prev) =>
-        Math.max(prev - 1, 0)
+    if(clickX<rect.width/2){
+      setPhotoIndex(prev=>
+       Math.max(prev-1,0)
       );
     } else {
-      setPhotoIndex((prev) =>
-        Math.min(prev + 1, photos.length - 1)
+      setPhotoIndex(prev=>
+       Math.min(
+        prev+1,
+        photos.length-1
+       )
       );
     }
   }
 
-  const photos =
-    currentUser?.photos?.length
-      ? currentUser.photos
-      : [currentUser?.avatar_url];
-
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#F7F7F8",
-        padding: "18px 18px 120px",
-      }}
-    >
-      {/* TOP NAV */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 20,
-          marginTop: 10,
-        }}
-      >
-        <button
-          style={{
-            width:48,
-            height:48,
-            borderRadius:"50%",
-            border:"none",
-            background:"#fff",
-            boxShadow:
-            "0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)",
-            fontSize:22
-          }}
-        >
-          ←
-        </button>
+   <div
+    style={{
+      minHeight:"100vh",
+      background:"#F7F7F8",
+      padding:"18px 18px 120px"
+    }}
+   >
 
-        <button
-          style={{
-            width:48,
-            height:48,
-            borderRadius:"50%",
-            border:"none",
-            background:"#fff",
-            boxShadow:
-            "0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)",
-            fontSize:22
-          }}
-        >
-          ⚙
-        </button>
+    {/* top buttons */}
+    <div
+     style={{
+      display:"flex",
+      justifyContent:"space-between",
+      marginTop:8,
+      marginBottom:18
+     }}
+    >
+      <button
+       style={{
+        width:48,
+        height:48,
+        borderRadius:"50%",
+        border:"none",
+        background:"#fff",
+        boxShadow:
+         "0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)",
+        fontSize:22
+       }}
+      >
+       ←
+      </button>
+
+      <button
+       style={{
+        width:48,
+        height:48,
+        borderRadius:"50%",
+        border:"none",
+        background:"#fff",
+        boxShadow:
+         "0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)",
+        fontSize:20
+       }}
+      >
+       ⚙
+      </button>
+    </div>
+
+    {currentUser ? (
+    <>
+     <motion.div
+      drag="x"
+      dragElastic={0.08}
+      dragMomentum
+      dragConstraints={{
+       left:0,
+       right:0
+      }}
+      style={{
+       x,
+       rotate,
+       position:"relative",
+       height:"62vh",
+       borderRadius:"36px",
+       overflow:"hidden",
+       background:"#fff",
+       boxShadow:
+       "0 10px 30px rgba(0,0,0,.06)"
+      }}
+      transition={{
+       type:"spring",
+       stiffness:650,
+       damping:24
+      }}
+      whileTap={{
+       scale:.995
+      }}
+      onDragEnd={(e,info)=>{
+       if(info.offset.x>140){
+         handleLike();
+       }
+       else if(info.offset.x<-140){
+         handleSkip();
+       }
+      }}
+     >
+
+      {/* like */}
+      <motion.div
+       style={{
+        opacity:likeOpacity,
+        position:"absolute",
+        top:76,
+        right:30,
+        zIndex:10,
+        border:"3px solid #2F80FF",
+        color:"#2F80FF",
+        padding:"8px 18px",
+        borderRadius:12,
+        fontWeight:700,
+        transform:"rotate(12deg)"
+       }}
+      >
+       LIKE
+      </motion.div>
+
+      {/* nope */}
+      <motion.div
+       style={{
+        opacity:nopeOpacity,
+        position:"absolute",
+        top:76,
+        left:30,
+        zIndex:10,
+        border:"3px solid #ff6a6a",
+        color:"#ff6a6a",
+        padding:"8px 18px",
+        borderRadius:12,
+        fontWeight:700,
+        transform:"rotate(-12deg)"
+       }}
+      >
+       NOPE
+      </motion.div>
+
+      {/* photo */}
+      <div
+       onClick={handlePhotoTap}
+       style={{
+        width:"100%",
+        height:"100%"
+       }}
+      >
+       <img
+        src={photos[photoIndex]}
+        style={{
+         width:"100%",
+         height:"100%",
+         objectFit:"cover"
+        }}
+       />
       </div>
 
-      {currentUser ? (
-        <>
-          {/* CARD */}
-          <motion.div
-            drag="x"
-            dragConstraints={{
-              left:0,
-              right:0
-            }}
-            style={{
-              x,
-              rotate,
-              position:"relative",
-              height:"62vh",
-              borderRadius:"36px",
-              overflow:"hidden",
-              background:"#fff",
-              boxShadow:
-               "0 10px 30px rgba(0,0,0,.06)"
-            }}
-            whileTap={{scale:.995}}
-            onDragEnd={(e,info)=>{
-              if(info.offset.x>120){
-                handleLike();
-              }
-              else if(info.offset.x<-120){
-                handleSkip();
-              }
-            }}
-          >
-            {/* LIKE */}
-            <motion.div
-             style={{
-               opacity:likeOpacity,
-               position:"absolute",
-               top:80,
-               right:30,
-               zIndex:20,
-               border:"3px solid #2F80FF",
-               color:"#2F80FF",
-               padding:"10px 18px",
-               borderRadius:12,
-               fontWeight:700,
-               transform:"rotate(12deg)"
-             }}
-            >
-             LIKE
-            </motion.div>
+      {/* photo count */}
+      <div
+       style={{
+        position:"absolute",
+        top:26,
+        left:26,
+        background:"rgba(70,70,70,.38)",
+        backdropFilter:"blur(12px)",
+        padding:"10px 18px",
+        borderRadius:999,
+        color:"#fff",
+        fontSize:15,
+        zIndex:5
+       }}
+      >
+       {photoIndex+1} / {photos.length}
+      </div>
 
-            {/* NOPE */}
-            <motion.div
-             style={{
-               opacity:nopeOpacity,
-               position:"absolute",
-               top:80,
-               left:30,
-               zIndex:20,
-               border:"3px solid #ff5f6d",
-               color:"#ff5f6d",
-               padding:"10px 18px",
-               borderRadius:12,
-               fontWeight:700,
-               transform:"rotate(-12deg)"
-             }}
-            >
-             NOPE
-            </motion.div>
+      {/* NEW SOFT BLUR FADE */}
+      <div
+       style={{
+        position:"absolute",
+        left:0,
+        right:0,
+        bottom:150,
+        height:190,
+        zIndex:2,
+        background:
+        "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,.28) 35%, rgba(255,255,255,.68) 58%, rgba(255,255,255,.92) 82%, #fff 100%)",
+        filter:"blur(10px)"
+       }}
+      />
 
-            {/* PHOTO */}
-            <div
-             onClick={nextPhoto}
-             style={{
-               width:"100%",
-               height:"100%",
-               cursor:"pointer"
-             }}
-            >
-             <img
-              src={photos[photoIndex]}
-              style={{
-                width:"100%",
-                height:"100%",
-                objectFit:"cover"
-              }}
-             />
-            </div>
+      {/* name */}
+      <div
+       style={{
+        position:"absolute",
+        left:30,
+        bottom:195,
+        zIndex:4
+       }}
+      >
+       <h2
+        style={{
+         margin:0,
+         fontSize:20,
+         fontWeight:600,
+         letterSpacing:"-.35px",
+         lineHeight:1.05,
+         color:"#111"
+        }}
+       >
+        {currentUser.name}, {currentUser.age}
+       </h2>
 
-            {/* photo counter */}
-            <div
-             style={{
-              position:"absolute",
-              top:28,
-              left:28,
-              background:"rgba(70,70,70,.4)",
-              backdropFilter:"blur(10px)",
-              padding:"10px 18px",
-              borderRadius:18,
-              color:"#fff",
-              zIndex:10
-             }}
-            >
-             {photoIndex+1} / {photos.length}
-            </div>
+       <p
+        style={{
+         marginTop:6,
+         fontSize:15,
+         opacity:.85,
+         color:"#7B7B87"
+        }}
+       >
+        📍 {currentUser.city}, 2 км от вас
+       </p>
+      </div>
 
-            {/* soft fade */}
-            <div
-             style={{
-               position:"absolute",
-               left:0,
-               right:0,
-               bottom:180,
-               height:180,
-               zIndex:2,
-               background:
-               "linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,.75) 55%,#fff 100%)"
-             }}
-            />
+      {/* smaller profile block */}
+      <div
+       style={{
+        position:"absolute",
+        bottom:0,
+        left:0,
+        right:0,
+        background:"#fff",
+        zIndex:3,
+        padding:"18px 24px 18px",
+        minHeight:130,
+        borderTopLeftRadius:34,
+        borderTopRightRadius:34
+       }}
+      >
 
-            {/* NAME on photo */}
-            <div
-             style={{
-              position:"absolute",
-              left:30,
-              bottom:210,
-              zIndex:4
-             }}
-            >
-              <div
-               style={{
-                 display:"flex",
-                 gap:8,
-                 alignItems:"center"
-               }}
-              >
-               <h2
-                style={{
-                 margin:0,
-                 fontSize:23,
-                 fontWeight:600
-                }}
-               >
-                {currentUser.name}, {currentUser.age}
-               </h2>
-              </div>
+       <p
+        style={{
+         margin:0,
+         fontSize:15,
+         lineHeight:1.35,
+         maxWidth:"92%"
+        }}
+       >
+        {currentUser.bio ||
+        "Люблю путешествия и новые впечатления ✈️✨"}
+       </p>
 
-              <p
-               style={{
-                marginTop:6,
-                color:"#7B7B87",
-                fontSize:16
-               }}
-              >
-               📍 {currentUser.city}, 2 км от вас
-              </p>
-            </div>
-
-            {/* INFO */}
-            <div
-             style={{
-              position:"absolute",
-              bottom:0,
-              left:0,
-              right:0,
-              background:"#fff",
-              padding:"24px 26px 26px",
-              borderTopLeftRadius:34,
-              borderTopRightRadius:34,
-              zIndex:3
-             }}
-            >
-              <p
-               style={{
-                 margin:0,
-                 lineHeight:1.45,
-                 fontSize:16
-               }}
-              >
-                {currentUser.bio ||
-                "Люблю путешествия и новые впечатления ✈✨"}
-              </p>
-
-              <div
-               style={{
-                display:"flex",
-                flexWrap:"wrap",
-                gap:12,
-                marginTop:18
-               }}
-              >
-                {(currentUser.interests || []).map(
-                  (tag:string)=>(
-                   <motion.span
-                    whileTap={{
-                      scale:.96
-                    }}
-                    key={tag}
-                    style={{
-                      background:"#EEF5FF",
-                      color:"#4D8DFF",
-                      padding:"12px 18px",
-                      borderRadius:9999,
-                      fontSize:14
-                    }}
-                   >
-                    {tag}
-                   </motion.span>
-                  )
-                )}
-
-                <span
-                 style={{
-                  width:36,
-                  height:36,
-                  borderRadius:"50%",
-                  display:"flex",
-                  alignItems:"center",
-                  justifyContent:"center",
-                  background:"#EEF5FF",
-                  color:"#4D8DFF"
-                 }}
-                >
-                 +
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ACTIONS */}
-          <div
+       <div
+        style={{
+         display:"flex",
+         flexWrap:"wrap",
+         gap:12,
+         marginTop:16
+        }}
+       >
+        {(currentUser.interests || []).map(
+         (tag:string)=>(
+          <motion.span
+           key={tag}
+           whileTap={{
+            scale:.96
+           }}
            style={{
-             marginTop:26,
-             display:"flex",
-             justifyContent:"center",
-             gap:30,
-             alignItems:"center"
+            background:"#EEF5FF",
+            color:"#4D8DFF",
+            padding:"8px 14px",
+            borderRadius:9999,
+            fontSize:13
            }}
           >
-            <button
-             onClick={handleSkip}
-             style={{
-              width:72,
-              height:72,
-              borderRadius:"50%",
-              border:"none",
-              background:"#fff",
-              color:"#9AA0AA",
-              fontSize:34,
-              boxShadow:
-               "0 8px 20px rgba(0,0,0,.08)"
-             }}
-            >
-             ✕
-            </button>
+           {tag}
+          </motion.span>
+         )
+        )}
 
-            <motion.button
-             whileTap={{
-               scale:[1,1.08,1]
-             }}
-             transition={{
-               duration:.28
-             }}
-             onClick={handleLike}
-             style={{
-               width:90,
-               height:90,
-               borderRadius:"50%",
-               border:"none",
-               background:
-               "linear-gradient(135deg,#3D8BFF 0%,#0A6CFF 100%)",
-               color:"#fff",
-               fontSize:38,
-               boxShadow:
-               "0 10px 30px rgba(32,111,255,.35)"
-             }}
-            >
-             ❤
-            </motion.button>
+        <span
+         style={{
+          width:34,
+          height:34,
+          borderRadius:"50%",
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center",
+          background:"#EEF5FF",
+          color:"#4D8DFF"
+         }}
+        >
+         +
+        </span>
 
-            <button
-             style={{
-              width:72,
-              height:72,
-              borderRadius:"50%",
-              border:"none",
-              background:"#fff",
-              color:"#9AA0AA",
-              fontSize:32,
-              boxShadow:
-              "0 8px 20px rgba(0,0,0,.08)"
-             }}
-            >
-             ★
-            </button>
-          </div>
-        </>
-      ) : (
-        <p style={{padding:50}}>
-          Нет пользователей
-        </p>
-      )}
+       </div>
+      </div>
 
-      {/* existing bottom nav untouched */}
-      <BottomNav />
-    </div>
+     </motion.div>
+
+     {/* actions */}
+     <div
+      style={{
+       marginTop:24,
+       display:"flex",
+       justifyContent:"center",
+       gap:30,
+       alignItems:"center"
+      }}
+     >
+      <button
+       onClick={handleSkip}
+       style={{
+        width:72,
+        height:72,
+        borderRadius:"50%",
+        border:"none",
+        background:"#fff",
+        color:"#8D8D99",
+        fontSize:34,
+        boxShadow:
+        "0 8px 20px rgba(0,0,0,.08)"
+       }}
+      >
+       ✕
+      </button>
+
+      <motion.button
+       whileTap={{
+        scale:[1,1.08,1]
+       }}
+       transition={{
+        duration:.28
+       }}
+       onClick={handleLike}
+       style={{
+        width:90,
+        height:90,
+        borderRadius:"50%",
+        border:"none",
+        background:
+        "linear-gradient(135deg,#3D8BFF 0%,#0A6CFF 100%)",
+        color:"#fff",
+        fontSize:38,
+        boxShadow:
+        "0 10px 30px rgba(32,111,255,.35)"
+       }}
+      >
+       ❤
+      </motion.button>
+
+      <button
+       style={{
+        width:72,
+        height:72,
+        borderRadius:"50%",
+        border:"none",
+        background:"#fff",
+        color:"#8D8D99",
+        fontSize:30,
+        boxShadow:
+        "0 8px 20px rgba(0,0,0,.08)"
+       }}
+      >
+       ★
+      </button>
+     </div>
+
+    </>
+    ) : (
+      <p style={{padding:40}}>
+       Нет пользователей
+      </p>
+    )}
+
+    <BottomNav/>
+
+   </div>
   );
 }
