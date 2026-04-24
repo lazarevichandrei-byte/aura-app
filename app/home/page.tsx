@@ -18,18 +18,28 @@ const startX=useRef(0);
 
 const currentUserId=123;
 
+
+
 useEffect(()=>{
  loadUsers();
 },[]);
 
+
+
 async function loadUsers(){
+
 const {data}=await supabase
 .from("users")
 .select("*")
 .neq("telegram_id",currentUserId);
 
-if(data) setUsers(data);
+if(data){
+setUsers(data);
 }
+
+}
+
+
 
 const currentUser=users[index];
 
@@ -46,10 +56,13 @@ if(!currentUser) return;
 
 const likedUserId=currentUser.telegram_id;
 
-await supabase.from("likes").insert({
+await supabase
+.from("likes")
+.insert({
 from_user:currentUserId,
 to_user:likedUserId
 });
+
 
 const {data:reverseLike}=await supabase
 .from("likes")
@@ -58,10 +71,19 @@ const {data:reverseLike}=await supabase
 .eq("to_user",currentUserId)
 .maybeSingle();
 
+
 if(reverseLike){
 
-const user1=Math.min(currentUserId,likedUserId);
-const user2=Math.max(currentUserId,likedUserId);
+const user1=Math.min(
+currentUserId,
+likedUserId
+);
+
+const user2=Math.max(
+currentUserId,
+likedUserId
+);
+
 
 const {data:existingMatch}=await supabase
 .from("matches")
@@ -70,16 +92,22 @@ const {data:existingMatch}=await supabase
 .eq("user2",user2)
 .maybeSingle();
 
+
 if(!existingMatch){
-await supabase.from("matches").insert({
+
+await supabase
+.from("matches")
+.insert({
 user1,
 user2
 });
+
 }
 
 }
 
 nextUser();
+
 }
 
 
@@ -98,20 +126,28 @@ setIndex(prev=>prev+1);
 
 
 
-/* SWIPE ONLY CARD */
+/* CARD SWIPE */
+
 function onTouchStart(e:any){
-startX.current=e.touches[0].clientX;
+startX.current=
+e.touches[0].clientX;
+
 setDragging(true);
 }
 
+
 function onTouchMove(e:any){
+
 if(!dragging) return;
 
 const move=
-e.touches[0].clientX-startX.current;
+e.touches[0].clientX
+-startX.current;
 
 setDragX(move);
+
 }
+
 
 function onTouchEnd(){
 
@@ -134,6 +170,7 @@ setDragX(0);
 
 
 return(
+
 <div
 style={{
 height:"100vh",
@@ -157,7 +194,8 @@ height:"66vh",
 borderRadius:36,
 overflow:"hidden",
 background:"#fff",
-boxShadow:"0 10px 30px rgba(0,0,0,.06)",
+boxShadow:
+"0 10px 30px rgba(0,0,0,.06)",
 
 transform:
 dragging
@@ -172,9 +210,9 @@ dragging
 >
 
 
-{/* LIKE LABEL */}
 {dragX>35 &&(
-<div style={{
+<div
+style={{
 position:"absolute",
 top:84,
 right:34,
@@ -185,15 +223,16 @@ color:"#2F80FF",
 fontWeight:700,
 borderRadius:14,
 transform:"rotate(12deg)"
-}}>
+}}
+>
 LIKE
 </div>
 )}
 
 
-{/* NOPE LABEL */}
 {dragX<-35 &&(
-<div style={{
+<div
+style={{
 position:"absolute",
 top:84,
 left:34,
@@ -204,7 +243,8 @@ color:"#FF6A6A",
 fontWeight:700,
 borderRadius:14,
 transform:"rotate(-12deg)"
-}}>
+}}
+>
 NOPE
 </div>
 )}
@@ -221,26 +261,34 @@ objectFit:"cover"
 />
 
 
-
-{/* PHOTO TAP LEFT RIGHT */}
 <div
 onClick={(e:any)=>{
-const rect=e.currentTarget.getBoundingClientRect();
-const x=e.clientX-rect.left;
+
+const rect=
+e.currentTarget.getBoundingClientRect();
+
+const x=
+e.clientX-rect.left;
+
 
 if(x<rect.width/2){
+
 setPhotoIndex(p=>
 p===0
 ? photos.length-1
 : p-1
 );
+
 }else{
+
 setPhotoIndex(p=>
 p===photos.length-1
 ?0
 :p+1
 );
+
 }
+
 }}
 style={{
 position:"absolute",
@@ -251,7 +299,6 @@ zIndex:4
 
 
 
-{/* COUNTER */}
 <div
 style={{
 position:"absolute",
@@ -268,14 +315,16 @@ fontSize:18
 >
 {photoIndex+1} / {photos.length}
 </div>
-{/* PHOTO TO WHITE GRADIENT */}
+
+
+
 <div
 style={{
 position:"absolute",
 left:0,
 right:0,
-bottom:0,          // начинается С САМОГО НИЗА фото
-height:"55%",      // доходит до надписей
+bottom:0,
+height:"55%",
 zIndex:5,
 pointerEvents:"none",
 background:`
@@ -295,7 +344,6 @@ rgba(255,255,255,0) 100%
 
 
 
-{/* TEXT LOW ON PHOTO */}
 <div
 style={{
 position:"absolute",
@@ -306,33 +354,38 @@ zIndex:12
 }}
 >
 
-<h2 style={{
+<h2
+style={{
 margin:0,
 fontSize:18,
 fontWeight:600,
-letterSpacing:"-.2px",
 lineHeight:1.1
-}}>
+}}
+>
 {currentUser.name}, {currentUser.age}
 </h2>
 
 
-<div style={{
+<div
+style={{
 marginTop:4,
 fontSize:13,
 color:"#70717C"
-}}>
+}}
+>
 📍 {currentUser.city}, 2 км от вас
 </div>
 
 
-<p style={{
+<p
+style={{
 marginTop:8,
 marginBottom:10,
 fontSize:14,
 lineHeight:1.32,
 maxWidth:"82%"
-}}>
+}}
+>
 {currentUser.bio ||
 "Люблю путешествия и новые впечатления ✈✨"}
 </p>
@@ -372,11 +425,7 @@ fontWeight:500
 </div>
 
 </div>
-
 </div>
-
-
-
 {/* ACTIONS */}
 <div
 style={{
@@ -391,49 +440,51 @@ marginTop:24
 <button
 onClick={handleSkip}
 style={{
-width:72,
-height:72,
+width:70,
+height:70,
 border:"none",
 borderRadius:"50%",
 background:"#fff",
-fontSize:34,
-color:"#A9AFB8",
-boxShadow:"0 8px 22px rgba(0,0,0,.07)"
+boxShadow:"0 12px 30px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.03)",
+fontSize:28,
+fontWeight:300,
+color:"#8E96A5"
 }}
 >
 ✕
 </button>
 
 
+
 <button
 onClick={handleLike}
 style={{
-width:92,
-height:92,
+width:88,
+height:88,
 border:"none",
 borderRadius:"50%",
-background:
-"linear-gradient(135deg,#3D8BFF,#0A6CFF)",
+background:"linear-gradient(135deg,#4D9DFF 0%,#0A6CFF 100%)",
 color:"#fff",
-fontSize:42,
-boxShadow:
-"0 10px 30px rgba(32,111,255,.35)"
+fontSize:38,
+fontWeight:500,
+boxShadow:"0 14px 34px rgba(32,111,255,.40)"
 }}
 >
 ♡
 </button>
 
 
+
 <button
 style={{
-width:72,
-height:72,
+width:70,
+height:70,
 border:"none",
 borderRadius:"50%",
 background:"#fff",
-fontSize:30,
-color:"#A9AFB8",
-boxShadow:"0 8px 22px rgba(0,0,0,.07)"
+boxShadow:"0 12px 30px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.03)",
+fontSize:28,
+color:"#8E96A5"
 }}
 >
 ✦
@@ -447,5 +498,7 @@ boxShadow:"0 8px 22px rgba(0,0,0,.07)"
 <BottomNav/>
 
 </div>
-)
+
+);
+
 }
