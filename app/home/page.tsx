@@ -79,7 +79,7 @@ nextUser();
 return;
 }
 
-/* сохранить лайк */
+/* сохраняем лайк */
 await supabase
 .from("likes")
 .upsert(
@@ -92,25 +92,46 @@ onConflict:"from_user,to_user"
 }
 );
 
-/* проверить ответный лайк */
-const { data: rows } = await supabase
+
+/* ищем ответный лайк */
+const {data:rows}=await supabase
 .from("likes")
 .select("id")
-.eq("from_user", likedUserId)
-.eq("to_user", currentUserId);
+.eq("from_user",likedUserId)
+.eq("to_user",currentUserId);
+
 
 /* MATCH */
 if(rows && rows.length>0){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
-/* обнуляем лайки после мэтча */
+
+
+/* ЖЕСТКО ОБНУЛЯЕМ ОБЕ СТОРОНЫ */
+
+/* мой лайк -> его */
 await supabase
 .from("likes")
 .delete()
+.eq("from_user",currentUserId)
+.eq("to_user",likedUserId);
+
+
+/* его лайк -> мой */
+await supabase
+.from("likes")
+.delete()
+.eq("from_user",likedUserId)
+.eq("to_user",currentUserId);
+
+
+/* OPTIONAL: удалить старый match если нужен одноразовый мэтч */
+await supabase
+.from("matches")
+.delete()
 .or(
-`and(from_user.eq.${currentUserId},to_user.eq.${likedUserId}),
-and(from_user.eq.${likedUserId},to_user.eq.${currentUserId})`
+`user1.eq.${Math.min(currentUserId,likedUserId)},user2.eq.${Math.max(currentUserId,likedUserId)}`
 );
 
 return;
