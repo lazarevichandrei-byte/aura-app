@@ -73,26 +73,29 @@ if(!currentUser) return;
 const likedUserId=currentUser.telegram_id;
 
 
-/* обычный insert вместо upsert */
+/* сохраняем лайк */
 await supabase
 .from("likes")
-.insert({
+.upsert(
+{
 from_user:currentUserId,
 to_user:likedUserId
-});
+},
+{
+onConflict:"from_user,to_user"
+}
+);
 
 
-/* DEBUG */
 console.log(
-"LIKE SAVED:",
+"LIKE SAVED",
 currentUserId,
-"->",
 likedUserId
 );
 
 
 /* ищем обратный лайк */
-const {data:reverseLike,error}=await supabase
+const {data:reverseLike}=await supabase
 .from("likes")
 .select("*")
 .eq("from_user",likedUserId)
@@ -100,57 +103,24 @@ const {data:reverseLike,error}=await supabase
 .maybeSingle();
 
 
-console.log("reverseLike =",reverseLike);
-console.log("error =",error);
+console.log(
+"MUTUAL LIKE:",
+reverseLike
+);
 
 
-/* ЕСЛИ взаимный лайк */
+/* если второй уже лайкнул первого */
 if(reverseLike){
 
-const user1=Math.min(
-currentUserId,
-likedUserId
-);
-
-const user2=Math.max(
-currentUserId,
-likedUserId
-);
-
-
-/* создаем match если нет */
-const {data:existingMatch}=await supabase
-.from("matches")
-.select("*")
-.eq("user1",user1)
-.eq("user2",user2)
-.maybeSingle();
-
-
-if(!existingMatch){
-
-await supabase
-.from("matches")
-.insert({
-user1,
-user2
-});
-
-}
-
-
-/* popup ALWAYS */
 setMatchedUser(currentUser);
-
-/* форс ререндер popup */
-setTimeout(()=>{
 setShowMatch(true);
-},100);
 
 return;
+
 }
 
 
+/* если еще не взаимно */
 nextUser();
 
 }
