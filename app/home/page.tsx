@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
 
-export default function Home(){
+export default function Home() {
 
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
@@ -23,7 +23,7 @@ const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
 
-const currentUserId=123; // временно
+const currentUserId=123;
 
 
 
@@ -48,6 +48,7 @@ if(data) setUsers(data);
 
 const currentUser=users[index];
 
+
 const photos=
 currentUser?.photos?.length
 ? currentUser.photos
@@ -65,7 +66,7 @@ setIndex(prev=>prev+1);
 
 
 
-/* FIXED LIKE + MATCH */
+/* ONLY FIXED BLOCK */
 async function handleLike(){
 
 if(!currentUser) return;
@@ -73,7 +74,6 @@ if(!currentUser) return;
 const likedUserId=currentUser.telegram_id;
 
 
-/* save like */
 await supabase
 .from("likes")
 .insert({
@@ -82,19 +82,13 @@ to_user:likedUserId
 });
 
 
-/* find reverse like */
-const {data:reverseLike,error}=await supabase
+const {data:reverseLike}=await supabase
 .from("likes")
 .select("id")
 .eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
 .limit(1)
 .maybeSingle();
-
-
-if(error){
-console.log(error);
-}
 
 
 if(reverseLike){
@@ -110,8 +104,8 @@ likedUserId
 );
 
 
-/* existing match? */
-const {data:matchExists}=await supabase
+/* check if match exists */
+const {data:existingMatch}=await supabase
 .from("matches")
 .select("id")
 .eq("user1",user1)
@@ -120,7 +114,8 @@ const {data:matchExists}=await supabase
 .maybeSingle();
 
 
-if(!matchExists){
+/* create only if absent */
+if(!existingMatch){
 
 await supabase
 .from("matches")
@@ -129,6 +124,10 @@ user1,
 user2
 });
 
+}
+
+
+/* ALWAYS show popup */
 setMatchedUser(currentUser);
 setShowMatch(true);
 
@@ -136,7 +135,6 @@ return;
 
 }
 
-}
 
 nextUser();
 
@@ -195,6 +193,7 @@ if(!photos.length) return;
 const rect=e.currentTarget.getBoundingClientRect();
 const x=e.clientX-rect.left;
 
+
 if(x<rect.width/2){
 
 setPhotoIndex(p=>
@@ -240,9 +239,7 @@ height:"66vh",
 borderRadius:36,
 overflow:"hidden",
 background:"#fff",
-
-boxShadow:
-"0 10px 30px rgba(0,0,0,.06)",
+boxShadow:"0 10px 30px rgba(0,0,0,.06)",
 
 transform:dragging
 ?`translateX(${dragX}px) rotate(${dragX/24}deg)`
@@ -253,40 +250,6 @@ transition:dragging
 :"all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
-
-{dragX>35 &&(
-<div style={{
-position:"absolute",
-top:85,
-right:35,
-zIndex:20,
-border:"3px solid #2F80FF",
-color:"#2F80FF",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(12deg)"
-}}>
-LIKE
-</div>
-)}
-
-{dragX<-35 &&(
-<div style={{
-position:"absolute",
-top:85,
-left:35,
-zIndex:20,
-border:"3px solid #ff6a6a",
-color:"#ff6a6a",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(-12deg)"
-}}>
-NOPE
-</div>
-)}
 
 <img
 src={photos[photoIndex]}
@@ -316,12 +279,12 @@ background:"rgba(80,80,80,.45)",
 backdropFilter:"blur(10px)",
 padding:"12px 18px",
 borderRadius:18,
-color:"#fff",
-fontSize:18
+color:"#fff"
 }}
 >
 {photoIndex+1} / {photos.length}
 </div>
+
 
 <div
 style={{
@@ -335,12 +298,11 @@ pointerEvents:"none",
 background:`
 linear-gradient(
 to top,
-#ffffff 0%,
+#fff 0%,
 rgba(255,255,255,.98) 18%,
 rgba(255,255,255,.92) 35%,
 rgba(255,255,255,.72) 55%,
 rgba(255,255,255,.42) 72%,
-rgba(255,255,255,.12) 88%,
 rgba(255,255,255,0) 100%
 )
 `
@@ -355,7 +317,12 @@ bottom:26,
 zIndex:8
 }}
 >
-<h2 style={{margin:0,fontSize:18,fontWeight:600}}>
+
+<h2 style={{
+margin:0,
+fontSize:18,
+fontWeight:600
+}}>
 {currentUser.name}, {currentUser.age}
 </h2>
 
@@ -370,11 +337,9 @@ color:"#70717C"
 <p style={{
 marginTop:8,
 marginBottom:10,
-fontSize:14,
-lineHeight:1.3,
-maxWidth:"82%"
+fontSize:14
 }}>
-{currentUser.bio || "Люблю путешествия ✈✨"}
+{currentUser.bio}
 </p>
 
 <div style={{
@@ -382,35 +347,35 @@ display:"flex",
 flexWrap:"wrap",
 gap:8
 }}>
-{(currentUser.interests||[
-"Путешествия","Музыка","Спорт","Кино","Фото"
-]).map((tag:string)=>(
+{(currentUser.interests||[]).map((tag:string)=>(
 <div
 key={tag}
 style={{
 padding:"6px 11px",
 borderRadius:999,
 background:"#EEF5FF",
-color:"#4D8DFF",
-fontSize:11.5
+color:"#4D8DFF"
 }}
 >
 {tag}
 </div>
 ))}
 </div>
-</div>
 
 </div>
 
+</div>
 
-<div style={{
+
+<div
+style={{
 marginTop:24,
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
 gap:26
-}}>
+}}
+>
 
 <button onClick={()=>{
 setSkipPressed(true);
@@ -418,15 +383,8 @@ setTimeout(()=>{
 setSkipPressed(false);
 handleSkip();
 },180);
-}}
-style={{
-width:72,height:72,borderRadius:"50%",
-border:"none",
-background:skipPressed
-?"linear-gradient(135deg,#FF8CB7,#FF5FA2)"
-:"#fff"
 }}>
-<X size={30}/>
+<X/>
 </button>
 
 
@@ -436,31 +394,12 @@ setTimeout(()=>{
 setLikePressed(false);
 handleLike();
 },180);
-}}
-style={{
-width:92,
-height:92,
-borderRadius:"50%",
-border:"none",
-background:likePressed
-?"linear-gradient(135deg,#FF5E73,#FF304F)"
-:"linear-gradient(135deg,#4FACFE,#2979FF)"
 }}>
-<Heart
-size={38}
-fill="white"
-stroke="white"
-/>
+<Heart fill="white"/>
 </button>
 
 
-<button
-style={{
-width:72,
-height:72,
-borderRadius:"50%"
-}}
->
+<button>
 <Sparkles/>
 </button>
 
@@ -491,25 +430,22 @@ textAlign:"center"
 }}
 >
 
-<div
-style={{
+<div style={{
 fontSize:42,
 fontWeight:800,
 color:"#fff"
-}}
->
+}}>
 ✨ Aura Sync
 </div>
 
-<div
-style={{
+<div style={{
 color:"rgba(255,255,255,.85)",
 marginTop:12,
 marginBottom:44
-}}
->
+}}>
 Ваши ауры совпали
 </div>
+
 
 <img
 src={matchedUser?.avatar_url}
@@ -530,8 +466,7 @@ border:"none",
 borderRadius:22,
 background:
 "linear-gradient(135deg,#4FACFE,#2979FF)",
-color:"#fff",
-fontWeight:700
+color:"#fff"
 }}
 >
 Начать диалог
@@ -546,10 +481,7 @@ style={{
 marginTop:14,
 width:"100%",
 height:64,
-borderRadius:22,
-background:"transparent",
-border:"2px solid rgba(255,255,255,.75)",
-color:"#fff"
+borderRadius:22
 }}
 >
 Продолжить поиск
