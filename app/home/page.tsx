@@ -32,7 +32,6 @@ typeof window !== "undefined" &&
 )
 : 123;
 
-
 useEffect(()=>{
  loadUsers();
 },[]);
@@ -74,36 +73,38 @@ if(!currentUser) return;
 const likedUserId=currentUser.telegram_id;
 
 
-/* safe like insert (без дублей не ломается) */
+/* обычный insert вместо upsert */
 await supabase
 .from("likes")
-.upsert(
-{
+.insert({
 from_user:currentUserId,
 to_user:likedUserId
-},
-{
-onConflict:"from_user,to_user"
-}
+});
+
+
+/* DEBUG */
+console.log(
+"LIKE SAVED:",
+currentUserId,
+"->",
+likedUserId
 );
 
 
-/* mutual like check */
-const {data:reverseLike}=await supabase
+/* ищем обратный лайк */
+const {data:reverseLike,error}=await supabase
 .from("likes")
-.select("id")
+.select("*")
 .eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
-.limit(1)
 .maybeSingle();
 
 
-console.log("ME",currentUserId);
-console.log("TARGET",likedUserId);
-console.log("REVERSE",reverseLike);
+console.log("reverseLike =",reverseLike);
+console.log("error =",error);
 
 
-/* mutual like found */
+/* ЕСЛИ взаимный лайк */
 if(reverseLike){
 
 const user1=Math.min(
@@ -117,17 +118,15 @@ likedUserId
 );
 
 
-/* check existing match */
+/* создаем match если нет */
 const {data:existingMatch}=await supabase
 .from("matches")
-.select("id")
+.select("*")
 .eq("user1",user1)
 .eq("user2",user2)
-.limit(1)
 .maybeSingle();
 
 
-/* create only if absent */
 if(!existingMatch){
 
 await supabase
@@ -140,15 +139,18 @@ user2
 }
 
 
-/* ALWAYS SHOW MATCH POPUP */
+/* popup ALWAYS */
 setMatchedUser(currentUser);
+
+/* форс ререндер popup */
+setTimeout(()=>{
 setShowMatch(true);
+},100);
 
 return;
 }
 
 
-/* no mutual like */
 nextUser();
 
 }
@@ -242,6 +244,39 @@ transition:dragging
 :"all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
+{dragX>35 &&(
+<div style={{
+position:"absolute",
+top:85,
+right:35,
+zIndex:20,
+border:"3px solid #2F80FF",
+color:"#2F80FF",
+padding:"10px 18px",
+borderRadius:14,
+fontWeight:700,
+transform:"rotate(12deg)"
+}}>
+LIKE
+</div>
+)}
+
+{dragX<-35 &&(
+<div style={{
+position:"absolute",
+top:85,
+left:35,
+zIndex:20,
+border:"3px solid #ff6a6a",
+color:"#ff6a6a",
+padding:"10px 18px",
+borderRadius:14,
+fontWeight:700,
+transform:"rotate(-12deg)"
+}}>
+NOPE
+</div>
+)}
 
 <img
 src={photos[photoIndex]}
