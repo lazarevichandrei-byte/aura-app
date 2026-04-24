@@ -103,13 +103,12 @@ console.log("reverseError",error);
 
 
 /* есть взаимный лайк */
-if(reverseLike){
-
+/* TEST — форсим popup на любой лайк */
 setMatchedUser(currentUser);
 setShowMatch(true);
 return;
 
-}
+
 
 /* пока нет */
 nextUser();
