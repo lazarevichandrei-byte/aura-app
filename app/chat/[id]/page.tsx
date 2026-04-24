@@ -1,5 +1,11 @@
 "use client";
-
+export default function ChatPage() {
+ return (
+   <div style={{fontSize:60,padding:80,color:"red"}}>
+      TEST 999
+   </div>
+ )
+}
 import { useRouter } from "next/navigation";
 
 export default function ChatPage(){
