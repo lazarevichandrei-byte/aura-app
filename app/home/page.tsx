@@ -643,15 +643,20 @@ boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 
 </div>
 
-<div style={{
+
+<div
+style={{
 fontSize:21,
 lineHeight:1.45,
 color:"#4C4F5D",
 marginBottom:38
-}}>
-Вы и {matchedUser?.name}<br/>
+}}
+>
+Вы и {matchedUser?.name}
+<br/>
 понравились друг другу
 </div>
+
 
 <button
 onClick={()=>{
@@ -669,12 +674,38 @@ color:"#fff",
 fontSize:17,
 fontWeight:600,
 display:"flex",
-alignItems:"center",
 justifyContent:"center",
+alignItems:"center",
+position:"relative",
 boxShadow:"0 12px 30px rgba(41,121,255,.28)"
 }}
 >
-💬 Написать сообщение
+
+<div
+style={{
+position:"absolute",
+left:18,
+width:30,
+height:30,
+borderRadius:"50%",
+background:"#fff",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:15
+}}
+>
+✈
+</div>
+
+<span
+style={{
+transform:"translateX(8px)"
+}}
+>
+Написать сообщение
+</span>
+
 </button>
 
 
