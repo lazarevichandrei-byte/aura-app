@@ -74,59 +74,41 @@ if(!currentUser) return;
 
 const likedUserId=currentUser.telegram_id;
 
-try{
+if(!likedUserId){
+nextUser();
+return;
+}
 
-/* сохраняем лайк */
+/* сохранить лайк */
 await supabase
 .from("likes")
 .upsert(
 {
-from_user:currentUserId,
-to_user:likedUserId
+from_user: currentUserId,
+to_user: likedUserId
 },
 {
 onConflict:"from_user,to_user"
 }
 );
 
-
-/* проверяем обратный лайк */
-const { data:rows, error } = await supabase
+/* проверить ответный лайк */
+const { data: rows } = await supabase
 .from("likes")
-.select("*")
+.select("id")
 .eq("from_user", likedUserId)
 .eq("to_user", currentUserId);
 
-console.log("reverse rows:",rows);
-console.log("reverse error:",error);
-
-
-/*
-временный форс:
-если найден взаимный лайк ИЛИ select ломается
-все равно показываем мэтч
-*/
-if(
-(rows && rows.length>0) ||
-error
-){
+/* MATCH */
+if(rows && rows.length>0){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
+
 return;
-
 }
 
-
-/* пока не мэтч */
 nextUser();
-
-}catch(e){
-
-console.error("LIKE ERROR",e);
-nextUser();
-
-}
 
 }
 
