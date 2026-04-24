@@ -68,7 +68,7 @@ style={{
 minHeight:"100vh",
 background:"#FCFCFE",
 padding:"18px 16px 110px",
-maxWidth:430,
+maxWidth:"430px",
 margin:"0 auto"
 }}
 >
@@ -96,7 +96,6 @@ letterSpacing:"-.8px"
 <div style={circleBtn}>≡</div>
 <div style={circleBtn}>＋</div>
 </div>
-
 </div>
 
 
@@ -185,7 +184,7 @@ objectFit:"cover"
 }}
 />
 
-{i<3 &&(
+{i < 3 && (
 <div
 style={{
 position:"absolute",
@@ -194,7 +193,7 @@ bottom:4,
 width:14,
 height:14,
 background:"#47C73B",
-border:"2px solid white",
+border:"2px solid #fff",
 borderRadius:"50%"
 }}
 />
@@ -226,7 +225,7 @@ marginTop:6
 
 <div
 key={chat.name}
-onClick={()=>router.push("/chat/"+i)}
+onClick={()=>router.push(`/chat/${i}`)}
 style={{
 display:"flex",
 alignItems:"center",
@@ -293,7 +292,7 @@ color:"#A0A5B0"
 {chat.time}
 </div>
 
-{chat.unread &&(
+{chat.unread && (
 <div
 style={{
 width:24,
@@ -326,7 +325,7 @@ fontWeight:700
 )
 }
 
-const circleBtn={
+const circleBtn = {
 width:42,
 height:42,
 borderRadius:"50%",
