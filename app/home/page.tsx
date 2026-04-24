@@ -567,22 +567,21 @@ marginBottom:42
 
 
 
-{/* avatars */}
+
 {/* avatars */}
 <div
 style={{
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-marginBottom:34
+marginBottom:42
 }}
 >
 
-{/* моя фото */}
 <div
 style={{
 animation:"avatarsMeet .5s ease",
-marginRight:-20,
+marginRight:-30,
 zIndex:2
 }}
 >
@@ -600,7 +599,6 @@ boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 </div>
 
 
-{/* сердце */}
 <div
 style={{
 width:68,
@@ -623,11 +621,10 @@ stroke="white"
 </div>
 
 
-{/* match фото */}
 <div
 style={{
 animation:"avatarsMeet2 .5s ease",
-marginLeft:-20,
+marginLeft:-30,
 zIndex:2
 }}
 >
@@ -646,65 +643,12 @@ boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 
 </div>
 
-
-
-<div
-style={{
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-marginBottom:34
-}}
->
-
-
-
-
-{/* сердце */}
-<div
-style={{
-width:68,
-height:68,
-borderRadius:"50%",
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-zIndex:5,
-animation:"pulseHeart .8s ease",
-boxShadow:"0 10px 28px rgba(41,121,255,.30)"
-}}
->
-<Heart
-size={30}
-fill="white"
-stroke="white"
-/>
-</div>
-
-
-{/* match фото */}
-<div
-style={{
-animation:"avatarsMeet2 .5s ease",
-marginLeft:-20,
-zIndex:2
-}}
->
-
-</div>
-
-</div>
-
-
-<div
-style={{
+<div style={{
 fontSize:21,
 lineHeight:1.45,
 color:"#4C4F5D",
-marginBottom:42
-}}
->
+marginBottom:38
+}}>
 Вы и {matchedUser?.name}<br/>
 понравились друг другу
 </div>
