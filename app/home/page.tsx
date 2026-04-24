@@ -1,70 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 
-export default function Home(){
-
+export default function Home() {
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
 
-const currentUserId=123;
-
-
-/* SWIPE */
 const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
-const [startX,setStartX]=useState<number | null>(null);
 
-const [expanded,setExpanded]=useState(false);
+const startX=useRef(0);
 
+const currentUserId=123; // временно
 
 useEffect(()=>{
 loadUsers();
+
+document.body.style.overflow="hidden";
+document.documentElement.style.overflow="hidden";
+
+return ()=>{
+document.body.style.overflow="auto";
+document.documentElement.style.overflow="auto";
+};
+
 },[]);
 
 async function loadUsers(){
-
 const {data}=await supabase
 .from("users")
 .select("*")
 .neq("telegram_id",currentUserId);
 
 if(data) setUsers(data);
-
 }
-
 
 const currentUser=users[index];
 
-
-function nextUser(){
-setIndex(prev=>prev+1);
-setExpanded(false);
-}
-
-
-function resetSwipe(){
-setDragX(0);
-setDragging(false);
-setStartX(null);
-}
-
-
 async function handleLike(){
-
 if(!currentUser) return;
 
 const likedUserId=currentUser.telegram_id;
 
-await supabase
-.from("likes")
-.insert({
+await supabase.from("likes").insert({
 from_user:currentUserId,
 to_user:likedUserId
 });
-
 
 const {data:reverseLike}=await supabase
 .from("likes")
@@ -75,15 +58,8 @@ const {data:reverseLike}=await supabase
 
 if(reverseLike){
 
-const user1=Math.min(
-currentUserId,
-likedUserId
-);
-
-const user2=Math.max(
-currentUserId,
-likedUserId
-);
+const user1=Math.min(currentUserId,likedUserId);
+const user2=Math.max(currentUserId,likedUserId);
 
 const {data:existingMatch}=await supabase
 .from("matches")
@@ -93,110 +69,86 @@ const {data:existingMatch}=await supabase
 .maybeSingle();
 
 if(!existingMatch){
-
 await supabase
 .from("matches")
 .insert({
 user1,
 user2
 });
-
-console.log("MATCH");
 }
 }
 
 nextUser();
 }
-
-
 
 function handleSkip(){
 nextUser();
 }
 
+function nextUser(){
+setDragX(0);
+setIndex(prev=>prev+1);
+}
 
+function swipeLeft(){
+setDragX(-500);
+setTimeout(()=>handleSkip(),250);
+}
 
-/* SWIPE EVENTS */
-function handleTouchStart(e:any){
+function swipeRight(){
+setDragX(500);
+setTimeout(()=>handleLike(),250);
+}
+
+function onTouchStart(e:any){
+startX.current=e.touches[0].clientX;
 setDragging(true);
-setStartX(
-e.touches[0].clientX
-);
 }
 
-function handleTouchMove(e:any){
-if(startX===null) return;
+function onTouchMove(e:any){
+if(!dragging) return;
 
-setDragX(
-e.touches[0].clientX-startX
-);
+const delta=e.touches[0].clientX-startX.current;
+setDragX(delta);
 }
 
-function handleTouchEnd(){
+function onTouchEnd(){
 
 setDragging(false);
 
 if(dragX>120){
-handleLike();
-resetSwipe();
+swipeRight();
 return;
 }
 
 if(dragX<-120){
-handleSkip();
-resetSwipe();
+swipeLeft();
 return;
 }
 
-resetSwipe();
-
+setDragX(0);
 }
 
-
-function handleMouseDown(e:any){
-setDragging(true);
-setStartX(e.clientX);
-}
-
-function handleMouseMove(e:any){
-if(!dragging || startX===null) return;
-
-setDragX(
-e.clientX-startX
-);
-}
-
-function handleMouseUp(){
-handleTouchEnd();
-}
-
-
-
-/* UI */
 return(
-
 <div
 style={{
 height:"100vh",
 overflow:"hidden",
-position:"fixed",
-inset:0,
 background:"#F7F7F8",
-padding:"18px 18px 110px",
-touchAction:"pan-x"
+padding:"18px 18px 120px",
+touchAction:"none"
 }}
 >
 
-{currentUser ? (
-
+{currentUser && (
 <>
 
-{/* top */}
+{/* TOP */}
 <div
 style={{
 display:"flex",
 justifyContent:"space-between",
-marginBottom:18
+marginBottom:16
 }}
 >
 
@@ -205,25 +157,22 @@ style={{
 width:48,
 height:48,
 borderRadius:"50%",
-border:"none",
 background:"#fff",
-boxShadow:
-"0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)"
+border:"none",
+boxShadow:"0 4px 12px rgba(0,0,0,.06)"
 }}
 >
 ←
 </button>
 
-
 <button
 style={{
 width:48,
 height:48,
 borderRadius:"50%",
-border:"none",
 background:"#fff",
-boxShadow:
-"0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)"
+border:"none",
+boxShadow:"0 4px 12px rgba(0,0,0,.06)"
 }}
 >
 ⚙
@@ -232,45 +181,69 @@ boxShadow:
 </div>
 
 
-
-{/* only card moves */}
+{/* CARD */}
 <div
-onTouchStart={handleTouchStart}
-onTouchMove={handleTouchMove}
-onTouchEnd={handleTouchEnd}
-
-onMouseDown={handleMouseDown}
-onMouseMove={handleMouseMove}
-onMouseUp={handleMouseUp}
-onMouseLeave={handleMouseUp}
-
+onTouchStart={onTouchStart}
+onTouchMove={onTouchMove}
+onTouchEnd={onTouchEnd}
 style={{
+position:"relative",
+height:"64vh",
+borderRadius:36,
+overflow:"hidden",
+background:"#fff",
+boxShadow:"0 10px 30px rgba(0,0,0,.06)",
+
 transform:
-`translateX(${dragX}px) rotate(${dragX/22}deg)`,
+`translateX(${dragX}px)
+rotate(${dragX/25}deg)`,
 
 transition:
 dragging
 ? "none"
-: "transform .28s cubic-bezier(.2,.9,.2,1)",
-
-touchAction:"none",
-userSelect:"none",
-position:"relative"
+: "all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
 
+{/* LIKE/DISLIKE LABELS */}
+{dragX>30 && (
 <div
-onClick={()=>setExpanded(v=>!v)}
 style={{
-height:"61vh",
-borderRadius:36,
-overflow:"hidden",
-background:"#fff",
-boxShadow:
-"0 10px 30px rgba(0,0,0,.06)",
-position:"relative"
+position:"absolute",
+top:70,
+right:40,
+zIndex:30,
+padding:"12px 20px",
+border:"3px solid #27C96F",
+color:"#27C96F",
+fontWeight:700,
+borderRadius:14,
+transform:"rotate(14deg)"
 }}
 >
+LIKE
+</div>
+)}
+
+{dragX<-30 && (
+<div
+style={{
+position:"absolute",
+top:70,
+left:40,
+zIndex:30,
+padding:"12px 20px",
+border:"3px solid #ff5b73",
+color:"#ff5b73",
+fontWeight:700,
+borderRadius:14,
+transform:"rotate(-14deg)"
+}}
+>
+NOPE
+</div>
+)}
+
 
 <img
 src={currentUser.avatar_url}
@@ -281,134 +254,79 @@ objectFit:"cover"
 }}
 />
 
-
 <div
 style={{
 position:"absolute",
-top:24,
-left:24,
-background:"rgba(70,70,70,.35)",
-backdropFilter:"blur(12px)",
-padding:"10px 18px",
-borderRadius:999,
+top:26,
+left:26,
+padding:"12px 18px",
+borderRadius:20,
+background:"rgba(70,70,70,.45)",
+backdropFilter:"blur(10px)",
 color:"#fff",
-fontSize:18,
-zIndex:10
+fontSize:18
 }}
 >
 1 / 8
 </div>
 
 
-
-{dragX > 15 && (
-<div
-style={{
-position:"absolute",
-top:110,
-right:32,
-border:"3px solid #2F80FF",
-color:"#2F80FF",
-padding:"8px 14px",
-fontWeight:700,
-borderRadius:10,
-transform:"rotate(12deg)",
-opacity:Math.min(dragX/70,1),
-zIndex:12
-}}
->
-LIKE
-</div>
-)}
-
-
-{dragX < -15 && (
-<div
-style={{
-position:"absolute",
-top:110,
-left:32,
-border:"3px solid #ff5d6d",
-color:"#ff5d6d",
-padding:"8px 14px",
-fontWeight:700,
-borderRadius:10,
-transform:"rotate(-12deg)",
-opacity:Math.min(Math.abs(dragX)/70,1),
-zIndex:12
-}}
->
-NOPE
-</div>
-)}
-{/* soft bottom fade */}
+{/* blur white fade */}
 <div
 style={{
 position:"absolute",
 left:0,
 right:0,
 bottom:0,
-height:150,
-zIndex:2,
-
-background:`
-linear-gradient(
-to top,
-rgba(255,255,255,1) 0%,
-rgba(255,255,255,.92) 18%,
-rgba(255,255,255,.58) 48%,
-rgba(255,255,255,.20) 72%,
-rgba(255,255,255,0) 100%
-)`,
-
-filter:"blur(18px)",
-transform:"scale(1.03)"
+height:125,
+background:
+"linear-gradient(to top,#fff 0%,rgba(255,255,255,.96) 28%,rgba(255,255,255,.55) 62%,rgba(255,255,255,0) 100%)",
+filter:"blur(10px)",
+zIndex:2
 }}
 />
-
-
-
-{/* info lower on photo */}
+{/* profile info */}
 <div
 style={{
 position:"absolute",
-left:28,
-right:28,
-bottom:26,
+left:30,
+right:30,
+bottom:18,
 zIndex:5
 }}
 >
 
-<div
+<h2
 style={{
-fontSize:22,
+margin:0,
+fontSize:18,
 fontWeight:600,
-marginBottom:8
+letterSpacing:"-.2px"
 }}
 >
 {currentUser.name}, {currentUser.age}
-</div>
+</h2>
 
 <div
 style={{
-fontSize:15,
-color:"#7B7B87",
-marginBottom:12
+marginTop:4,
+fontSize:13,
+opacity:.82,
+color:"#707784"
 }}
 >
 📍 {currentUser.city}, 2 км от вас
 </div>
 
-
 <div
 style={{
-fontSize:15,
-lineHeight:1.45,
-marginBottom:14
+marginTop:8,
+fontSize:14,
+lineHeight:1.35,
+maxWidth:"82%"
 }}
 >
-{currentUser.bio ||
-"Люблю путешествия и новые впечатления ✈✨"}
+{currentUser.bio || "Люблю путешествия и новые впечатления ✈✨"}
 </div>
 
 
@@ -416,61 +334,48 @@ marginBottom:14
 style={{
 display:"flex",
 flexWrap:"wrap",
-gap:10,
-maxHeight: expanded ? 180 : 62,
-overflow:"hidden",
-transition:"all .35s ease"
+gap:8,
+marginTop:10
 }}
 >
-{[
+
+{(
+currentUser.interests ||
+[
 "Путешествия",
 "Музыка",
 "Спорт",
 "Кино",
-"Фотография",
-"Йога"
-].map(tag=>(
+"Фото"
+]
+).map((tag:string)=>(
 <div
 key={tag}
 style={{
-padding:"9px 14px",
+padding:"7px 12px",
+fontSize:12,
+fontWeight:500,
 borderRadius:999,
 background:"#EEF5FF",
 color:"#4D8DFF",
-fontSize:13
+whiteSpace:"nowrap"
 }}
 >
 {tag}
 </div>
 ))}
 
+</div>
+
+</div>
+
+</div>
+
+
+{/* ACTION BUTTONS */}
 <div
 style={{
-width:38,
-height:38,
-borderRadius:"50%",
-background:"#EEF5FF",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-color:"#4D8DFF"
-}}
->
-+
-</div>
-
-</div>
-
-</div>
-</div>
-</div>
-
-
-
-{/* actions */}
-<div
-style={{
-marginTop:22,
+marginTop:18,
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
@@ -479,64 +384,49 @@ gap:28
 >
 
 <button
-onClick={handleSkip}
+onClick={swipeLeft}
 style={{
 width:72,
 height:72,
 borderRadius:"50%",
 border:"none",
-background:"#FFFFFF",
-boxShadow:
-"0 10px 30px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.03)",
-
-fontSize:30,
-fontWeight:300,
-color:"#98A0AE"
+background:"#fff",
+fontSize:34,
+color:"#A6ADB8",
+boxShadow:"0 8px 22px rgba(0,0,0,.08)"
 }}
 >
-✖
+✕
 </button>
 
-
-
 <button
-onClick={handleLike}
+onClick={swipeRight}
 style={{
-width:90,
-height:90,
+width:92,
+height:92,
 borderRadius:"50%",
 border:"none",
-
 background:
 "linear-gradient(135deg,#3D8BFF 0%,#0A6CFF 100%)",
-
+fontSize:40,
 color:"#fff",
-
-fontSize:42,
-fontWeight:600,
-
 boxShadow:
-"0 14px 34px rgba(32,111,255,.38)"
+"0 10px 30px rgba(32,111,255,.35)"
 }}
 >
 ♡
 </button>
 
-
-
 <button
 style={{
 width:72,
 height:72,
 borderRadius:"50%",
 border:"none",
-background:"#FFFFFF",
-
-boxShadow:
-"0 10px 30px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.03)",
-
-fontSize:28,
-color:"#98A0AE"
+background:"#fff",
+fontSize:30,
+color:"#A6ADB8",
+boxShadow:"0 8px 22px rgba(0,0,0,.08)"
 }}
 >
 ✦
@@ -545,19 +435,10 @@ color:"#98A0AE"
 </div>
 
 </>
-
-):(
-
-<p style={{padding:40}}>
-Нет пользователей
-</p>
-
 )}
 
 <BottomNav/>
 
 </div>
-
-);
-
+)
 }
