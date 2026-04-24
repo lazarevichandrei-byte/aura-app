@@ -9,11 +9,27 @@ const router = useRouter();
 const params = useParams();
 
 const chatId = (params?.id as string) || "demo-chat-id";
-const CURRENT_USER_ID = "demo-user";
+
 
 const [messages,setMessages] = useState<any[]>([]);
+const [userId,setUserId] = useState("");
 const [newMessage,setNewMessage] = useState("");
+useEffect(()=>{
 
+async function getUser(){
+
+const { data } =
+await supabase.auth.getUser();
+
+if(data.user){
+setUserId(data.user.id);
+}
+
+}
+
+getUser();
+
+},[]);
 async function fetchMessages(){
 
 const { data,error } = await supabase
@@ -73,7 +89,7 @@ await supabase
 .from("messages")
 .insert({
 chat_id:chatId,
-sender_id:CURRENT_USER_ID,
+sender_id:userId,
 body:newMessage,
 message_type:"text"
 });
@@ -258,7 +274,7 @@ Seen ✓✓
 {messages.map((msg)=>{
 
 const mine =
-msg.sender_id===CURRENT_USER_ID;
+msg.sender_id===userId
 
 return(
 
