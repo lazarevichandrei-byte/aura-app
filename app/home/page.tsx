@@ -140,7 +140,16 @@ user2
 
 
 /* popup ALWAYS */
+async function handleLike(){
+
+if(!currentUser) return;
+
 setMatchedUser(currentUser);
+setShowMatch(true);
+
+return;
+
+}
 
 /* форс ререндер popup */
 setTimeout(()=>{
