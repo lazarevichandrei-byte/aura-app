@@ -75,7 +75,7 @@ const likedUserId=currentUser.telegram_id;
 try{
 
 /* сохраняем лайк */
-const { error:likeError } = await supabase
+await supabase
 .from("likes")
 .upsert(
 {
@@ -87,50 +87,82 @@ onConflict:"from_user,to_user"
 }
 );
 
-console.log("likeError",likeError);
 
-
-/* проверяем обратный лайк */
-const { data:reverseLike, error } = await supabase
+/* ИЩЕМ взаимный лайк */
+const { data:reverseLikes } = await supabase
 .from("likes")
 .select("*")
-.eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
+.eq("from_user",likedUserId);
+
+const reverseLike =
+reverseLikes &&
+reverseLikes.length > 0;
+
+console.log(
+"mutual:",
+reverseLike
+);
+
+
+/* если мэтч */
+if(reverseLike){
+
+/* сохранить в matches если нет */
+const user1=Math.min(
+currentUserId,
+likedUserId
+);
+
+const user2=Math.max(
+currentUserId,
+likedUserId
+);
+
+const {data:existingMatch}=await supabase
+.from("matches")
+.select("*")
+.eq("user1",user1)
+.eq("user2",user2)
 .maybeSingle();
 
-console.log("reverseLike",reverseLike);
-console.log("reverseError",error);
+
+if(!existingMatch){
+
+await supabase
+.from("matches")
+.insert({
+user1,
+user2
+});
+
+}
 
 
-/* есть взаимный лайк */
-/* TEST — форсим popup на любой лайк */
+/* popup */
 setMatchedUser(currentUser);
 setShowMatch(true);
+
 return;
 
+}
 
 
-/* пока нет */
+/* если не взаимно */
 nextUser();
 
 }catch(e){
 
-console.error("MATCH ERROR",e);
-
-/* чтобы не было белого экрана */
+console.error(e);
 nextUser();
 
 }
 
 }
-/* -------- END FIX -------- */
-
 
 function handleSkip(){
 nextUser();
 }
-
-
 
 /* SWIPE */
 function touchStart(e:any){
@@ -482,7 +514,7 @@ strokeWidth={2.3}
 
 
 
-{matchedUser && (
+{showMatch && matchedUser && (
 <div
 style={{
 position:"fixed",
