@@ -104,6 +104,14 @@ if(rows && rows.length>0){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
+/* обнуляем лайки после мэтча */
+await supabase
+.from("likes")
+.delete()
+.or(
+`and(from_user.eq.${currentUserId},to_user.eq.${likedUserId}),
+and(from_user.eq.${likedUserId},to_user.eq.${currentUserId})`
+);
 
 return;
 }
