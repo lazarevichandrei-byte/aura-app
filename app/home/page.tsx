@@ -661,15 +661,12 @@ marginBottom:38
 
 
 <button
-onClick={()=>{
-setShowMatch(false);
-router.push("/chats");
-}}
+onClick={()=>router.push("/chats")}
 style={{
-width:"78%",
+width:"100%",
 height:58,
 border:"none",
-borderRadius:20,
+borderRadius:18,
 background:"linear-gradient(135deg,#4FACFE,#2979FF)",
 color:"#fff",
 fontSize:18,

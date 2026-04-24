@@ -58,8 +58,8 @@ style={itemStyle(pathname==="/discover")}
 
 
 <div
-onClick={()=>router.push("/home/chats")}
-style={itemStyle(pathname.startsWith("/home/chats"))}
+onClick={()=>router.push("/chats")}
+style={itemStyle(pathname==="/chats")}
 >
 <Heart size={28}/>
 Чаты
