@@ -563,8 +563,150 @@ strokeWidth={2.3}
 </div>
 
 
-{/* later Aura Sync modal will mount here */}
-{showMatch && null}
+
+{showMatch && (
+<div
+style={{
+position:"fixed",
+inset:0,
+background:"rgba(12,22,50,.45)",
+backdropFilter:"blur(10px)",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+zIndex:9999
+}}
+>
+
+<div
+style={{
+width:"90%",
+maxWidth:380,
+background:"#fff",
+borderRadius:34,
+padding:"34px 28px",
+textAlign:"center",
+boxShadow:"0 30px 60px rgba(0,0,0,.14)"
+}}
+>
+
+<div
+style={{
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+marginBottom:26
+}}
+>
+
+<img
+src={matchedUser?.avatar_url}
+style={{
+width:88,
+height:88,
+borderRadius:"50%",
+objectFit:"cover",
+border:"4px solid #67A8FF"
+}}
+/>
+
+<div
+style={{
+margin:"0 -12px",
+width:44,
+height:44,
+borderRadius:"50%",
+background:
+"linear-gradient(135deg,#4FACFE,#2979FF)",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+color:"#fff",
+fontSize:20,
+zIndex:2
+}}
+>
+❤
+</div>
+
+<img
+src={matchedUser?.avatar_url}
+style={{
+width:88,
+height:88,
+borderRadius:"50%",
+objectFit:"cover",
+border:"4px solid #67A8FF"
+}}
+/>
+
+</div>
+
+
+<h2
+style={{
+margin:0,
+fontSize:30,
+fontWeight:700
+}}
+>
+✨ Aura Sync
+</h2>
+
+
+<p
+style={{
+marginTop:12,
+marginBottom:28,
+color:"#667085",
+lineHeight:1.5
+}}
+>
+Вы почувствовали одну энергию
+</p>
+
+
+<button
+style={{
+width:"100%",
+height:58,
+border:"none",
+borderRadius:18,
+background:
+"linear-gradient(135deg,#4FACFE,#2979FF)",
+color:"#fff",
+fontWeight:600,
+fontSize:17
+}}
+>
+Начать диалог
+</button>
+
+
+<button
+onClick={()=>{
+setShowMatch(false);
+nextUser();
+}}
+style={{
+marginTop:12,
+width:"100%",
+height:58,
+borderRadius:18,
+background:"#fff",
+border:"2px solid #66A8FF",
+color:"#2F80FF",
+fontWeight:600,
+fontSize:17
+}}
+>
+Продолжить поиск
+</button>
+
+</div>
+
+</div>
+)}
 
 </>
 )}
