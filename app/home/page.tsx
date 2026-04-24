@@ -71,6 +71,8 @@ if(!currentUser) return;
 
 const likedUserId=currentUser.telegram_id;
 
+
+/* лайк без дублей */
 await supabase
 .from("likes")
 .upsert(
@@ -83,6 +85,8 @@ onConflict:"from_user,to_user"
 }
 );
 
+
+/* ищем взаимный лайк */
 const {data:reverseLike}=await supabase
 .from("likes")
 .select("*")
@@ -90,10 +94,45 @@ const {data:reverseLike}=await supabase
 .eq("to_user",currentUserId)
 .maybeSingle();
 
+
 if(reverseLike){
 
+const user1=Math.min(
+currentUserId,
+likedUserId
+);
+
+const user2=Math.max(
+currentUserId,
+likedUserId
+);
+
+
+/* сохраняем матч один раз */
+const {data:existingMatch}=await supabase
+.from("matches")
+.select("*")
+.eq("user1",user1)
+.eq("user2",user2)
+.maybeSingle();
+
+
+if(!existingMatch){
+
+await supabase
+.from("matches")
+.insert({
+user1,
+user2
+});
+
+}
+
+
+/* МГНОВЕННЫЙ popup */
 setMatchedUser(currentUser);
 setShowMatch(true);
+
 return;
 
 }
