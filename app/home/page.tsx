@@ -326,21 +326,20 @@ position:"absolute",
 left:0,
 right:0,
 bottom:0,
-height:"44%",
+height:"58%",
 zIndex:5,
 pointerEvents:"none",
 
 background:
 "linear-gradient(to top,\
-rgba(255,255,255,1) 0%,\
-rgba(255,255,255,1) 18%,\
-rgba(255,255,255,.96) 36%,\
-rgba(255,255,255,.78) 58%,\
-rgba(255,255,255,.42) 78%,\
-rgba(255,255,255,.12) 92%,\
+#ffffff 0%,\
+#ffffff 35%,\
+rgba(255,255,255,.98) 52%,\
+rgba(255,255,255,.82) 68%,\
+rgba(255,255,255,.45) 84%,\
 rgba(255,255,255,0) 100%)",
 
-filter:"blur(18px)"
+filter:"blur(22px)"
 }}
 />
 
