@@ -465,7 +465,7 @@ strokeWidth={2.3}
 
 
 
-{showMatch && matchedUser && (
+{showMatch && (
 <div
 style={{
 position:"fixed",
