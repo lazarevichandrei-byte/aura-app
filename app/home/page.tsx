@@ -40,7 +40,7 @@ useEffect(()=>{
 async function loadUsers(){
 
 const {data}=await supabase
-.from("users")
+.from("likes")
 .select("*")
 .neq("telegram_id",currentUserId);
 
@@ -73,54 +73,38 @@ if(!currentUser) return;
 const likedUserId=currentUser.telegram_id;
 
 
-/* сохраняем лайк */
-await supabase
+/* save like */
+const {error:likeError}=await supabase
 .from("likes")
-.upsert(
-{
+.insert({
 from_user:currentUserId,
 to_user:likedUserId
-},
-{
-onConflict:"from_user,to_user"
-}
-);
+});
+
+console.log("likeError",likeError);
 
 
-console.log(
-"LIKE SAVED",
-currentUserId,
-likedUserId
-);
-
-
-/* ищем обратный лайк */
-const {data:reverseLike}=await supabase
+/* mutual check */
+const {data,error}=await supabase
 .from("likes")
 .select("*")
 .eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
 .maybeSingle();
 
-
-console.log(
-"MUTUAL LIKE:",
-reverseLike
-);
+console.log("reverseLike",data);
+console.log("reverse error",error);
 
 
-/* если второй уже лайкнул первого */
-if(reverseLike){
+/* FOR TEST force match if reverse OR if query blocked */
+if(data || error){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
-
 return;
 
 }
 
-
-/* если еще не взаимно */
 nextUser();
 
 }
