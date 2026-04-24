@@ -227,20 +227,29 @@ transition:dragging
 :"all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
+
 {dragX>35 &&(
-<div style={{
+<div
+style={{
 position:"absolute",
-top:85,
-right:35,
+top:82,
+right:28,
 zIndex:20,
-border:"3px solid #2F80FF",
-color:"#2F80FF",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(12deg)"
-}}>
-LIKE
+padding:"12px 24px",
+borderRadius:18,
+fontSize:28,
+fontWeight:800,
+letterSpacing:"2px",
+color:"#fff",
+background:
+"linear-gradient(135deg,#4FACFE,#2979FF)",
+boxShadow:
+"0 12px 28px rgba(41,121,255,.35)",
+transform:`rotate(12deg) scale(${1 + dragX/500})`,
+transition:"all .12s ease"
+}}
+>
+💙 LIKE
 </div>
 )}
 
@@ -500,14 +509,17 @@ style={{
 position:"fixed",
 inset:0,
 zIndex:99999,
-background:"rgba(255,255,255,.92)",
-backdropFilter:"blur(24px)",
+background:
+"linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.28) 100%)",
+backdropFilter:"blur(34px)",
+WebkitBackdropFilter:"blur(34px)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
 animation:"fadeIn .35s ease"
 }}
 >
+
 
 <style>{`
 @keyframes fadeIn{
@@ -584,11 +596,14 @@ zIndex:2
 <img
 src="/me.jpg"
 style={{
-width:148,
-height:148,
+width:150,
+height:150,
 borderRadius:"50%",
 objectFit:"cover",
-border:"4px solid #2F80FF"
+display:"block",
+border:"5px solid #fff",
+boxShadow:
+"0 0 0 3px #2F80FF, 0 18px 40px rgba(47,128,255,.28)"
 }}
 />
 </div>
@@ -628,11 +643,14 @@ zIndex:2
 <img
 src={matchedUser?.avatar_url}
 style={{
-width:148,
-height:148,
+width:150,
+height:150,
 borderRadius:"50%",
 objectFit:"cover",
-border:"4px solid #2F80FF"
+display:"block",
+border:"5px solid #fff",
+boxShadow:
+"0 0 0 3px #2F80FF, 0 18px 40px rgba(47,128,255,.28)"
 }}
 />
 </div>
