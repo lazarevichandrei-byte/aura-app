@@ -1,15 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 
 export default function Home() {
   const [users, setUsers] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
+
   const [photoIndex, setPhotoIndex] = useState(0);
 
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const startX = useRef<number | null>(null);
+
+  // временно как было
   const currentUserId = 123;
 
   useEffect(() => {
@@ -27,16 +33,18 @@ export default function Home() {
 
   const currentUser = users[index];
 
-  const photos =
-    currentUser?.photos?.length
-      ? currentUser.photos
-      : [currentUser?.avatar_url];
-
-  function nextUser() {
-    setIndex((prev) => prev + 1);
-    setPhotoIndex(0);
-    x.set(0);
+  function getPhotos(user:any){
+    if(!user) return [];
+    if(Array.isArray(user.photos) && user.photos.length){
+      return user.photos;
+    }
+    if(user.avatar_url){
+      return [user.avatar_url];
+    }
+    return [];
   }
+
+  const photos = getPhotos(currentUser);
 
   async function handleLike() {
     if (!currentUser) return;
@@ -67,426 +75,418 @@ export default function Home() {
         .maybeSingle();
 
       if (!existingMatch) {
-        await supabase
-          .from("matches")
-          .insert({
-            user1,
-            user2
-          });
-
-        console.log("MATCH!");
+        await supabase.from("matches").insert({
+          user1,
+          user2,
+        });
       }
     }
 
-    nextUser();
+    animateOut(420);
   }
 
   function handleSkip() {
-    nextUser();
+    animateOut(-420);
   }
 
-  const x = useMotionValue(0);
+  function nextUser() {
+    setPhotoIndex(0);
+    setIndex((prev)=>prev+1);
+    setDragX(0);
+  }
 
-  const rotate = useTransform(
-    x,
-    [-250,0,250],
-    [-6,0,6]
-  );
+  function animateOut(value:number){
+    setDragX(value);
 
-  const likeOpacity = useTransform(
-    x,
-    [40,140],
-    [0,1]
-  );
+    setTimeout(()=>{
+      nextUser();
+    },260);
+  }
 
-  const nopeOpacity = useTransform(
-    x,
-    [-140,-40],
-    [1,0]
-  );
+  function onStart(clientX:number){
+    startX.current=clientX;
+    setDragging(true);
+  }
 
-  function handlePhotoTap(e:any){
+  function onMove(clientX:number){
+    if(startX.current===null) return;
+    setDragX(clientX-startX.current);
+  }
+
+  function onEnd(){
+    setDragging(false);
+
+    if(dragX>120){
+      handleLike();
+      return;
+    }
+
+    if(dragX<-120){
+      handleSkip();
+      return;
+    }
+
+    setDragX(0);
+    startX.current=null;
+  }
+
+  function nextPhoto(e:any){
+    if(!photos.length) return;
+
     const rect=e.currentTarget.getBoundingClientRect();
-    const clickX=e.clientX-rect.left;
+    const x=e.clientX-rect.left;
 
-    if(clickX<rect.width/2){
-      setPhotoIndex(prev=>
-       Math.max(prev-1,0)
+    if(x < rect.width/2){
+      setPhotoIndex((p)=>
+        p===0 ? photos.length-1 : p-1
       );
     } else {
-      setPhotoIndex(prev=>
-       Math.min(
-        prev+1,
-        photos.length-1
-       )
+      setPhotoIndex((p)=>
+        p===photos.length-1 ? 0 : p+1
       );
     }
   }
 
+  const rotation=dragX/28;
+
   return (
-   <div
-    style={{
-      minHeight:"100vh",
-      background:"#F7F7F8",
-      padding:"18px 18px 120px"
-    }}
-   >
+<div
+style={{
+background:"#F7F7F8",
+minHeight:"100vh",
+padding:"18px 18px 112px",
+fontFamily:"-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif"
+}}
+>
 
-    {/* top buttons */}
-    <div
-     style={{
-      display:"flex",
-      justifyContent:"space-between",
-      marginTop:8,
-      marginBottom:18
-     }}
-    >
-      <button
-       style={{
-        width:48,
-        height:48,
-        borderRadius:"50%",
-        border:"none",
-        background:"#fff",
-        boxShadow:
-         "0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)",
-        fontSize:22
-       }}
-      >
-       ←
-      </button>
+{/* top */}
+<div
+style={{
+display:"flex",
+justifyContent:"space-between",
+marginTop:"8px",
+marginBottom:"18px"
+}}
+>
+<button
+style={{
+width:48,
+height:48,
+borderRadius:"50%",
+border:"none",
+background:"#fff",
+boxShadow:
+"0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)"
+}}
+>
+←
+</button>
 
-      <button
-       style={{
-        width:48,
-        height:48,
-        borderRadius:"50%",
-        border:"none",
-        background:"#fff",
-        boxShadow:
-         "0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)",
-        fontSize:20
-       }}
-      >
-       ⚙
-      </button>
-    </div>
+<button
+style={{
+width:48,
+height:48,
+borderRadius:"50%",
+border:"none",
+background:"#fff",
+boxShadow:
+"0 4px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)"
+}}
+>
+⚙
+</button>
+</div>
 
-    {currentUser ? (
-    <>
-     <motion.div
-      drag="x"
-      dragElastic={0.08}
-      dragMomentum
-      dragConstraints={{
-       left:0,
-       right:0
-      }}
-      style={{
-       x,
-       rotate,
-       position:"relative",
-       height:"62vh",
-       borderRadius:"36px",
-       overflow:"hidden",
-       background:"#fff",
-       boxShadow:
-       "0 10px 30px rgba(0,0,0,.06)"
-      }}
-      transition={{
-       type:"spring",
-       stiffness:650,
-       damping:24
-      }}
-      whileTap={{
-       scale:.995
-      }}
-      onDragEnd={(e,info)=>{
-       if(info.offset.x>140){
-         handleLike();
-       }
-       else if(info.offset.x<-140){
-         handleSkip();
-       }
-      }}
-     >
+{currentUser ? (
+<>
+<div
+onMouseDown={(e)=>onStart(e.clientX)}
+onMouseMove={(e)=>dragging&&onMove(e.clientX)}
+onMouseUp={onEnd}
+onMouseLeave={()=>dragging&&onEnd()}
 
-      {/* like */}
-      <motion.div
-       style={{
-        opacity:likeOpacity,
-        position:"absolute",
-        top:76,
-        right:30,
-        zIndex:10,
-        border:"3px solid #2F80FF",
-        color:"#2F80FF",
-        padding:"8px 18px",
-        borderRadius:12,
-        fontWeight:700,
-        transform:"rotate(12deg)"
-       }}
-      >
-       LIKE
-      </motion.div>
+onTouchStart={(e)=>onStart(e.touches[0].clientX)}
+onTouchMove={(e)=>onMove(e.touches[0].clientX)}
+onTouchEnd={onEnd}
 
-      {/* nope */}
-      <motion.div
-       style={{
-        opacity:nopeOpacity,
-        position:"absolute",
-        top:76,
-        left:30,
-        zIndex:10,
-        border:"3px solid #ff6a6a",
-        color:"#ff6a6a",
-        padding:"8px 18px",
-        borderRadius:12,
-        fontWeight:700,
-        transform:"rotate(-12deg)"
-       }}
-      >
-       NOPE
-      </motion.div>
+style={{
+height:"56vh",
+background:"#fff",
+borderRadius:34,
+overflow:"hidden",
+boxShadow:"0 10px 30px rgba(0,0,0,.06)",
+position:"relative",
+transform:`translateX(${dragX}px) rotate(${rotation}deg)`,
+transition:dragging
+? "none"
+: "all .28s cubic-bezier(.2,.9,.2,1)"
+}}
+>
 
-      {/* photo */}
-      <div
-       onClick={handlePhotoTap}
-       style={{
-        width:"100%",
-        height:"100%"
-       }}
-      >
-       <img
-        src={photos[photoIndex]}
-        style={{
-         width:"100%",
-         height:"100%",
-         objectFit:"cover"
-        }}
-       />
-      </div>
+{/* photo */}
+<div
+onClick={nextPhoto}
+style={{
+height:"62%",
+position:"relative",
+overflow:"hidden"
+}}
+>
+<img
+src={photos[photoIndex]}
+style={{
+width:"100%",
+height:"100%",
+objectFit:"cover"
+}}
+/>
 
-      {/* photo count */}
-      <div
-       style={{
-        position:"absolute",
-        top:26,
-        left:26,
-        background:"rgba(70,70,70,.38)",
-        backdropFilter:"blur(12px)",
-        padding:"10px 18px",
-        borderRadius:999,
-        color:"#fff",
-        fontSize:15,
-        zIndex:5
-       }}
-      >
-       {photoIndex+1} / {photos.length}
-      </div>
+{/* progress */}
+<div
+style={{
+position:"absolute",
+top:22,
+left:22,
+background:"rgba(90,90,90,.45)",
+backdropFilter:"blur(10px)",
+padding:"10px 18px",
+borderRadius:30,
+color:"#fff",
+fontWeight:500,
+fontSize:18
+}}
+>
+{photoIndex+1} / {photos.length || 1}
+</div>
 
-      {/* NEW SOFT BLUR FADE */}
-      <div
-       style={{
-        position:"absolute",
-        left:0,
-        right:0,
-        bottom:150,
-        height:190,
-        zIndex:2,
-        background:
-        "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,.28) 35%, rgba(255,255,255,.68) 58%, rgba(255,255,255,.92) 82%, #fff 100%)",
-        filter:"blur(10px)"
-       }}
-      />
+{/* super soft blur fade */}
+<div
+style={{
+position:"absolute",
+left:0,
+right:0,
+bottom:-8,
+height:175,
+background:`
+linear-gradient(
+to bottom,
+rgba(255,255,255,0) 0%,
+rgba(255,255,255,.22) 35%,
+rgba(255,255,255,.55) 58%,
+rgba(255,255,255,.82) 78%,
+rgba(255,255,255,.96) 90%,
+#fff 100%
+)`,
+filter:"blur(18px)",
+transform:"scale(1.08)",
+pointerEvents:"none"
+}}
+/>
+</div>
 
-      {/* name */}
-      <div
-       style={{
-        position:"absolute",
-        left:30,
-        bottom:195,
-        zIndex:4
-       }}
-      >
-       <h2
-        style={{
-         margin:0,
-         fontSize:20,
-         fontWeight:600,
-         letterSpacing:"-.35px",
-         lineHeight:1.05,
-         color:"#111"
-        }}
-       >
-        {currentUser.name}, {currentUser.age}
-       </h2>
+{/* info */}
+<div
+style={{
+padding:"16px 22px",
+minHeight:115
+}}
+>
 
-       <p
-        style={{
-         marginTop:6,
-         fontSize:15,
-         opacity:.85,
-         color:"#7B7B87"
-        }}
-       >
-        📍 {currentUser.city}, 2 км от вас
-       </p>
-      </div>
+<div
+style={{
+display:"flex",
+alignItems:"center",
+gap:8,
+marginBottom:8
+}}
+>
+<div
+style={{
+fontSize:19,
+fontWeight:600,
+letterSpacing:"-.2px"
+}}
+>
+{currentUser.name}, {currentUser.age}
+</div>
+</div>
 
-      {/* smaller profile block */}
-      <div
-       style={{
-        position:"absolute",
-        bottom:0,
-        left:0,
-        right:0,
-        background:"#fff",
-        zIndex:3,
-        padding:"18px 24px 18px",
-        minHeight:130,
-        borderTopLeftRadius:34,
-        borderTopRightRadius:34
-       }}
-      >
+<div
+style={{
+fontSize:14,
+color:"#7B7B87",
+marginBottom:10
+}}
+>
+📍 {currentUser.city || "Город"}, 2 км от вас
+</div>
 
-       <p
-        style={{
-         margin:0,
-         fontSize:15,
-         lineHeight:1.35,
-         maxWidth:"92%"
-        }}
-       >
-        {currentUser.bio ||
-        "Люблю путешествия и новые впечатления ✈️✨"}
-       </p>
+<div
+style={{
+fontSize:14,
+lineHeight:1.4,
+marginBottom:14
+}}
+>
+{currentUser.bio ||
+"Люблю путешествия и новые впечатления ✈️✨"}
+</div>
 
-       <div
-        style={{
-         display:"flex",
-         flexWrap:"wrap",
-         gap:12,
-         marginTop:16
-        }}
-       >
-        {(currentUser.interests || []).map(
-         (tag:string)=>(
-          <motion.span
-           key={tag}
-           whileTap={{
-            scale:.96
-           }}
-           style={{
-            background:"#EEF5FF",
-            color:"#4D8DFF",
-            padding:"8px 14px",
-            borderRadius:9999,
-            fontSize:13
-           }}
-          >
-           {tag}
-          </motion.span>
-         )
-        )}
+<div
+style={{
+display:"flex",
+flexWrap:"wrap",
+gap:10
+}}
+>
+{(currentUser.interests || [
+"Путешествия",
+"Музыка",
+"Спорт",
+"Кино",
+"Фото"
+]).slice(0,5).map((item:string)=>(
+<div
+key={item}
+style={{
+padding:"7px 12px",
+borderRadius:999,
+background:"#EEF5FF",
+color:"#4D8DFF",
+fontSize:12,
+fontWeight:500
+}}
+>
+{item}
+</div>
+))}
 
-        <span
-         style={{
-          width:34,
-          height:34,
-          borderRadius:"50%",
-          display:"flex",
-          alignItems:"center",
-          justifyContent:"center",
-          background:"#EEF5FF",
-          color:"#4D8DFF"
-         }}
-        >
-         +
-        </span>
+<div
+style={{
+width:34,
+height:34,
+borderRadius:"50%",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+background:"#EEF5FF",
+color:"#4D8DFF"
+}}
+>
++
+</div>
+</div>
 
-       </div>
-      </div>
+</div>
 
-     </motion.div>
+{/* overlays */}
+{dragX>60 && (
+<div
+style={{
+position:"absolute",
+top:90,
+right:35,
+border:"3px solid #2F80FF",
+color:"#2F80FF",
+padding:"10px 18px",
+borderRadius:14,
+fontWeight:700,
+transform:"rotate(12deg)"
+}}
+>
+LIKE
+</div>
+)}
 
-     {/* actions */}
-     <div
-      style={{
-       marginTop:24,
-       display:"flex",
-       justifyContent:"center",
-       gap:30,
-       alignItems:"center"
-      }}
-     >
-      <button
-       onClick={handleSkip}
-       style={{
-        width:72,
-        height:72,
-        borderRadius:"50%",
-        border:"none",
-        background:"#fff",
-        color:"#8D8D99",
-        fontSize:34,
-        boxShadow:
-        "0 8px 20px rgba(0,0,0,.08)"
-       }}
-      >
-       ✕
-      </button>
+{dragX<-60 && (
+<div
+style={{
+position:"absolute",
+top:90,
+left:35,
+border:"3px solid #ff5b6b",
+color:"#ff5b6b",
+padding:"10px 18px",
+borderRadius:14,
+fontWeight:700,
+transform:"rotate(-12deg)"
+}}
+>
+NOPE
+</div>
+)}
 
-      <motion.button
-       whileTap={{
-        scale:[1,1.08,1]
-       }}
-       transition={{
-        duration:.28
-       }}
-       onClick={handleLike}
-       style={{
-        width:90,
-        height:90,
-        borderRadius:"50%",
-        border:"none",
-        background:
-        "linear-gradient(135deg,#3D8BFF 0%,#0A6CFF 100%)",
-        color:"#fff",
-        fontSize:38,
-        boxShadow:
-        "0 10px 30px rgba(32,111,255,.35)"
-       }}
-      >
-       ❤
-      </motion.button>
+</div>
 
-      <button
-       style={{
-        width:72,
-        height:72,
-        borderRadius:"50%",
-        border:"none",
-        background:"#fff",
-        color:"#8D8D99",
-        fontSize:30,
-        boxShadow:
-        "0 8px 20px rgba(0,0,0,.08)"
-       }}
-      >
-       ★
-      </button>
-     </div>
+{/* actions */}
+<div
+style={{
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+gap:26,
+marginTop:18
+}}
+>
+<button
+onClick={handleSkip}
+style={{
+width:68,
+height:68,
+borderRadius:"50%",
+border:"none",
+background:"#fff",
+fontSize:34,
+color:"#A8ADB7",
+boxShadow:"0 8px 20px rgba(0,0,0,.06)"
+}}
+>
+✕
+</button>
 
-    </>
-    ) : (
-      <p style={{padding:40}}>
-       Нет пользователей
-      </p>
-    )}
+<button
+onClick={handleLike}
+style={{
+width:84,
+height:84,
+borderRadius:"50%",
+border:"none",
+background:
+"linear-gradient(135deg,#3D8BFF 0%,#0A6CFF 100%)",
+fontSize:34,
+color:"#fff",
+boxShadow:
+"0 10px 30px rgba(32,111,255,.35)"
+}}
+>
+♥
+</button>
 
-    <BottomNav/>
+<button
+style={{
+width:68,
+height:68,
+borderRadius:"50%",
+border:"none",
+background:"#fff",
+fontSize:30,
+color:"#A8ADB7",
+boxShadow:"0 8px 20px rgba(0,0,0,.06)"
+}}
+>
+★
+</button>
 
-   </div>
+</div>
+</>
+):(
+<div style={{paddingTop:80}}>
+Нет пользователей
+</div>
+)}
+
+<BottomNav />
+
+</div>
   );
 }
