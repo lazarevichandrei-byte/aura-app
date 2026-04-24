@@ -325,8 +325,8 @@ style={{
 position:"absolute",
 left:0,
 right:0,
-bottom:0,
-height:"34%",
+bottom:0,     // старт строго с самого низа
+height:"42%",
 zIndex:5,
 pointerEvents:"none",
 
@@ -334,14 +334,15 @@ background:`
 linear-gradient(
 to top,
 rgba(255,255,255,1) 0%,
-rgba(255,255,255,.96) 22%,
-rgba(255,255,255,.78) 45%,
-rgba(255,255,255,.38) 70%,
-rgba(255,255,255,.08) 88%,
+rgba(255,255,255,1) 12%,
+rgba(255,255,255,.94) 28%,
+rgba(255,255,255,.72) 52%,
+rgba(255,255,255,.38) 74%,
+rgba(255,255,255,.12) 90%,
 rgba(255,255,255,0) 100%
 )`,
 
-filter:"blur(16px)"
+filter:"blur(18px)"
 }}
 />
 
