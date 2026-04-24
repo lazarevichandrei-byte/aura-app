@@ -23,7 +23,14 @@ const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
 
-const currentUserId=123; // временно
+
+const currentUserId =
+typeof window !== "undefined" &&
+(window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id
+? Number(
+(window as any).Telegram.WebApp.initDataUnsafe.user.id
+)
+: 123;
 
 
 useEffect(()=>{
