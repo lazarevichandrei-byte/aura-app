@@ -1,6 +1,7 @@
 "use client";
 
 import BottomNav from "../../components/BottomNav";
+
 const chats = [
 {
 name:"Алина",
@@ -31,7 +32,6 @@ avatar:"/girl3.jpg"
 }
 ];
 
-
 const matches=[
 "/girl1.jpg",
 "/girl2.jpg",
@@ -46,7 +46,7 @@ return(
 style={{
 minHeight:"100vh",
 background:"#fff",
-padding:"26px 18px 110px"
+padding:"34px 22px 120px"
 }}
 >
 
@@ -60,8 +60,9 @@ alignItems:"center"
 >
 <h1 style={{
 margin:0,
-fontSize:44,
-fontWeight:700
+fontSize:42,
+fontWeight:700,
+letterSpacing:"-.5px"
 }}>
 Чаты
 </h1>
@@ -77,16 +78,17 @@ gap:14
 </div>
 
 
+
 {/* SEARCH */}
 <div style={{
-marginTop:24,
-height:54,
-borderRadius:20,
-background:"#F3F4F8",
+marginTop:30,
+height:58,
+borderRadius:22,
+background:"#F4F6FA",
 display:"flex",
 alignItems:"center",
-padding:"0 20px",
-fontSize:22,
+padding:"0 22px",
+fontSize:19,
 color:"#A2A5B0"
 }}>
 🔍 Поиск
@@ -94,34 +96,36 @@ color:"#A2A5B0"
 
 
 
+
 {/* MATCH STORIES */}
 <div
 style={{
 display:"flex",
-gap:18,
+gap:22,
 overflowX:"auto",
-marginTop:28,
-paddingBottom:10
+marginTop:34,
+paddingBottom:14
 }}
 >
 
 <div style={{textAlign:"center"}}>
 <div style={{
-width:74,
-height:74,
+width:82,
+height:82,
 borderRadius:"50%",
 background:"#EEF4FF",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:30
+fontSize:32
 }}>
 💙
 </div>
 
 <div style={{
-marginTop:8,
-fontSize:14
+marginTop:10,
+fontSize:14,
+fontWeight:500
 }}>
 Мои пары
 </div>
@@ -129,13 +133,11 @@ fontSize:14
 
 
 {matches.map((img,i)=>(
-<div
-key={i}
-style={{textAlign:"center"}}
->
+<div key={i} style={{textAlign:"center"}}>
+
 <div style={{
-width:74,
-height:74,
+width:82,
+height:82,
 borderRadius:"50%",
 padding:3,
 border:"2px solid #2F80FF"
@@ -152,8 +154,9 @@ objectFit:"cover"
 </div>
 
 <div style={{
-marginTop:8,
-fontSize:14
+marginTop:10,
+fontSize:14,
+fontWeight:500
 }}>
 {["Алина","Мария","Екатерина","Полина"][i]}
 </div>
@@ -165,8 +168,9 @@ fontSize:14
 
 
 
+
 {/* CHAT LIST */}
-<div style={{marginTop:30}}>
+<div style={{marginTop:36}}>
 
 {chats.map((chat)=>(
 <div
@@ -174,16 +178,16 @@ key={chat.name}
 style={{
 display:"flex",
 alignItems:"center",
-padding:"18px 0",
-borderBottom:"1px solid #F0F0F0"
+padding:"24px 0",
+borderBottom:"1px solid #F2F2F5"
 }}
 >
 
 <img
 src={chat.avatar}
 style={{
-width:68,
-height:68,
+width:74,
+height:74,
 borderRadius:"50%",
 objectFit:"cover"
 }}
@@ -192,25 +196,27 @@ objectFit:"cover"
 
 <div style={{
 flex:1,
-marginLeft:16
+marginLeft:18
 }}>
 
 <div style={{
-fontSize:31,
+fontSize:22,
 fontWeight:600
 }}>
 {chat.name}
 </div>
 
 <div style={{
-marginTop:6,
-fontSize:18,
+marginTop:7,
+fontSize:16,
+lineHeight:1.4,
 color:"#7B7E88"
 }}>
 {chat.msg}
 </div>
 
 </div>
+
 
 
 <div style={{
@@ -221,11 +227,12 @@ gap:12
 }}>
 
 <div style={{
-fontSize:16,
+fontSize:14,
 color:"#9AA0AE"
 }}>
 {chat.time}
 </div>
+
 
 {chat.unread && (
 <div style={{
@@ -237,7 +244,7 @@ color:"#fff",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:14,
+fontSize:13,
 fontWeight:700
 }}>
 {chat.unread}
@@ -251,6 +258,7 @@ fontWeight:700
 
 </div>
 
+
 <BottomNav/>
 
 </div>
@@ -258,8 +266,8 @@ fontWeight:700
 }
 
 const circleBtn={
-width:48,
-height:48,
+width:50,
+height:50,
 borderRadius:"50%",
 background:"#F5F6FA",
 display:"flex",
