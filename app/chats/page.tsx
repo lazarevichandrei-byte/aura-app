@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import BottomNav from "../../components/BottomNav";
 
 const chats = [
@@ -59,6 +60,8 @@ const matches = [
 
 export default function Chats(){
 
+const router = useRouter();
+
 return(
 <div
 style={{
@@ -78,12 +81,14 @@ justifyContent:"space-between",
 alignItems:"center"
 }}
 >
-<h1 style={{
+<h1
+style={{
 margin:0,
 fontSize:34,
 fontWeight:700,
 letterSpacing:"-.8px"
-}}>
+}}
+>
 Чаты
 </h1>
 
@@ -91,7 +96,9 @@ letterSpacing:"-.8px"
 <div style={circleBtn}>≡</div>
 <div style={circleBtn}>＋</div>
 </div>
+
 </div>
+
 
 
 {/* SEARCH */}
@@ -140,10 +147,12 @@ fontSize:30
 💙
 </div>
 
-<div style={{
+<div
+style={{
 marginTop:6,
 fontSize:13
-}}>
+}}
+>
 Мои пары
 </div>
 </div>
@@ -151,7 +160,10 @@ fontSize:13
 
 {matches.map((item,i)=>(
 
-<div key={i} style={{textAlign:"center"}}>
+<div
+key={i}
+style={{textAlign:"center"}}
+>
 
 <div
 style={{
@@ -174,7 +186,8 @@ objectFit:"cover"
 />
 
 {i<3 &&(
-<div style={{
+<div
+style={{
 position:"absolute",
 right:-1,
 bottom:4,
@@ -183,15 +196,18 @@ height:14,
 background:"#47C73B",
 border:"2px solid white",
 borderRadius:"50%"
-}}/>
+}}
+/>
 )}
 
 </div>
 
-<div style={{
+<div
+style={{
 fontSize:13,
 marginTop:6
-}}>
+}}
+>
 {item.name}
 </div>
 
@@ -206,15 +222,17 @@ marginTop:6
 {/* CHAT LIST */}
 <div style={{marginTop:24}}>
 
-{chats.map(chat=>(
+{chats.map((chat,i)=>(
 
 <div
 key={chat.name}
+onClick={()=>router.push("/chat/"+i)}
 style={{
 display:"flex",
 alignItems:"center",
 padding:"15px 0",
-borderBottom:"1px solid #F1F2F5"
+borderBottom:"1px solid #F1F2F5",
+cursor:"pointer"
 }}
 >
 
@@ -228,13 +246,13 @@ objectFit:"cover"
 }}
 />
 
-
 <div
 style={{
 flex:1,
 marginLeft:14
 }}
 >
+
 <div
 style={{
 fontSize:18,
@@ -253,6 +271,7 @@ marginTop:4
 >
 {chat.msg}
 </div>
+
 </div>
 
 
@@ -265,10 +284,12 @@ gap:10
 }}
 >
 
-<div style={{
+<div
+style={{
 fontSize:14,
 color:"#A0A5B0"
-}}>
+}}
+>
 {chat.time}
 </div>
 
@@ -299,14 +320,13 @@ fontWeight:700
 
 </div>
 
-
 <BottomNav/>
 
 </div>
 )
 }
 
-const circleBtn = {
+const circleBtn={
 width:42,
 height:42,
 borderRadius:"50%",
