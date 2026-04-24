@@ -391,33 +391,23 @@ borderRadius:25
 {/* INPUT */}
 <div
 style={{
-padding:"14px 14px 24px",
-borderTop:"1px solid #eef1f5"
+padding:"14px 16px 26px",
+borderTop:"1px solid #eef1f5",
+background:"#fff"
 }}
 >
-
 <div
 style={{
-height:56,
-borderRadius:30,
+height:60,
+width:"100%",
 background:"#F3F5F9",
+borderRadius:34,
 display:"flex",
 alignItems:"center",
-gap:12,
-padding:"0 18px"
+paddingLeft:22,
+paddingRight:10
 }}
 >
-
-<div
-style={{
-display:"flex",
-gap:12,
-color:"#9CA3AF"
-}}
->
-📷 🎤
-</div>
-
 
 <input
 value={newMessage}
@@ -430,10 +420,11 @@ sendMessage();
 placeholder="Сообщение..."
 style={{
 flex:1,
+height:"100%",
 border:"none",
-background:"transparent",
 outline:"none",
-fontSize:17
+background:"transparent",
+fontSize:18
 }}
 />
 
@@ -441,15 +432,17 @@ fontSize:17
 <div
 onClick={sendMessage}
 style={{
-width:40,
-height:40,
+width:46,
+height:46,
 borderRadius:"50%",
-background:"#2F80FF",
+background:"linear-gradient(135deg,#57A7FF,#1D74FF)",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 color:"#fff",
-cursor:"pointer"
+fontSize:20,
+cursor:"pointer",
+flexShrink:0
 }}
 >
 ➤
