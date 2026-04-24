@@ -66,94 +66,45 @@ setIndex(prev=>prev+1);
 
 
 /* -------- FIXED MATCH LOGIC ONLY -------- */
-async function handleLike(){
+async function handleLike() {
 
-if(!currentUser) return;
+if (!currentUser) return;
 
-const likedUserId=currentUser.telegram_id;
+const likedUserId = currentUser.telegram_id;
 
-try{
+try {
 
-/* сохраняем лайк */
-await supabase
+const { error: likeError } = await supabase
 .from("likes")
-.upsert(
-{
-from_user:currentUserId,
-to_user:likedUserId
-},
-{
-onConflict:"from_user,to_user"
-}
-);
-
-
-/* ИЩЕМ взаимный лайк */
-const { data:reverseLikes } = await supabase
-.from("likes")
-.select("*")
-.eq("to_user",currentUserId)
-.eq("from_user",likedUserId);
-
-const reverseLike =
-reverseLikes &&
-reverseLikes.length > 0;
-
-console.log(
-"mutual:",
-reverseLike
-);
-
-
-/* если мэтч */
-if(reverseLike){
-
-/* сохранить в matches если нет */
-const user1=Math.min(
-currentUserId,
-likedUserId
-);
-
-const user2=Math.max(
-currentUserId,
-likedUserId
-);
-
-const {data:existingMatch}=await supabase
-.from("matches")
-.select("*")
-.eq("user1",user1)
-.eq("user2",user2)
-.maybeSingle();
-
-
-if(!existingMatch){
-
-await supabase
-.from("matches")
 .insert({
-user1,
-user2
+from_user: currentUserId,
+to_user: likedUserId
 });
 
-}
+console.log("likeError:", likeError);
 
 
-/* popup */
+const { data: rows, error: reverseError } = await supabase
+.from("likes")
+.select("id")
+.eq("from_user", likedUserId)
+.eq("to_user", currentUserId);
+
+console.log("rows:", rows);
+console.log("reverseError:", reverseError);
+
+
+if (rows && rows.length > 0) {
 setMatchedUser(currentUser);
 setShowMatch(true);
-
 return;
-
 }
 
-
-/* если не взаимно */
 nextUser();
 
-}catch(e){
+} catch (e) {
 
-console.error(e);
+console.error("handleLike error", e);
 nextUser();
 
 }
