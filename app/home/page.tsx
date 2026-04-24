@@ -11,7 +11,7 @@ export default function Home() {
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
 const [photoIndex,setPhotoIndex]=useState(0);
-
+const [myProfile,setMyProfile]=useState<any>(null);
 
 const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
@@ -45,12 +45,26 @@ async function loadUsers(){
 
 const {data}=await supabase
 .from("users")
-.select("*")
-.neq("telegram_id",currentUserId);
+.select("*");
 
-if(data) setUsers(data);
+if(data){
+
+setUsers(
+data.filter(
+u=>u.telegram_id!==currentUserId
+)
+);
+
+setMyProfile(
+data.find(
+u=>u.telegram_id===currentUserId
+)
+);
 
 }
+
+}
+
 
 const currentUser=users[index];
 
@@ -108,7 +122,7 @@ setMatchedUser(currentUser);
 setShowMatch(true);
 
 
-/* ЖЕСТКО ОБНУЛЯЕМ ОБЕ СТОРОНЫ */
+
 
 /* мой лайк -> его */
 await supabase
@@ -227,31 +241,6 @@ transition:dragging
 :"all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
-
-{dragX>35 &&(
-<div
-style={{
-position:"absolute",
-top:82,
-right:28,
-zIndex:20,
-padding:"12px 24px",
-borderRadius:18,
-fontSize:28,
-fontWeight:800,
-letterSpacing:"2px",
-color:"#fff",
-background:
-"linear-gradient(135deg,#4FACFE,#2979FF)",
-boxShadow:
-"0 12px 28px rgba(41,121,255,.35)",
-transform:`rotate(12deg) scale(${1 + dragX/500})`,
-transition:"all .12s ease"
-}}
->
-💙 LIKE
-</div>
-)}
 
 {dragX<-35 &&(
 <div style={{
@@ -577,82 +566,132 @@ marginBottom:42
 </div>
 
 
+
+{/* avatars */}
 {/* avatars */}
 <div
 style={{
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-marginBottom:38
+marginBottom:34
 }}
 >
 
+{/* моя фото */}
 <div
 style={{
 animation:"avatarsMeet .5s ease",
+marginRight:-20,
 zIndex:2
 }}
 >
 <img
-src="/me.jpg"
+src={myProfile?.avatar_url || "/me.jpg"}
 style={{
-width:150,
-height:150,
+width:145,
+height:145,
 borderRadius:"50%",
 objectFit:"cover",
-display:"block",
-border:"5px solid #fff",
-boxShadow:
-"0 0 0 3px #2F80FF, 0 18px 40px rgba(47,128,255,.28)"
+border:"5px solid white",
+boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 }}
 />
 </div>
 
 
+{/* сердце */}
 <div
 style={{
-margin:"0 -22px",
-width:74,
-height:74,
+width:68,
+height:68,
 borderRadius:"50%",
-background:
-"linear-gradient(135deg,#4FACFE,#2979FF)",
+background:"linear-gradient(135deg,#4FACFE,#2979FF)",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-boxShadow:
-"0 12px 34px rgba(41,121,255,.35)",
-zIndex:4,
-animation:"pulseHeart .8s ease"
+zIndex:5,
+animation:"pulseHeart .8s ease",
+boxShadow:"0 10px 28px rgba(41,121,255,.30)"
 }}
 >
 <Heart
-size={34}
+size={30}
 fill="white"
 stroke="white"
 />
 </div>
 
 
+{/* match фото */}
 <div
 style={{
 animation:"avatarsMeet2 .5s ease",
+marginLeft:-20,
 zIndex:2
 }}
 >
 <img
 src={matchedUser?.avatar_url}
 style={{
-width:150,
-height:150,
+width:145,
+height:145,
 borderRadius:"50%",
 objectFit:"cover",
-display:"block",
-border:"5px solid #fff",
-boxShadow:
-"0 0 0 3px #2F80FF, 0 18px 40px rgba(47,128,255,.28)"
+border:"5px solid white",
+boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 }}
 />
+</div>
+
+</div>
+
+
+
+<div
+style={{
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+marginBottom:34
+}}
+>
+
+
+
+
+{/* сердце */}
+<div
+style={{
+width:68,
+height:68,
+borderRadius:"50%",
+background:"linear-gradient(135deg,#4FACFE,#2979FF)",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+zIndex:5,
+animation:"pulseHeart .8s ease",
+boxShadow:"0 10px 28px rgba(41,121,255,.30)"
+}}
+>
+<Heart
+size={30}
+fill="white"
+stroke="white"
+/>
+</div>
+
+
+{/* match фото */}
+<div
+style={{
+animation:"avatarsMeet2 .5s ease",
+marginLeft:-20,
+zIndex:2
+}}
+>
+
 </div>
 
 </div>
@@ -674,20 +713,36 @@ marginBottom:42
 
 <button
 style={{
-width:"100%",
-height:68,
+width:"78%",
+height:54,
+marginTop:30,
 border:"none",
-borderRadius:22,
-background:
-"linear-gradient(135deg,#38A3FF,#006DFF)",
+borderRadius:16,
+background:"linear-gradient(135deg,#3EA1FF,#1976FF)",
 color:"#fff",
-fontSize:24,
-fontWeight:600,
-boxShadow:
-"0 14px 35px rgba(0,109,255,.28)"
+fontSize:18,
+fontWeight:500,
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+gap:12,
+boxShadow:"0 8px 24px rgba(41,121,255,.18)"
 }}
 >
-✈ Написать сообщение
+<div style={{
+width:34,
+height:34,
+borderRadius:"50%",
+background:"#fff",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:18
+}}>
+✈
+</div>
+
+Написать сообщение
 </button>
 
 
@@ -697,14 +752,14 @@ setShowMatch(false);
 nextUser();
 }}
 style={{
-marginTop:18,
-width:"100%",
-height:68,
-borderRadius:22,
+marginTop:16,
+width:"78%",
+height:54,
+borderRadius:16,
+border:"2px solid #64A8FF",
 background:"#fff",
-border:"2px solid #4FACFE",
 color:"#2F80FF",
-fontSize:24,
+fontSize:18,
 fontWeight:500
 }}
 >
