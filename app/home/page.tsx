@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
+
 import { useRouter } from "next/navigation";
+
 export default function Home() {
 const router = useRouter();  
 
@@ -659,20 +661,19 @@ marginBottom:38
 
 
 <button
+onClick={()=>{
+setShowMatch(false);
+router.push("/chats");
+}}
 style={{
-marginTop:30,
-width:"82%",
+width:"78%",
 height:58,
-display:"block",
-marginLeft:"auto",
-marginRight:"auto",
 border:"none",
-borderRadius:18,
-background:"linear-gradient(135deg,#49A8FF,#1976FF)",
+borderRadius:20,
+background:"linear-gradient(135deg,#4FACFE,#2979FF)",
 color:"#fff",
 fontSize:18,
-fontWeight:500,
-fontFamily:"-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif"
+fontWeight:600
 }}
 >
 Написать сообщение
