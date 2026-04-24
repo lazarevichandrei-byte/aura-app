@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
 
-export default function Home() {
+export default function Home(){
 
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
@@ -22,20 +22,29 @@ const startX=useRef(0);
 
 const currentUserId=123;
 
+
+
 useEffect(()=>{
- loadUsers();
+loadUsers();
 },[]);
 
-async function loadUsers(){
- const {data}=await supabase
-  .from("users")
-  .select("*")
-  .neq("telegram_id",currentUserId);
 
- if(data) setUsers(data);
+
+async function loadUsers(){
+
+const {data}=await supabase
+.from("users")
+.select("*")
+.neq("telegram_id",currentUserId);
+
+if(data) setUsers(data);
+
 }
 
+
+
 const currentUser=users[index];
+
 
 const photos=
 currentUser?.photos?.length
@@ -44,54 +53,85 @@ currentUser?.photos?.length
 ? [currentUser.avatar_url]
 : [];
 
+
+
 function nextUser(){
- setPhotoIndex(0);
- setDragX(0);
- setIndex(p=>p+1);
+setPhotoIndex(0);
+setDragX(0);
+setIndex(prev=>prev+1);
 }
+
+
 
 async function handleLike(){
- if(!currentUser) return;
 
- const likedUserId=currentUser.telegram_id;
+if(!currentUser) return;
 
- await supabase.from("likes").insert({
-   from_user:currentUserId,
-   to_user:likedUserId
- });
+const likedUserId=currentUser.telegram_id;
 
- const {data:reverseLike}=await supabase
- .from("likes")
- .select("*")
- .eq("from_user",likedUserId)
- .eq("to_user",currentUserId)
- .maybeSingle();
+await supabase
+.from("likes")
+.insert({
+from_user:currentUserId,
+to_user:likedUserId
+});
 
- if(reverseLike){
-   const user1=Math.min(currentUserId,likedUserId);
-   const user2=Math.max(currentUserId,likedUserId);
 
-   const {data:existingMatch}=await supabase
-   .from("matches")
-   .select("*")
-   .eq("user1",user1)
-   .eq("user2",user2)
-   .maybeSingle();
+const {data:reverseLike}=await supabase
+.from("likes")
+.select("*")
+.eq("from_user",likedUserId)
+.eq("to_user",currentUserId)
+.maybeSingle();
 
-   if(!existingMatch){
-      await supabase.from("matches").insert({
-        user1,
-        user2
-      });
-   }
- }
 
- nextUser();
+if(reverseLike){
+
+const user1=Math.min(
+currentUserId,
+likedUserId
+);
+
+const user2=Math.max(
+currentUserId,
+likedUserId
+);
+
+
+const {data:existingMatch}=await supabase
+.from("matches")
+.select("*")
+.eq("user1",user1)
+.eq("user2",user2)
+.maybeSingle();
+
+
+if(!existingMatch){
+
+await supabase
+.from("matches")
+.insert({
+user1,
+user2
+});
+
 }
+
+}
+
+nextUser();
+
+}
+
+
 
 function handleSkip(){
- nextUser();
+nextUser();
 }
+
+
+
+/* SWIPE */
 
 function touchStart(e:any){
 startX.current=e.touches[0].clientX;
@@ -99,48 +139,69 @@ setDragging(true);
 }
 
 function touchMove(e:any){
+
 if(!dragging) return;
 
-const move=e.touches[0].clientX-startX.current;
+const move=
+e.touches[0].clientX
+-startX.current;
+
 setDragX(move);
+
 }
 
 function touchEnd(){
+
 setDragging(false);
 
 if(dragX>120){
- handleLike();
- return;
+handleLike();
+return;
 }
 
 if(dragX<-120){
- handleSkip();
- return;
+handleSkip();
+return;
 }
 
 setDragX(0);
+
 }
 
+
+
+/* PHOTO TAP */
+
 function changePhoto(e:any){
+
 if(!photos.length) return;
 
-const rect=e.currentTarget.getBoundingClientRect();
+const rect=
+e.currentTarget.getBoundingClientRect();
+
 const x=e.clientX-rect.left;
 
 if(x<rect.width/2){
- setPhotoIndex(p=>(
-  p===0
-  ? photos.length-1
-  : p-1
- ));
+
+setPhotoIndex(p=>
+p===0
+? photos.length-1
+: p-1
+);
+
 }else{
- setPhotoIndex(p=>(
-  p===photos.length-1
-  ?0
-  :p+1
- ));
+
+setPhotoIndex(p=>
+p===photos.length-1
+? 0
+: p+1
+);
+
 }
+
 }
+
+
 
 return(
 <div
@@ -154,6 +215,7 @@ padding:"18px 18px 118px"
 
 {currentUser && (
 <>
+
 <div
 onTouchStart={touchStart}
 onTouchMove={touchMove}
@@ -164,10 +226,13 @@ height:"66vh",
 borderRadius:36,
 overflow:"hidden",
 background:"#fff",
-boxShadow:"0 10px 30px rgba(0,0,0,.06)",
 
-transform: dragging
-?`translateX(${dragX}px) rotate(${dragX/24}deg)`
+boxShadow:
+"0 10px 30px rgba(0,0,0,.06)",
+
+transform:dragging
+?`translateX(${dragX}px)
+rotate(${dragX/24}deg)`
 :`translateX(${dragX}px)`,
 
 transition:dragging
@@ -177,7 +242,8 @@ transition:dragging
 >
 
 {dragX>35 &&(
-<div style={{
+<div
+style={{
 position:"absolute",
 top:85,
 right:35,
@@ -188,13 +254,15 @@ padding:"10px 18px",
 borderRadius:14,
 fontWeight:700,
 transform:"rotate(12deg)"
-}}>
+}}
+>
 LIKE
 </div>
 )}
 
 {dragX<-35 &&(
-<div style={{
+<div
+style={{
 position:"absolute",
 top:85,
 left:35,
@@ -205,7 +273,8 @@ padding:"10px 18px",
 borderRadius:14,
 fontWeight:700,
 transform:"rotate(-12deg)"
-}}>
+}}
+>
 NOPE
 </div>
 )}
@@ -220,6 +289,7 @@ objectFit:"cover"
 }}
 />
 
+
 <div
 onClick={changePhoto}
 style={{
@@ -229,7 +299,9 @@ zIndex:4
 }}
 />
 
-<div style={{
+
+<div
+style={{
 position:"absolute",
 top:26,
 left:26,
@@ -240,68 +312,96 @@ padding:"12px 18px",
 borderRadius:18,
 color:"#fff",
 fontSize:18
-}}>
+}}
+>
 {photoIndex+1} / {photos.length}
 </div>
 
-<div style={{
+
+
+{/* restored long photo gradient */}
+<div
+style={{
 position:"absolute",
 left:0,
 right:0,
 bottom:0,
-height:"45%",
+height:"62%",
 zIndex:5,
 pointerEvents:"none",
-background:
-"linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,.98) 20%, rgba(255,255,255,.90) 42%, rgba(255,255,255,.55) 66%, rgba(255,255,255,.15) 85%, rgba(255,255,255,0) 100%)",
-filter:"blur(20px)"
-}}/>
 
-<div style={{
+background:
+"linear-gradient(to top,\
+#ffffff 0%,\
+rgba(255,255,255,.97) 20%,\
+rgba(255,255,255,.85) 42%,\
+rgba(255,255,255,.55) 62%,\
+rgba(255,255,255,.22) 82%,\
+rgba(255,255,255,0) 100%)",
+
+filter:"blur(24px)"
+}}
+/>
+
+
+<div
+style={{
 position:"absolute",
 left:30,
 right:30,
 bottom:26,
 zIndex:8
-}}>
-<h2 style={{
+}}
+>
+
+<h2
+style={{
 margin:0,
 fontSize:18,
 fontWeight:600
-}}>
+}}
+>
 {currentUser.name}, {currentUser.age}
 </h2>
 
-<div style={{
+<div
+style={{
 marginTop:4,
 fontSize:13,
 color:"#70717C"
-}}>
+}}
+>
 📍 {currentUser.city}, 2 км от вас
 </div>
 
-<p style={{
+<p
+style={{
 marginTop:8,
 marginBottom:10,
 fontSize:14,
 lineHeight:1.3,
 maxWidth:"82%"
-}}>
+}}
+>
 {currentUser.bio || "Люблю путешествия и новые впечатления ✈✨"}
 </p>
 
-<div style={{
+<div
+style={{
 display:"flex",
 flexWrap:"wrap",
 gap:8
-}}>
-{(currentUser.interests||[
+}}
+>
+{(
+currentUser.interests || [
 "Путешествия",
 "Музыка",
 "Спорт",
 "Кино",
 "Фото"
-]).map((tag:string)=>(
+]
+).map((tag:string)=>(
 <div
 key={tag}
 style={{
@@ -318,6 +418,7 @@ fontSize:11.5
 </div>
 
 </div>
+
 </div>
 <div
 style={{
@@ -334,8 +435,8 @@ onClick={()=>{
 setSkipPressed(true);
 
 setTimeout(()=>{
- setSkipPressed(false);
- handleSkip();
+setSkipPressed(false);
+handleSkip();
 },180);
 
 }}
@@ -346,12 +447,12 @@ borderRadius:"50%",
 border:"none",
 
 background:skipPressed
-?"linear-gradient(135deg,#FF7272,#FF3B30)"
-:"#fff",
+? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
+: "#fff",
 
 transform:skipPressed
-?"scale(1.08)"
-:"scale(1)",
+? "scale(1.08)"
+: "scale(1)",
 
 transition:"all .18s ease",
 
@@ -360,16 +461,17 @@ justifyContent:"center",
 alignItems:"center",
 
 boxShadow:skipPressed
-?"0 12px 30px rgba(255,59,48,.35)"
-:"0 10px 30px rgba(0,0,0,.06)"
+? "0 12px 30px rgba(255,95,162,.35)"
+: "0 10px 30px rgba(0,0,0,.06)"
 }}
 >
 <X
 size={30}
-color={skipPressed?"white":"#98A0AE"}
+color={skipPressed ? "white" : "#98A0AE"}
 strokeWidth={2.6}
 />
 </button>
+
 
 
 <button
@@ -377,8 +479,8 @@ onClick={()=>{
 setLikePressed(true);
 
 setTimeout(()=>{
- setLikePressed(false);
- handleLike();
+setLikePressed(false);
+handleLike();
 },180);
 
 }}
@@ -393,8 +495,8 @@ background:likePressed
 : "linear-gradient(135deg,#4FACFE,#2979FF)",
 
 transform:likePressed
-?"scale(1.09)"
-:"scale(1)",
+? "scale(1.09)"
+: "scale(1)",
 
 transition:"all .18s ease",
 
@@ -408,7 +510,7 @@ boxShadow:likePressed
 }}
 >
 <Heart
-size={36}
+size={38}
 fill="white"
 stroke="white"
 strokeWidth={2.5}
@@ -416,12 +518,13 @@ strokeWidth={2.5}
 </button>
 
 
+
 <button
 onClick={()=>{
 setBoostPressed(true);
 
 setTimeout(()=>{
- setBoostPressed(false);
+setBoostPressed(false);
 },180);
 
 }}
@@ -432,12 +535,12 @@ borderRadius:"50%",
 border:"none",
 
 background:boostPressed
-?"linear-gradient(135deg,#FFD95A,#FFB800)"
-:"#fff",
+? "linear-gradient(135deg,#FFD95A,#FFB800)"
+: "#fff",
 
 transform:boostPressed
-?"scale(1.08)"
-:"scale(1)",
+? "scale(1.08)"
+: "scale(1)",
 
 transition:"all .18s ease",
 
@@ -446,13 +549,13 @@ justifyContent:"center",
 alignItems:"center",
 
 boxShadow:boostPressed
-?"0 12px 30px rgba(255,196,0,.35)"
-:"0 10px 30px rgba(0,0,0,.06)"
+? "0 12px 30px rgba(255,196,0,.35)"
+: "0 10px 30px rgba(0,0,0,.06)"
 }}
 >
 <Sparkles
 size={28}
-color={boostPressed?"white":"#98A0AE"}
+color={boostPressed ? "white" : "#98A0AE"}
 strokeWidth={2.3}
 />
 </button>
@@ -466,4 +569,5 @@ strokeWidth={2.3}
 
 </div>
 );
+
 }
