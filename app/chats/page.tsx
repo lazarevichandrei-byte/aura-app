@@ -1,7 +1,6 @@
 "use client";
 
-import BottomNav from "../../../components/BottomNav";
-
+import BottomNav from "../../components/BottomNav";
 const chats = [
 {
 name:"Алина",

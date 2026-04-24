@@ -8,20 +8,24 @@ export default function BottomNav(){
 const router = useRouter();
 const pathname = usePathname();
 
-const itemStyle = (active:boolean)=>({
+const itemStyle=(active:boolean)=>({
+flex:1,
+height:"100%",
 display:"flex",
 flexDirection:"column" as const,
+justifyContent:"center",
 alignItems:"center",
-gap:6,
+gap:5,
 fontSize:11,
 fontWeight:500,
-color: active ? "#2F80FF" : "#A7ADB8",
+color:active ? "#2F80FF" : "#A7ADB8",
 cursor:"pointer"
 });
 
 return(
 
-<div style={{
+<div
+style={{
 position:"fixed",
 bottom:0,
 left:0,
@@ -30,10 +34,11 @@ height:82,
 background:"#fff",
 borderTop:"1px solid #ECECEC",
 display:"flex",
-justifyContent:"space-around",
 alignItems:"center",
+paddingBottom:8,
 zIndex:999
-}}>
+}}
+>
 
 <div
 onClick={()=>router.push("/home")}
@@ -54,8 +59,8 @@ style={itemStyle(pathname==="/discover")}
 
 
 <div
-onClick={()=>router.push("/chats")}
-style={itemStyle(pathname==="/chats")}
+onClick={()=>router.push("/home/chats")}
+style={itemStyle(pathname==="/home/chats")}
 >
 <Heart size={28}/>
 Чаты
