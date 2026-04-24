@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, animate } from "framer-motion";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 
 export default function Home() {
   const [users, setUsers] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
-  const [exitX, setExitX] = useState(0);
+  const [matchedUser, setMatchedUser] = useState<any>(null);
+  const [cardKey, setCardKey] = useState(0);
 
-  const currentUserId = 123; // потом заменим
+  const currentUserId = 123; // потом заменим telegram id
 
   useEffect(() => {
     loadUsers();
@@ -26,268 +27,369 @@ export default function Home() {
   }
 
   const currentUser = users[index];
-  const nextCard = users[index + 1];
+
+  function nextUser() {
+    setIndex((prev) => prev + 1);
+    setCardKey((v) => v + 1);
+  }
+
+  async function createMatchCheck(likedUserId: number) {
+    const { data: reverseLike } = await supabase
+      .from("likes")
+      .select("*")
+      .eq("from_user", likedUserId)
+      .eq("to_user", currentUserId)
+      .maybeSingle();
+
+    if (reverseLike) {
+      const user1 = Math.min(currentUserId, likedUserId);
+      const user2 = Math.max(currentUserId, likedUserId);
+
+      const { data: existingMatch } = await supabase
+        .from("matches")
+        .select("*")
+        .eq("user1", user1)
+        .eq("user2", user2)
+        .maybeSingle();
+
+      if (!existingMatch) {
+        await supabase.from("matches").insert({
+          user1,
+          user2,
+        });
+
+        setMatchedUser(currentUser);
+      }
+    }
+  }
 
   async function handleLike() {
     if (!currentUser) return;
 
-    setExitX(500);
+    const likedUserId = currentUser.telegram_id;
 
     await supabase.from("likes").insert({
       from_user: currentUserId,
-      to_user: currentUser.telegram_id,
+      to_user: likedUserId,
     });
 
-    setTimeout(() => {
-      setIndex((prev)=>prev+1);
-      setExitX(0);
-    },300);
+    await createMatchCheck(likedUserId);
+
+    nextUser();
   }
 
   function handleSkip() {
-    setExitX(-500);
-
-    setTimeout(()=>{
-      setIndex((prev)=>prev+1);
-      setExitX(0);
-    },300);
+    nextUser();
   }
 
-  function handleDragEnd(_:any, info:any){
-    if(info.offset.x > 120){
-      handleLike();
-    } else if(info.offset.x < -120){
-      handleSkip();
-    }
+  async function handleSuperLike() {
+    await handleLike();
   }
+
+  const swipeThreshold = 140;
 
   return (
     <div
       style={{
-        minHeight:"100vh",
-        background:"#F8F9FD",
-        padding:"18px",
-        paddingBottom:"120px"
+        minHeight: "100vh",
+        background: "#f7f7fb",
+        padding: "16px",
+        paddingBottom: "150px",
       }}
     >
-
-      {/* Верх */}
+      {/* верх */}
       <div
         style={{
-          display:"flex",
-          justifyContent:"space-between",
-          marginBottom:"20px"
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "18px",
         }}
       >
-        <button style={topBtn}>←</button>
-        <button style={topBtn}>⚙</button>
-      </div>
-
-
-      {/* STACK */}
-      <div
-        style={{
-          position:"relative",
-          height:"620px"
-        }}
-      >
-
-      {nextCard && (
-        <div
+        <button
           style={{
-            ...cardStyle,
-            transform:"scale(.96) translateY(16px)",
-            opacity:.8,
-            zIndex:1
+            width: 58,
+            height: 58,
+            borderRadius: "50%",
+            border: "none",
+            background: "#fff",
+            boxShadow: "0 6px 18px rgba(0,0,0,.06)",
+            fontSize: 22,
           }}
         >
-          <img
-            src={nextCard.avatar_url}
-            style={imgStyle}
-          />
+          ←
+        </button>
+
+        <button
+          style={{
+            width: 58,
+            height: 58,
+            borderRadius: "50%",
+            border: "none",
+            background: "#fff",
+            boxShadow: "0 6px 18px rgba(0,0,0,.06)",
+            fontSize: 22,
+          }}
+        >
+          ⚙
+        </button>
+      </div>
+
+      {currentUser ? (
+        <>
+          {/* CARD */}
+          <motion.div
+            key={cardKey}
+            drag="x"
+            dragElastic={0.08}
+            dragMomentum={true}
+            whileDrag={{ scale: 1.01 }}
+            onDragEnd={(e, info) => {
+              if (info.offset.x > swipeThreshold) {
+                handleLike();
+              }
+
+              if (info.offset.x < -swipeThreshold) {
+                handleSkip();
+              }
+            }}
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{
+              scale: 1,
+              opacity: 1,
+              x: 0,
+            }}
+            exit={{ opacity: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 650,
+              damping: 24,
+            }}
+            style={{
+              background: "#fff",
+              borderRadius: "30px",
+              overflow: "hidden",
+              height: "64vh",
+              minHeight: "470px",
+              maxHeight: "560px",
+              boxShadow: "0 18px 42px rgba(0,0,0,.10)",
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                height: "68%",
+              }}
+            >
+              <img
+                src={currentUser.avatar_url}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: 18,
+                  left: 18,
+                  background: "rgba(0,0,0,.35)",
+                  color: "#fff",
+                  borderRadius: 18,
+                  padding: "10px 18px",
+                  fontSize: 24,
+                }}
+              >
+                1 / 8
+              </div>
+            </div>
+
+            {/* white info block */}
+            <div
+              style={{
+                padding: "26px",
+              }}
+            >
+              <h1
+                style={{
+                  margin:0,
+                  fontSize:44,
+                  lineHeight:1,
+                }}
+              >
+                {currentUser.name}, {currentUser.age}
+              </h1>
+
+              <p
+                style={{
+                  color:"#666",
+                  fontSize:30,
+                  marginTop:18
+                }}
+              >
+                📍 {currentUser.city}
+              </p>
+
+              <p
+                style={{
+                  fontSize:20,
+                  marginTop:16
+                }}
+              >
+                Люблю путешествия и новые впечатления ✈️
+              </p>
+
+              <div
+                style={{
+                  display:"flex",
+                  flexWrap:"wrap",
+                  gap:"12px",
+                  marginTop:"18px"
+                }}
+              >
+                {["Путешествия","Музыка","Спорт"].map((tag)=>(
+                  <div
+                    key={tag}
+                    style={{
+                      background:"#eef5ff",
+                      color:"#2979FF",
+                      padding:"10px 16px",
+                      borderRadius:"20px",
+                      fontSize:16
+                    }}
+                  >
+                    {tag}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* ACTION BUTTONS */}
+          <div
+            style={{
+              marginTop:"26px",
+              display:"flex",
+              justifyContent:"center",
+              alignItems:"center",
+              gap:"28px"
+            }}
+          >
+            <button
+              onClick={handleSkip}
+              style={{
+                width:74,
+                height:74,
+                borderRadius:"50%",
+                border:"none",
+                background:"#fff",
+                boxShadow:"0 8px 22px rgba(0,0,0,.10)",
+                fontSize:32
+              }}
+            >
+              ✕
+            </button>
+
+            <button
+              onClick={handleLike}
+              style={{
+                width:92,
+                height:92,
+                borderRadius:"50%",
+                border:"none",
+                background:
+                  "linear-gradient(135deg,#4FACFE,#2979FF)",
+                color:"#fff",
+                fontSize:38,
+                boxShadow:"0 14px 30px rgba(41,121,255,.35)"
+              }}
+            >
+              ❤
+            </button>
+
+            <button
+              onClick={handleSuperLike}
+              style={{
+                width:74,
+                height:74,
+                borderRadius:"50%",
+                border:"none",
+                background:"#fff",
+                boxShadow:"0 8px 22px rgba(0,0,0,.10)",
+                fontSize:30
+              }}
+            >
+              ★
+            </button>
+          </div>
+        </>
+      ) : (
+        <p style={{textAlign:"center",marginTop:100}}>
+          Нет пользователей
+        </p>
+      )}
+
+      {/* MATCH POPUP */}
+      {matchedUser && (
+        <div
+          style={{
+            position:"fixed",
+            inset:0,
+            background:"rgba(0,0,0,.75)",
+            display:"flex",
+            justifyContent:"center",
+            alignItems:"center",
+            zIndex:999
+          }}
+        >
+          <div
+            style={{
+              width:320,
+              background:"#fff",
+              padding:"30px",
+              borderRadius:"30px",
+              textAlign:"center"
+            }}
+          >
+            <h1 style={{color:"#2979FF"}}>
+              It's a Match 💙
+            </h1>
+
+            <img
+              src={matchedUser.avatar_url}
+              style={{
+                width:110,
+                height:110,
+                borderRadius:"50%",
+                objectFit:"cover",
+                marginTop:15
+              }}
+            />
+
+            <p style={{marginTop:20}}>
+              Вы понравились друг другу
+            </p>
+
+            <button
+              onClick={() => setMatchedUser(null)}
+              style={{
+                marginTop:18,
+                border:"none",
+                padding:"14px 24px",
+                borderRadius:"14px",
+                background:
+                  "linear-gradient(135deg,#4FACFE,#2979FF)",
+                color:"#fff"
+              }}
+            >
+              Продолжить
+            </button>
+          </div>
         </div>
       )}
 
-
-<AnimatePresence>
-
-{currentUser && (
-<motion.div
- key={currentUser.telegram_id}
- drag="x"
- onDragEnd={handleDragEnd}
- animate={{ x:0, rotate:0 }}
- exit={{ x: exitX, rotate: exitX>0 ? 20 : -20 }}
- whileTap={{ scale:.98 }}
- style={{
-  ...cardStyle,
-  zIndex:2
- }}
->
-
-<img
- src={currentUser.avatar_url}
- style={imgStyle}
-/>
-
-{/* счетчик фото */}
-<div style={{
-position:"absolute",
-top:18,
-left:18,
-background:"rgba(0,0,0,.35)",
-color:"#fff",
-padding:"8px 14px",
-borderRadius:"18px"
-}}>
-1 / 8
-</div>
-
-
-{/* белый инфо блок */}
-<div style={infoPanel}>
-<h2 style={{
-marginBottom:8,
-fontSize:"34px"
-}}>
-{currentUser.name}, {currentUser.age}
-</h2>
-
-<div style={{
-opacity:.7,
-marginBottom:14
-}}>
-📍 {currentUser.city}
-</div>
-
-<p style={{
-lineHeight:1.5,
-marginBottom:18
-}}>
-Люблю путешествия и новые впечатления ✨
-</p>
-
-<div style={{
-display:"flex",
-flexWrap:"wrap",
-gap:"10px"
-}}>
-{["Путешествия","Музыка","Спорт","Кино"].map(tag=>(
-<span key={tag} style={tagStyle}>
-{tag}
-</span>
-))}
-</div>
-</div>
-
-</motion.div>
-)}
-
-</AnimatePresence>
-
-</div>
-
-
-{/* ACTION BUTTONS */}
-<div
-style={{
-display:"flex",
-justifyContent:"center",
-gap:"30px",
-marginTop:"-30px",
-marginBottom:"30px"
-}}
->
-
-<button
-onClick={handleSkip}
-style={circleBtn}
->
-✕
-</button>
-
-<button
-onClick={handleLike}
-style={{
-...circleBtn,
-width:"90px",
-height:"90px",
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
-color:"#fff",
-fontSize:"34px",
-boxShadow:"0 15px 35px rgba(41,121,255,.35)"
-}}
->
-❤
-</button>
-
-<button
-style={circleBtn}
->
-★
-</button>
-
-</div>
-
-<BottomNav/>
-
+      <BottomNav />
     </div>
   );
 }
-
-
-
-const topBtn={
-width:"52px",
-height:"52px",
-borderRadius:"50%",
-border:"none",
-background:"#fff",
-boxShadow:"0 8px 20px rgba(0,0,0,.06)",
-fontSize:"22px"
-} as const;
-
-
-const cardStyle={
-position:"absolute" as const,
-width:"100%",
-height:"100%",
-borderRadius:"34px",
-overflow:"hidden",
-background:"#fff",
-boxShadow:"0 25px 60px rgba(0,0,0,.12)"
-};
-
-
-const imgStyle={
-width:"100%",
-height:"68%",
-objectFit:"cover" as const
-};
-
-
-const infoPanel={
-background:"#fff",
-height:"32%",
-padding:"26px"
-};
-
-
-const tagStyle={
-padding:"10px 18px",
-background:"#EEF4FF",
-borderRadius:"30px",
-color:"#2979FF",
-fontSize:"14px"
-};
-
-
-const circleBtn={
-width:"72px",
-height:"72px",
-borderRadius:"50%",
-border:"none",
-background:"#fff",
-fontSize:"28px",
-boxShadow:"0 10px 25px rgba(0,0,0,.08)"
-} as const;
