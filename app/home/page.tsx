@@ -6,13 +6,16 @@ import BottomNav from "../../components/BottomNav";
 import { X, Heart, Sparkles } from "lucide-react";
 
 export default function Home() {
+  
 
 const [users,setUsers]=useState<any[]>([]);
 const [index,setIndex]=useState(0);
 const [photoIndex,setPhotoIndex]=useState(0);
 
+
 const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
+
 
 const [showMatch,setShowMatch]=useState(false);
 const [matchedUser,setMatchedUser]=useState<any>(null);
@@ -25,6 +28,7 @@ const startX=useRef(0);
 
 
 const currentUserId =
+
 typeof window !== "undefined" &&
 (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id
 ? Number(
@@ -65,54 +69,17 @@ setIndex(prev=>prev+1);
 }
 
 
-/* -------- FIXED MATCH LOGIC ONLY -------- */
 async function handleLike(){
 
 if(!currentUser) return;
 
-const likedUserId=currentUser.telegram_id;
+console.log("LIKE CLICKED");
 
-try{
-
-const { error:likeError } = await supabase
-.from("likes")
-.upsert(
-{
-from_user:currentUserId,
-to_user:likedUserId
-},
-{
-onConflict:"from_user,to_user"
-}
-);
-
-console.log("likeError:",likeError);
-
-const { data:rows,error:reverseError } = await supabase
-.from("likes")
-.select("id")
-.eq("from_user",likedUserId)
-.eq("to_user",currentUserId);
-
-console.log("rows:",rows);
-console.log("reverseError:",reverseError);
-
-if(rows && rows.length>0){
 setMatchedUser(currentUser);
 setShowMatch(true);
-return;
-}
-
-nextUser();
-
-}catch(e){
-
-console.error("handleLike error",e);
-nextUser();
 
 }
 
-}
 
 function handleSkip(){
 nextUser();
