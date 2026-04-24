@@ -660,54 +660,22 @@ marginBottom:38
 
 <button
 style={{
+marginTop:30,
 width:"82%",
 height:58,
-marginTop:30,
+display:"block",
+marginLeft:"auto",
+marginRight:"auto",
 border:"none",
 borderRadius:18,
-background:"linear-gradient(135deg,#42A5FF,#1976FF)",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-gap:16,
-padding:"0 24px"
-}}
->
-<div
-style={{
-width:34,
-height:34,
-borderRadius:"50%",
-background:"#fff",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-flexShrink:0
-}}
->
-<span
-style={{
-color:"#1976FF",
-fontSize:18,
-fontWeight:700,
-lineHeight:1
-}}
->
-✈
-</span>
-</div>
-
-<span
-style={{
+background:"linear-gradient(135deg,#49A8FF,#1976FF)",
 color:"#fff",
 fontSize:18,
 fontWeight:500,
-lineHeight:1
+fontFamily:"-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif"
 }}
 >
 Написать сообщение
-</span>
-
 </button>
 
 
