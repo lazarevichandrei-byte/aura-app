@@ -40,7 +40,7 @@ useEffect(()=>{
 async function loadUsers(){
 
 const {data}=await supabase
-.from("likes")
+.from("users")
 .select("*")
 .neq("telegram_id",currentUserId);
 
@@ -72,32 +72,38 @@ if(!currentUser) return;
 
 const likedUserId=currentUser.telegram_id;
 
+try{
 
-/* save like */
-const {error:likeError}=await supabase
+/* сохраняем лайк */
+const { error:likeError } = await supabase
 .from("likes")
-.insert({
+.upsert(
+{
 from_user:currentUserId,
 to_user:likedUserId
-});
+},
+{
+onConflict:"from_user,to_user"
+}
+);
 
 console.log("likeError",likeError);
 
 
-/* mutual check */
-const {data,error}=await supabase
+/* проверяем обратный лайк */
+const { data:reverseLike, error } = await supabase
 .from("likes")
 .select("*")
 .eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
 .maybeSingle();
 
-console.log("reverseLike",data);
-console.log("reverse error",error);
+console.log("reverseLike",reverseLike);
+console.log("reverseError",error);
 
 
-/* FOR TEST force match if reverse OR if query blocked */
-if(data || error){
+/* есть взаимный лайк */
+if(reverseLike){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
@@ -105,7 +111,17 @@ return;
 
 }
 
+/* пока нет */
 nextUser();
+
+}catch(e){
+
+console.error("MATCH ERROR",e);
+
+/* чтобы не было белого экрана */
+nextUser();
+
+}
 
 }
 /* -------- END FIX -------- */
@@ -467,7 +483,7 @@ strokeWidth={2.3}
 
 
 
-{showMatch && (
+{matchedUser && (
 <div
 style={{
 position:"fixed",
@@ -508,12 +524,13 @@ marginBottom:44
 </div>
 
 <img
-src={matchedUser?.avatar_url}
+src={matchedUser?.avatar_url || "/placeholder.jpg"}
 style={{
 width:118,
 height:118,
 borderRadius:"50%",
-border:"5px solid white"
+border:"5px solid white",
+objectFit:"cover"
 }}
 />
 
