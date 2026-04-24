@@ -319,27 +319,29 @@ fontSize:18
 
 
 
-{/* restored long photo gradient */}
+{/* SOFT WHITE FADE */}
 <div
 style={{
 position:"absolute",
 left:0,
 right:0,
 bottom:0,
-height:"62%",
+height:"34%",
 zIndex:5,
 pointerEvents:"none",
 
-background:
-"linear-gradient(to top,\
-#ffffff 0%,\
-rgba(255,255,255,.97) 20%,\
-rgba(255,255,255,.85) 42%,\
-rgba(255,255,255,.55) 62%,\
-rgba(255,255,255,.22) 82%,\
-rgba(255,255,255,0) 100%)",
+background:`
+linear-gradient(
+to top,
+rgba(255,255,255,1) 0%,
+rgba(255,255,255,.96) 22%,
+rgba(255,255,255,.78) 45%,
+rgba(255,255,255,.38) 70%,
+rgba(255,255,255,.08) 88%,
+rgba(255,255,255,0) 100%
+)`,
 
-filter:"blur(24px)"
+filter:"blur(16px)"
 }}
 />
 
