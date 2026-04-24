@@ -317,15 +317,7 @@ fontSize:18
 {photoIndex+1} / {photos.length}
 </div>
 
-<div
-style={{
-position:"absolute",
-left:30,
-right:30,
-bottom:26,
-zIndex:8
-}}
-></div>
+
 
 {/* bottom fog from very bottom */}
 <div
@@ -333,21 +325,22 @@ style={{
 position:"absolute",
 left:0,
 right:0,
-bottom:0,
-height:"60%",
+bottom:0,          // начинается С САМОГО НИЗА фото
+height:"%",      // доходит до надписей
 zIndex:5,
 pointerEvents:"none",
-
-background:
-"linear-gradient(to top,\
-#ffffff 0%,\
-#ffffff 40%,\
-rgba(255,255,255,.98) 55%,\
-rgba(255,255,255,.82) 70%,\
-rgba(255,255,255,.45) 86%,\
-rgba(255,255,255,0) 100%)",
-
-filter:"blur(24px)"
+background:`
+linear-gradient(
+to top,
+#ffffff 0%,
+rgba(255,255,255,.98) 18%,
+rgba(255,255,255,.92) 35%,
+rgba(255,255,255,.72) 55%,
+rgba(255,255,255,.42) 72%,
+rgba(255,255,255,.12) 88%,
+rgba(255,255,255,0) 100%
+)
+`
 }}
 />
 
