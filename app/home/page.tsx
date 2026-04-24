@@ -68,33 +68,36 @@ setIndex(prev=>prev+1);
 /* -------- FIXED MATCH LOGIC ONLY -------- */
 async function handleLike(){
 
-if (!currentUser) return;
+if(!currentUser) return;
 
-const likedUserId = currentUser.telegram_id;
+const likedUserId=currentUser.telegram_id;
 
-try {
+try{
 
-const { error: likeError } = await supabase
+const { error:likeError } = await supabase
 .from("likes")
-.insert({
-from_user: currentUserId,
-to_user: likedUserId
-});
+.upsert(
+{
+from_user:currentUserId,
+to_user:likedUserId
+},
+{
+onConflict:"from_user,to_user"
+}
+);
 
-console.log("likeError:", likeError);
+console.log("likeError:",likeError);
 
-
-const { data: rows, error: reverseError } = await supabase
+const { data:rows,error:reverseError } = await supabase
 .from("likes")
 .select("id")
-.eq("from_user", likedUserId)
-.eq("to_user", currentUserId);
+.eq("from_user",likedUserId)
+.eq("to_user",currentUserId);
 
-console.log("rows:", rows);
-console.log("reverseError:", reverseError);
+console.log("rows:",rows);
+console.log("reverseError:",reverseError);
 
-
-if (rows && rows.length > 0) {
+if(rows && rows.length>0){
 setMatchedUser(currentUser);
 setShowMatch(true);
 return;
@@ -102,9 +105,9 @@ return;
 
 nextUser();
 
-} catch (e) {
+}catch(e){
 
-console.error("handleLike error", e);
+console.error("handleLike error",e);
 nextUser();
 
 }
