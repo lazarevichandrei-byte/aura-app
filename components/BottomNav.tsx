@@ -8,7 +8,7 @@ export default function BottomNav(){
 const router = useRouter();
 const pathname = usePathname();
 
-const itemStyle=(active:boolean)=>({
+const itemStyle = (active:boolean)=>({
 flex:1,
 height:"100%",
 display:"flex",
@@ -18,12 +18,11 @@ alignItems:"center",
 gap:5,
 fontSize:11,
 fontWeight:500,
-color:active ? "#2F80FF" : "#A7ADB8",
+color: active ? "#2F80FF" : "#A7ADB8",
 cursor:"pointer"
 });
 
 return(
-
 <div
 style={{
 position:"fixed",
@@ -60,7 +59,7 @@ style={itemStyle(pathname==="/discover")}
 
 <div
 onClick={()=>router.push("/home/chats")}
-style={itemStyle(pathname==="/home/chats")}
+style={itemStyle(pathname.startsWith("/home/chats"))}
 >
 <Heart size={28}/>
 Чаты
@@ -76,7 +75,6 @@ style={itemStyle(pathname==="/profile")}
 </div>
 
 </div>
-
 )
 
 }
