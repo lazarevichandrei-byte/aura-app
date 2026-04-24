@@ -389,8 +389,8 @@ borderRadius:"50%",
 border:"none",
 
 background:likePressed
-?"linear-gradient(135deg,#FF5E73,#FF304F)"
-:"linear-gradient(135deg,#3D8BFF 0%,#0A6CFF 100%)",
+? "linear-gradient(135deg,#FF5E73,#FF304F)"
+: "linear-gradient(135deg,#4FACFE,#2979FF)",
 
 transform:likePressed
 ?"scale(1.09)"
@@ -403,8 +403,8 @@ justifyContent:"center",
 alignItems:"center",
 
 boxShadow:likePressed
-?"0 14px 34px rgba(255,64,100,.42)"
-:"0 14px 34px rgba(32,111,255,.38)"
+? "0 14px 34px rgba(255,64,100,.42)"
+: "0 12px 28px rgba(41,121,255,.35)"
 }}
 >
 <Heart
