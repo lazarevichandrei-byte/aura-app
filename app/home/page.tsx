@@ -445,21 +445,16 @@ width:72,
 height:72,
 borderRadius:"50%",
 border:"none",
-
 background:skipPressed
 ? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
 :"#fff",
-
 transform:skipPressed
 ?"scale(1.08)"
 :"scale(1)",
-
 transition:"all .18s ease",
-
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-
 boxShadow:skipPressed
 ?"0 12px 30px rgba(255,95,162,.35)"
 :"0 10px 30px rgba(0,0,0,.06)"
@@ -533,7 +528,6 @@ width:72,
 height:72,
 borderRadius:"50%",
 border:"none",
-
 background:boostPressed
 ? "linear-gradient(135deg,#FFD95A,#FFB800)"
 :"#fff",
@@ -569,118 +563,126 @@ strokeWidth={2.3}
 style={{
 position:"fixed",
 inset:0,
-background:"rgba(12,22,50,.45)",
-backdropFilter:"blur(10px)",
+zIndex:9999,
+background:
+"linear-gradient(180deg,#0E1734 0%,#122A66 100%)",
 display:"flex",
-alignItems:"center",
 justifyContent:"center",
-zIndex:9999
+alignItems:"center"
 }}
 >
 
 <div
 style={{
-width:"90%",
-maxWidth:380,
-background:"#fff",
-borderRadius:34,
+width:"100%",
+maxWidth:420,
 padding:"34px 28px",
-textAlign:"center",
-boxShadow:"0 30px 60px rgba(0,0,0,.14)"
+textAlign:"center"
 }}
 >
+
+<div
+style={{
+fontSize:42,
+fontWeight:800,
+color:"#fff",
+marginBottom:12,
+animation:"pulse 1.3s infinite"
+}}
+>
+✨ Aura Sync
+</div>
+
+
+<div
+style={{
+color:"rgba(255,255,255,.85)",
+fontSize:18,
+marginBottom:44
+}}
+>
+Ваши ауры совпали
+</div>
+
+
 
 <div
 style={{
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-marginBottom:26
+marginBottom:44
 }}
 >
 
 <img
 src={matchedUser?.avatar_url}
 style={{
-width:88,
-height:88,
+width:118,
+height:118,
 borderRadius:"50%",
 objectFit:"cover",
-border:"4px solid #67A8FF"
+border:"5px solid white",
+boxShadow:"0 0 35px rgba(79,172,254,.45)"
 }}
 />
 
+
 <div
 style={{
-margin:"0 -12px",
-width:44,
-height:44,
+margin:"0 -22px",
+width:62,
+height:62,
 borderRadius:"50%",
 background:
 "linear-gradient(135deg,#4FACFE,#2979FF)",
 display:"flex",
-alignItems:"center",
 justifyContent:"center",
+alignItems:"center",
 color:"#fff",
-fontSize:20,
-zIndex:2
+fontSize:30,
+boxShadow:"0 0 35px rgba(79,172,254,.5)",
+zIndex:2,
+animation:"pulse 1.2s infinite"
 }}
 >
 ❤
 </div>
 
+
 <img
 src={matchedUser?.avatar_url}
 style={{
-width:88,
-height:88,
+width:118,
+height:118,
 borderRadius:"50%",
 objectFit:"cover",
-border:"4px solid #67A8FF"
+border:"5px solid white",
+boxShadow:"0 0 35px rgba(79,172,254,.45)"
 }}
 />
 
 </div>
 
 
-<h2
-style={{
-margin:0,
-fontSize:30,
-fontWeight:700
-}}
->
-✨ Aura Sync
-</h2>
-
-
-<p
-style={{
-marginTop:12,
-marginBottom:28,
-color:"#667085",
-lineHeight:1.5
-}}
->
-Вы почувствовали одну энергию
-</p>
-
 
 <button
 style={{
 width:"100%",
-height:58,
+height:64,
 border:"none",
-borderRadius:18,
+borderRadius:22,
 background:
 "linear-gradient(135deg,#4FACFE,#2979FF)",
 color:"#fff",
-fontWeight:600,
-fontSize:17
+fontSize:18,
+fontWeight:700,
+boxShadow:"0 14px 30px rgba(41,121,255,.35)"
 }}
 >
 Начать диалог
 </button>
+
 
 
 <button
@@ -689,19 +691,29 @@ setShowMatch(false);
 nextUser();
 }}
 style={{
-marginTop:12,
+marginTop:14,
 width:"100%",
-height:58,
-borderRadius:18,
-background:"#fff",
-border:"2px solid #66A8FF",
-color:"#2F80FF",
-fontWeight:600,
-fontSize:17
+height:64,
+borderRadius:22,
+background:"transparent",
+border:"2px solid rgba(255,255,255,.75)",
+color:"#fff",
+fontWeight:700,
+fontSize:18
 }}
 >
 Продолжить поиск
 </button>
+
+
+
+<style jsx>{`
+@keyframes pulse{
+0%{transform:scale(1);}
+50%{transform:scale(1.08);}
+100%{transform:scale(1);}
+}
+`}</style>
 
 </div>
 
