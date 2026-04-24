@@ -66,7 +66,7 @@ setIndex(prev=>prev+1);
 
 
 /* -------- FIXED MATCH LOGIC ONLY -------- */
-async function handleLike() {
+async function handleLike(){
 
 if (!currentUser) return;
 
