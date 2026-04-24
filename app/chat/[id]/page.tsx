@@ -1,35 +1,28 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Phone, Video, Send } from "lucide-react";
 
-export default function ChatPage() {
+export default function ChatPage(){
 const router = useRouter();
 
-return (
-<div
-style={{
+return(
+<div style={{
 height:"100vh",
-background:"#FFFFFF",
+background:"#fff",
 display:"flex",
 flexDirection:"column",
-fontFamily:"-apple-system,BlinkMacSystemFont,Inter,sans-serif"
-}}
->
+fontFamily:"-apple-system, Inter, sans-serif"
+}}>
 
 {/* HEADER */}
-<div
-style={{
+<div style={{
 height:82,
-padding:"0 18px",
 display:"flex",
 alignItems:"center",
 justifyContent:"space-between",
-borderBottom:"1px solid #F1F1F4",
-background:"#fff",
-flexShrink:0
-}}
->
+padding:"0 18px",
+borderBottom:"1px solid #eef1f5"
+}}>
 
 <div style={{
 display:"flex",
@@ -38,19 +31,20 @@ gap:14
 }}>
 <div
 onClick={()=>router.back()}
-style={{cursor:"pointer"}}
+style={{
+fontSize:30,
+cursor:"pointer"
+}}
 >
-<ArrowLeft size={28}/>
+←
 </div>
 
-<div style={{
-position:"relative"
-}}>
+<div style={{position:"relative"}}>
 <img
 src="/girl1.jpg"
 style={{
-width:46,
-height:46,
+width:48,
+height:48,
 borderRadius:"50%",
 objectFit:"cover"
 }}
@@ -62,9 +56,9 @@ right:2,
 bottom:2,
 width:11,
 height:11,
-background:"#32D74B",
 borderRadius:"50%",
-border:"2px solid #fff"
+background:"#32D74B",
+border:"2px solid white"
 }}/>
 </div>
 
@@ -80,161 +74,203 @@ fontWeight:700
 fontSize:13,
 color:"#2F80FF"
 }}>
-online now
+typing...
 </div>
 </div>
 </div>
-
 
 <div style={{
-display:"flex",
-gap:16
+fontSize:24
 }}>
-<Phone size={22}/>
-<Video size={22}/>
+📞
 </div>
 
 </div>
 
 
-{/* MESSAGES */}
-<div
-style={{
+
+{/* CHAT */}
+<div style={{
 flex:1,
 overflowY:"auto",
-padding:"30px 16px 20px",
-background:
-"linear-gradient(to bottom,#ffffff,#fafcff)"
-}}
->
+padding:"28px 16px",
+background:"linear-gradient(to bottom,#fff,#fafcff)"
+}}>
 
 <div style={{
 textAlign:"center",
 fontSize:13,
-color:"#9CA3AF",
+color:"#A0A5AF",
 marginBottom:28
 }}>
-Сегодня 18:42
+Сегодня
 </div>
 
 
+<div style={{marginBottom:18}}>
 <div style={{
-display:"flex",
-marginBottom:18
-}}>
-<div
-style={{
+display:"inline-block",
 background:"#F2F4F8",
 padding:"14px 18px",
-borderRadius:"22px 22px 22px 8px",
-maxWidth:"74%",
+borderRadius:"24px 24px 24px 8px",
 fontSize:17,
-lineHeight:1.35
-}}
->
+maxWidth:"76%"
+}}>
 Привет 😊 Как проходит вечер?
 </div>
 </div>
 
 
-
-<div style={{
+<div
+style={{
 display:"flex",
 justifyContent:"flex-end",
 marginBottom:18
-}}>
-<div
-style={{
+}}
+>
+<div>
+<div style={{
 background:
 "linear-gradient(135deg,#57A7FF,#1D74FF)",
 color:"#fff",
 padding:"14px 18px",
-borderRadius:"22px 22px 8px 22px",
-maxWidth:"74%",
-fontSize:17,
-lineHeight:1.35,
-boxShadow:"0 6px 16px rgba(47,128,255,.20)"
-}}
->
+borderRadius:"24px 24px 8px 24px",
+fontSize:17
+}}>
 Очень хорошо, а у тебя?
 </div>
-</div>
-
-
 
 <div style={{
-display:"flex",
-marginBottom:18
+fontSize:12,
+marginTop:6,
+textAlign:"right",
+color:"#94A0B4"
 }}>
-<div
-style={{
+Seen ✓✓
+</div>
+
+</div>
+</div>
+
+
+
+<div style={{marginBottom:18}}>
+<div style={{
+display:"inline-block",
 background:"#F2F4F8",
 padding:"14px 18px",
-borderRadius:"22px 22px 22px 8px",
-maxWidth:"74%",
-fontSize:17
+borderRadius:"24px 24px 24px 8px"
+}}>
+Смотри фото 👇
+</div>
+</div>
+
+
+<img
+src="/girl2.jpg"
+style={{
+width:220,
+borderRadius:22,
+marginBottom:22,
+display:"block"
+}}
+/>
+
+
+
+<div
+style={{
+display:"flex",
+justifyContent:"flex-end",
+marginBottom:24
 }}
 >
-Может завтра кофе? ☕
+<div style={{
+background:"#EDF5FF",
+padding:"14px 20px",
+borderRadius:30,
+display:"flex",
+alignItems:"center",
+gap:12
+}}>
+▶️
+
+<div style={{
+width:100,
+height:4,
+background:"#BCD8FF",
+borderRadius:20
+}}/>
+
+0:14
 </div>
 </div>
+
+
+{/* typing dots */}
+<div style={{
+display:"inline-flex",
+gap:7,
+background:"#F2F4F8",
+padding:"14px 18px",
+borderRadius:25
+}}>
+<div>●</div>
+<div>●</div>
+<div>●</div>
+</div>
+
 
 </div>
 
 
 
 {/* INPUT */}
-<div
-style={{
+<div style={{
 padding:"14px 14px 24px",
-borderTop:"1px solid #F2F2F4",
-background:"#fff"
-}}
->
-
-<div
-style={{
+borderTop:"1px solid #eef1f5"
+}}>
+<div style={{
 height:56,
 borderRadius:30,
 background:"#F3F5F9",
 display:"flex",
 alignItems:"center",
 justifyContent:"space-between",
-padding:"0 8px 0 18px"
-}}
->
+padding:"0 18px"
+}}>
 
 <div style={{
-color:"#A0A6B3",
+display:"flex",
+gap:12,
+color:"#9CA3AF"
+}}>
+📷 🎤
+</div>
+
+<div style={{
+color:"#9CA3AF",
 fontSize:17
 }}>
 Сообщение...
 </div>
 
-
-<div
-style={{
-width:42,
-height:42,
+<div style={{
+width:40,
+height:40,
 borderRadius:"50%",
-background:
-"linear-gradient(135deg,#57A7FF,#1D74FF)",
+background:"#2F80FF",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-boxShadow:"0 4px 12px rgba(47,128,255,.25)"
-}}
->
-<Send
-size={18}
-color="white"
-/>
+color:"#fff"
+}}>
+➤
 </div>
 
 </div>
-
 </div>
 
 </div>
-);
+)
 }
