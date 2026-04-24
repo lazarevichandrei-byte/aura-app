@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -15,11 +14,9 @@ const [photoIndex,setPhotoIndex]=useState(0);
 const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
 
-/* Aura Sync */
 const [showMatch,setShowMatch]=useState(false);
 const [matchedUser,setMatchedUser]=useState<any>(null);
 
-/* button glow states */
 const [skipPressed,setSkipPressed]=useState(false);
 const [likePressed,setLikePressed]=useState(false);
 const [boostPressed,setBoostPressed]=useState(false);
@@ -45,9 +42,7 @@ if(data) setUsers(data);
 
 }
 
-
 const currentUser=users[index];
-
 
 const photos=
 currentUser?.photos?.length
@@ -57,7 +52,6 @@ currentUser?.photos?.length
 : [];
 
 
-
 function nextUser(){
 setPhotoIndex(0);
 setDragX(0);
@@ -65,8 +59,7 @@ setIndex(prev=>prev+1);
 }
 
 
-
-/* LIKE + MATCH */
+/* -------- FIXED MATCH LOGIC ONLY -------- */
 async function handleLike(){
 
 if(!currentUser) return;
@@ -74,23 +67,36 @@ if(!currentUser) return;
 const likedUserId=currentUser.telegram_id;
 
 
+/* safe like insert (без дублей не ломается) */
 await supabase
 .from("likes")
-.insert({
+.upsert(
+{
 from_user:currentUserId,
 to_user:likedUserId
-});
+},
+{
+onConflict:"from_user,to_user"
+}
+);
 
 
+/* mutual like check */
 const {data:reverseLike}=await supabase
 .from("likes")
-.select("*")
+.select("id")
 .eq("from_user",likedUserId)
 .eq("to_user",currentUserId)
+.limit(1)
 .maybeSingle();
 
 
+console.log("ME",currentUserId);
+console.log("TARGET",likedUserId);
+console.log("REVERSE",reverseLike);
 
+
+/* mutual like found */
 if(reverseLike){
 
 const user1=Math.min(
@@ -104,14 +110,17 @@ likedUserId
 );
 
 
+/* check existing match */
 const {data:existingMatch}=await supabase
 .from("matches")
-.select("*")
+.select("id")
 .eq("user1",user1)
 .eq("user2",user2)
+.limit(1)
 .maybeSingle();
 
 
+/* create only if absent */
 if(!existingMatch){
 
 await supabase
@@ -121,18 +130,22 @@ user1,
 user2
 });
 
+}
+
+
+/* ALWAYS SHOW MATCH POPUP */
 setMatchedUser(currentUser);
 setShowMatch(true);
 
 return;
 }
 
-}
 
+/* no mutual like */
 nextUser();
 
 }
-
+/* -------- END FIX -------- */
 
 
 function handleSkip(){
@@ -175,10 +188,6 @@ return;
 setDragX(0);
 
 }
-
-
-
-/* PHOTO TAP */
 function changePhoto(e:any){
 
 if(!photos.length) return;
@@ -186,28 +195,13 @@ if(!photos.length) return;
 const rect=e.currentTarget.getBoundingClientRect();
 const x=e.clientX-rect.left;
 
-
 if(x<rect.width/2){
-
-setPhotoIndex(p=>
-p===0
-? photos.length-1
-: p-1
-);
-
+setPhotoIndex(p=>p===0 ? photos.length-1 : p-1);
 }else{
-
-setPhotoIndex(p=>
-p===photos.length-1
-? 0
-: p+1
-);
-
+setPhotoIndex(p=>p===photos.length-1 ? 0 : p+1);
 }
 
 }
-
-
 
 return(
 <div
@@ -232,53 +226,15 @@ height:"66vh",
 borderRadius:36,
 overflow:"hidden",
 background:"#fff",
-
-boxShadow:
-"0 10px 30px rgba(0,0,0,.06)",
-
+boxShadow:"0 10px 30px rgba(0,0,0,.06)",
 transform:dragging
 ?`translateX(${dragX}px) rotate(${dragX/24}deg)`
 :`translateX(${dragX}px)`,
-
 transition:dragging
 ?"none"
 :"all .28s cubic-bezier(.2,.8,.2,1)"
 }}
 >
-
-{dragX>35 &&(
-<div style={{
-position:"absolute",
-top:85,
-right:35,
-zIndex:20,
-border:"3px solid #2F80FF",
-color:"#2F80FF",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(12deg)"
-}}>
-LIKE
-</div>
-)}
-
-{dragX<-35 &&(
-<div style={{
-position:"absolute",
-top:85,
-left:35,
-zIndex:20,
-border:"3px solid #ff6a6a",
-color:"#ff6a6a",
-padding:"10px 18px",
-borderRadius:14,
-fontWeight:700,
-transform:"rotate(-12deg)"
-}}>
-NOPE
-</div>
-)}
 
 <img
 src={photos[photoIndex]}
@@ -309,13 +265,11 @@ background:"rgba(80,80,80,.45)",
 backdropFilter:"blur(10px)",
 padding:"12px 18px",
 borderRadius:18,
-color:"#fff",
-fontSize:18
+color:"#fff"
 }}
 >
 {photoIndex+1} / {photos.length}
 </div>
-
 
 
 <div
@@ -327,7 +281,6 @@ bottom:0,
 height:"55%",
 zIndex:4,
 pointerEvents:"none",
-
 background:`
 linear-gradient(
 to top,
@@ -336,12 +289,12 @@ rgba(255,255,255,.98) 18%,
 rgba(255,255,255,.92) 35%,
 rgba(255,255,255,.72) 55%,
 rgba(255,255,255,.42) 72%,
-rgba(255,255,255,.12) 88%,
 rgba(255,255,255,0) 100%
 )
 `
 }}
 />
+
 <div
 style={{
 position:"absolute",
@@ -352,23 +305,15 @@ zIndex:8
 }}
 >
 
-<h2
-style={{
-margin:0,
-fontSize:18,
-fontWeight:600
-}}
->
+<h2 style={{margin:0,fontSize:18,fontWeight:600}}>
 {currentUser.name}, {currentUser.age}
 </h2>
 
-<div
-style={{
+<div style={{
 marginTop:4,
 fontSize:13,
 color:"#70717C"
-}}
->
+}}>
 📍 {currentUser.city}, 2 км от вас
 </div>
 
@@ -393,11 +338,7 @@ gap:8
 >
 {(
 currentUser.interests || [
-"Путешествия",
-"Музыка",
-"Спорт",
-"Кино",
-"Фото"
+"Путешествия","Музыка","Спорт","Кино","Фото"
 ]
 ).map((tag:string)=>(
 <div
@@ -416,11 +357,7 @@ fontSize:11.5
 </div>
 
 </div>
-
 </div>
-
-
-
 <div
 style={{
 marginTop:24,
@@ -434,12 +371,10 @@ gap:26
 <button
 onClick={()=>{
 setSkipPressed(true);
-
 setTimeout(()=>{
 setSkipPressed(false);
 handleSkip();
 },180);
-
 }}
 style={{
 width:72,
@@ -449,9 +384,7 @@ border:"none",
 background:skipPressed
 ? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
 :"#fff",
-transform:skipPressed
-?"scale(1.08)"
-:"scale(1)",
+transform:skipPressed?"scale(1.08)":"scale(1)",
 transition:"all .18s ease",
 display:"flex",
 justifyContent:"center",
@@ -469,37 +402,27 @@ strokeWidth={2.6}
 </button>
 
 
-
 <button
 onClick={()=>{
 setLikePressed(true);
-
 setTimeout(()=>{
 setLikePressed(false);
 handleLike();
 },180);
-
 }}
 style={{
 width:92,
 height:92,
 borderRadius:"50%",
 border:"none",
-
 background:likePressed
 ? "linear-gradient(135deg,#FF5E73,#FF304F)"
-: "linear-gradient(135deg,#4FACFE,#2979FF)",
-
-transform:likePressed
-?"scale(1.09)"
-:"scale(1)",
-
+:"linear-gradient(135deg,#4FACFE,#2979FF)",
+transform:likePressed?"scale(1.09)":"scale(1)",
 transition:"all .18s ease",
-
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-
 boxShadow:likePressed
 ?"0 14px 34px rgba(255,64,100,.42)"
 :"0 12px 28px rgba(41,121,255,.35)"
@@ -514,15 +437,10 @@ strokeWidth={2.5}
 </button>
 
 
-
 <button
 onClick={()=>{
 setBoostPressed(true);
-
-setTimeout(()=>{
-setBoostPressed(false);
-},180);
-
+setTimeout(()=>setBoostPressed(false),180);
 }}
 style={{
 width:72,
@@ -532,17 +450,11 @@ border:"none",
 background:boostPressed
 ? "linear-gradient(135deg,#FFD95A,#FFB800)"
 :"#fff",
-
-transform:boostPressed
-?"scale(1.08)"
-:"scale(1)",
-
+transform:boostPressed?"scale(1.08)":"scale(1)",
 transition:"all .18s ease",
-
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-
 boxShadow:boostPressed
 ?"0 12px 30px rgba(255,196,0,.35)"
 :"0 10px 30px rgba(0,0,0,.06)"
@@ -565,14 +477,12 @@ style={{
 position:"fixed",
 inset:0,
 zIndex:9999,
-background:
-"linear-gradient(180deg,#0E1734 0%,#122A66 100%)",
+background:"linear-gradient(180deg,#0E1734 0%,#122A66 100%)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center"
 }}
 >
-
 <div
 style={{
 width:"100%",
@@ -581,110 +491,49 @@ padding:"34px 28px",
 textAlign:"center"
 }}
 >
-
 <div
 style={{
 fontSize:42,
 fontWeight:800,
-color:"#fff",
-marginBottom:12,
-animation:"pulse 1.3s infinite"
+color:"#fff"
 }}
 >
 ✨ Aura Sync
 </div>
 
-
 <div
 style={{
 color:"rgba(255,255,255,.85)",
-fontSize:18,
+marginTop:12,
 marginBottom:44
 }}
 >
 Ваши ауры совпали
 </div>
 
-
-
-<div
-style={{
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-marginBottom:44
-}}
->
-
 <img
 src={matchedUser?.avatar_url}
 style={{
 width:118,
 height:118,
 borderRadius:"50%",
-objectFit:"cover",
-border:"5px solid white",
-boxShadow:"0 0 35px rgba(79,172,254,.45)"
+border:"5px solid white"
 }}
 />
-
-
-<div
-style={{
-margin:"0 -22px",
-width:62,
-height:62,
-borderRadius:"50%",
-background:
-"linear-gradient(135deg,#4FACFE,#2979FF)",
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-color:"#fff",
-fontSize:30,
-boxShadow:"0 0 35px rgba(79,172,254,.5)",
-zIndex:2,
-animation:"pulse 1.2s infinite"
-}}
->
-❤
-</div>
-
-
-<img
-src={matchedUser?.avatar_url}
-style={{
-width:118,
-height:118,
-borderRadius:"50%",
-objectFit:"cover",
-border:"5px solid white",
-boxShadow:"0 0 35px rgba(79,172,254,.45)"
-}}
-/>
-
-</div>
-
-
 
 <button
 style={{
 width:"100%",
 height:64,
+marginTop:34,
 border:"none",
 borderRadius:22,
-background:
-"linear-gradient(135deg,#4FACFE,#2979FF)",
-color:"#fff",
-fontSize:18,
-fontWeight:700,
-boxShadow:"0 14px 30px rgba(41,121,255,.35)"
+background:"linear-gradient(135deg,#4FACFE,#2979FF)",
+color:"#fff"
 }}
 >
 Начать диалог
 </button>
-
-
 
 <button
 onClick={()=>{
@@ -695,29 +544,13 @@ style={{
 marginTop:14,
 width:"100%",
 height:64,
-borderRadius:22,
-background:"transparent",
-border:"2px solid rgba(255,255,255,.75)",
-color:"#fff",
-fontWeight:700,
-fontSize:18
+borderRadius:22
 }}
 >
 Продолжить поиск
 </button>
 
-
-
-<style jsx>{`
-@keyframes pulse{
-0%{transform:scale(1);}
-50%{transform:scale(1.08);}
-100%{transform:scale(1);}
-}
-`}</style>
-
 </div>
-
 </div>
 )}
 
