@@ -104,19 +104,14 @@ if(rows && rows.length>0){
 
 setMatchedUser(currentUser);
 setShowMatch(true);
-
-/* обнуляем оба лайка */
+/* обнуляем лайки после мэтча */
 await supabase
 .from("likes")
 .delete()
-.eq("from_user",currentUserId)
-.eq("to_user",likedUserId);
-
-await supabase
-.from("likes")
-.delete()
-.eq("from_user",likedUserId)
-.eq("to_user",currentUserId);
+.or(
+`and(from_user.eq.${currentUserId},to_user.eq.${likedUserId}),
+and(from_user.eq.${likedUserId},to_user.eq.${currentUserId})`
+);
 
 return;
 }
@@ -478,15 +473,13 @@ strokeWidth={2.3}
 
 </div>
 
-
-
-{showMatch && (
+{showMatch && matchedUser && (
 <div
 style={{
 position:"fixed",
 inset:0,
 zIndex:9999,
-background:"linear-gradient(180deg,#0E1734 0%,#122A66 100%)",
+background:"linear-gradient(180deg,#0B1535 0%,#163B8F 100%)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center"
@@ -495,16 +488,18 @@ alignItems:"center"
 <div
 style={{
 width:"100%",
-maxWidth:420,
-padding:"34px 28px",
+maxWidth:"420px",
+padding:"34px 30px",
 textAlign:"center"
 }}
 >
+
 <div
 style={{
-fontSize:42,
+fontSize:"46px",
 fontWeight:800,
-color:"#fff"
+color:"#fff",
+marginBottom:"14px"
 }}
 >
 ✨ Aura Sync
@@ -512,38 +507,103 @@ color:"#fff"
 
 <div
 style={{
+fontSize:"18px",
 color:"rgba(255,255,255,.85)",
-marginTop:12,
-marginBottom:44
+marginBottom:"50px"
 }}
 >
 Ваши ауры совпали
 </div>
 
-<img
-src={matchedUser?.avatar_url || "/placeholder.jpg"}
+
+<div
 style={{
-width:118,
-height:118,
+display:"flex",
+justifyContent:"center",
+alignItems:"center"
+}}
+>
+
+<img
+src="/me.jpg"
+alt=""
+style={{
+width:"140px",
+height:"140px",
 borderRadius:"50%",
+objectFit:"cover",
 border:"5px solid white",
-objectFit:"cover"
+boxShadow:"0 14px 35px rgba(0,0,0,.25)"
 }}
 />
+
+<div
+style={{
+margin:"0 -18px",
+width:"78px",
+height:"78px",
+borderRadius:"50%",
+background:"linear-gradient(135deg,#4FACFE,#2979FF)",
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+zIndex:2,
+boxShadow:"0 12px 30px rgba(41,121,255,.45)"
+}}
+>
+<Heart
+size={38}
+fill="white"
+stroke="white"
+/>
+</div>
+
+<img
+src={matchedUser.avatar_url || "/placeholder.jpg"}
+alt=""
+style={{
+width:"140px",
+height:"140px",
+borderRadius:"50%",
+objectFit:"cover",
+border:"5px solid white",
+boxShadow:"0 14px 35px rgba(0,0,0,.25)"
+}}
+/>
+
+</div>
+
+
+<div
+style={{
+marginTop:"34px",
+fontSize:"21px",
+fontWeight:500,
+color:"#fff",
+lineHeight:1.45
+}}
+>
+Ты и {matchedUser.name} понравились друг другу 💙
+</div>
+
 
 <button
 style={{
 width:"100%",
-height:64,
-marginTop:34,
+height:"66px",
+marginTop:"42px",
 border:"none",
-borderRadius:22,
+borderRadius:"24px",
 background:"linear-gradient(135deg,#4FACFE,#2979FF)",
-color:"#fff"
+color:"#fff",
+fontSize:"22px",
+fontWeight:600,
+boxShadow:"0 14px 35px rgba(41,121,255,.42)"
 }}
 >
-Начать диалог
+✈ Начать диалог
 </button>
+
 
 <button
 onClick={()=>{
@@ -551,10 +611,14 @@ setShowMatch(false);
 nextUser();
 }}
 style={{
-marginTop:14,
+marginTop:"16px",
 width:"100%",
-height:64,
-borderRadius:22
+height:"64px",
+borderRadius:"24px",
+background:"transparent",
+border:"2px solid rgba(255,255,255,.35)",
+color:"#fff",
+fontSize:"20px"
 }}
 >
 Продолжить поиск
@@ -563,7 +627,6 @@ borderRadius:22
 </div>
 </div>
 )}
-
 </>
 )}
 
