@@ -268,29 +268,28 @@ fontSize:18
 >
 {photoIndex+1} / {photos.length}
 </div>
-{/* TRUE TINDER FOG FROM BOTTOM */}
+{/* PHOTO TO WHITE GRADIENT */}
 <div
 style={{
 position:"absolute",
 left:0,
 right:0,
-bottom:0,
-height:"30%",
+bottom:0,          // начинается С САМОГО НИЗА фото
+height:"42%",      // доходит до надписей
 zIndex:5,
 pointerEvents:"none",
 background:`
 linear-gradient(
 to top,
-rgba(255,255,255,1) 0%,
-rgba(255,255,255,.99) 18%,
-rgba(255,255,255,.95) 34%,
-rgba(255,255,255,.78) 54%,
-rgba(255,255,255,.46) 72%,
-rgba(255,255,255,.16) 88%,
+#ffffff 0%,
+rgba(255,255,255,.98) 18%,
+rgba(255,255,255,.92) 35%,
+rgba(255,255,255,.72) 55%,
+rgba(255,255,255,.42) 72%,
+rgba(255,255,255,.12) 88%,
 rgba(255,255,255,0) 100%
 )
-`,
-filter:"blur(22px)"
+`
 }}
 />
 
