@@ -16,8 +16,10 @@ const userId =
 "11111111-1111-1111-1111-111111111111";
 
 
-const [messages,setMessages]=useState<any[]>([]);
-const [newMessage,setNewMessage]=useState("");
+const [messages,setMessages] = useState([]);
+const [newMessage,setNewMessage] = useState("");
+const [isTyping,setIsTyping] = useState(false);
+
 const [showScrollDown,setShowScrollDown] =
 useState(false);
 const endRef = useRef<any>(null);
@@ -259,6 +261,9 @@ typing...
 
 {/* CHAT */}
 <div
+onClick={()=>{
+(document.activeElement as HTMLElement)?.blur();
+}}
 onScroll={(e)=>{
 
 const el=e.currentTarget;
@@ -276,7 +281,9 @@ flex:1,
 overflowY:"auto",
 display:"flex",
 flexDirection:"column",
-padding:"20px 16px 165px",
+padding: isTyping
+? "20px 16px 165px"
+: "20px 16px 95px",
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
@@ -435,7 +442,7 @@ borderRadius:25
 
 </div>
 
-{showScrollDown && (
+
 <div
 onClick={() => scrollToBottom(true)}
 style={{
@@ -466,10 +473,10 @@ color:"#8C94A3",
 transform:"translateY(-1px)"
 }}
 >
-↓
+⌄
 </div>
 </div>
-)}
+
 
 {/* INPUT */}
 <div
@@ -501,9 +508,16 @@ paddingRight:10
 <input
 ref={inputRef}
 value={newMessage}
+onFocus={()=>setIsTyping(true)}
+onBlur={()=>setIsTyping(false)}
 onChange={(e)=>setNewMessage(e.target.value)}
 enterKeyHint="send"
-onKeyDown={()=>{}}
+onKeyDown={(e)=>{
+if(e.key==="Enter"){
+e.preventDefault();
+sendMessage();
+}
+}}
 
 autoComplete="off"
 autoCorrect="off"
@@ -537,7 +551,7 @@ background:"linear-gradient(135deg,#57A7FF,#1D74FF)",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:20,
+fontSize:24,
 color:"#fff",
 cursor:"pointer"
 }}
