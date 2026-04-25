@@ -49,17 +49,27 @@ useEffect(()=>{
 fetchMessages();
 },[chatId]);
 
+useEffect(()=>{
+
+setTimeout(()=>{
+scrollToBottom(false);
+},150);
+
+},[]);
+
 
 
 function scrollToBottom(
 smooth=true
 ){
 
-bottomRef.current?.scrollIntoView({
+if(!chatRef.current) return;
+
+chatRef.current.scrollTo({
+top:chatRef.current.scrollHeight,
 behavior:smooth
 ? "smooth"
-: "auto",
-block:"end"
+: "auto"
 });
 
 }
@@ -261,6 +271,7 @@ typing...
 
 {/* CHAT */}
 <div
+ref={chatRef}
 onClick={()=>{
 (document.activeElement as HTMLElement)?.blur();
 }}
@@ -279,12 +290,9 @@ setShowScrollDown(!nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-display:"flex",
-flexDirection:"column",
-paddingBottom: isTyping ? 260 : 95,
-paddingTop:20,
-paddingLeft:16,
-paddingRight:16,
+padding: isTyping
+? "20px 16px 140px"
+: "20px 16px 20px",
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
@@ -447,7 +455,7 @@ borderRadius:25
 <div
 onClick={() => scrollToBottom(true)}
 style={{
-position:"fixed",
+position:"relative",
 left:"50%",
 transform:"translateX(-50%)",
 bottom:96,
@@ -483,11 +491,6 @@ transform:"translateY(-1px)"
 <div
 id="chat-composer"
 style={{
-position:"fixed",
-left:0,
-right:0,
-bottom:"env(keyboard-inset-height,0px)",
-zIndex:100,
 padding:"12px 14px calc(12px + env(safe-area-inset-bottom))",
 background:"#fff",
 borderTop:"1px solid #eef1f5"
@@ -513,12 +516,9 @@ value={newMessage}
 onFocus={()=>{
 setIsTyping(true);
 
-/* дождаться подъема клавиатуры */
-requestAnimationFrame(()=>{
 setTimeout(()=>{
 scrollToBottom(false);
-},250);
-});
+},150);
 
 }}
 
