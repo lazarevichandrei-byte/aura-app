@@ -40,6 +40,10 @@ const { data,error } = await supabase
 
 if(!error && data){
 setMessages(data);
+
+setTimeout(()=>{
+scrollToBottom(false);
+},150);
 }
 
 }
@@ -49,11 +53,30 @@ useEffect(()=>{
 fetchMessages();
 },[chatId]);
 
+
 useEffect(()=>{
 
+if(isTyping){
+
+const timer=setInterval(()=>{
+scrollToBottom(false);
+},300);
+
+return ()=>{
+clearInterval(timer);
+};
+
+}
+
+},[isTyping]);
+
+
+
+
+useEffect(()=>{
 setTimeout(()=>{
 scrollToBottom(false);
-},150);
+},400);
 
 },[]);
 
