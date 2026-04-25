@@ -18,6 +18,7 @@ const userId =
 
 const [messages,setMessages]=useState<any[]>([]);
 const [newMessage,setNewMessage]=useState("");
+const endRef = useRef<any>(null);
 const bottomRef = useRef<HTMLDivElement | null>(null);
 const chatRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,6 +43,8 @@ setMessages(data);
 useEffect(()=>{
 fetchMessages();
 },[chatId]);
+
+
 
 function scrollToBottom(
 smooth=true
@@ -86,7 +89,13 @@ composer.style.transform=
 keyboardHeight>0
 ?`translateY(-${keyboardHeight}px)`
 :"translateY(0)";
+}
 
+if(chatRef.current){
+chatRef.current.style.paddingBottom =
+keyboardHeight > 0
+? `${keyboardHeight+90}px`
+: "100px";
 }
 
 setTimeout(()=>{
@@ -205,6 +214,7 @@ return(
 <div
 style={{
 height:"100dvh",
+overflow:"hidden",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
@@ -305,8 +315,10 @@ ref={chatRef}
 style={{
 flex:1,
 overflowY:"auto",
-padding:"28px 16px",
-paddingBottom:90,
+display:"flex",
+flexDirection:"column",
+justifyContent:"flex-end",
+padding:"28px 16px 100px",
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
@@ -451,17 +463,24 @@ borderRadius:25
 <div>●</div>
 </div>
 
+<div ref={bottomRef}/>
+<div ref={endRef}/>
 
 </div>
-<div ref={bottomRef} />
 
 
 {/* INPUT */}
 <div
 id="chat-composer"
 style={{
-padding:"12px 14px 22px",
-transition:"transform .25s ease",
+position:"fixed",
+left:0,
+right:0,
+bottom:0,
+zIndex:100,
+padding:"12px 14px calc(12px + env(safe-area-inset-bottom))",
+background:"#fff",
+borderTop:"1px solid #eef1f5"
 }}
 >
 <div
