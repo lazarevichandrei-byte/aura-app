@@ -74,7 +74,7 @@ async function sendMessage(){
 
 if(!newMessage.trim()) return;
 
-const {data,error}=await supabase
+const { data,error } = await supabase
 .from("messages")
 .insert({
 chat_id:chatId,
@@ -89,6 +89,15 @@ console.log(data,error);
 if(error){
 alert(error.message);
 return;
+}
+
+const createdMessage = data?.[0];
+
+if(createdMessage){
+setMessages(prev=>[
+...prev,
+createdMessage
+]);
 }
 
 setNewMessage("");
