@@ -290,9 +290,7 @@ setShowScrollDown(!nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-padding: isTyping
-? "20px 16px 140px"
-: "20px 16px 20px",
+padding:"20px 16px 20px",
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
