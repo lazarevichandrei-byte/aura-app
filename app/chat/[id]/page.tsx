@@ -21,6 +21,7 @@ const [newMessage,setNewMessage]=useState("");
 const endRef = useRef<any>(null);
 const bottomRef = useRef<HTMLDivElement | null>(null);
 const chatRef = useRef<HTMLDivElement | null>(null);
+const inputRef = useRef<HTMLInputElement | null>(null);
 
 
 
@@ -64,9 +65,7 @@ scrollToBottom(false);
 },[]);
 
 
-useEffect(()=>{
-scrollToBottom();
-},[messages]);
+
 
 useEffect(()=>{
 
@@ -181,6 +180,7 @@ optimisticMessage
 
 setTimeout(()=>{
 scrollToBottom(false);
+inputRef.current?.focus();
 },30);
 bottomRef.current?.scrollIntoView({
 behavior:"smooth"
@@ -317,8 +317,7 @@ flex:1,
 overflowY:"auto",
 display:"flex",
 flexDirection:"column",
-justifyContent:"flex-end",
-padding:"28px 16px 100px",
+padding:"20px 16px 100px",
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
@@ -372,7 +371,7 @@ borderRadius:"24px 24px 8px 24px"
 
 <div
 style={{
-fontSize:12,
+fontSize:11,
 marginTop:6,
 textAlign:"right",
 color:"#94A0B4"
@@ -414,13 +413,13 @@ background:mine
 ?"linear-gradient(135deg,#57A7FF,#1D74FF)"
 :"#F2F4F8",
 color:mine?"#fff":"#111",
-padding:"14px 18px",
+padding:"11px 15px",
 borderRadius:mine
 ?"24px 24px 8px 24px"
 :"24px 24px 24px 8px",
-fontSize:17,
-maxWidth:"72%",
-minWidth:120
+fontSize:16,
+maxWidth:"68%",
+minWidth:70
 }}
 >
 {msg.body}
@@ -429,7 +428,7 @@ minWidth:120
 {mine &&(
 <div
 style={{
-fontSize:12,
+fontSize:11,
 marginTop:6,
 textAlign:"right",
 color:"#94A0B4"
@@ -497,6 +496,7 @@ paddingRight:10
 >
 
 <input
+ref={inputRef}
 value={newMessage}
 onChange={(e)=>setNewMessage(e.target.value)}
 onKeyDown={(e)=>{
