@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -18,6 +18,7 @@ const userId =
 
 const [messages,setMessages]=useState<any[]>([]);
 const [newMessage,setNewMessage]=useState("");
+const bottomRef = useRef<HTMLDivElement | null>(null);
 
 
 
@@ -41,6 +42,11 @@ useEffect(()=>{
 fetchMessages();
 },[chatId]);
 
+useEffect(()=>{
+bottomRef.current?.scrollIntoView({
+behavior:"smooth"
+});
+},[messages]);
 
 useEffect(()=>{
 
@@ -91,14 +97,8 @@ alert(error.message);
 return;
 }
 
-const createdMessage = data?.[0];
 
-if(createdMessage){
-setMessages(prev=>[
-...prev,
-createdMessage
-]);
-}
+
 
 setNewMessage("");
 
@@ -109,7 +109,7 @@ setNewMessage("");
 return(
 <div
 style={{
-height:"100vh",
+height:"100dvh",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
@@ -210,6 +210,8 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"28px 16px",
+paddingBottom:90,
+WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
 >
@@ -309,7 +311,8 @@ borderRadius:mine
 ?"24px 24px 8px 24px"
 :"24px 24px 24px 8px",
 fontSize:17,
-maxWidth:"76%"
+maxWidth:"72%",
+minWidth:120
 }}
 >
 {msg.body}
@@ -353,15 +356,16 @@ borderRadius:25
 </div>
 
 </div>
-
+<div ref={bottomRef} />
 
 
 {/* INPUT */}
 <div
 style={{
+position:"sticky",
+bottom:0,
+zIndex:50,
 padding:"12px 14px 22px",
-borderTop:"1px solid #eef1f5",
-background:"#fff"
 }}
 >
 <div
