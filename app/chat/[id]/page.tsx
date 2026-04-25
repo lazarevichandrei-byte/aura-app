@@ -281,7 +281,7 @@ flex:1,
 overflowY:"auto",
 display:"flex",
 flexDirection:"column",
-paddingBottom: isTyping ? 210 : 95,
+paddingBottom: isTyping ? 260 : 95,
 paddingTop:20,
 paddingLeft:16,
 paddingRight:16,
@@ -509,15 +509,35 @@ paddingRight:10
 <input
 ref={inputRef}
 value={newMessage}
+
 onFocus={()=>{
 setIsTyping(true);
+
+/* дождаться подъема клавиатуры */
+requestAnimationFrame(()=>{
 setTimeout(()=>{
 scrollToBottom(false);
-},80);
+},250);
+});
+
 }}
-onBlur={()=>setIsTyping(false)}
-onChange={(e)=>setNewMessage(e.target.value)}
+
+onBlur={()=>{
+setIsTyping(false);
+}}
+
+onChange={(e)=>{
+setNewMessage(e.target.value);
+
+/* держим низ чата над клавиатурой */
+requestAnimationFrame(()=>{
+scrollToBottom(false);
+});
+
+}}
+
 enterKeyHint="send"
+
 onKeyDown={(e)=>{
 if(e.key==="Enter"){
 e.preventDefault();
