@@ -1,16 +1,15 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
-export default function ChatPage() {
-const router = useRouter();
-const params = useParams();
+export default function ChatPage(){
 
+const router = useRouter();
 
 const chatId =
-(params?.id as string) ||
 "22222222-2222-2222-2222-222222222222";
 
 const userId =
@@ -21,9 +20,11 @@ const [messages,setMessages]=useState<any[]>([]);
 const [newMessage,setNewMessage]=useState("");
 
 
+
+
 async function fetchMessages(){
 
-const {data,error}=await supabase
+const { data,error } = await supabase
 .from("messages")
 .select("*")
 .eq("chat_id",chatId)
