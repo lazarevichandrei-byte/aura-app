@@ -19,6 +19,7 @@ const userId =
 const [messages,setMessages]=useState<any[]>([]);
 const [newMessage,setNewMessage]=useState("");
 const bottomRef = useRef<HTMLDivElement | null>(null);
+const chatRef = useRef<HTMLDivElement | null>(null);
 
 
 
@@ -42,10 +43,26 @@ useEffect(()=>{
 fetchMessages();
 },[chatId]);
 
-useEffect(()=>{
+function scrollToBottom(
+smooth=true
+){
+
 bottomRef.current?.scrollIntoView({
-behavior:"smooth"
+behavior:smooth
+? "smooth"
+: "auto"
 });
+
+}
+
+
+useEffect(()=>{
+scrollToBottom(false);
+},[]);
+
+
+useEffect(()=>{
+scrollToBottom();
 },[messages]);
 
 useEffect(()=>{
@@ -72,9 +89,9 @@ keyboardHeight>0
 
 }
 
-bottomRef.current?.scrollIntoView({
-behavior:"smooth"
-});
+setTimeout(()=>{
+scrollToBottom(false);
+},50);
 
 };
 
@@ -84,7 +101,7 @@ handleKeyboard
 );
 
 return()=>{
-window.visualViewport?.removeEventListener(
+window.visualViewport.removeEventListener(
 "resize",
 handleKeyboard
 );
@@ -153,6 +170,9 @@ setMessages(prev=>[
 optimisticMessage
 ]);
 
+setTimeout(()=>{
+scrollToBottom(false);
+},30);
 bottomRef.current?.scrollIntoView({
 behavior:"smooth"
 });
@@ -281,6 +301,7 @@ typing...
 
 {/* CHAT */}
 <div
+ref={chatRef}
 style={{
 flex:1,
 overflowY:"auto",
@@ -429,6 +450,7 @@ borderRadius:25
 <div>●</div>
 <div>●</div>
 </div>
+
 
 </div>
 <div ref={bottomRef} />
