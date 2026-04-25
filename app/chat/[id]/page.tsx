@@ -271,7 +271,7 @@ const el=e.currentTarget;
 const nearBottom=
 el.scrollHeight-
 el.scrollTop-
-el.clientHeight < 120;
+el.clientHeight < 80;
 
 setShowScrollDown(!nearBottom);
 
@@ -281,9 +281,10 @@ flex:1,
 overflowY:"auto",
 display:"flex",
 flexDirection:"column",
-padding: isTyping
-? "20px 16px 165px"
-: "20px 16px 95px",
+paddingBottom: isTyping ? 210 : 95,
+paddingTop:20,
+paddingLeft:16,
+paddingRight:16,
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
@@ -442,7 +443,7 @@ borderRadius:25
 
 </div>
 
-
+{showScrollDown && (
 <div
 onClick={() => scrollToBottom(true)}
 style={{
@@ -476,7 +477,7 @@ transform:"translateY(-1px)"
 ⌄
 </div>
 </div>
-
+)}
 
 {/* INPUT */}
 <div
@@ -508,7 +509,12 @@ paddingRight:10
 <input
 ref={inputRef}
 value={newMessage}
-onFocus={()=>setIsTyping(true)}
+onFocus={()=>{
+setIsTyping(true);
+setTimeout(()=>{
+scrollToBottom(false);
+},80);
+}}
 onBlur={()=>setIsTyping(false)}
 onChange={(e)=>setNewMessage(e.target.value)}
 enterKeyHint="send"
