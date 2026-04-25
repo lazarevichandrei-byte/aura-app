@@ -19,6 +19,8 @@ const userId =
 const [messages,setMessages] = useState([]);
 const [newMessage,setNewMessage] = useState("");
 const [isTyping,setIsTyping] = useState(false);
+const [stickToBottom,setStickToBottom] =
+useState(true);
 
 const [showScrollDown,setShowScrollDown] =
 useState(false);
@@ -54,21 +56,7 @@ fetchMessages();
 },[chatId]);
 
 
-useEffect(()=>{
 
-if(isTyping){
-
-const timer=setInterval(()=>{
-scrollToBottom(false);
-},300);
-
-return ()=>{
-clearInterval(timer);
-};
-
-}
-
-},[isTyping]);
 
 
 
@@ -142,7 +130,13 @@ supabase.removeChannel(channel);
 };
 
 },[chatId]);
+useEffect(()=>{
 
+if(stickToBottom){
+scrollToBottom(false);
+}
+
+},[messages,stickToBottom]);
 
 async function sendMessage(){
 
@@ -308,6 +302,7 @@ el.scrollTop-
 el.clientHeight < 80;
 
 setShowScrollDown(!nearBottom);
+setStickToBottom(nearBottom);
 
 }}
 style={{
