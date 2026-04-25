@@ -9,22 +9,16 @@ export default function ChatPage() {
   const params = useParams();
 
   const chatId = (params?.id as string) || "demo-chat-id";
-
   const [messages, setMessages] = useState<any[]>([]);
-  const [userId, setUserId] = useState("");
-  const [newMessage, setNewMessage] = useState("");
+  const userId =
+  "11111111-1111-1111-1111-111111111111";
 
-  useEffect(() => {
-    async function getUser() {
-      const { data } = await supabase.auth.getUser();
+  const [newMessage, setNewMessage] = useState("");  
+ 
 
-      if (data.user) {
-        setUserId(data.user.id);
-      }
-    }
+  
 
-    getUser();
-  }, []);
+  
 
   async function fetchMessages() {
     const { data, error } = await supabase
