@@ -56,7 +56,8 @@ smooth=true
 bottomRef.current?.scrollIntoView({
 behavior:smooth
 ? "smooth"
-: "auto"
+: "auto",
+block:"end"
 });
 
 }
@@ -115,9 +116,7 @@ if(!newMessage.trim()) return;
 const text = newMessage;
 
 setNewMessage("");
-requestAnimationFrame(()=>{
-inputRef.current?.focus();
-});
+
 
 const optimisticMessage={
 id:Date.now(),
@@ -133,9 +132,7 @@ optimisticMessage
 
 scrollToBottom(false);
 
-bottomRef.current?.scrollIntoView({
-behavior:"smooth"
-});
+
 
 const { error }=
 await supabase
@@ -151,14 +148,7 @@ if(error){
 alert(error.message);
 }
 
-
-
-
-
-
-
 }
-
 
 
 return(
@@ -369,17 +359,26 @@ marginBottom:18
 
 <div
 style={{
-background:mine
-?"linear-gradient(135deg,#57A7FF,#1D74FF)"
-:"#F2F4F8",
-color:mine?"#fff":"#111",
-padding:"13px 18px",
-borderRadius:mine
-?"24px 24px 8px 24px"
-:"24px 24px 24px 8px",
-fontSize:17,
-maxWidth:"66%",
-minWidth:70
+background: mine
+? "linear-gradient(135deg,#57A7FF,#1D74FF)"
+: "#F2F4F8",
+
+color: mine ? "#fff" : "#111",
+
+padding:"12px 16px",
+
+borderRadius: mine
+? "24px 24px 8px 24px"
+: "24px 24px 24px 8px",
+
+fontSize:16,
+
+maxWidth:"72%",
+minWidth:84,
+
+lineHeight:1.35,
+wordBreak:"break-word",
+overflowWrap:"anywhere"
 }}
 >
 {msg.body}
@@ -434,7 +433,7 @@ onClick={()=>scrollToBottom()}
 style={{
 position:"fixed",
 right:22,
-bottom:96,
+bottom:112,
 width:46,
 height:46,
 borderRadius:"50%",
@@ -485,25 +484,31 @@ ref={inputRef}
 value={newMessage}
 onChange={(e)=>setNewMessage(e.target.value)}
 enterKeyHint="send"
-onKeyDown={(e)=>{
-if(e.key==="Enter"){
-e.preventDefault();
-sendMessage();
-}
-}}
+onKeyDown={()=>{}}
+
+autoComplete="off"
+autoCorrect="off"
+spellCheck={false}
+inputMode="text"
+
 placeholder="Сообщение..."
+
 style={{
 flex:1,
 border:"none",
 outline:"none",
 background:"transparent",
-fontSize:18
+fontSize:18,
+padding:0
 }}
 />
 
 
 <div
-onClick={sendMessage}
+onPointerDown={(e)=>{
+e.preventDefault();
+sendMessage();
+}}
 style={{
 width:48,
 height:48,
