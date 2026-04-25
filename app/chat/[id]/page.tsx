@@ -50,6 +50,50 @@ behavior:"smooth"
 
 useEffect(()=>{
 
+if(!window.visualViewport) return;
+
+const handleKeyboard=()=>{
+
+const keyboardHeight=
+window.innerHeight-
+window.visualViewport.height;
+
+const composer=
+document.getElementById(
+"chat-composer"
+);
+
+if(composer){
+
+composer.style.transform=
+keyboardHeight>0
+?`translateY(-${keyboardHeight}px)`
+:"translateY(0)";
+
+}
+
+bottomRef.current?.scrollIntoView({
+behavior:"smooth"
+});
+
+};
+
+window.visualViewport.addEventListener(
+"resize",
+handleKeyboard
+);
+
+return()=>{
+window.visualViewport?.removeEventListener(
+"resize",
+handleKeyboard
+);
+};
+
+},[]);
+
+useEffect(()=>{
+
 const channel=supabase
 .channel(`chat-${chatId}`)
 .on(
@@ -61,10 +105,24 @@ table:"messages",
 filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
-setMessages(prev=>[
+
+setMessages(prev=>{
+
+if(
+prev.some(
+m=>m.id===payload.new.id
+)
+){
+return prev;
+}
+
+return [
 ...prev,
 payload.new
-]);
+];
+
+});
+
 }
 )
 .subscribe();
@@ -80,22 +138,39 @@ async function sendMessage(){
 
 if(!newMessage.trim()) return;
 
-const { data,error } = await supabase
+const text = newMessage;
+
+setNewMessage("");
+
+const optimisticMessage={
+id:Date.now(),
+body:text,
+sender_id:userId
+};
+
+setMessages(prev=>[
+...prev,
+optimisticMessage
+]);
+
+bottomRef.current?.scrollIntoView({
+behavior:"smooth"
+});
+
+const { error }=
+await supabase
 .from("messages")
 .insert({
 chat_id:chatId,
 sender_id:userId,
-body:newMessage,
+body:text,
 message_type:"text"
-})
-.select();
-
-console.log(data,error);
+});
 
 if(error){
 alert(error.message);
-return;
 }
+
 
 
 
@@ -361,11 +436,10 @@ borderRadius:25
 
 {/* INPUT */}
 <div
+id="chat-composer"
 style={{
-position:"sticky",
-bottom:0,
-zIndex:50,
 padding:"12px 14px 22px",
+transition:"transform .25s ease",
 }}
 >
 <div
