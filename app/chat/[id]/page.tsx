@@ -18,6 +18,8 @@ const userId =
 
 const [messages,setMessages]=useState<any[]>([]);
 const [newMessage,setNewMessage]=useState("");
+const [showScrollDown,setShowScrollDown] =
+useState(false);
 const endRef = useRef<any>(null);
 const bottomRef = useRef<HTMLDivElement | null>(null);
 const chatRef = useRef<HTMLDivElement | null>(null);
@@ -60,62 +62,9 @@ behavior:smooth
 }
 
 
-useEffect(()=>{
-scrollToBottom(false);
-},[]);
 
 
 
-
-useEffect(()=>{
-
-if(!window.visualViewport) return;
-
-const handleKeyboard=()=>{
-
-const keyboardHeight=
-window.innerHeight-
-window.visualViewport.height;
-
-const composer=
-document.getElementById(
-"chat-composer"
-);
-
-if(composer){
-
-composer.style.transform=
-keyboardHeight>0
-?`translateY(-${keyboardHeight}px)`
-:"translateY(0)";
-}
-
-if(chatRef.current){
-chatRef.current.style.paddingBottom =
-keyboardHeight > 0
-? `${keyboardHeight+90}px`
-: "100px";
-}
-
-setTimeout(()=>{
-scrollToBottom(false);
-},50);
-
-};
-
-window.visualViewport.addEventListener(
-"resize",
-handleKeyboard
-);
-
-return()=>{
-window.visualViewport.removeEventListener(
-"resize",
-handleKeyboard
-);
-};
-
-},[]);
 
 useEffect(()=>{
 
@@ -166,6 +115,9 @@ if(!newMessage.trim()) return;
 const text = newMessage;
 
 setNewMessage("");
+requestAnimationFrame(()=>{
+inputRef.current?.focus();
+});
 
 const optimisticMessage={
 id:Date.now(),
@@ -178,10 +130,9 @@ setMessages(prev=>[
 optimisticMessage
 ]);
 
-setTimeout(()=>{
+
 scrollToBottom(false);
-inputRef.current?.focus();
-},30);
+
 bottomRef.current?.scrollIntoView({
 behavior:"smooth"
 });
@@ -204,7 +155,7 @@ alert(error.message);
 
 
 
-setNewMessage("");
+
 
 }
 
@@ -301,9 +252,7 @@ typing...
 
 </div>
 
-<div style={{fontSize:24}}>
-📞
-</div>
+
 
 </div>
 
@@ -311,7 +260,18 @@ typing...
 
 {/* CHAT */}
 <div
-ref={chatRef}
+onScroll={(e)=>{
+
+const el=e.currentTarget;
+
+const nearBottom=
+el.scrollHeight-
+el.scrollTop-
+el.clientHeight < 120;
+
+setShowScrollDown(!nearBottom);
+
+}}
 style={{
 flex:1,
 overflowY:"auto",
@@ -413,12 +373,12 @@ background:mine
 ?"linear-gradient(135deg,#57A7FF,#1D74FF)"
 :"#F2F4F8",
 color:mine?"#fff":"#111",
-padding:"11px 15px",
+padding:"13px 18px",
 borderRadius:mine
 ?"24px 24px 8px 24px"
 :"24px 24px 24px 8px",
-fontSize:16,
-maxWidth:"68%",
+fontSize:17,
+maxWidth:"66%",
 minWidth:70
 }}
 >
@@ -451,6 +411,7 @@ Seen ✓✓
 <div
 style={{
 display:"inline-flex",
+alignSelf:"flex-start",
 gap:7,
 background:"#F2F4F8",
 padding:"14px 18px",
@@ -467,6 +428,30 @@ borderRadius:25
 
 </div>
 
+{showScrollDown && (
+<div
+onClick={()=>scrollToBottom()}
+style={{
+position:"fixed",
+right:22,
+bottom:96,
+width:46,
+height:46,
+borderRadius:"50%",
+background:"#2F80FF",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+color:"#fff",
+fontSize:22,
+boxShadow:"0 8px 24px rgba(0,0,0,.15)",
+zIndex:90,
+cursor:"pointer"
+}}
+>
+↓
+</div>
+)}
 
 {/* INPUT */}
 <div
@@ -499,8 +484,10 @@ paddingRight:10
 ref={inputRef}
 value={newMessage}
 onChange={(e)=>setNewMessage(e.target.value)}
+enterKeyHint="send"
 onKeyDown={(e)=>{
 if(e.key==="Enter"){
+e.preventDefault();
 sendMessage();
 }
 }}
