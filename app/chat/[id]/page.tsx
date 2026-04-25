@@ -308,7 +308,11 @@ setStickToBottom(nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-padding:"20px 16px 20px",
+
+padding: isTyping
+? "20px 16px 72px"
+: "20px 16px 20px",
+
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
