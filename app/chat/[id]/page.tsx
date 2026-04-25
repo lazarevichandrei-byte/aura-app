@@ -186,11 +186,20 @@ gap:14
 <div
 onClick={()=>router.back()}
 style={{
-fontSize:30,
+width:36,
+height:36,
+borderRadius:18,
+background:"#F3F5F8",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:24,
+fontWeight:700,
+color:"#111",
 cursor:"pointer"
 }}
 >
-←
+‹
 </div>
 
 
@@ -267,7 +276,7 @@ flex:1,
 overflowY:"auto",
 display:"flex",
 flexDirection:"column",
-padding:"20px 16px 100px",
+padding:"20px 16px 165px",
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
 }}
@@ -365,16 +374,15 @@ background: mine
 
 color: mine ? "#fff" : "#111",
 
-padding:"12px 16px",
-
+padding:"13px 18px",
 borderRadius: mine
 ? "24px 24px 8px 24px"
 : "24px 24px 24px 8px",
 
-fontSize:16,
+fontSize:17,
 
-maxWidth:"72%",
-minWidth:84,
+maxWidth:"74%",
+minWidth:72,
 
 lineHeight:1.35,
 wordBreak:"break-word",
@@ -429,26 +437,37 @@ borderRadius:25
 
 {showScrollDown && (
 <div
-onClick={()=>scrollToBottom()}
+onClick={() => scrollToBottom(true)}
 style={{
 position:"fixed",
-right:22,
-bottom:112,
-width:46,
-height:46,
+left:"50%",
+transform:"translateX(-50%)",
+bottom:96,
+width:44,
+height:44,
 borderRadius:"50%",
-background:"#2F80FF",
+background:"rgba(245,247,250,.95)",
+backdropFilter:"blur(16px)",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-color:"#fff",
-fontSize:22,
-boxShadow:"0 8px 24px rgba(0,0,0,.15)",
+boxShadow:"0 6px 18px rgba(0,0,0,.08)",
+border:"1px solid rgba(255,255,255,.7)",
 zIndex:90,
 cursor:"pointer"
 }}
 >
+<div
+style={{
+fontSize:20,
+lineHeight:"20px",
+fontWeight:700,
+color:"#8C94A3",
+transform:"translateY(-1px)"
+}}
+>
 ↓
+</div>
 </div>
 )}
 
@@ -459,7 +478,7 @@ style={{
 position:"fixed",
 left:0,
 right:0,
-bottom:0,
+bottom:"env(keyboard-inset-height,0px)",
 zIndex:100,
 padding:"12px 14px calc(12px + env(safe-area-inset-bottom))",
 background:"#fff",
@@ -510,8 +529,9 @@ e.preventDefault();
 sendMessage();
 }}
 style={{
-width:48,
-height:48,
+width:50,
+height:50,
+boxShadow:"0 8px 20px rgba(47,128,255,.35)",
 borderRadius:"50%",
 background:"linear-gradient(135deg,#57A7FF,#1D74FF)",
 display:"flex",
@@ -522,7 +542,7 @@ color:"#fff",
 cursor:"pointer"
 }}
 >
-➤
+➜
 </div>
 
 </div>
