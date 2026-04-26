@@ -17,6 +17,7 @@ const userId =
 
 
 const [messages,setMessages] = useState([]);
+const [loaded,setLoaded] = useState(false);
 const [newMessage,setNewMessage] = useState("");
 const [isTyping,setIsTyping] = useState(false);
 const [stickToBottom,setStickToBottom] =
@@ -41,10 +42,6 @@ const { data,error } = await supabase
 
 if(!error && data){
 setMessages(data);
-
-setTimeout(()=>{
-scrollToBottom(false);
-},150);
 }
 
 }
