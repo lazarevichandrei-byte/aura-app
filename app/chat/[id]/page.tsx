@@ -332,7 +332,7 @@ marginBottom:28
 
 {messages.length===0 && (
 <>
-<div style={{marginBottom:18}}>
+<div style={{marginBottom:8}}>
 <div
 style={{
 display:"inline-block",
@@ -349,7 +349,7 @@ borderRadius:"24px 24px 24px 8px"
 style={{
 display:"flex",
 justifyContent:"flex-end",
-marginBottom:18
+marginBottom:8
 }}
 >
 <div>
@@ -366,8 +366,9 @@ borderRadius:"24px 24px 8px 24px"
 
 <div
 style={{
-fontSize:10,
-marginTop:6,
+fontSize:11,
+marginTop:3,
+opacity:.55,
 textAlign:"right",
 color:"#94A0B4"
 }}
@@ -396,7 +397,7 @@ display:"flex",
 justifyContent:mine
 ?"flex-end"
 :"flex-start",
-marginBottom:18
+marginBottom:8
 }}
 >
 
@@ -404,41 +405,46 @@ marginBottom:18
 
 <div
 style={{
-background: mine
-? "linear-gradient(135deg,#57A7FF,#1D74FF)"
-:"#F2F4F8",
-color: mine ? "#fff":"#111",
+background: mine ? "#EAF3FF" : "#F3F5F8",
+color:"#111",
 
-padding:"10px 15px",
-fontSize:15,
+padding:"11px 16px",
+fontSize:17,
+fontWeight:500,
 
-maxWidth:"64%",
-minWidth:92,
-
-alignSelf:"flex-end",
-marginLeft:"auto",
-marginRight:0,
-
+borderRadius:24,
 lineHeight:1.35,
+
+maxWidth:"68%",
+width:"fit-content",
+
 wordBreak:"break-word",
-overflowWrap:"anywhere"
+
+marginLeft: mine ? "auto" : 10,
+marginRight: mine ? 12 : 0,
+
+boxShadow:"0 1px 1px rgba(0,0,0,.03)",
+position:"relative"
 }}
 >
 {msg.body}
-</div>
 
-{mine &&(
+{mine && (
 <div
 style={{
-fontSize:10,
-marginTop:6,
-textAlign:"right",
-color:"#94A0B4"
+position:"absolute",
+right:-3,
+bottom:7,
+width:11,
+height:11,
+background:"#EAF3FF",
+transform:"rotate(45deg)",
+borderRadius:"0 0 10px 0"
 }}
->
-Seen ✓✓
-</div>
+/>
 )}
+
+</div>
 
 </div>
 
@@ -452,15 +458,43 @@ Seen ✓✓
 
 <div
 style={{
-display:"inline-flex",
-gap:6,
-background:"#EEF1F5",
-padding:"12px 18px",
-borderRadius:24,
 marginTop:"auto",
-marginBottom:8
+marginLeft:12,
+marginBottom:4,
+
+width:64,
+height:32,
+
+background:"#EEF1F5",
+borderRadius:18,
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+gap:5
 }}
 >
+<div style={{
+width:5,
+height:5,
+background:"#111",
+borderRadius:"50%"
+}}/>
+
+<div style={{
+width:5,
+height:5,
+background:"#111",
+borderRadius:"50%"
+}}/>
+
+<div style={{
+width:5,
+height:5,
+background:"#111",
+borderRadius:"50%"
+}}/>
+
 <div>●</div>
 <div>●</div>
 <div>●</div>
@@ -589,20 +623,26 @@ e.preventDefault();
 sendMessage();
 }}
 style={{
-width:50,
-height:50,
-boxShadow:"0 8px 20px rgba(47,128,255,.35)",
+width:46,
+height:46,
 borderRadius:"50%",
-background:"linear-gradient(135deg,#57A7FF,#1D74FF)",
+
+background:
+"linear-gradient(135deg,#63ACFF,#2E7BFF)",
+
+boxShadow:
+"0 4px 14px rgba(52,120,255,.25)",
+
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:24,
+
+fontSize:22,
 color:"#fff",
 cursor:"pointer"
 }}
 >
-➜
+➤
 </div>
 
 </div>
