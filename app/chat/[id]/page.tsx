@@ -67,9 +67,9 @@ chatRef.current.scrollHeight;
 useEffect(()=>{
 fetchMessages();
 },[chatId]);
-useEffect(()=>{
 
- useEffect(()=>{
+
+useEffect(()=>{
 
 if(
 typeof window==="undefined" ||
@@ -143,6 +143,9 @@ handleKeyboard
 
 },[]);
 
+
+useEffect(()=>{
+
 const channel=supabase
 .channel(`chat-${chatId}`)
 .on(
@@ -171,6 +174,10 @@ payload.new
 ];
 
 });
+
+setTimeout(()=>{
+scrollToBottom();
+},0);
 
 }
 )
