@@ -307,7 +307,11 @@ transition:
 const mine=
 msg.sender_id===userId;
 
+
+
 return(
+    
+
 
 <div
 key={msg.id}
@@ -321,34 +325,6 @@ marginBottom:8
 }}
 >
 
-<div
-style={{
-display:"flex",
-justifyContent:"flex-start",
-paddingLeft:8,
-marginTop:"auto",
-marginBottom:4
-}}
->
-
-<div
-style={{
-background:"#F3F5F8",
-borderRadius:16,
-padding:"7px 10px",
-display:"flex",
-alignItems:"center",
-gap:4
-}}
->
-
-<div className="typing-dot"/>
-<div className="typing-dot"/>
-<div className="typing-dot"/>
-
-</div>
-
-</div>
 
 <div
 style={{
@@ -378,9 +354,31 @@ whiteSpace:"pre-wrap"
 )
 
 })}
+<div
+style={{
+display:"flex",
+justifyContent:"flex-start",
+paddingLeft:10,
+marginTop:4,
+marginBottom:2
+}}
+>
+<div
+style={{
+fontSize:10,
+color:"#8B95A7",
+fontWeight:500
+}}
+>
+Пишет
+<span className="typing-dots"></span>
+</div>
+</div>
 
 </div>
 {showScrollDown && (
+
+
 
 <div
 onClick={scrollToBottom}
@@ -402,6 +400,7 @@ justifyContent:"center"
 </div>
 
 )}
+
 
 
 <div
