@@ -210,7 +210,7 @@ setShowScrollDown(!nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-padding:"12px 10px 6px"
+padding:"12px 10px 90px"
 }}
 >
 
@@ -310,10 +310,16 @@ paddingRight:8
 ref={inputRef}
 value={newMessage}
 
-onPointerDown={()=>{
-setTimeout(()=>{
-scrollToBottom();
-},0);
+onFocus={()=>{
+if(chatRef.current){
+chatRef.current.style.paddingBottom="320px";
+}
+}}
+
+onBlur={()=>{
+if(chatRef.current){
+chatRef.current.style.paddingBottom="90px";
+}
 }}
 
 onChange={(e)=>{
