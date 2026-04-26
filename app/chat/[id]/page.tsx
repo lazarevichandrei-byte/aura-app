@@ -30,10 +30,8 @@ function scrollToBottom(){
 
 if(!chatRef.current) return;
 
-requestAnimationFrame(()=>{
-chatRef.current!.scrollTop =
-chatRef.current!.scrollHeight;
-});
+chatRef.current.scrollTop =
+chatRef.current.scrollHeight;
 
 }
 
@@ -51,11 +49,9 @@ if(!error && data){
 
 setMessages(data);
 
-requestAnimationFrame(()=>{
 setTimeout(()=>{
 scrollToBottom();
-},60);
-});
+},0);
 
 }
 
@@ -210,7 +206,7 @@ setShowScrollDown(!nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-padding:"12px 10px 90px"
+padding:"12px 10px 6px"
 }}
 >
 
@@ -310,20 +306,10 @@ paddingRight:8
 ref={inputRef}
 value={newMessage}
 
-onFocus={()=>{
-if(chatRef.current){
-chatRef.current.style.paddingBottom="320px";
-}
-}}
-
-onBlur={()=>{
-if(chatRef.current){
-chatRef.current.style.paddingBottom="90px";
-}
-}}
-
 onChange={(e)=>{
-setNewMessage(e.target.value);
+setNewMessage(
+e.target.value
+);
 }}
 
 onKeyDown={(e)=>{
