@@ -231,18 +231,22 @@ marginBottom:8
 
 <div
 style={{
-background:
-mine
-? "#EAF3FF"
-: "#F3F5F8",
-
-padding:"10px 15px",
-
+background: mine ? "#EAF3FF" : "#F3F5F8",
+padding:"8px 14px",
 fontSize:15,
+fontWeight:500,
+lineHeight:"20px",
+
+display:"inline-block",
 
 maxWidth:"72%",
+width:"auto",
 
-borderRadius:24
+borderRadius:24,
+
+wordBreak:"break-word",
+overflowWrap:"anywhere",
+whiteSpace:"pre-wrap"
 }}
 >
 {msg.body}
