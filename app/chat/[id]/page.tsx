@@ -16,6 +16,8 @@ const userId =
 
 const [messages,setMessages] = useState([]);
 const [newMessage,setNewMessage] = useState("");
+const [replyTo,setReplyTo] =
+useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
 useState(false);
 const [keyboardOffset,setKeyboardOffset] =
@@ -357,6 +359,9 @@ marginBottom:8
 
 
 <div
+onDoubleClick={()=>{
+setReplyTo(msg);
+}}
 style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
 padding:"8px 14px",
@@ -446,6 +451,52 @@ transition:
 "transform .22s ease-out"
 }}
 >
+
+{replyTo && (
+
+<div
+style={{
+background:"#EDF4FF",
+padding:"8px 12px",
+borderRadius:14,
+marginBottom:8
+}}
+>
+
+<div
+style={{
+fontSize:11,
+fontWeight:600,
+color:"#2E7BFF"
+}}
+>
+Ответ на сообщение
+</div>
+
+<div
+style={{
+fontSize:13,
+marginTop:4
+}}
+>
+{replyTo.body}
+</div>
+
+<div
+onClick={()=>setReplyTo(null)}
+style={{
+marginTop:6,
+fontSize:12,
+color:"#888",
+cursor:"pointer"
+}}
+>
+✕ убрать
+</div>
+
+</div>
+
+)}
 
 <div
 style={{
