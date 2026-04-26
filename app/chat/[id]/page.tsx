@@ -69,24 +69,37 @@ fetchMessages();
 },[chatId]);
 useEffect(()=>{
 
-    useEffect(()=>{
+ useEffect(()=>{
 
-if(!window.visualViewport) return;
+if(
+typeof window==="undefined" ||
+!window.visualViewport
+) return;
 
 const vv = window.visualViewport;
 
-const handleKeyboard = ()=>{
+let frame:any;
 
-const offset =
-window.innerHeight
-- vv.height
-- vv.offsetTop;
+const handleKeyboard=()=>{
+
+cancelAnimationFrame(frame);
+
+frame=requestAnimationFrame(()=>{
+
+const offset=
+window.innerHeight -
+vv.height -
+vv.offsetTop;
 
 setKeyboardOffset(
 offset > 0
 ? offset
 : 0
 );
+
+scrollToBottom();
+
+});
 
 };
 
@@ -100,9 +113,16 @@ vv.addEventListener(
 handleKeyboard
 );
 
+inputRef.current?.addEventListener(
+"focus",
+handleKeyboard
+);
+
 handleKeyboard();
 
-return ()=>{
+return()=>{
+
+cancelAnimationFrame(frame);
 
 vv.removeEventListener(
 "resize",
@@ -111,6 +131,11 @@ handleKeyboard
 
 vv.removeEventListener(
 "scroll",
+handleKeyboard
+);
+
+inputRef.current?.removeEventListener(
+"focus",
 handleKeyboard
 );
 
