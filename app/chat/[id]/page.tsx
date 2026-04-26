@@ -323,6 +323,35 @@ marginBottom:8
 
 <div
 style={{
+display:"flex",
+justifyContent:"flex-start",
+paddingLeft:8,
+marginTop:"auto",
+marginBottom:4
+}}
+>
+
+<div
+style={{
+background:"#F3F5F8",
+borderRadius:16,
+padding:"7px 10px",
+display:"flex",
+alignItems:"center",
+gap:4
+}}
+>
+
+<div className="typing-dot"/>
+<div className="typing-dot"/>
+<div className="typing-dot"/>
+
+</div>
+
+</div>
+
+<div
+style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
 padding:"8px 14px",
 fontSize:15,
