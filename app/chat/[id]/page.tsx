@@ -24,7 +24,6 @@ useState(true);
 
 const [showScrollDown,setShowScrollDown] =
 useState(false);
-const endRef = useRef<any>(null);
 const bottomRef = useRef<HTMLDivElement | null>(null);
 const chatRef = useRef<HTMLDivElement | null>(null);
 const inputRef = useRef<HTMLInputElement | null>(null);
@@ -394,10 +393,13 @@ return(
 key={msg.id}
 style={{
 display:"flex",
-justifyContent:mine
-?"flex-end"
-:"flex-start",
-marginBottom:8
+justifyContent: mine
+? "flex-end"
+: "flex-start",
+
+width:"100%",
+
+marginBottom:6
 }}
 >
 
@@ -408,46 +410,29 @@ style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
 color:"#111",
 
-padding:"10px 16px",
+padding:"9px 14px",
 
-fontSize:15,
+fontSize:14,
 fontWeight:500,
-lineHeight:"20px",
+lineHeight:"18px",
 
-display:"inline-block",
-textAlign:"left",
+display:"inline-flex",
+alignItems:"center",
 
-whiteSpace:"pre-wrap",
-overflowWrap:"break-word",
+whiteSpace:"normal",
 
-borderRadius:22,
+borderRadius:20,
 
-width:"fit-content",
-maxWidth:"72%",
-minWidth:"auto",
+maxWidth:"70%",
 
-marginLeft: mine ? "auto" : 10,
-marginRight: mine ? 6 : 0,
+margin:0,
 
 boxShadow:"0 1px 1px rgba(0,0,0,.03)"
 }}
 >
 {msg.body}
 
-{mine && (
-<div
-style={{
-position:"absolute",
-right:-2,
-bottom:6,
-width:8,
-height:8,
-background:"#EAF3FF",
-transform:"rotate(45deg)",
-borderRadius:"0 0 6px 0"
-}}
-/>
-)}
+
 
 </div>
 
@@ -502,7 +487,7 @@ background:"#111"
 </div>
 
 <div ref={bottomRef}/>
-<div ref={endRef}/>
+
 
 </div>
 
@@ -510,7 +495,7 @@ background:"#111"
 <div
 onClick={() => scrollToBottom(true)}
 style={{
-position:"relative",
+position:"fixed",
 left:"50%",
 transform:"translateX(-50%)",
 bottom:96,
@@ -591,12 +576,6 @@ setIsTyping(false);
 
 onChange={(e)=>{
 setNewMessage(e.target.value);
-
-/* держим низ чата над клавиатурой */
-requestAnimationFrame(()=>{
-scrollToBottom(false);
-});
-
 }}
 
 enterKeyHint="send"

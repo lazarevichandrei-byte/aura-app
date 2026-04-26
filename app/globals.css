@@ -2,22 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Сброс */
-html, body {
-  padding: 0;
-  margin: 0;
+
+/* RESET */
+*{
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
 }
 
-/* Общие стили */
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
+html,
 body{
+padding:0;
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+
 font-family:
 -apple-system,
 BlinkMacSystemFont,
 "SF Pro Display",
 "SF Pro Text",
 Inter,
+Arial,
 sans-serif;
+
+background:#ffffff;
+
+-webkit-font-smoothing:antialiased;
+-moz-osx-font-smoothing:grayscale;
+}
+
+
+/* Next root */
+#__next{
+height:100%;
+}
+
+
+/* Mobile keyboard behavior */
+html{
+height:-webkit-fill-available;
+}
+
+body{
+min-height:100vh;
+min-height:-webkit-fill-available;
+overscroll-behavior:none;
+touch-action:manipulation;
+}
+
+
+/* Smooth chat scrolling */
+
+::-webkit-scrollbar{
+display:none;
+}
+
+
+/* Inputs like Telegram */
+input,
+textarea{
+font-family:inherit;
+font-size:16px;
+outline:none;
+border:none;
+
+-webkit-appearance:none;
+appearance:none;
+}
+
+
+/* Prevent zoom on focus iOS */
+input{
+font-size:16px;
+}
+
+
+/* Chat feel */
+.chat-scroll{
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
+scroll-behavior:smooth;
+overscroll-behavior:contain;
+}
+
+
+/* Keyboard-safe bottom area */
+.chat-input-safe{
+padding-bottom:env(safe-area-inset-bottom);
+}
+
+
+/* Message bubbles */
+.chat-bubble{
+border-radius:22px;
+line-height:20px;
+font-size:15px;
+font-weight:500;
+}
+
+
+/* Typing bubble */
+.typing-bubble{
+height:28px;
+padding:0 10px;
+border-radius:16px;
+}
+
+
+/* Floating down button */
+.scroll-bottom-btn{
+box-shadow:
+0 8px 24px rgba(0,0,0,.08);
+}
+
+
+/* Better tap response */
+button{
+touch-action:manipulation;
+cursor:pointer;
+}
+
+
+/* No blue tap flashes android */
+a,
+button,
+div{
+-webkit-tap-highlight-color:transparent;
 }
