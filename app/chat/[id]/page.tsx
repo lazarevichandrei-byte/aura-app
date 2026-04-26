@@ -49,9 +49,11 @@ if(!error && data){
 
 setMessages(data);
 
+requestAnimationFrame(()=>{
 setTimeout(()=>{
 scrollToBottom();
-},0);
+},60);
+});
 
 }
 
