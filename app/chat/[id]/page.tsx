@@ -308,9 +308,7 @@ style={{
 flex:1,
 overflowY:"auto",
 
-padding: isTyping
-? "14px 14px 56px"
-: "14px 14px 14px",
+padding:"12px 10px 6px",
 
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
@@ -393,14 +391,13 @@ return(
 key={msg.id}
 style={{
 display:"flex",
-justifyContent: mine
-? "flex-end"
-: "flex-start",
+justifyContent: mine ? "flex-end" : "flex-start",
 
 width:"100%",
+marginBottom:8,
 
-marginBottom:6,
-paddingRight:6
+paddingLeft:8,
+paddingRight:8
 }}
 >
 
@@ -411,25 +408,23 @@ style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
 color:"#111",
 
-padding:"9px 14px",
+padding:"8px 14px",
 
-fontSize:14,
+fontSize:16,
 fontWeight:500,
-lineHeight:"18px",
+lineHeight:"22px",
 
 display:"inline-block",
 textAlign:"left",
-verticalAlign:"top",
 
 whiteSpace:"normal",
-wordBreak:"normal",
-overflowWrap:"anywhere",
+wordBreak:"break-word",
 
-borderRadius:20,
+borderRadius:24,
 
-maxWidth:"68%",
-minWidth:"auto",
+maxWidth:"78%",
 width:"auto",
+minWidth:"auto",
 
 margin:0,
 
@@ -454,18 +449,20 @@ boxShadow:"0 1px 1px rgba(0,0,0,.03)"
 
 <div
 style={{
-marginTop:"auto",
-marginLeft:12,
-marginBottom:6,
+position:"sticky",
+bottom:8,
+
+marginLeft:10,
+marginBottom:2,
 
 background:"#EEF1F5",
-height:22,
-padding:"0 8px",
-borderRadius:14,
+height:18,
+padding:"0 7px",
+borderRadius:12,
 
 display:"inline-flex",
 alignItems:"center",
-gap:4
+gap:3
 }}
 >
 
@@ -544,10 +541,10 @@ borderTop:"1px solid #eef1f5"
 >
 <div
 style={{
-height:48,
+height:42,
 width:"100%",
 background:"#F4F6FA",
-borderRadius:21,
+borderRadius:18,
 display:"flex",
 alignItems:"center",
 paddingLeft:16,
@@ -564,17 +561,15 @@ onFocus={()=>{
 setStickToBottom(true);
 setIsTyping(true);
 
-requestAnimationFrame(()=>{
 scrollToBottom(false);
-});
 
 setTimeout(()=>{
 scrollToBottom(false);
-},100);
+},50);
 
 setTimeout(()=>{
 scrollToBottom(false);
-},250);
+},150);
 
 }}
 
