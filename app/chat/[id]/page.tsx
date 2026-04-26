@@ -248,8 +248,8 @@ style={{
 position:"absolute",
 right:2,
 bottom:2,
-width:11,
-height:11,
+width:8,
+height:8,
 borderRadius:"50%",
 background:"#32D74B",
 border:"2px solid white"
@@ -310,8 +310,8 @@ flex:1,
 overflowY:"auto",
 
 padding: isTyping
-? "20px 16px 72px"
-: "20px 16px 20px",
+? "14px 14px 56px"
+: "14px 14px 14px",
 
 WebkitOverflowScrolling:"touch",
 background:"linear-gradient(to bottom,#fff,#fafcff)"
@@ -408,21 +408,16 @@ style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
 color:"#111",
 
-padding:"11px 16px",
-fontSize:17,
+padding:"8px 14px",
+fontSize:15,
 fontWeight:500,
-
 borderRadius:24,
 lineHeight:1.35,
-
-maxWidth:"68%",
+maxWidth:"72%",
+minWidth:72,
 width:"fit-content",
-
-wordBreak:"break-word",
-
 marginLeft: mine ? "auto" : 10,
 marginRight: mine ? 12 : 0,
-
 boxShadow:"0 1px 1px rgba(0,0,0,.03)",
 position:"relative"
 }}
@@ -433,13 +428,13 @@ position:"relative"
 <div
 style={{
 position:"absolute",
-right:-3,
-bottom:7,
-width:11,
-height:11,
+right:-2,
+bottom:6,
+width:8,
+height:8,
 background:"#EAF3FF",
 transform:"rotate(45deg)",
-borderRadius:"0 0 10px 0"
+borderRadius:"0 0 6px 0"
 }}
 />
 )}
@@ -460,44 +455,40 @@ borderRadius:"0 0 10px 0"
 style={{
 marginTop:"auto",
 marginLeft:12,
-marginBottom:4,
-
-width:64,
-height:32,
+marginBottom:-4,
 
 background:"#EEF1F5",
-borderRadius:18,
+height:26,
+padding:"0 9px",
+borderRadius:14,
 
-display:"flex",
+display:"inline-flex",
 alignItems:"center",
-justifyContent:"center",
-gap:5
+gap:4
 }}
 >
+
 <div style={{
-width:5,
-height:5,
-background:"#111",
-borderRadius:"50%"
+width:4,
+height:4,
+borderRadius:"50%",
+background:"#111"
 }}/>
 
 <div style={{
-width:5,
-height:5,
-background:"#111",
-borderRadius:"50%"
+width:4,
+height:4,
+borderRadius:"50%",
+background:"#111"
 }}/>
 
 <div style={{
-width:5,
-height:5,
-background:"#111",
-borderRadius:"50%"
+width:4,
+height:4,
+borderRadius:"50%",
+background:"#111"
 }}/>
 
-<div>●</div>
-<div>●</div>
-<div>●</div>
 </div>
 
 <div ref={bottomRef}/>
@@ -552,14 +543,14 @@ borderTop:"1px solid #eef1f5"
 >
 <div
 style={{
-height:62,
+height:48,
 width:"100%",
 background:"#F4F6FA",
-borderRadius:34,
+borderRadius:24,
 display:"flex",
 alignItems:"center",
-paddingLeft:22,
-paddingRight:10
+paddingLeft:16,
+paddingRight:8
 }}
 >
 
@@ -570,9 +561,17 @@ value={newMessage}
 onFocus={()=>{
 setIsTyping(true);
 
+requestAnimationFrame(()=>{
+scrollToBottom(false);
+});
+
 setTimeout(()=>{
 scrollToBottom(false);
-},150);
+},100);
+
+setTimeout(()=>{
+scrollToBottom(false);
+},250);
 
 }}
 
@@ -611,7 +610,7 @@ flex:1,
 border:"none",
 outline:"none",
 background:"transparent",
-fontSize:18,
+fontSize:15,
 padding:0
 }}
 />
@@ -623,21 +622,17 @@ e.preventDefault();
 sendMessage();
 }}
 style={{
-width:46,
-height:46,
+width:38,
+height:38,
 borderRadius:"50%",
-
 background:
 "linear-gradient(135deg,#63ACFF,#2E7BFF)",
-
 boxShadow:
 "0 4px 14px rgba(52,120,255,.25)",
-
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-
-fontSize:22,
+fontSize:15,
 color:"#fff",
 cursor:"pointer"
 }}
