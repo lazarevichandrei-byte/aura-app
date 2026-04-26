@@ -30,8 +30,10 @@ function scrollToBottom(){
 
 if(!chatRef.current) return;
 
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
+requestAnimationFrame(()=>{
+chatRef.current!.scrollTop =
+chatRef.current!.scrollHeight;
+});
 
 }
 
@@ -308,12 +310,10 @@ paddingRight:8
 ref={inputRef}
 value={newMessage}
 
-onFocus={()=>{
-requestAnimationFrame(()=>{
+onPointerDown={()=>{
 setTimeout(()=>{
 scrollToBottom();
-},120);
-});
+},0);
 }}
 
 onChange={(e)=>{
