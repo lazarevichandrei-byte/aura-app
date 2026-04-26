@@ -362,7 +362,7 @@ marginBottom:8
 onTouchStart={()=>{
 const timer=setTimeout(()=>{
 setReplyTo(msg);
-},500);
+},100);
 
 (window as any).replyTimer=timer;
 }}
