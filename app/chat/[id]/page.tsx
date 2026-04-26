@@ -257,10 +257,13 @@ style={{
 width:36,
 height:36,
 borderRadius:18,
-background:"#F3F5F8",
+background:"#2E7BFF",
 display:"flex",
 alignItems:"center",
-justifyContent:"center"
+justifyContent:"center",
+color:"#fff",
+fontSize:26,
+fontWeight:600
 }}
 >
 ‹
