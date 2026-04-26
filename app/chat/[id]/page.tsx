@@ -307,6 +307,8 @@ setStickToBottom(nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
+scrollBehavior:"smooth",
+overscrollBehavior:"contain",
 
 padding:"12px 10px 6px",
 
@@ -406,27 +408,26 @@ paddingRight:8
 <div
 style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
-color:"#111",
 
-padding:"8px 14px",
+padding:"10px 15px",
 
 fontSize:16,
-fontWeight:500,
 lineHeight:"22px",
+fontWeight:500,
 
 display:"inline-block",
-textAlign:"left",
 
-whiteSpace:"normal",
+width:"fit-content",
+maxWidth:"78%",
+minWidth:"unset",
+
+whiteSpace:"pre-wrap",
 wordBreak:"break-word",
+overflowWrap:"break-word",
 
 borderRadius:24,
 
-maxWidth:"78%",
-width:"auto",
-minWidth:"auto",
-
-margin:0,
+textAlign:"left",
 
 boxShadow:"0 1px 1px rgba(0,0,0,.03)"
 }}
@@ -561,15 +562,18 @@ onFocus={()=>{
 setStickToBottom(true);
 setIsTyping(true);
 
+/* сразу вниз */
 scrollToBottom(false);
 
+/* когда клавиатура начала подниматься */
 setTimeout(()=>{
 scrollToBottom(false);
-},50);
+},120);
 
+/* когда поднялась полностью */
 setTimeout(()=>{
 scrollToBottom(false);
-},150);
+},300);
 
 }}
 
