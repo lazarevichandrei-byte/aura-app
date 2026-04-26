@@ -236,7 +236,7 @@ cursor:"pointer"
 src="/girl1.jpg"
 style={{
 width:48,
-height:48,
+height:42,
 borderRadius:"50%",
 objectFit:"cover"
 }}
@@ -399,7 +399,8 @@ justifyContent: mine
 
 width:"100%",
 
-marginBottom:6
+marginBottom:6,
+paddingRight:6
 }}
 >
 
@@ -416,14 +417,19 @@ fontSize:14,
 fontWeight:500,
 lineHeight:"18px",
 
-display:"inline-flex",
-alignItems:"center",
+display:"inline-block",
+textAlign:"left",
+verticalAlign:"top",
 
 whiteSpace:"normal",
+wordBreak:"normal",
+overflowWrap:"anywhere",
 
 borderRadius:20,
 
-maxWidth:"70%",
+maxWidth:"68%",
+minWidth:"auto",
+width:"auto",
 
 margin:0,
 
@@ -450,11 +456,11 @@ boxShadow:"0 1px 1px rgba(0,0,0,.03)"
 style={{
 marginTop:"auto",
 marginLeft:12,
-marginBottom:-4,
+marginBottom:6,
 
 background:"#EEF1F5",
-height:26,
-padding:"0 9px",
+height:22,
+padding:"0 8px",
 borderRadius:14,
 
 display:"inline-flex",
@@ -464,22 +470,22 @@ gap:4
 >
 
 <div style={{
-width:4,
-height:4,
+width:2,
+height:2,
 borderRadius:"50%",
 background:"#111"
 }}/>
 
 <div style={{
-width:4,
-height:4,
+width:2,
+height:2,
 borderRadius:"50%",
 background:"#111"
 }}/>
 
 <div style={{
-width:4,
-height:4,
+width:2,
+height:2,
 borderRadius:"50%",
 background:"#111"
 }}/>
@@ -531,7 +537,7 @@ transform:"translateY(-1px)"
 <div
 id="chat-composer"
 style={{
-padding:"12px 14px calc(12px + env(safe-area-inset-bottom))",
+padding:"6px 10px calc(env(safe-area-inset-bottom) + 4px)",
 background:"#fff",
 borderTop:"1px solid #eef1f5"
 }}
@@ -541,7 +547,7 @@ style={{
 height:48,
 width:"100%",
 background:"#F4F6FA",
-borderRadius:24,
+borderRadius:21,
 display:"flex",
 alignItems:"center",
 paddingLeft:16,
@@ -554,6 +560,8 @@ ref={inputRef}
 value={newMessage}
 
 onFocus={()=>{
+
+setStickToBottom(true);
 setIsTyping(true);
 
 requestAnimationFrame(()=>{
