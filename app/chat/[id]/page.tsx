@@ -367,7 +367,7 @@ marginBottom:2
 style={{
 fontSize:13,
 color:"#8B95A7",
-fontWeight:600
+fontWeight:500
 }}
 >
 Пишет
