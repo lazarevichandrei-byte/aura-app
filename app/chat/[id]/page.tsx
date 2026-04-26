@@ -366,7 +366,7 @@ borderRadius:"24px 24px 8px 24px"
 
 <div
 style={{
-fontSize:11,
+fontSize:10,
 marginTop:6,
 textAlign:"right",
 color:"#94A0B4"
@@ -406,19 +406,18 @@ marginBottom:18
 style={{
 background: mine
 ? "linear-gradient(135deg,#57A7FF,#1D74FF)"
-: "#F2F4F8",
+:"#F2F4F8",
+color: mine ? "#fff":"#111",
 
-color: mine ? "#fff" : "#111",
+padding:"10px 15px",
+fontSize:15,
 
-padding:"13px 18px",
-borderRadius: mine
-? "24px 24px 8px 24px"
-: "24px 24px 24px 8px",
+maxWidth:"64%",
+minWidth:92,
 
-fontSize:17,
-
-maxWidth:"74%",
-minWidth:72,
+alignSelf:"flex-end",
+marginLeft:"auto",
+marginRight:0,
 
 lineHeight:1.35,
 wordBreak:"break-word",
@@ -431,7 +430,7 @@ overflowWrap:"anywhere"
 {mine &&(
 <div
 style={{
-fontSize:11,
+fontSize:10,
 marginTop:6,
 textAlign:"right",
 color:"#94A0B4"
@@ -454,11 +453,12 @@ Seen ✓✓
 <div
 style={{
 display:"inline-flex",
-alignSelf:"flex-start",
-gap:7,
-background:"#F2F4F8",
-padding:"14px 18px",
-borderRadius:25
+gap:6,
+background:"#EEF1F5",
+padding:"12px 18px",
+borderRadius:24,
+marginTop:"auto",
+marginBottom:8
 }}
 >
 <div>●</div>
