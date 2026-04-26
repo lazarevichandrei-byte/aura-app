@@ -308,10 +308,16 @@ paddingRight:8
 ref={inputRef}
 value={newMessage}
 
+onFocus={()=>{
+requestAnimationFrame(()=>{
+setTimeout(()=>{
+scrollToBottom();
+},120);
+});
+}}
+
 onChange={(e)=>{
-setNewMessage(
-e.target.value
-);
+setNewMessage(e.target.value);
 }}
 
 onKeyDown={(e)=>{
