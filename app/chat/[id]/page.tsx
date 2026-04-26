@@ -408,18 +408,28 @@ style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
 color:"#111",
 
-padding:"8px 14px",
+padding:"10px 16px",
+
 fontSize:15,
 fontWeight:500,
-borderRadius:24,
-lineHeight:1.35,
-maxWidth:"72%",
-minWidth:72,
+lineHeight:"20px",
+
+display:"inline-block",
+textAlign:"left",
+
+whiteSpace:"pre-wrap",
+overflowWrap:"break-word",
+
+borderRadius:22,
+
 width:"fit-content",
+maxWidth:"72%",
+minWidth:"auto",
+
 marginLeft: mine ? "auto" : 10,
-marginRight: mine ? 12 : 0,
-boxShadow:"0 1px 1px rgba(0,0,0,.03)",
-position:"relative"
+marginRight: mine ? 6 : 0,
+
+boxShadow:"0 1px 1px rgba(0,0,0,.03)"
 }}
 >
 {msg.body}
