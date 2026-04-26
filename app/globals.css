@@ -62,9 +62,32 @@ overflow-x:hidden;
 
 -webkit-overflow-scrolling:touch;
 overscroll-behavior:contain;
-scroll-behavior:smooth;
+
+/* убрать smooth */
+scroll-behavior:auto;
 
 padding-bottom:8px;
+}
+
+.chat-scroll{
+overflow-anchor:auto;
+}
+
+.chat-scroll *{
+overflow-anchor:none;
+}
+
+html{
+overflow:hidden;
+position:fixed;
+width:100%;
+}
+
+body{
+overflow:hidden;
+position:fixed;
+width:100%;
+inset:0;
 }
 
 /* поле ввода */
