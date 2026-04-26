@@ -359,8 +359,18 @@ marginBottom:8
 
 
 <div
-onDoubleClick={()=>{
+onTouchStart={()=>{
+const timer=setTimeout(()=>{
 setReplyTo(msg);
+},500);
+
+(window as any).replyTimer=timer;
+}}
+
+onTouchEnd={()=>{
+clearTimeout(
+(window as any).replyTimer
+);
 }}
 style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
