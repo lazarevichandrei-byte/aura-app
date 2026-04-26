@@ -2,122 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* RESET */
 *{
 box-sizing:border-box;
--webkit-tap-highlight-color:transparent;
+margin:0;
+padding:0;
 }
 
 html,
-body{
-margin:0;
-padding:0;
-width:100%;
+body,
+#__next{
 height:100%;
-overflow:hidden;
+width:100%;
+}
 
+body{
 font-family:
 -apple-system,
 BlinkMacSystemFont,
-"SF Pro Display",
-"SF Pro Text",
 Inter,
-Arial,
 sans-serif;
 
 background:#fff;
-
--webkit-font-smoothing:antialiased;
--moz-osx-font-smoothing:grayscale;
-
-overscroll-behavior:none;
-touch-action:manipulation;
-}
-
-/* КЛЮЧЕВОЕ */
-html{
-height:100%;
-}
-
-body{
-height:100dvh; /* вместо 100vh */
-}
-
-/* Next root */
-#__next{
-height:100%;
 overflow:hidden;
-}
-
-/* убрать скачки keyboard resize */
-:root{
-height:100%;
-}
-
-/* скролл чата */
-.chat-scroll{
-flex:1;
-overflow-y:auto;
-overflow-x:hidden;
-
--webkit-overflow-scrolling:touch;
-overscroll-behavior:contain;
-
-/* убрать smooth */
-scroll-behavior:auto;
-
-padding-bottom:8px;
-}
-
-.chat-scroll{
-overflow-anchor:auto;
-}
-
-.chat-scroll *{
-overflow-anchor:none;
-}
-
-html{
-overflow:hidden;
-position:fixed;
-width:100%;
-}
-
-body{
-overflow:hidden;
-position:fixed;
-width:100%;
-inset:0;
-}
-
-/* поле ввода */
-.chat-input-safe{
-padding-bottom:env(safe-area-inset-bottom);
-background:white;
-}
-
-/* bubbles */
-.chat-bubble{
-border-radius:22px;
-line-height:22px;
-font-size:16px;
-font-weight:500;
-
-display:inline-block;
-width:auto;
-max-width:78%;
-}
-
-/* typing */
-.typing-bubble{
-height:24px;
-padding:0 8px;
-border-radius:14px;
-}
-
-/* down button */
-.scroll-bottom-btn{
-box-shadow:0 8px 24px rgba(0,0,0,.08);
 }
 
 ::-webkit-scrollbar{
@@ -125,22 +31,7 @@ display:none;
 }
 
 input,
-textarea{
-font-family:inherit;
-font-size:16px;
-outline:none;
-border:none;
-appearance:none;
--webkit-appearance:none;
-}
-
+textarea,
 button{
-cursor:pointer;
-touch-action:manipulation;
-}
-
-a,
-button,
-div{
--webkit-tap-highlight-color:transparent;
+font:inherit;
 }
