@@ -1,7 +1,8 @@
 "use client";
 
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
+
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -17,15 +18,13 @@ const userId =
 
 
 const [messages,setMessages] = useState([]);
-const [loaded,setLoaded] = useState(false);
 const [newMessage,setNewMessage] = useState("");
-const [isTyping,setIsTyping] = useState(false);
+
 const [stickToBottom,setStickToBottom] =
 useState(true);
 
 const [showScrollDown,setShowScrollDown] =
 useState(false);
-const bottomRef = useRef<HTMLDivElement | null>(null);
 const chatRef = useRef<HTMLDivElement | null>(null);
 const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -47,39 +46,35 @@ setMessages(data);
 }
 
 
+
+
 useEffect(()=>{
 fetchMessages();
 },[chatId]);
 
 
 
-
-
-
-
-useEffect(()=>{
-setTimeout(()=>{
-scrollToBottom(false);
-},400);
-
-},[]);
-
-
-
-function scrollToBottom(
-smooth=true
-){
+function scrollToBottom(){
 
 if(!chatRef.current) return;
 
 chatRef.current.scrollTo({
 top:chatRef.current.scrollHeight,
-behavior:smooth
-? "smooth"
-: "auto"
+behavior:"auto"
 });
 
 }
+
+
+useLayoutEffect(()=>{
+
+if(!messages.length) return;
+
+requestAnimationFrame(()=>{
+scrollToBottom();
+});
+
+},[messages.length]);
 
 
 
@@ -126,13 +121,7 @@ supabase.removeChannel(channel);
 };
 
 },[chatId]);
-useEffect(()=>{
 
-if(stickToBottom){
-scrollToBottom(false);
-}
-
-},[messages,stickToBottom]);
 
 async function sendMessage(){
 
@@ -143,19 +132,20 @@ const text = newMessage;
 setNewMessage("");
 
 
-const optimisticMessage={
-id:Date.now(),
-body:text,
-sender_id:userId
+const optimisticMessage = {
+id: Date.now(),
+body: text,
+sender_id: userId
 };
 
-setMessages(prev=>[
+setMessages(prev => [
 ...prev,
 optimisticMessage
 ]);
 
-
-scrollToBottom(false);
+requestAnimationFrame(()=>{
+scrollToBottom();
+});
 
 
 
@@ -304,7 +294,6 @@ setStickToBottom(nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-scrollBehavior:"smooth",
 overscrollBehavior:"contain",
 
 padding:"12px 10px 6px",
@@ -405,7 +394,6 @@ paddingRight:8
 <div
 style={{
 background: mine ? "#EAF3FF" : "#F3F5F8",
-
 padding:"10px 15px",
 
 fontSize:16,
@@ -414,13 +402,11 @@ fontWeight:500,
 
 display:"inline-block",
 
-width:"fit-content",
+width:"auto",
 maxWidth:"78%",
-minWidth:"unset",
 
-whiteSpace:"pre-wrap",
-wordBreak:"break-word",
-overflowWrap:"break-word",
+whiteSpace:"normal",
+wordBreak:"normal",
 
 borderRadius:24,
 
@@ -487,29 +473,35 @@ background:"#111"
 
 </div>
 
-<div ref={bottomRef}/>
+
 
 
 </div>
 
 {showScrollDown && (
 <div
-onClick={() => scrollToBottom(true)}
+onClick={scrollToBottom}
 style={{
 position:"fixed",
 left:"50%",
 transform:"translateX(-50%)",
 bottom:96,
+
 width:44,
 height:44,
+
 borderRadius:"50%",
+
 background:"rgba(245,247,250,.95)",
 backdropFilter:"blur(16px)",
+
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
+
 boxShadow:"0 6px 18px rgba(0,0,0,.08)",
 border:"1px solid rgba(255,255,255,.7)",
+
 zIndex:90,
 cursor:"pointer"
 }}
@@ -550,32 +542,14 @@ paddingRight:8
 }}
 >
 
+
+
 <input
 ref={inputRef}
 value={newMessage}
 
 onFocus={()=>{
-
 setStickToBottom(true);
-setIsTyping(true);
-
-/* сразу вниз */
-scrollToBottom(false);
-
-/* когда клавиатура начала подниматься */
-setTimeout(()=>{
-scrollToBottom(false);
-},120);
-
-/* когда поднялась полностью */
-setTimeout(()=>{
-scrollToBottom(false);
-},300);
-
-}}
-
-onBlur={()=>{
-setIsTyping(false);
 }}
 
 onChange={(e)=>{
@@ -607,7 +581,6 @@ fontSize:15,
 padding:0
 }}
 />
-
 
 <div
 onPointerDown={(e)=>{
