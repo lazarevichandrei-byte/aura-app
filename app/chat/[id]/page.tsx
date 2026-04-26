@@ -18,6 +18,8 @@ const [messages,setMessages] = useState([]);
 const [newMessage,setNewMessage] = useState("");
 const [showScrollDown,setShowScrollDown] =
 useState(false);
+const [keyboardOffset,setKeyboardOffset] =
+useState(0);
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
@@ -49,9 +51,12 @@ if(!error && data){
 
 setMessages(data);
 
-setTimeout(()=>{
-scrollToBottom();
-},0);
+requestAnimationFrame(()=>{
+if(chatRef.current){
+chatRef.current.scrollTop =
+chatRef.current.scrollHeight;
+}
+});
 
 }
 
@@ -63,6 +68,55 @@ useEffect(()=>{
 fetchMessages();
 },[chatId]);
 useEffect(()=>{
+
+    useEffect(()=>{
+
+if(!window.visualViewport) return;
+
+const vv = window.visualViewport;
+
+const handleKeyboard = ()=>{
+
+const offset =
+window.innerHeight
+- vv.height
+- vv.offsetTop;
+
+setKeyboardOffset(
+offset > 0
+? offset
+: 0
+);
+
+};
+
+vv.addEventListener(
+"resize",
+handleKeyboard
+);
+
+vv.addEventListener(
+"scroll",
+handleKeyboard
+);
+
+handleKeyboard();
+
+return ()=>{
+
+vv.removeEventListener(
+"resize",
+handleKeyboard
+);
+
+vv.removeEventListener(
+"scroll",
+handleKeyboard
+);
+
+};
+
+},[]);
 
 const channel=supabase
 .channel(`chat-${chatId}`)
@@ -206,7 +260,13 @@ setShowScrollDown(!nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-padding:"12px 10px 6px"
+padding:"12px 10px 6px",
+
+transform:
+`translateY(-${keyboardOffset}px)`,
+
+transition:
+"transform .22s ease-out"
 }}
 >
 
@@ -286,7 +346,14 @@ justifyContent:"center"
 <div
 style={{
 padding:"8px 10px",
-borderTop:"1px solid #eef1f5"
+borderTop:"1px solid #eef1f5",
+background:"#fff",
+
+transform:
+`translateY(-${keyboardOffset}px)`,
+
+transition:
+"transform .22s ease-out"
 }}
 >
 
