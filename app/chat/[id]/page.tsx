@@ -492,10 +492,13 @@ fontSize:11
 <div
 style={{
 marginTop:3,
-fontSize:8,
+fontSize:11,
 opacity:.65,
 textAlign:"right",
-lineHeight:"11px"
+display:"flex",
+justifyContent:"flex-end",
+alignItems:"center",
+gap:3
 }}
 >
 {new Date(
@@ -507,7 +510,18 @@ hour:"2-digit",
 minute:"2-digit"
 }
 )}
-{mine ? " ✓✓" : ""}
+
+{mine && (
+<span
+style={{
+fontSize:10,
+letterSpacing:"-2px",
+fontWeight:600
+}}
+>
+✓✓
+</span>
+)}
 </div>
 
 </div>
