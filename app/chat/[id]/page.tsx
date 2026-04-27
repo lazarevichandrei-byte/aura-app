@@ -30,6 +30,8 @@ useRef<HTMLDivElement | null>(null);
 
 const inputRef =
 useRef<HTMLInputElement | null>(null);
+const lastScrollTop =
+useRef(0);
 
 
 function scrollToBottom(){
@@ -391,19 +393,34 @@ ref={chatRef}
 
 onScroll={(e)=>{
 
-const el = e.currentTarget;
+const el =
+e.currentTarget;
+
+const currentScroll =
+el.scrollTop;
+
+const goingDown =
+currentScroll >
+lastScrollTop.current;
 
 const distanceFromBottom =
 el.scrollHeight -
-el.scrollTop -
+currentScroll -
 el.clientHeight;
 
-const userScrolledUp =
-distanceFromBottom > 250;
 
-setShowScrollDown(
-userScrolledUp
-);
+if(
+goingDown &&
+distanceFromBottom > 120
+){
+setShowScrollDown(true);
+}
+else{
+setShowScrollDown(false);
+}
+
+lastScrollTop.current =
+currentScroll;
 
 }}
 
@@ -565,7 +582,7 @@ onClick={scrollToBottom}
 style={{
 position:"fixed",
 right:18,
-bottom:118,
+bottom:138,
 
 width:38,
 height:38,
