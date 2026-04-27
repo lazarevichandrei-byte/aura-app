@@ -387,8 +387,8 @@ lineHeight:"17px",
 
 borderRadius:16,
 
+width:"fit-content",
 maxWidth:"62%",
-minWidth:"46%",
 
 wordBreak:"break-word",
 overflowWrap:"break-word"
