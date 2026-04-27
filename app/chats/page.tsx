@@ -246,8 +246,7 @@ cursor:"pointer"
 >
 
 <img
-src={chat.avatar}
-style={{
+src={chat.avatar || "/girl1.jpg"}style={{
 width:60,
 height:60,
 borderRadius:"50%",
@@ -304,10 +303,10 @@ fontSize:14,
 color:"#A0A5B0"
 }}
 >
-{chat.time}
+{chat.last_message_at?.slice(11,16)}
 </div>
 
-{chat.unread && (
+{chat.unread_count > 0 && (
 <div
 style={{
 minWidth:20,
@@ -328,7 +327,7 @@ fontSize:11,
 fontWeight:700
 }}
 >
-{chat.unread}
+{chat.unread_count}
 </div>
 )}
 
