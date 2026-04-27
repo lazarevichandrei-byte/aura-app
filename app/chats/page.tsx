@@ -41,7 +41,7 @@ supabase
 .on(
 "postgres_changes",
 {
-event:"UPDATE",
+event:"*",
 schema:"public",
 table:"chats"
 },
@@ -66,11 +66,44 @@ supabase.removeChannel(channel);
 
 },[]);
 
+useEffect(()=>{
+
+const refresh=()=>{
+loadChats();
+};
+
+window.addEventListener(
+"focus",
+refresh
+);
+
+return ()=>{
+window.removeEventListener(
+"focus",
+refresh
+);
+};
+
+},[]);
+
+
+useEffect(()=>{
+
+const poll=
+setInterval(()=>{
+loadChats();
+},5000);
+
+return ()=>{
+clearInterval(poll);
+};
+
+},[]);
+
 
 useEffect(()=>{
 
 const timer =
-
 setInterval(()=>{
 
 if(document.hidden){
