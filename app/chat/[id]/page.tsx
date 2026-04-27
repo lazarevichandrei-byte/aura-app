@@ -334,13 +334,7 @@ setShowScrollDown(!nearBottom);
 style={{
 flex:1,
 overflowY:"auto",
-padding:"12px 10px 6px",
-
-paddingBottom:
-keyboardOffset + 12,
-
-transition:
-"padding-bottom .22s ease-out"
+padding:"12px 10px 6px"
 }}
 >
 
@@ -489,8 +483,7 @@ padding:"8px 10px",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
 
-transform:
-`translateY(-${keyboardOffset}px)`,
+
 
 transition:
 "transform .22s ease-out"
@@ -557,15 +550,29 @@ ref={inputRef}
 value={newMessage}
 
 onFocus={()=>{
+
 setTimeout(()=>{
 scrollToBottom();
-},120);
+
+if(chatRef.current){
+chatRef.current.scrollTop =
+chatRef.current.scrollHeight + 500;
+}
+
+},250);
+
+}}
+
+onBlur={()=>{
+
+setTimeout(()=>{
+scrollToBottom();
+},100);
+
 }}
 
 onChange={(e)=>{
-setNewMessage(
-e.target.value
-);
+setNewMessage(e.target.value);
 }}
 
 onKeyDown={(e)=>{
