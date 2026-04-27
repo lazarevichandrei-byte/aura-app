@@ -18,6 +18,10 @@ const router = useRouter();
 
 const [chats,setChats] =
 useState<any[]>([]);
+const [typingChats,setTypingChats] =
+useState<any>({});
+
+
 
 
 useEffect(()=>{
@@ -25,6 +29,29 @@ useEffect(()=>{
 loadChats();
 
 },[]);
+
+
+useEffect(()=>{
+
+const timer =
+setInterval(()=>{
+
+setTypingChats({
+"22222222-2222-2222-2222-222222222222":true
+});
+
+setTimeout(()=>{
+setTypingChats({});
+},2200);
+
+},7000);
+
+return ()=>{
+clearInterval(timer);
+};
+
+},[]);
+
 
 
 async function loadChats(){
@@ -223,9 +250,7 @@ color:"#2F80FF"
 
 <div style={{marginTop:24}}>
 
-<div>
-Чатов: {chats.length}
-</div>
+
 
 {chats.map((chat,i)=>(
 
@@ -281,13 +306,19 @@ chat.unread_count
 style={{
 fontSize:15,
 color:
-chat.unread_count
+typingChats[chat.id]
+? "#2E7BFF"
+: chat.unread_count
 ? "#2A2D34"
 :"#8A8F9B",
 marginTop:4
 }}
 >
-{chat.last_message || "Начните общение ✨"}
+{
+typingChats[chat.id]
+? "Печатает…"
+: chat.last_message || "Начните общение ✨"
+}
 </div>
 
 </div>
