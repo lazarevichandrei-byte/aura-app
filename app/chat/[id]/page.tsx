@@ -353,7 +353,7 @@ justifyContent:
 mine
 ? "flex-end"
 : "flex-start",
-marginBottom:4
+marginBottom:5
 }}
 >
 
@@ -379,16 +379,16 @@ background: mine
 
 color: mine ? "#fff" : "#111",
 
-padding:"14px 22px",
+padding:"7px 11px",
 
-fontSize:22,
+fontSize:11,
 fontWeight:500,
 
-lineHeight:"30px",
+lineHeight:"15px",
 
-borderRadius:28,
+borderRadius:14,
 
-maxWidth:"88%",
+maxWidth:"44%",
 
 width:"fit-content",
 
