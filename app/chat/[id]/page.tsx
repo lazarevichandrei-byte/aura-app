@@ -32,10 +32,14 @@ useRef<HTMLInputElement | null>(null);
 
 function scrollToBottom(){
 
+requestAnimationFrame(()=>{
+
 if(!chatRef.current) return;
 
-chatRef.current.scrollTop =
+chatRef.current.scrollTop=
 chatRef.current.scrollHeight;
+
+});
 
 }
 
@@ -99,7 +103,6 @@ offset > 0
 : 0
 );
 
-scrollToBottom();
 
 });
 
