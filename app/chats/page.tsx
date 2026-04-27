@@ -223,11 +223,15 @@ color:"#2F80FF"
 
 <div style={{marginTop:24}}>
 
+<div>
+Чатов: {chats.length}
+</div>
+
 {chats.map((chat,i)=>(
 
 <div
-key={chat.name}
-onClick={()=>router.push(`/chat/${i}`)}
+key={chat.id}
+onClick={()=>router.push(`/chat/${chat.id}`)}
 style={{
 display:"flex",
 alignItems:"center",
@@ -246,7 +250,8 @@ cursor:"pointer"
 >
 
 <img
-src={chat.avatar || "/girl1.jpg"}style={{
+src={chat.avatar || "/girl1.jpg"}
+style={{
 width:60,
 height:60,
 borderRadius:"50%",
