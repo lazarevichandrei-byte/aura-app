@@ -97,11 +97,18 @@ window.innerHeight -
 vv.height -
 vv.offsetTop;
 
-setKeyboardOffset(
+const kb =
 offset > 0
 ? offset
-: 0
-);
+: 0;
+
+setKeyboardOffset(kb);
+
+if(kb>0){
+setTimeout(()=>{
+scrollToBottom();
+},30);
+}
 
 
 });
@@ -548,6 +555,12 @@ paddingRight:6
 <input
 ref={inputRef}
 value={newMessage}
+
+onFocus={()=>{
+setTimeout(()=>{
+scrollToBottom();
+},120);
+}}
 
 onChange={(e)=>{
 setNewMessage(
