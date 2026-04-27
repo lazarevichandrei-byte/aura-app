@@ -114,7 +114,7 @@ fontSize:18,
 color:"#A3A8B3"
 }}
 >
-🔍 Поиск
+⌕ Поиск
 </div>
 
 
@@ -219,6 +219,22 @@ marginTop:6
 
 
 {/* CHAT LIST */}
+<div
+style={{
+marginTop:20,
+marginBottom:14,
+padding:"14px 16px",
+borderRadius:18,
+background:
+"linear-gradient(135deg,#EEF4FF,#F7F9FF)",
+fontSize:15,
+fontWeight:600,
+color:"#2F80FF"
+}}
+>
+✨ Новый мэтч сегодня
+</div>
+
 <div style={{marginTop:24}}>
 
 {chats.map((chat,i)=>(
@@ -229,8 +245,16 @@ onClick={()=>router.push(`/chat/${i}`)}
 style={{
 display:"flex",
 alignItems:"center",
-padding:"15px 0",
-borderBottom:"1px solid #F1F2F5",
+
+padding:"14px 14px",
+marginBottom:8,
+
+borderRadius:22,
+background:"#fff",
+
+boxShadow:
+"0 1px 4px rgba(0,0,0,.03)",
+
 cursor:"pointer"
 }}
 >
@@ -254,8 +278,10 @@ marginLeft:14
 
 <div
 style={{
-fontSize:18,
-fontWeight:600
+fontWeight:
+chat.unread
+? 700
+:600
 }}
 >
 {chat.name}
@@ -264,7 +290,10 @@ fontWeight:600
 <div
 style={{
 fontSize:15,
-color:"#8A8F9B",
+color:
+chat.unread
+? "#2A2D34"
+:"#8A8F9B",
 marginTop:4
 }}
 >
@@ -295,15 +324,21 @@ color:"#A0A5B0"
 {chat.unread && (
 <div
 style={{
-width:24,
-height:24,
-borderRadius:"50%",
+minWidth:20,
+height:20,
+
+padding:"0 6px",
+
+borderRadius:10,
+
 background:"#2F80FF",
 color:"#fff",
+
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-fontSize:12,
+
+fontSize:11,
 fontWeight:700
 }}
 >
