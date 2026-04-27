@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+useEffect,
+useState,
+useRef
+} from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
@@ -20,13 +24,16 @@ const [chats,setChats] =
 useState<any[]>([]);
 const [typingChats,setTypingChats] =
 useState<any>({});
-
+const reloadTimer =
+useRef<any>(null);
 
 
 
 useEffect(()=>{
 
-loadChats();
+queueMicrotask(
+loadChats
+);
 
 const channel =
 supabase
@@ -39,12 +46,21 @@ schema:"public",
 table:"chats"
 },
 ()=>{
+
+clearTimeout(
+reloadTimer.current
+);
+
+reloadTimer.current=
+setTimeout(()=>{
 loadChats();
+},250);
+
 }
 )
 .subscribe();
 
-return()=>{
+return ()=>{
 supabase.removeChannel(channel);
 };
 
@@ -54,7 +70,13 @@ supabase.removeChannel(channel);
 useEffect(()=>{
 
 const timer =
+
 setInterval(()=>{
+
+if(document.hidden){
+return;
+}
+
 
 setTypingChats(prev=>{
 
@@ -90,11 +112,11 @@ await supabase
 .select(
 "id,name,avatar,last_message,last_message_at,unread_count"
 )
-.limit(30)
 .order(
 "last_message_at",
 {ascending:false}
-);
+)
+.limit(30);
 
 if(!error && data){
 setChats(data);
@@ -219,6 +241,8 @@ border:"2px solid #2F80FF"
 }}
 >
 <img
+loading="lazy"
+decoding="async"
 src={item.img}
 style={{
 width:"100%",
@@ -308,6 +332,8 @@ cursor:"pointer"
 >
 
 <img
+loading="lazy"
+decoding="async"
 src={chat.avatar || "/girl1.jpg"}
 style={{
 width:60,
