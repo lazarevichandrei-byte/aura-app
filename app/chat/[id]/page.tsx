@@ -379,16 +379,16 @@ background: mine
 
 color: mine ? "#fff" : "#111",
 
-padding:"7px 11px",
+padding:"8px 13px",
 
-fontSize:11,
+fontSize:13,
 fontWeight:500,
 
-lineHeight:"15px",
+lineHeight:"17px",
 
-borderRadius:14,
+borderRadius:16,
 
-maxWidth:"44%",
+maxWidth:"53%",
 
 width:"fit-content",
 
@@ -402,8 +402,8 @@ overflowWrap:"break-word"
 <div
 style={{
 marginTop:3,
-fontSize:11,
-opacity:.55,
+fontSize:8,
+opacity:.65,
 textAlign:"right",
 lineHeight:"11px"
 }}
