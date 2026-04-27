@@ -1,55 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
-
-const chats = [
-{
-name:"Алина",
-msg:"Привет! Как прошёл твой день? 😊",
-time:"18:42",
-unread:2,
-avatar:"/girl1.jpg"
-},
-{
-name:"Дмитрий",
-msg:"Хочешь завтра на кофе? ☕",
-time:"17:30",
-unread:1,
-avatar:"/guy1.jpg"
-},
-{
-name:"Мария",
-msg:"Спасибо за классный вечер! 💙",
-time:"16:15",
-avatar:"/girl2.jpg"
-},
-{
-name:"Алексей",
-msg:"Отправил тебе фото",
-time:"15:02",
-avatar:"/guy2.jpg"
-},
-{
-name:"Екатерина",
-msg:"Ты был прав, фильм супер! 🎬",
-time:"14:20",
-unread:1,
-avatar:"/girl3.jpg"
-},
-{
-name:"Иван",
-msg:"Договорились!",
-time:"Вчера",
-avatar:"/guy3.jpg"
-},
-{
-name:"Полина",
-msg:"Посмотрим, что будет дальше 😉",
-time:"Вчера",
-avatar:"/girl4.jpg"
-}
-];
 
 const matches = [
 {img:"/girl1.jpg",name:"Алина"},
@@ -62,8 +16,36 @@ export default function Chats(){
 
 const router = useRouter();
 
+const [chats,setChats] =
+useState<any[]>([]);
+
+
+useEffect(()=>{
+
+loadChats();
+
+},[]);
+
+
+async function loadChats(){
+
+const {data,error} =
+await supabase
+.from("chats")
+.select("*")
+.order(
+"last_message_at",
+{ascending:false}
+);
+
+if(!error && data){
+setChats(data);
+}
+
+}
 
 return(
+    
 <div
 style={{
 height:"100dvh",
@@ -301,7 +283,7 @@ chat.unread
 marginTop:4
 }}
 >
-{chat.msg}
+{chat.last_message || "Начните общение ✨"}
 </div>
 
 </div>
