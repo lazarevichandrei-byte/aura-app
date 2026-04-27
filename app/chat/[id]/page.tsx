@@ -30,6 +30,8 @@ useRef<HTMLDivElement | null>(null);
 
 const inputRef =
 useRef<HTMLInputElement | null>(null);
+const touchStartX =
+useRef(0);
 const lastScrollTop =
 useRef(0);
 
@@ -262,6 +264,30 @@ alert(error.message);
 }
 return(
 <div
+
+onTouchStart={(e)=>{
+touchStartX.current =
+e.touches[0].clientX;
+}}
+
+onTouchEnd={(e)=>{
+
+const delta =
+e.changedTouches[0].clientX -
+touchStartX.current;
+
+const startedFromEdge =
+touchStartX.current < 35;
+
+if(
+startedFromEdge &&
+delta > 90
+){
+router.back();
+}
+
+}}
+
 style={{
 height:"100dvh",
 overflow:"hidden",
