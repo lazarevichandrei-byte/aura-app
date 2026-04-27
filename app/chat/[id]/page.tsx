@@ -207,7 +207,8 @@ setNewMessage("");
 const optimisticMessage={
 id:Date.now(),
 body:text,
-sender_id:userId
+sender_id:userId,
+created_at:new Date().toISOString()
 };
 
 setMessages(prev=>[
@@ -250,7 +251,7 @@ flexDirection:"column"
 style={{
 display:"flex",
 alignItems:"center",
-justifyContent:"space-between",
+justifyContent:"flex-start",
 padding:"0 16px"
 }}
 >
@@ -380,21 +381,17 @@ mine
 ? "#fff"
 : "#111",
 
-padding:"12px 16px",
-
+padding:"11px 18px",
 fontSize:17,
 fontWeight:400,
-lineHeight:"23px",
-
-borderRadius:22,
-
-maxWidth:"74%",
-
+lineHeight:"-.2px",
+borderRadius:18,
+maxWidth:"82%",
 boxShadow:
 "0 1px 2px rgba(0,0,0,.03)",
-
 wordBreak:"break-word",
 overflowWrap:"anywhere"
+
 }}
 >
 
@@ -408,7 +405,16 @@ opacity:.85,
 textAlign:"right"
 }}
 >
-18:53 {mine ? "✓✓" : ""}
+{new Date(
+msg.created_at || Date.now()
+).toLocaleTimeString(
+"ru-RU",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+)}
+{mine ? " ✓✓" : ""}
 </div>
 
 </div>
@@ -423,19 +429,17 @@ style={{
 display:"flex",
 justifyContent:"flex-start",
 paddingLeft:10,
-marginTop:4,
+marginTop:6,
 marginBottom:2
 }}
 >
-<div
-style={{
-fontSize:13,
-color:"#8B95A7",
-fontWeight:500
-}}
->
-Пишет
-<span className="typing-dots"></span>
+<div style={{
+background:"#F2F4F7",
+padding:"8px 14px",
+borderRadius:18,
+width:52
+}}>
+•••
 </div>
 </div>
 
