@@ -353,7 +353,7 @@ justifyContent:
 mine
 ? "flex-end"
 : "flex-start",
-marginBottom:8
+marginBottom:5
 }}
 >
 
@@ -377,24 +377,25 @@ background: mine
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
 : "#F2F4F7",
 
-color:
-mine
+color: mine
 ? "#fff"
 : "#111",
 
-padding:"8px 13px",
+padding:"7px 11px",   // было жирнее
+
 fontSize:14,
 fontWeight:500,
 
-lineHeight:"18px",
-letterSpacing:"-.2px",
+lineHeight:"17px",
 
-borderRadius:15,
+borderRadius:14,
 
-maxWidth:"68%",
+maxWidth:"64%",
 
-boxShadow:
-"0 1px 2px rgba(0,0,0,.03)",
+width:"fit-content",
+minWidth:0,
+
+boxShadow:"0 1px 1px rgba(0,0,0,.02)",
 
 wordBreak:"break-word",
 overflowWrap:"anywhere"
