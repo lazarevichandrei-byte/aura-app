@@ -382,16 +382,16 @@ mine
 ? "#fff"
 : "#111",
 
-padding:"9px 15px",
-fontSize:15,
+padding:"8px 13px",
+fontSize:14,
 fontWeight:500,
 
-lineHeight:"20px",
+lineHeight:"18px",
 letterSpacing:"-.2px",
 
-borderRadius:16,
+borderRadius:15,
 
-maxWidth:"82%",
+maxWidth:"68%",
 
 boxShadow:
 "0 1px 2px rgba(0,0,0,.03)",
@@ -405,9 +405,9 @@ overflowWrap:"anywhere"
 
 <div
 style={{
-marginTop:6,
-fontSize:12,
-opacity:.85,
+marginTop:4,
+fontSize:10,
+opacity:.7,
 textAlign:"right"
 }}
 >
