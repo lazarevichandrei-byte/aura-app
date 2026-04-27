@@ -381,17 +381,22 @@ mine
 ? "#fff"
 : "#111",
 
-padding:"11px 18px",
-fontSize:17,
-fontWeight:400,
-lineHeight:"-.2px",
-borderRadius:18,
+padding:"9px 15px",
+fontSize:15,
+fontWeight:500,
+
+lineHeight:"20px",
+letterSpacing:"-.2px",
+
+borderRadius:16,
+
 maxWidth:"82%",
+
 boxShadow:
 "0 1px 2px rgba(0,0,0,.03)",
+
 wordBreak:"break-word",
 overflowWrap:"anywhere"
-
 }}
 >
 
