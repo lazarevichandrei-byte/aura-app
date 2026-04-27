@@ -142,9 +142,16 @@ async function loadChats(){
 const {data,error} =
 await supabase
 .from("chats")
-.select(
-"id,name,avatar,last_message,last_message_at,unread_count"
+.select(`
+id,
+name,
+avatar,
+unread_count,
+messages(
+body,
+created_at
 )
+`)
 .order(
 "last_message_at",
 {ascending:false}
@@ -152,7 +159,26 @@ await supabase
 .limit(30);
 
 if(!error && data){
-setChats(data);
+
+setChats(
+data.map(chat=>{
+
+const last =
+chat.messages?.[
+chat.messages.length-1
+];
+
+return{
+...chat,
+last_message:
+last?.body || "",
+last_message_at:
+last?.created_at || null
+};
+
+})
+);
+
 }
 
 }
