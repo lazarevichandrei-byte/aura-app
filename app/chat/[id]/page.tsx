@@ -276,12 +276,8 @@ const delta =
 e.changedTouches[0].clientX -
 touchStartX.current;
 
-const startedFromEdge =
-touchStartX.current < 35;
-
 if(
-startedFromEdge &&
-delta > 90
+delta > 120
 ){
 router.back();
 }
