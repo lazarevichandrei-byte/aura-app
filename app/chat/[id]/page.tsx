@@ -298,7 +298,7 @@ fontFamily:"-apple-system, SF Pro Display, sans-serif",
 marginTop:-6
 }}
 >
-❮
+‹
 </span>
 </div>
 
