@@ -375,27 +375,21 @@ clearTimeout(
 style={{
 background: mine
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
-: "#F2F4F7",
+:"#F2F4F7",
 
-color: mine
-? "#fff"
-: "#111",
+color: mine ? "#fff" : "#111",
 
-padding:"7px 11px",   // было жирнее
+padding:"6px 10px",
 
-fontSize:14,
+fontSize:13.5,
 fontWeight:500,
+lineHeight:"16px",
 
-lineHeight:"17px",
+borderRadius:13,
 
-borderRadius:14,
-
-maxWidth:"51%",
+maxWidth:"54%",
 
 width:"fit-content",
-minWidth:0,
-
-boxShadow:"0 1px 1px rgba(0,0,0,.02)",
 
 wordBreak:"break-word",
 overflowWrap:"anywhere"
