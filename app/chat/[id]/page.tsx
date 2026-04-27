@@ -22,6 +22,8 @@ const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
 useState(false);
+const [isTyping,setIsTyping] =
+useState(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
 
@@ -34,7 +36,8 @@ const touchStartX =
 useRef(0);
 const lastScrollTop =
 useRef(0);
-
+const scrollTick =
+useRef(false);
 
 function scrollToBottom(){
 
@@ -57,17 +60,25 @@ const { data,error } = await supabase
 .from("messages")
 .select("*")
 .eq("chat_id",chatId)
-.order("created_at",{ascending:true});
+.order(
+"created_at",
+{ascending:false}
+)
+.limit(50);
 
 if(!error && data){
 
-setMessages(data);
+setMessages(
+data.reverse()
+);
+
 await supabase
 .from("messages")
 .update({
 is_read:true
 })
 .eq("chat_id",chatId)
+.eq("is_read",false)
 .neq("sender_id",userId);
 
 
@@ -201,16 +212,15 @@ m=>m.id===payload.new.id
 return prev;
 }
 
-return[
-...prev,
+return prev.concat(
 payload.new
-];
+);
 
 });
 
-setTimeout(()=>{
-scrollToBottom();
-},0);
+requestAnimationFrame(
+scrollToBottom
+);
 
 }
 )
@@ -275,7 +285,7 @@ replyTo?.body || null
 
 if(!error){
 
-await supabase
+supabase
 .from("chats")
 .update({
 last_message:text,
@@ -284,7 +294,7 @@ last_message_at:new Date().toISOString()
 .eq("id",chatId);
 
 }
-console.log("chat updated", text);
+
 
 }
 return(
@@ -440,6 +450,14 @@ ref={chatRef}
 
 onScroll={(e)=>{
 
+if(
+scrollTick.current
+) return;
+
+scrollTick.current=true;
+
+requestAnimationFrame(()=>{   
+
 const el =
 e.currentTarget;
 
@@ -469,7 +487,10 @@ setShowScrollDown(false);
 lastScrollTop.current =
 currentScroll;
 
+scrollTick.current=false;
+});
 }}
+
 
 style={{
 flex:1,
@@ -600,6 +621,8 @@ fontWeight:600
 )
 
 })}
+{isTyping && (
+
 <div
 style={{
 display:"flex",
@@ -609,15 +632,19 @@ marginTop:6,
 marginBottom:2
 }}
 >
-<div style={{
+<div
+style={{
 background:"#F2F4F7",
 padding:"8px 14px",
 borderRadius:18,
 width:52
-}}>
+}}
+>
 •••
 </div>
 </div>
+
+)}
 
 </div>
 {showScrollDown && (
@@ -728,6 +755,9 @@ paddingRight:6
 
 <input
 ref={inputRef}
+autoComplete="off"
+autoCorrect="off"
+spellCheck={false}
 value={newMessage}
 
 onFocus={()=>{
