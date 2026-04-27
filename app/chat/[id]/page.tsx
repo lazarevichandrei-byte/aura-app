@@ -257,9 +257,20 @@ reply_preview:
 replyTo?.body || null
 });
 
+
+await supabase
+.from("chats")
+.update({
+last_message:text,
+last_message_at:new Date().toISOString()
+})
+.eq("id",chatId);
+
+
 if(error){
 alert(error.message);
 }
+
 
 }
 return(
