@@ -307,7 +307,7 @@ style={{
 marginLeft:14,
 display:"flex",
 alignItems:"center",
-gap:10
+gap:14
 }}
 >
 
