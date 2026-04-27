@@ -391,14 +391,19 @@ ref={chatRef}
 
 onScroll={(e)=>{
 
-const el=e.currentTarget;
+const el = e.currentTarget;
 
-const nearBottom=
-el.scrollHeight-
-el.scrollTop-
-el.clientHeight <80;
+const distanceFromBottom =
+el.scrollHeight -
+el.scrollTop -
+el.clientHeight;
 
-setShowScrollDown(!nearBottom);
+const userScrolledUp =
+distanceFromBottom > 250;
+
+setShowScrollDown(
+userScrolledUp
+);
 
 }}
 
@@ -560,10 +565,10 @@ onClick={scrollToBottom}
 style={{
 position:"fixed",
 right:18,
-bottom:110,
+bottom:118,
 
-width:42,
-height:42,
+width:38,
+height:38,
 borderRadius:"50%",
 
 background:"#FFFFFF",
