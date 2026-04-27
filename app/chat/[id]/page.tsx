@@ -383,14 +383,12 @@ padding:"8px 13px",
 
 fontSize:13,
 fontWeight:500,
-
 lineHeight:"17px",
 
 borderRadius:16,
 
-maxWidth:"53%",
-
-width:"fit-content",
+maxWidth:"62%",
+minWidth:"46%",
 
 wordBreak:"break-word",
 overflowWrap:"break-word"
