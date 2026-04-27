@@ -281,7 +281,7 @@ chat.unread_count
 style={{
 fontSize:15,
 color:
-chat.unread
+chat.unread_count
 ? "#2A2D34"
 :"#8A8F9B",
 marginTop:4
@@ -361,13 +361,3 @@ fontWeight:700
 )
 }
 
-const circleBtn = {
-width:42,
-height:42,
-borderRadius:"50%",
-background:"#F4F6FB",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:20
-};
