@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import {
+useRouter,
+useParams
+} from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
 export default function ChatPage(){
 
 const router = useRouter();
+const params = useParams();
 
 const chatId =
-"22222222-2222-2222-2222-222222222222";
+params.id as string;
 
 const userId =
 "11111111-1111-1111-1111-111111111111";
