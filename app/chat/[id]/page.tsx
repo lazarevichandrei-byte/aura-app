@@ -222,6 +222,16 @@ requestAnimationFrame(
 scrollToBottom
 );
 
+supabase
+.from("chats")
+.update({
+last_message:payload.new.body,
+last_message_at:
+payload.new.created_at
+})
+.eq("id",chatId);
+
+
 }
 )
 .subscribe();
