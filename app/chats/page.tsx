@@ -269,8 +269,8 @@ marginLeft:14
 <div
 style={{
 fontWeight:
-chat.unread
-? 700
+chat.unread_count
+?700
 :600
 }}
 >
@@ -308,7 +308,18 @@ fontSize:14,
 color:"#A0A5B0"
 }}
 >
-{chat.last_message_at?.slice(11,16)}
+{
+chat.last_message_at
+? new Date(chat.last_message_at)
+.toLocaleTimeString(
+"ru-RU",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+)
+: ""
+}
 </div>
 
 {chat.unread_count > 0 && (
