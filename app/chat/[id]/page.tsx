@@ -16,6 +16,8 @@ const userId =
 
 const [messages,setMessages] = useState([]);
 const [newMessage,setNewMessage] = useState("");
+const [isOnline,setIsOnline] =
+useState(true);
 const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
@@ -303,11 +305,61 @@ objectFit:"cover"
 
 <div
 style={{
+display:"flex",
+flexDirection:"column",
+lineHeight:1.1
+}}
+>
+
+<div
+style={{
 fontSize:17,
 fontWeight:600
 }}
 >
 Алина
+</div>
+
+<div
+style={{
+display:"flex",
+alignItems:"center",
+gap:6,
+marginTop:4,
+
+fontSize:12,
+
+color:
+isOnline
+? "#34C759"
+: "#A7AFBC"
+}}
+>
+
+<div
+style={{
+width:8,
+height:8,
+borderRadius:"50%",
+
+background:
+isOnline
+? "#34C759"
+:"#B8C0CC",
+
+boxShadow:
+isOnline
+? "0 0 8px rgba(52,199,89,.6)"
+:"none"
+}}
+/>
+
+{isOnline
+? "Онлайн"
+: "Оффлайн"}
+
+</div>
+
 </div>
 
 </div>
