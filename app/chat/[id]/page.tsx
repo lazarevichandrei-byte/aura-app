@@ -212,12 +212,19 @@ if(!newMessage.trim()) return;
 const text = newMessage;
 
 setNewMessage("");
+setReplyTo(null);
 
 const optimisticMessage={
 id:Date.now(),
 body:text,
 sender_id:userId,
-created_at:new Date().toISOString()
+created_at:new Date().toISOString(),
+
+reply_to_id:
+replyTo?.id || null,
+
+reply_preview:
+replyTo?.body || null
 };
 
 setMessages(prev=>
@@ -237,7 +244,13 @@ await supabase
 chat_id:chatId,
 sender_id:userId,
 body:text,
-message_type:"text"
+message_type:"text",
+
+reply_to_id:
+replyTo?.id || null,
+
+reply_preview:
+replyTo?.body || null
 });
 
 if(error){
@@ -449,6 +462,27 @@ overflowWrap:"break-word"
 
 {msg.body}
 
+
+{msg.reply_preview && (
+
+<div
+style={{
+background:
+mine
+?"rgba(255,255,255,.18)"
+:"#E3ECFF",
+
+padding:"6px 8px",
+borderRadius:10,
+marginBottom:6,
+fontSize:11
+}}
+>
+{msg.reply_preview}
+</div>
+
+)}
+
 <div
 style={{
 marginTop:3,
@@ -542,17 +576,33 @@ transition:
 <div
 style={{
 background:"#EDF4FF",
-padding:"8px 12px",
+padding:"10px 12px",
 borderRadius:14,
-marginBottom:8
+marginBottom:8,
+position:"relative"
 }}
 >
+
+<div
+onClick={()=>setReplyTo(null)}
+style={{
+position:"absolute",
+right:10,
+top:8,
+fontSize:14,
+cursor:"pointer",
+color:"#7A8699"
+}}
+>
+✕
+</div>
 
 <div
 style={{
 fontSize:11,
 fontWeight:600,
-color:"#2E7BFF"
+color:"#2E7BFF",
+marginBottom:5
 }}
 >
 Ответ на сообщение
@@ -561,7 +611,7 @@ color:"#2E7BFF"
 <div
 style={{
 fontSize:13,
-marginTop:4
+paddingRight:20
 }}
 >
 {replyTo.body}
