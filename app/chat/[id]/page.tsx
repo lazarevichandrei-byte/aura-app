@@ -246,13 +246,12 @@ flexDirection:"column"
 }}
 >
 
-<div
+<div className="chat-header"
 style={{
-height:82,
 display:"flex",
 alignItems:"center",
-padding:"0 18px",
-borderBottom:"1px solid #eef1f5"
+justifyContent:"space-between",
+padding:"0 16px"
 }}
 >
 
@@ -339,14 +338,10 @@ transition:
 
 {messages.map((msg)=>{
 
-const mine=
+const mine =
 msg.sender_id===userId;
 
-
-
 return(
-    
-
 
 <div
 key={msg.id}
@@ -354,12 +349,11 @@ style={{
 display:"flex",
 justifyContent:
 mine
-?"flex-end"
-:"flex-start",
+? "flex-end"
+: "flex-start",
 marginBottom:8
 }}
 >
-
 
 <div
 onTouchStart={()=>{
@@ -375,26 +369,48 @@ clearTimeout(
 (window as any).replyTimer
 );
 }}
+
 style={{
-background: mine ? "#EAF3FF" : "#F3F5F8",
-padding:"8px 14px",
-fontSize:15,
-fontWeight:500,
-lineHeight:"20px",
+background: mine
+? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
+: "#F2F4F7",
 
-display:"inline-block",
+color:
+mine
+? "#fff"
+: "#111",
 
-maxWidth:"72%",
-width:"auto",
+padding:"12px 16px",
 
-borderRadius:24,
+fontSize:17,
+fontWeight:400,
+lineHeight:"23px",
+
+borderRadius:22,
+
+maxWidth:"74%",
+
+boxShadow:
+"0 1px 2px rgba(0,0,0,.03)",
 
 wordBreak:"break-word",
-overflowWrap:"anywhere",
-whiteSpace:"pre-wrap"
+overflowWrap:"anywhere"
 }}
 >
+
 {msg.body}
+
+<div
+style={{
+marginTop:6,
+fontSize:12,
+opacity:.85,
+textAlign:"right"
+}}
+>
+18:53 {mine ? "✓✓" : ""}
+</div>
+
 </div>
 
 </div>
@@ -511,15 +527,12 @@ cursor:"pointer"
 
 )}
 
-<div
+<div className="chat-input"
 style={{
-height:42,
-background:"#F4F6FA",
-borderRadius:18,
 display:"flex",
 alignItems:"center",
-paddingLeft:16,
-paddingRight:8
+paddingLeft:18,
+paddingRight:6
 }}
 >
 
