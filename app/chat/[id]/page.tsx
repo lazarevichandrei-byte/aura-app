@@ -353,7 +353,7 @@ justifyContent:
 mine
 ? "flex-end"
 : "flex-start",
-marginBottom:5
+marginBottom:4
 }}
 >
 
@@ -375,24 +375,26 @@ clearTimeout(
 style={{
 background: mine
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
-:"#F2F4F7",
+: "#F2F4F7",
 
 color: mine ? "#fff" : "#111",
 
 padding:"6px 10px",
 
-fontSize:13.5,
-fontWeight:500,
-lineHeight:"16px",
+fontSize:14,
+fontWeight:400,
 
-borderRadius:13,
+lineHeight:"16.8px",
 
-maxWidth:"54%",
+borderRadius:14,
 
+maxWidth:"70%",
 width:"fit-content",
 
+boxShadow:"none",
+
 wordBreak:"break-word",
-overflowWrap:"anywhere"
+overflowWrap:"break-word"
 }}
 >
 
@@ -400,10 +402,11 @@ overflowWrap:"anywhere"
 
 <div
 style={{
-marginTop:4,
-fontSize:10,
-opacity:.7,
-textAlign:"right"
+marginTop:3,
+fontSize:11,
+opacity:.55,
+textAlign:"right",
+lineHeight:"11px"
 }}
 >
 {new Date(
