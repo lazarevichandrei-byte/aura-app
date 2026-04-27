@@ -28,6 +28,26 @@ useEffect(()=>{
 
 loadChats();
 
+const channel =
+supabase
+.channel("chats-live")
+.on(
+"postgres_changes",
+{
+event:"UPDATE",
+schema:"public",
+table:"chats"
+},
+()=>{
+loadChats();
+}
+)
+.subscribe();
+
+return()=>{
+supabase.removeChannel(channel);
+};
+
 },[]);
 
 
@@ -36,8 +56,16 @@ useEffect(()=>{
 const timer =
 setInterval(()=>{
 
-setTypingChats({
+setTypingChats(prev=>{
+
+if(
+prev["22222222-2222-2222-2222-222222222222"]
+) return prev;
+
+return {
 "22222222-2222-2222-2222-222222222222":true
+};
+
 });
 
 setTimeout(()=>{
@@ -59,7 +87,10 @@ async function loadChats(){
 const {data,error} =
 await supabase
 .from("chats")
-.select("*")
+.select(
+"id,name,avatar,last_message,last_message_at,unread_count"
+)
+.limit(30)
 .order(
 "last_message_at",
 {ascending:false}
@@ -256,7 +287,9 @@ color:"#2F80FF"
 
 <div
 key={chat.id}
-onClick={()=>router.push(`/chat/${chat.id}`)}
+onPointerDown={()=>
+router.push(`/chat/${chat.id}`)
+}
 style={{
 display:"flex",
 alignItems:"center",
