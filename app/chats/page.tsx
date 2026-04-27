@@ -62,12 +62,19 @@ export default function Chats(){
 
 const router = useRouter();
 
+
 return(
 <div
 style={{
-minHeight:"100vh",
+height:"100dvh",
+
+overflowY:"auto",
+WebkitOverflowScrolling:"touch",
+
 background:"#FCFCFE",
-padding:"8px 16px 110px",
+
+padding:"8px 16px 130px",
+
 maxWidth:"430px",
 margin:"0 auto"
 }}
