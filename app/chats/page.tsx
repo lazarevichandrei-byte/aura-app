@@ -67,7 +67,7 @@ return(
 style={{
 minHeight:"100vh",
 background:"#FCFCFE",
-padding:"18px 16px 110px",
+padding:"8px 16px 110px",
 maxWidth:"430px",
 margin:"0 auto"
 }}
@@ -77,14 +77,14 @@ margin:"0 auto"
 <div
 style={{
 display:"flex",
-justifyContent:"space-between",
-alignItems:"center"
+alignItems:"center",
+marginBottom:6
 }}
 >
 <h1
 style={{
 margin:0,
-fontSize:34,
+fontSize:25,
 fontWeight:700,
 letterSpacing:"-.8px"
 }}
@@ -92,10 +92,7 @@ letterSpacing:"-.8px"
 Чаты
 </h1>
 
-<div style={{display:"flex",gap:12}}>
-<div style={circleBtn}>≡</div>
-<div style={circleBtn}>＋</div>
-</div>
+
 </div>
 
 
