@@ -269,7 +269,7 @@ last_message_at:new Date().toISOString()
 .eq("id",chatId);
 
 }
-
+console.log("chat updated", text);
 
 }
 return(
