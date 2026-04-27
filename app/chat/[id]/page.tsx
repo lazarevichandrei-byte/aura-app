@@ -336,11 +336,11 @@ flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
 
-transform:
-`translateY(-${keyboardOffset}px)`,
+paddingBottom:
+keyboardOffset + 12,
 
 transition:
-"transform .22s ease-out"
+"padding-bottom .22s ease-out"
 }}
 >
 
