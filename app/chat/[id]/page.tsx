@@ -258,6 +258,8 @@ replyTo?.body || null
 });
 
 
+if(!error){
+
 await supabase
 .from("chats")
 .update({
@@ -266,9 +268,6 @@ last_message_at:new Date().toISOString()
 })
 .eq("id",chatId);
 
-
-if(error){
-alert(error.message);
 }
 
 
