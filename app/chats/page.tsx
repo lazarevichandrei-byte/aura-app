@@ -104,13 +104,13 @@ letterSpacing:"-.8px"
 <div
 style={{
 marginTop:20,
-height:52,
-borderRadius:18,
+height:42,
+borderRadius:14,
 background:"#F4F4F8",
 display:"flex",
 alignItems:"center",
-padding:"0 18px",
-fontSize:18,
+padding:"0 14px",
+fontSize:15,
 color:"#A3A8B3"
 }}
 >
