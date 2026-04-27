@@ -617,17 +617,7 @@ paddingRight:20
 {replyTo.body}
 </div>
 
-<div
-onClick={()=>setReplyTo(null)}
-style={{
-marginTop:6,
-fontSize:12,
-color:"#888",
-cursor:"pointer"
-}}
->
-✕ убрать
-</div>
+
 
 </div>
 
