@@ -390,7 +390,7 @@ lineHeight:"17px",
 
 borderRadius:14,
 
-maxWidth:"64%",
+maxWidth:"51%",
 
 width:"fit-content",
 minWidth:0,
