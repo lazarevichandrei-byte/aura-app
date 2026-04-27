@@ -100,7 +100,7 @@ letterSpacing:"-.8px"
 {/* SEARCH */}
 <div
 style={{
-marginTop:20,
+marginTop:8,
 height:42,
 borderRadius:14,
 background:"#F4F4F8",
