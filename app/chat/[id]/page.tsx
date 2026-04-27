@@ -281,19 +281,25 @@ padding:"0 16px"
 <div
 onClick={()=>router.back()}
 style={{
-width:36,
-height:36,
-borderRadius:18,
-background:"#2E7BFF",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-color:"#fff",
-fontSize:26,
-fontWeight:600
+paddingRight:10,
+cursor:"pointer"
+}}
+>
+<span
+style={{
+fontSize:56,
+lineHeight:"38px",
+fontWeight:300,
+color:"#2E7BFF",
+fontFamily:"-apple-system, SF Pro Display, sans-serif",
+marginTop:-6
 }}
 >
 ‹
+</span>
 </div>
 
 <div
