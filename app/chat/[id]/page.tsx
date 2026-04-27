@@ -62,6 +62,21 @@ const { data,error } = await supabase
 if(!error && data){
 
 setMessages(data);
+await supabase
+.from("messages")
+.update({
+is_read:true
+})
+.eq("chat_id",chatId)
+.neq("sender_id",userId);
+
+
+await supabase
+.from("chats")
+.update({
+unread_count:0
+})
+.eq("id",chatId);
 
 requestAnimationFrame(()=>{
 if(chatRef.current){
