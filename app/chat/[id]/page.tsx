@@ -218,10 +218,10 @@ sender_id:userId,
 created_at:new Date().toISOString()
 };
 
-setMessages(prev=>[
-...prev,
+setMessages(prev=>
+prev.concat(
 optimisticMessage
-]);
+));
 
 setTimeout(()=>{
 scrollToBottom();
