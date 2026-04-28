@@ -252,7 +252,7 @@ scale(${avatarFrame.zoom})
 
       </div>
 {cropOpen && (
-<div style={styles.viewer}
+<div style={styles.cropViewer}
  onClick={()=>setCropOpen(false)}
 >
 <div
@@ -472,6 +472,16 @@ const styles:any = {
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
+  cropViewer:{
+ position:"fixed",
+ inset:0,
+ background:"rgba(0,0,0,.82)",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ zIndex:99999
+},
+
 galleryEmpty:{
  display:"flex",
  justifyContent:"center",
@@ -482,7 +492,8 @@ galleryEmpty:{
 
 gallery:{
  display:"grid",
- gridTemplateColumns:"repeat(3,1fr)",
+ gridTemplateColumns:"repeat(3,110px)",
+ justifyContent:"center",
  gap:"14px",
  width:"100%",
  maxWidth:"420px",
@@ -508,13 +519,14 @@ gallery:{
 addPhoto:{
  width:"110px",
  height:"160px",
+ margin:"0 auto",
  borderRadius:"18px",
  background:"#EEF5FD",
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
  fontSize:"42px",
- cursor:"pointer"
+ justifySelf:"center"
 },
 
 deleteBtn:{
