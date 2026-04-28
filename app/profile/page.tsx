@@ -312,10 +312,25 @@ photos: photos,
     />
 
     {i===mainIndex && (
-      <div style={styles.mainBadge}>
-        ★ Главная
-      </div>
-    )}
+<>
+  <div style={styles.mainBadge}>
+    ★ Главная
+  </div>
+
+  <div
+    style={styles.editPhotoBtn}
+    onClick={(e)=>{
+      e.stopPropagation();
+
+      setEditingPhoto(p);
+      setTempIndex(i);
+      setCropOpen(true);
+    }}
+  >
+    ✏
+  </div>
+</>
+)}
 
     <button
       style={styles.deleteBtn}
@@ -485,20 +500,20 @@ cropModal:{
  padding:"20px"
 },
 
-editAvatarBtn:{
+editPhotoBtn:{
  position:"absolute",
- right:"calc(50% - 38px)",
- bottom:-6,
- width:"28px",
- height:"28px",
+ bottom:"8px",
+ right:"8px",
+ width:"26px",
+ height:"26px",
  borderRadius:"50%",
  background:"#fff",
- boxShadow:"0 4px 12px rgba(0,0,0,.12)",
+ boxShadow:"0 3px 10px rgba(0,0,0,.18)",
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
- fontSize:"14px",
- cursor:"pointer"
+ fontSize:"13px",
+ zIndex:3
 },
 
 slider:{
