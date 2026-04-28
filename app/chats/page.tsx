@@ -510,29 +510,22 @@ borderRadius:"50%"
 <div
 style={{
 position:"absolute",
-top:-4,
-right:-4,
+top:0,
+right:0,
 
-minWidth:18,
-height:18,
+width:10,
+height:10,
 
-padding:"0 5px",
-
-borderRadius:10,
+borderRadius:"50%",
 
 background:"#2F80FF",
-color:"#fff",
 
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
+border:"2px solid #fff",
 
-fontSize:10,
-fontWeight:700
+boxShadow:
+"0 0 8px rgba(47,128,255,.35)"
 }}
->
-{item.unread}
-</div>
+/>
 )}
 
 
