@@ -311,7 +311,7 @@ boxSizing:"border-box"
 >
 <span
 style={{
-fontSize:24,
+fontSize:40,
 lineHeight:"22px",
 color:"#5EA9FF",
 fontWeight:600,
