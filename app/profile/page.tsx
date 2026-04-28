@@ -364,16 +364,8 @@ const styles:any = {
 
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
-gallery:{
- display:"grid",
- gridTemplateColumns:"repeat(3,110px)",
- gap:"12px",
- justifyContent:"center",
- padding:"20px",
- width:"100%",
- maxWidth:"420px",
- margin:"0 auto"
-},
+  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
+
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
