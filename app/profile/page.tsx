@@ -473,13 +473,11 @@ const styles:any = {
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
 galleryEmpty:{
- display:"grid",
- gridTemplateColumns:"repeat(3,1fr)",
- gap:"14px",
- width:"100%",
- maxWidth:"420px",
- margin:"0 auto",
- padding:"18px"
+ display:"flex",
+ justifyContent:"center",
+ alignItems:"center",
+ height:"300px",
+ width:"100%"
 },
 
 gallery:{
@@ -512,14 +510,10 @@ addPhoto:{
  height:"160px",
  borderRadius:"18px",
  background:"#EEF5FD",
-
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
-
  fontSize:"42px",
-
- margin:"0 auto",   // центрирует карточку
  cursor:"pointer"
 },
 
