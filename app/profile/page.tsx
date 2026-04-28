@@ -229,10 +229,10 @@ photos: photos,
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div
-            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
-            onClick={(e)=>e.stopPropagation()}
-          >
-
+          
+  style={styles.gallery}
+  onClick={(e)=>e.stopPropagation()}
+>
             <label style={styles.addPhoto}>
               +
               <input
@@ -364,13 +364,29 @@ const styles:any = {
 
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
-  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
-
+gallery:{
+ display:"grid",
+ gridTemplateColumns:"repeat(3,110px)",
+ gap:"12px",
+ justifyContent:"center",
+ padding:"20px",
+ width:"100%",
+ maxWidth:"420px",
+ margin:"0 auto"
+},
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
-  addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
-
+addPhoto:{
+ width:"110px",
+ height:"146px",
+ borderRadius:"12px",
+ background:"#E7F3FF",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ fontSize:"30px"
+},
 deleteBtn:{
  position:"absolute",
  top:6,
