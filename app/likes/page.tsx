@@ -241,22 +241,20 @@ display:"inline-flex",
 alignItems:"center",
 justifyContent:"center",
 
-alignSelf:"flex-start",
+padding:"10px 24px",
 
-padding:"12px 24px",
+borderRadius:30,
 
-borderRadius:999,
+background:"#fff",
 
-background:
-"linear-gradient(135deg,#44B7FF,#2E7BFF)",
+border:"2px solid #5DA8FF",
 
-color:"#fff",
+color:"#2F80FF",
 
 fontSize:15,
-fontWeight:700,
+fontWeight:600,
 
-boxShadow:
-"0 6px 16px rgba(46,123,255,.25)"
+minWidth:170
 }}
 >
 Смотреть профиль
@@ -276,20 +274,19 @@ gap:12
 
 <div
 style={{
-width:44,
-height:44,
+width:42,
+height:42,
 borderRadius:"50%",
 
-background:"#F4F6FB",
+background:"#FAFAFC",
+
+border:"1px solid #ECEFF5",
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:18,
-
-boxShadow:
-"0 2px 6px rgba(0,0,0,.05)"
+fontSize:20
 }}
 >
 ✕
@@ -298,25 +295,25 @@ boxShadow:
 
 <div
 style={{
-width:44,
-height:44,
+width:42,
+height:42,
 borderRadius:"50%",
 
-background:
-"linear-gradient(135deg,#44B7FF,#2E7BFF)",
+background:"#fff",
+
+border:"2px solid #5DA8FF",
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-color:"#fff",
 fontSize:18,
-
-boxShadow:
-"0 4px 12px rgba(46,123,255,.25)"
+color:"#2F80FF"
 }}
 >
-♥
+♡
+</div>
+
 </div>
 
 </div>
