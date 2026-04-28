@@ -230,18 +230,29 @@ color:"#8A8F9B"
 
 <div
 style={{
-marginTop:10,
+marginTop:12,
+
 display:"inline-flex",
 alignItems:"center",
-padding:"8px 14px",
+justifyContent:"center",
+
+padding:"11px 22px",
+
 borderRadius:999,
-background:"#EEF4FF",
-color:"#2F80FF",
-fontSize:13,
-fontWeight:700
+
+background:
+"linear-gradient(135deg,#44B7FF,#2E7BFF)",
+
+color:"#fff",
+
+fontSize:15,
+fontWeight:700,
+
+boxShadow:
+"0 6px 16px rgba(46,123,255,.25)"
 }}
 >
-Открыть профиль →
+Смотреть профиль
 </div>
 
 </div>
