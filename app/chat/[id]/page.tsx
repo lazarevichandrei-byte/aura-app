@@ -635,15 +635,26 @@ minute:"2-digit"
 )}
 
 {mine && (
+
 <span
 style={{
 fontSize:10,
 letterSpacing:"-2px",
-fontWeight:600
+fontWeight:700,
+
+color:
+msg.is_read
+? "#58B7FF"
+: "rgba(255,255,255,.75)"
 }}
 >
-✓✓
+{
+msg.is_read
+? "✓✓"
+: "✓"
+}
 </span>
+
 )}
 </div>
 
