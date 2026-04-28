@@ -478,13 +478,18 @@ const styles:any = {
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
 aavatar:{
- width:"90px",
- height:"90px",
+ width:"96px",
+ height:"96px",
+ minWidth:"96px",
+ minHeight:"96px",
+
  borderRadius:"50%",
  objectFit:"cover",
- display:"block",
- background:"#E7F3FF"
 
+ display:"block",
+ background:"#E7F3FF",
+
+ boxShadow:"0 4px 14px rgba(0,0,0,.08)"
 },
 
 
