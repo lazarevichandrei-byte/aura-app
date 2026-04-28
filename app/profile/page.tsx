@@ -162,23 +162,17 @@ photos: photos,
 
 
 <img
+
  src={photos[mainIndex]}
  style={{
-   position:"absolute",
-   top:"50%",
-   left:"50%",
-
-   width:`${avatarFrame.zoom * 100}%`,
-   height:`${avatarFrame.zoom * 100}%`,
-
-   objectFit:"cover",
-
-   transform:`
-translate(
- calc(-50% + ${avatarFrame.x}px),
- calc(-50% + ${avatarFrame.y}px)
-)
-`
+   ...styles.avatarImage,
+   transform: `
+     translate(
+       calc(-50% + ${avatarFrame.x}px),
+       calc(-50% + ${avatarFrame.y}px)
+     )
+     scale(${avatarFrame.zoom})
+   `
  }}
 />
 </div>
@@ -331,9 +325,9 @@ style={{
  style={styles.submit}
  onClick={()=>{
    setAvatarFrame({
-     x: crop.x,
-     y: crop.y,
-     zoom: zoom
+      x: crop.x,
+      y: crop.y,
+      zoom: zoom
    });
 
    setCropOpen(false);
