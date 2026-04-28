@@ -31,6 +31,51 @@ export default function Profile() {
   ];
 
   const isValid = name.trim().length > 0 && city.trim().length > 0;
+
+useEffect(() => {
+  document.body.style.overflowY = "auto";
+  document.documentElement.style.overflowY = "auto";
+
+  const init = async () => {
+    const tg = (window as any).Telegram?.WebApp;
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    const user = tg?.initDataUnsafe?.user;
+    if (!user) return setLoading(false);
+
+    setTelegramId(user.id);
+    setName(user.first_name || "");
+
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("telegram_id", user.id)
+      .maybeSingle();
+
+    if (data) {
+      setName(data.name || "");
+      setAge(data.age || 22);
+      setGender(data.gender || "female");
+      setSearch(data.looking || "female");
+      setCity(data.city || "");
+      setBio(data.bio || "");
+      setSelected(data.interests || []);
+
+      if (data.avatar_url) {
+        setPhotos([data.avatar_url]);
+      }
+    }
+
+    setLoading(false);
+  };
+
+  init();
+}, []);
+
     useEffect(() => {
     const init = async () => {
       const tg = (window as any).Telegram?.WebApp;
@@ -152,7 +197,14 @@ export default function Profile() {
           <div style={styles.inputBox}>
             <p style={styles.label}>Возраст</p>
             <div>{age}</div>
-            <input type="range" min="18" max="60" value={age} onChange={(e)=>setAge(Number(e.target.value))}/>
+<input
+ type="range"
+ min="18"
+ max="60"
+ value={age}
+ onChange={(e)=>setAge(Number(e.target.value))}
+ style={styles.slider}
+/>
           </div>
         </div>
 
@@ -258,7 +310,13 @@ export default function Profile() {
 }
 
 const styles:any = {
-  wrapper:{minHeight:"100vh",background:"#F5F7FB",padding:"20px"},
+  wrapper:{
+ minHeight:"100vh",
+ background:"#F5F7FB",
+ padding:"20px 20px 120px",
+ overflowY:"auto",
+ WebkitOverflowScrolling:"touch"
+},
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
@@ -304,5 +362,26 @@ const styles:any = {
 
   addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
 
-  deleteBtn:{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.6)",color:"#fff",border:"none",borderRadius:"50%",width:"22px",height:"22px"}
+deleteBtn:{
+ position:"absolute",
+ top:6,
+ right:6,
+ background:"rgba(0,0,0,0.6)",
+ color:"#fff",
+ border:"none",
+ borderRadius:"50%",
+ width:"22px",
+ height:"22px"
+},
+
+slider:{
+ width:"100%",
+ marginTop:"10px",
+ appearance:"none",
+ height:"6px",
+ borderRadius:"999px",
+ background:"#FFFFFF",
+ outline:"none"
+}
+
 };
