@@ -273,6 +273,15 @@ replyTo?.body || null
 };
 
 
+setMessages(prev=>[
+...prev,
+optimisticMessage
+]);
+
+setTimeout(()=>{
+scrollToBottom();
+},0);
+
 
 const { error } =
 await supabase
@@ -290,28 +299,21 @@ reply_preview:
 replyTo?.body || null
 });
 
+
+if(error){
+alert(error.message);
+return;
+}
+
+
 await supabase
 .from("chats")
 .update({
-last_message: text,
+last_message:text,
 last_message_at:
 new Date().toISOString()
 })
-.eq("id", chatId);
-
-
-if(!error){
-
-supabase
-.from("chats")
-.update({
-last_message:text,
-last_message_at:new Date().toISOString()
-})
 .eq("id",chatId);
-
-}
-
 
 }
 return(
