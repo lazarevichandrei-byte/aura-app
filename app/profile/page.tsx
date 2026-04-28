@@ -214,10 +214,18 @@ const saveCrop = async ()=>{
  <img
    src={photos[mainIndex]}
    style={{
-     width:`${100*avatarFrame.zoom}%`,
-     height:`${100*avatarFrame.zoom}%`,
+     width:`${avatarFrame.zoom*100}%`,
+     height:`${avatarFrame.zoom*100}%`,
      objectFit:"cover",
-     transform:`translate(${avatarFrame.x}px, ${avatarFrame.y}px)`
+
+     transform:`
+       translate(
+         ${avatarFrame.x * 0.55}px,
+         ${avatarFrame.y * 0.55}px
+       )
+     `,
+
+     transformOrigin:"center center"
    }}
  />
 </div>          ) : (
