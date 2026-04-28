@@ -146,6 +146,8 @@ const [chats,setChats] =
 useState<any[]>([]);
 const [search,setSearch] =
 useState("");
+const searching =
+search.trim().length > 0;
 const [typingChats,setTypingChats] =
 useState<any>({});
 const reloadTimer =
@@ -277,7 +279,8 @@ margin:"0 auto"
 }}
 >
 
-{/* HEADER */}
+{/* STORIES */}
+{!searching && (
 <div
 style={{
 display:"flex",
@@ -298,7 +301,7 @@ letterSpacing:"-.8px"
 
 
 </div>
-
+)}
 
 
 {/* SEARCH */}
@@ -448,6 +451,7 @@ marginTop:6
 
 
 {/* CHAT LIST */}
+{!searching && (
 <div
 style={{
 marginTop:20,
@@ -463,10 +467,24 @@ color:"#2F80FF"
 >
 ✨ Новый мэтч сегодня
 </div>
+)}
 
-<div style={{marginTop:24}}>
+<div style={{
+marginTop:
+searching ? 12 : 24
+}}>
 
 
+{searching && (
+<div style={{
+fontSize:13,
+fontWeight:600,
+color:"#8A8F9B",
+marginBottom:10
+}}>
+Результаты
+</div>
+)}
 
 {filteredChats.map(chat=>(
 <ChatCard
