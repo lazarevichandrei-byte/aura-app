@@ -313,7 +313,6 @@ margin:"0 auto"
 >
 
 {/* STORIES */}
-{!searching && (
 <div
 style={{
 display:"flex",
@@ -334,7 +333,6 @@ letterSpacing:"-.8px"
 
 
 </div>
-)}
 
 
 {/* SEARCH */}
@@ -383,6 +381,8 @@ fontSize:15
 
 
 {/* STORIES */}
+{!searching && (
+
 <div
 style={{
 display:"flex",
@@ -480,7 +480,7 @@ marginTop:6
 ))}
 
 </div>
-
+)}
 
 
 {/* CHAT LIST */}
@@ -528,6 +528,20 @@ router={router}
 />
 ))}
 
+
+{searching &&
+!filteredChats.length && (
+<div
+style={{
+padding:"30px 0",
+textAlign:"center",
+fontSize:14,
+color:"#9AA3AF"
+}}
+>
+Никого не найдено
+</div>
+)}
 </div>
 
 <BottomNav/>
