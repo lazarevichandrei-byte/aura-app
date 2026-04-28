@@ -152,6 +152,7 @@ const getCroppedImg = async (
  pixelCrop:any
 )=>{
  const image = new Image();
+image.crossOrigin="anonymous";
  image.src = imageSrc;
 
  await new Promise(resolve=>{
@@ -417,7 +418,31 @@ const saveCrop = async ()=>{
 
 <button
  style={styles.submit}
- onClick={saveCrop}
+ onClick={async()=>{
+   alert("работает");
+
+   try{
+     const croppedUrl =
+       await getCroppedImg(
+         editingPhoto,
+         croppedAreaPixels
+       );
+
+     setPhotos(prev=>{
+       const copy=[...prev];
+       copy[tempIndex]=croppedUrl;
+       return copy;
+     });
+
+     setMainIndex(tempIndex);
+     setCropOpen(false);
+
+   } catch(e){
+      console.log(e);
+      alert("Ошибка обработки фото");
+   }
+
+ }}
 >
 Готово
 </button>
@@ -595,7 +620,19 @@ editPhotoBtn:{
  cursor:"pointer",
 
  zIndex:999
+},
+
+cropModal:{
+ background:"#fff",
+ width:"90%",
+ maxWidth:"380px",
+ borderRadius:"28px",
+ padding:"20px",
+ position:"relative",
+ zIndex:9999
 }
 
 };
+
+
 
