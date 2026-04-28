@@ -144,6 +144,8 @@ const router = useRouter();
 
 const [chats,setChats] =
 useState<any[]>([]);
+const [search,setSearch] =
+useState("");
 const [typingChats,setTypingChats] =
 useState<any>({});
 const reloadTimer =
@@ -185,6 +187,15 @@ supabase.removeChannel(channel);
 };
 
 },[]);
+
+const filteredChats =
+chats.filter(chat=>
+chat.name
+.toLowerCase()
+.includes(
+search.toLowerCase()
+)
+);
 
 
 
@@ -300,11 +311,37 @@ background:"#F4F4F8",
 display:"flex",
 alignItems:"center",
 padding:"0 14px",
+gap:8
+}}
+>
+
+<span
+style={{
 fontSize:15,
 color:"#A3A8B3"
 }}
 >
-⌕ Поиск
+⌕
+</span>
+
+<input
+value={search}
+onChange={(e)=>
+setSearch(
+e.target.value
+)
+}
+placeholder="Поиск"
+
+style={{
+flex:1,
+border:"none",
+outline:"none",
+background:"transparent",
+fontSize:15
+}}
+/>
+
 </div>
 
 
@@ -431,7 +468,7 @@ color:"#2F80FF"
 
 
 
-{chats.map(chat=>(
+{filteredChats.map(chat=>(
 <ChatCard
 key={chat.id}
 chat={chat}
