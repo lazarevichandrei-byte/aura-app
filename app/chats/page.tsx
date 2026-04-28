@@ -15,8 +15,6 @@ const matches = [
 {img:"/girl3.jpg",name:"Екатерина"},
 {img:"/girl4.jpg",name:"Полина"},
 ];
-
-export default function Chats(){
 const ChatCard = React.memo(
 function ChatCard({
 chat,
@@ -139,6 +137,8 @@ fontWeight:700
 )
 
 });
+export default function Chats(){
+
 
 const router = useRouter();
 
@@ -153,9 +153,7 @@ useRef<any>(null);
 
 useEffect(()=>{
 
-queueMicrotask(
-loadChats
-);
+loadChats();
 
 const channel =
 supabase

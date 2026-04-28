@@ -275,9 +275,11 @@ prev.concat(
 optimisticMessage
 ));
 
-setTimeout(()=>{
+requestAnimationFrame(()=>{
+requestAnimationFrame(()=>{
 scrollToBottom();
-},0);
+});
+});
 
 
 const { error } =
@@ -295,6 +297,15 @@ replyTo?.id || null,
 reply_preview:
 replyTo?.body || null
 });
+
+await supabase
+.from("chats")
+.update({
+last_message: text,
+last_message_at:
+new Date().toISOString()
+})
+.eq("id", chatId);
 
 
 if(!error){
@@ -509,7 +520,15 @@ scrollTick.current=false;
 style={{
 flex:1,
 overflowY:"auto",
-padding:"12px 10px 6px"
+
+padding:"12px 10px 6px",
+
+scrollBehavior:"auto",
+
+visibility:
+messages.length
+? "visible"
+: "hidden",
 }}
 >
 
