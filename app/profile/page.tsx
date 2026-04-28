@@ -507,14 +507,10 @@ addPhoto:{
  height:"160px",
  borderRadius:"18px",
  background:"#EEF5FD",
-
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
-
  fontSize:"42px",
-
- justifySelf:"center",
  cursor:"pointer"
 },
 
