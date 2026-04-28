@@ -166,8 +166,8 @@ const getCroppedImg = async (imageSrc,pixelCrop)=>{
 
  if(!ctx) return imageSrc;
 
- canvas.width=600;
- canvas.height=600;
+ canvas.width=1000
+canvas.height=1000
 
  ctx.drawImage(
    image,
@@ -177,8 +177,8 @@ const getCroppedImg = async (imageSrc,pixelCrop)=>{
    pixelCrop.height,
    0,
    0,
-   600,
-   600
+   1000,
+   1000
  );
 
  return canvas.toDataURL("image/jpeg",1);
@@ -320,16 +320,18 @@ style={{
  aspect={1}
  cropShape="round"
 
- objectFit="cover" 
- showGrid={false}
+ cropSize={{ width:260, height:260 }}
+
+ objectFit="horizontal-cover"
  restrictPosition={true}
+ showGrid={false}
 
  onCropChange={setCrop}
  onZoomChange={setZoom}
+
  onCropComplete={(a,b)=>{
- setCroppedAreaPixels(b);
-}}
- 
+   setCroppedAreaPixels(b)
+ }}
 />
 
 </div>
