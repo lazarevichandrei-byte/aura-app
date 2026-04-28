@@ -414,29 +414,14 @@ photos: photos,
             />
 
             <button
-              style={styles.submit}
-              onClick={async()=>{
-
- const croppedUrl =
- await getCroppedImg(
-   editingPhoto,
-   croppedAreaPixels
- );
-
- setPhotos(prev=>{
-   const copy=[...prev];
-   copy[tempIndex]=croppedUrl;
-   return copy;
- });
-
- setMainIndex(tempIndex);
-
- setCropOpen(false);
-
-}}
-            >
-              Готово
-            </button>
+ style={styles.submit}
+ onClick={()=>{
+   setMainIndex(tempIndex);
+   setCropOpen(false);
+ }}
+>
+ Готово
+</button>
 
           </div>
         </div>
@@ -553,19 +538,20 @@ deleteBtn:{
 
 editPhotoBtn:{
  position:"absolute",
- right:-10,
- bottom:10,
- width:34,
- height:34,
+ right:-12,
+ bottom:-12,
+ width:36,
+ height:36,
  borderRadius:"50%",
- border:"none",
+ border:"2px solid white",
  background:"#fff",
- boxShadow:"0 6px 18px rgba(0,0,0,.18)",
+ boxShadow:"0 8px 18px rgba(0,0,0,.20)",
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
- fontSize:15,
- zIndex:20
+ fontSize:14,
+ zIndex:50,
+ cursor:"pointer"
 },
 
 cropModal:{
