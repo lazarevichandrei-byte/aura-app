@@ -333,7 +333,7 @@ style={{
 </div>
 )}
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
-      {activePhoto && (
+      {activePhoto && !cropOpen && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div
             style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
@@ -413,13 +413,13 @@ style={{
     <button
       style={styles.deleteBtn}
       onClick={()=>{
- setAvatarFrame({
-   x:crop.x,
-   y:crop.y,
-   zoom:zoom
- });
+ setPhotos(prev =>
+   prev.filter((_,index)=>index!==i)
+ );
 
- setCropOpen(false);
+ if(i===mainIndex){
+   setMainIndex(0);
+ }
 }}
     >
       ✕
