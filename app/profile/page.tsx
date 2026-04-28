@@ -163,14 +163,7 @@ photos: photos,
  src={photos[mainIndex]}
  style={{
   ...styles.avatarImage,
-  transform:`
-translate(
- calc(-50% + ${avatarFrame.x}px),
- calc(-50% + ${avatarFrame.y}px)
-)
-scale(${avatarFrame.zoom})
-`,
-  willChange:"transform"
+  
  }}
 />
 </div>
@@ -297,7 +290,7 @@ style={{
  aspect={1}
  cropShape="round"
 
- objectFit="contain" 
+ objectFit="cover" 
  showGrid={false}
  restrictPosition={true}
 
@@ -322,8 +315,7 @@ style={{
 <button
  style={styles.submit}
  onClick={()=>{
-   setAvatarPreview(editingPhoto); // БЕЗ getCroppedImg
-   setCropOpen(false);
+setCropOpen(false);   
  }}
 >
 Готово
@@ -449,10 +441,53 @@ const styles:any = {
 },
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
-  avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
-  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
+avatarWrapper:{
+ display:"flex",
+ justifyContent:"center",
+ marginBottom:"20px",
+ position:"relative"
+},
 
+
+avatarMask:{
+ width:"92px",
+ height:"92px",
+ borderRadius:"50%",
+ overflow:"hidden",
+ background:"#E7F3FF",
+ position:"relative"
+},
+
+avatarImage:{
+ width:"100%",
+ height:"100%",
+ objectFit:"cover"
+},
+
+
+
+  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
+plus:{
+ position:"absolute",
+ bottom:0,
+ right:"calc(50% - 46px)",
+
+ width:"24px",
+ height:"24px",
+
+ borderRadius:"50%",
+ background:"#2AABEE",
+ color:"#fff",
+
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+
+ fontSize:"16px",
+ fontWeight:700,
+
+ zIndex:20
+},
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
   label:{fontSize:"12px",color:"#6B7280"},
