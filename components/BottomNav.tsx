@@ -20,8 +20,20 @@ const router = useRouter();
 const pathname = usePathname();
 
 const [unread,setUnread] =
-useState<number | null>(
-null
+useState(
+()=>{
+if(
+typeof window !==
+"undefined"
+){
+return Number(
+localStorage.getItem(
+"navUnread"
+) || 0
+);
+}
+return 0;
+}
 );
 
 useEffect(()=>{
@@ -67,7 +79,12 @@ false
 setUnread(
 data?.length || 0
 );
-
+localStorage.setItem(
+"navUnread",
+String(
+data?.length || 0
+)
+);
 }
 
 const itemStyle = (active:boolean)=>({
