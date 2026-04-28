@@ -229,10 +229,10 @@ photos: photos,
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div
-          
-  style={styles.gallery}
-  onClick={(e)=>e.stopPropagation()}
->
+            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+            onClick={(e)=>e.stopPropagation()}
+          >
+
             <label style={styles.addPhoto}>
               +
               <input
