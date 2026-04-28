@@ -23,6 +23,15 @@ export default function Profile() {
   const [showMore, setShowMore] = useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
+  const [cropOpen,setCropOpen] = useState(false);
+const [editingPhoto,setEditingPhoto] = useState("");
+const [tempIndex,setTempIndex] = useState(0);
+
+const [crop,setCrop] = useState({x:0,y:0});
+const [zoom,setZoom] = useState(1.2);
+
+const [croppedAreaPixels,setCroppedAreaPixels] =
+ useState<any>(null);
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
@@ -284,7 +293,9 @@ photos: photos,
  onClick={(e)=>{
  e.stopPropagation();
 
- alert("Редактор фото тут откроем");
+ setEditingPhoto(p);
+ setTempIndex(i);
+ setCropOpen(true);
 }}
 >
  ✎
@@ -423,11 +434,12 @@ addPhoto:{
 
 deleteBtn:{
  position:"absolute",
- top:-9,
- right:-9,
 
- width:"30px",
- height:"30px",
+ top:-7,
+ right:-7,
+
+ width:"24px",
+ height:"24px",
 
  borderRadius:"50%",
  border:"none",
@@ -435,14 +447,17 @@ deleteBtn:{
  background:"#fff",
  color:"#111",
 
- boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+ boxShadow:"0 3px 8px rgba(0,0,0,.14)",
 
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
 
- fontSize:"18px",
- zIndex:30
+ fontSize:"14px",
+ fontWeight:600,
+ lineHeight:1,
+
+ zIndex:50
 },
 
 slider:{
