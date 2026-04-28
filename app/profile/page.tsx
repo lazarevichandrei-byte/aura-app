@@ -419,8 +419,6 @@ const saveCrop = async ()=>{
 <button
  style={styles.submit}
  onClick={async()=>{
-   alert("работает");
-
    try{
      const croppedUrl =
        await getCroppedImg(
@@ -441,7 +439,6 @@ const saveCrop = async ()=>{
       console.log(e);
       alert("Ошибка обработки фото");
    }
-
  }}
 >
 Готово
