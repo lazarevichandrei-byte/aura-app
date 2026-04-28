@@ -162,12 +162,13 @@ photos: photos,
  style={{
   ...styles.avatarImage,
   transform:`
-   scale(${avatarFrame.zoom})
-   translate(
-    ${avatarFrame.x}px,
-    ${avatarFrame.y}px
-   )
-  `
+translate(
+ calc(-50% + ${avatarFrame.x}px),
+ calc(-50% + ${avatarFrame.y}px)
+)
+scale(${avatarFrame.zoom})
+`,
+  willChange:"transform"
  }}
 />
 </div>
@@ -366,8 +367,12 @@ onClick={()=>{
  onClick={(e)=>{
    e.stopPropagation();
    setEditingPhoto(p);
-   setZoom(1.2);
-   setCrop({x:0,y:0});
+   setZoom(avatarFrame.zoom);
+
+setCrop({
+ x: avatarFrame.x,
+ y: avatarFrame.y
+});
    setCropOpen(true);
  }}
 >
@@ -378,14 +383,14 @@ onClick={()=>{
     <button
       style={styles.deleteBtn}
       onClick={()=>{
-        setPhotos(prev =>
-          prev.filter((_,index)=>index!==i)
-        );
+ setAvatarFrame({
+   x:crop.x,
+   y:crop.y,
+   zoom:zoom
+ });
 
-        if(i===mainIndex){
-          setMainIndex(0);
-        }
-      }}
+ setCropOpen(false);
+}}
     >
       ✕
     </button>
@@ -487,15 +492,19 @@ gallery:{
 },
 
 addPhoto:{
- width:"100%",
+ width:"110px",
  height:"160px",
  borderRadius:"18px",
  background:"#EEF5FD",
+
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
+
  fontSize:"42px",
- justifySelf:"center"
+
+ justifySelf:"center",
+ cursor:"pointer"
 },
 
 deleteBtn:{
