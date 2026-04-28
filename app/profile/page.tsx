@@ -507,10 +507,14 @@ addPhoto:{
  height:"160px",
  borderRadius:"18px",
  background:"#EEF5FD",
+
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
+
  fontSize:"42px",
+
+ margin:"0 auto",   // центрирует карточку
  cursor:"pointer"
 },
 
