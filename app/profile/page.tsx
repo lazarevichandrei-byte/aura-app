@@ -291,18 +291,18 @@ style={styles.slider}
 />
 
 <button
-style={styles.submit}
-onClick={()=>{
- setAvatarFrame({
-   x:crop.x,
-   y:crop.y,
-   zoom:zoom
- });
+ style={styles.submit}
+ onClick={()=>{
+   setAvatarFrame({
+     x: crop.x,
+     y: crop.y,
+     zoom: zoom
+   });
 
- setCropOpen(false);
-}}
+   setCropOpen(false);
+ }}
 >
-Готово
+ Готово
 </button>
 
 </div>
@@ -365,16 +365,19 @@ onClick={()=>{
 <button
  style={styles.editPhotoBtn}
  onClick={(e)=>{
-   e.stopPropagation();
-   setEditingPhoto(p);
-   setZoom(avatarFrame.zoom);
+ e.stopPropagation();
 
-setCrop({
- x: avatarFrame.x,
- y: avatarFrame.y
-});
-   setCropOpen(true);
- }}
+ setEditingPhoto(p);
+ setZoom(avatarFrame.zoom);
+
+ setCrop({
+   x:avatarFrame.x,
+   y:avatarFrame.y
+ });
+
+ setActivePhoto(false); // ВАЖНО
+ setCropOpen(true);
+}}
 >
  ✎
 </button>
@@ -464,7 +467,15 @@ const styles:any = {
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
-  galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
+galleryEmpty:{
+ display:"grid",
+ gridTemplateColumns:"repeat(3,1fr)",
+ gap:"14px",
+ width:"100%",
+ maxWidth:"420px",
+ margin:"0 auto",
+ padding:"18px"
+},
 
 gallery:{
  display:"grid",
