@@ -259,16 +259,6 @@ photos: photos,
             </label>
 
             {photos.map((p,i)=>(
-              <div key={i} style={styles.galleryItem}>
-                <img
-                  src={p}
-                  onClick={()=>setMainIndex(i)}
-                  style={{
-                    ...styles.galleryImg,
-                    border:i===mainIndex?"3px solid #2AABEE":"none"
-                  }}
-                />
-                {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
 
     <img
@@ -276,7 +266,7 @@ photos: photos,
       onClick={()=>setMainIndex(i)}
       style={{
         ...styles.galleryImg,
-        border:i===mainIndex
+        border: i===mainIndex
           ? "3px solid #2AABEE"
           : "none"
       }}
@@ -305,8 +295,7 @@ photos: photos,
 
   </div>
 ))}
-              </div>
-            ))}
+      
 
           </div>
         </div>
