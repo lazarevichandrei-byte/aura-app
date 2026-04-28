@@ -24,6 +24,11 @@ export default function Profile() {
   const [showMore, setShowMore] = useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
+  const [avatarCrop,setAvatarCrop] = useState({
+ x:0,
+ y:0,
+ zoom:1.2
+});
   const [cropOpen,setCropOpen] = useState(false);
 const [editingPhoto,setEditingPhoto] = useState("");
 const [tempIndex,setTempIndex] = useState(0);
@@ -219,10 +224,20 @@ const saveCrop = async ()=>{
 
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
+  <div style={styles.avatarMask}>
   <img
     src={photos[mainIndex]}
-    style={styles.avatar}
+    style={{
+      ...styles.avatarImage,
+
+      transform:`
+        translate(${avatarCrop.x}px,
+                  ${avatarCrop.y}px)
+        scale(${avatarCrop.zoom})
+      `
+    }}
   />
+</div>
 ) : (
             <div style={styles.avatar}>👤</div>
           )}
@@ -435,25 +450,17 @@ const saveCrop = async ()=>{
 
 <button
  style={styles.submit}
- onClick={async()=>{
+ onClick={()=>{
+ setAvatarCrop({
+   x:crop.x,
+   y:crop.y,
+   zoom:zoom
+ });
 
-   const croppedUrl =
-     await getCroppedImg(
-       editingPhoto,
-       croppedAreaPixels
-     );
+ setMainIndex(tempIndex);
 
-   setPhotos(prev=>{
-     const copy=[...prev];
-     copy[tempIndex]=croppedUrl;
-     return copy;
-   });
-
-   setMainIndex(tempIndex);
-
-   setCropOpen(false);
-
- }}
+ setCropOpen(false);
+}}
 >
  Готово
 </button>
@@ -480,23 +487,20 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-avatar:{
+avatarMask:{
  width:"90px",
  height:"90px",
-
  borderRadius:"50%",
  overflow:"hidden",
+ position:"relative",
+ background:"#E7F3FF"
+},
 
- background:"#E7F3FF",
-
- display:"flex",
- alignItems:"center",
- justifyContent:"center",
-
+avatarImage:{
+ width:"100%",
+ height:"100%",
  objectFit:"cover",
- objectPosition:"center",
-
- flexShrink:0
+ transformOrigin:"center center"
 },
 
 plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
