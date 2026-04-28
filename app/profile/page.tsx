@@ -147,7 +147,57 @@ photos: photos,
   };
 
   if (loading) return <div>Loading...</div>;
+const getCroppedImg = async (
+ imageSrc:any,
+ pixelCrop:any
+)=>{
+ const image = new Image();
+ image.src = imageSrc;
 
+ await new Promise(resolve=>{
+   image.onload = resolve;
+ });
+
+ const canvas = document.createElement("canvas");
+ const ctx = canvas.getContext("2d");
+
+ canvas.width = pixelCrop.width;
+ canvas.height = pixelCrop.height;
+
+ ctx?.drawImage(
+   image,
+   pixelCrop.x,
+   pixelCrop.y,
+   pixelCrop.width,
+   pixelCrop.height,
+   0,
+   0,
+   pixelCrop.width,
+   pixelCrop.height
+ );
+
+ return canvas.toDataURL("image/jpeg");
+};
+
+
+const saveCrop = async ()=>{
+
+ const croppedUrl = await getCroppedImg(
+   editingPhoto,
+   croppedAreaPixels
+ );
+
+ setPhotos(prev=>{
+   const copy=[...prev];
+   copy[tempIndex]=croppedUrl;
+   return copy;
+ });
+
+ setMainIndex(tempIndex);
+
+ setCropOpen(false);
+
+};
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
@@ -367,9 +417,7 @@ photos: photos,
 
 <button
  style={styles.submit}
- onClick={()=>{
-   setCropOpen(false);
- }}
+ onClick={saveCrop}
 >
 Готово
 </button>
