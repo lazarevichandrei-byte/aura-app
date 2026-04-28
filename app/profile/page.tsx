@@ -282,8 +282,10 @@ photos: photos,
 <button
  style={styles.editPhotoBtn}
  onClick={(e)=>{
-   e.stopPropagation();
- }}
+ e.stopPropagation();
+
+ alert("Редактор фото тут откроем");
+}}
 >
  ✎
 </button>
@@ -406,13 +408,15 @@ gallery:{
 },
 
 addPhoto:{
- width:"100%",
+ width:"110px",
  height:"160px",
  borderRadius:"18px",
  background:"#EEF5FD",
+
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
+
  fontSize:"42px",
  justifySelf:"center"
 },
@@ -453,24 +457,27 @@ slider:{
 
 editPhotoBtn:{
  position:"absolute",
- right:-10,
- bottom:10,
 
- width:"32px",
- height:"32px",
+ right:-12,
+ bottom:-12,
+
+ width:"34px",
+ height:"34px",
 
  borderRadius:"50%",
  border:"none",
 
  background:"#fff",
-
- boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+ boxShadow:"0 6px 16px rgba(0,0,0,.18)",
 
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
 
- zIndex:30
+ fontSize:15,
+ cursor:"pointer",
+
+ zIndex:999
 }
 
 };
