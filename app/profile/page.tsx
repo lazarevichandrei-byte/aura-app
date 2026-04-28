@@ -65,9 +65,11 @@ useEffect(() => {
       setBio(data.bio || "");
       setSelected(data.interests || []);
 
-      if (data.avatar_url) {
-        setPhotos([data.avatar_url]);
-      }
+      if (data.photos?.length) {
+  setPhotos(data.photos);
+} else if (data.avatar_url) {
+  setPhotos([data.avatar_url]);
+}
     }
 
     setLoading(false);
@@ -76,46 +78,7 @@ useEffect(() => {
   init();
 }, []);
 
-    useEffect(() => {
-    const init = async () => {
-      const tg = (window as any).Telegram?.WebApp;
-
-      if (tg) {
-        tg.ready();
-        tg.expand();
-      }
-
-      const user = tg?.initDataUnsafe?.user;
-      if (!user) return setLoading(false);
-
-      setTelegramId(user.id);
-      setName(user.first_name || "");
-
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("telegram_id", user.id)
-        .maybeSingle();
-
-      if (data) {
-        setName(data.name || "");
-        setAge(data.age || 22);
-        setGender(data.gender || "female");
-        setSearch(data.looking || "female");
-        setCity(data.city || "");
-        setBio(data.bio || "");
-        setSelected(data.interests || []);
-
-        if (data.avatar_url) {
-          setPhotos([data.avatar_url]);
-        }
-      }
-
-      setLoading(false);
-    };
-
-    init();
-  }, []);
+    
 
   const uploadPhoto = async (file: File) => {
     if (!telegramId) return;
@@ -164,6 +127,7 @@ useEffect(() => {
       bio,
       interests: selected,
       avatar_url: photos[mainIndex] || null,
+photos: photos,
     });
 
     if (error) {
@@ -271,16 +235,27 @@ useEffect(() => {
 
             <label style={styles.addPhoto}>
               +
-              <input type="file" multiple hidden onChange={async (e)=>{
-                const files = e.target.files;
-                if (!files) return;
+              <input
+ type="file"
+ multiple
+ accept="image/*"
+ hidden
+ onChange={async (e)=>{
+   const files = e.target.files;
+   if (!files) return;
 
-                for (let i=0;i<files.length;i++) {
-                  await uploadPhoto(files[i]);
-                }
+   if (photos.length + files.length > 6){
+      alert("Максимум 6 фото");
+      return;
+   }
 
-                e.target.value = "";
-              }}/>
+   for(let i=0;i<files.length;i++){
+      await uploadPhoto(files[i]);
+   }
+
+   e.target.value="";
+ }}
+/>
             </label>
 
             {photos.map((p,i)=>(
@@ -293,12 +268,35 @@ useEffect(() => {
                     border:i===mainIndex?"3px solid #2AABEE":"none"
                   }}
                 />
-                <button
-                  style={styles.deleteBtn}
-                  onClick={()=>setPhotos(prev=>prev.filter((_,index)=>index!==i))}
-                >
-                  ✕
-                </button>
+                {photos.map((p,i)=>(
+<div key={i} style={styles.galleryItem}>
+
+<img
+ src={p}
+ onClick={()=>setMainIndex(i)}
+ style={{
+   ...styles.galleryImg,
+   border:i===mainIndex ? "3px solid #2AABEE" : "none"
+ }}
+/>
+
+{i===mainIndex && (
+<div style={styles.mainBadge}>
+ ★ Главная
+</div>
+)}
+
+<button
+ style={styles.deleteBtn}
+ onClick={()=>
+   setPhotos(prev=>prev.filter((_,index)=>index!==i))
+ }
+>
+ ✕
+</button>
+
+</div>
+))}
               </div>
             ))}
 
@@ -308,6 +306,9 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
 
 const styles:any = {
   wrapper:{
@@ -343,6 +344,17 @@ const styles:any = {
     whiteSpace:"nowrap"
   },
 
+  mainBadge:{
+ position:"absolute",
+ bottom:8,
+ left:8,
+ background:"#2AABEE",
+ color:"#fff",
+ padding:"4px 8px",
+ borderRadius:"999px",
+ fontSize:11,
+ fontWeight:600
+},
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
