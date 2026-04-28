@@ -214,21 +214,21 @@ const saveCrop = async ()=>{
  <img
    src={photos[mainIndex]}
    style={{
-     width:`${avatarFrame.zoom*100}%`,
-     height:`${avatarFrame.zoom*100}%`,
+     width:`${zoom * 100}%`,
+     height:`${zoom * 100}%`,
      objectFit:"cover",
 
      transform:`
        translate(
-         ${avatarFrame.x * 0.55}px,
-         ${avatarFrame.y * 0.55}px
+         ${crop.x}px,
+         ${crop.y}px
        )
      `,
 
      transformOrigin:"center center"
    }}
  />
-</div>          ) : (
+</div>        ) : (
             <div style={styles.avatar}>👤</div>
           )}
           <div style={styles.plus}>+</div>
@@ -441,14 +441,10 @@ const saveCrop = async ()=>{
 <button
  style={styles.submit}
  onClick={()=>{
-   setAvatarFrame({
-     x:crop.x,
-     y:crop.y,
-     zoom:zoom
-   });
-
-   setCropOpen(false);
- }}
+ setCrop({...crop});
+ setZoom(zoom);
+ setCropOpen(false);
+}}
 >
 Готово
 </button>
