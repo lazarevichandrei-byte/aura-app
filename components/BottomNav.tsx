@@ -20,7 +20,7 @@ const router = useRouter();
 const pathname = usePathname();
 
 const [unread,setUnread] =
-useState(0);
+useState(3);
 
 useEffect(()=>{
 
@@ -55,24 +55,16 @@ async function loadUnread(){
 
 const { data } =
 await supabase
-.from("chats")
-.select(
-"unread_count"
+.from("messages")
+.select("id")
+.eq(
+"is_read",
+false
 );
 
-if(data){
-
-const total =
-data.reduce(
-(sum,chat)=>
-sum+
-(chat.unread_count||0),
-0
+setUnread(
+data?.length || 0
 );
-
-setUnread(total);
-
-}
 
 }
 
@@ -141,8 +133,8 @@ position:"relative"
 <div
 style={{
 position:"absolute",
-top:10,
-right:"30%",
+top:6,
+right:"22%",
 
 minWidth:18,
 height:18,
