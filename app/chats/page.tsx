@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 
-const matches = [
+const [matches,setMatches] =
+useState([
 {
 img:"/girl1.jpg",
 name:"Алина",
@@ -28,15 +29,17 @@ newMatch:true
 img:"/girl3.jpg",
 name:"Екатерина",
 online:false,
-unread:0
+unread:0,
+newMatch:false
 },
 {
 img:"/girl4.jpg",
 name:"Полина",
 online:true,
-unread:0
-},
-];
+unread:0,
+newMatch:false
+}
+]);
 const ChatCard = React.memo(
 function ChatCard({
 chat,
@@ -458,9 +461,24 @@ fontSize:13
 
 <div
 key={i}
-onClick={()=>
-router.push(`/chat/${i+1}`)
+onClick={()=>{
+
+setMatches(prev =>
+prev.map((m,index)=>
+index===i
+? {
+...m,
+newMatch:false
 }
+: m
+)
+);
+
+router.push(
+`/chat/${i+1}`
+);
+
+}}
 style={{
 textAlign:"center",
 cursor:"pointer"
@@ -476,7 +494,7 @@ borderRadius:"50%",
 padding:2.5,
 border: item.newMatch
 ? "2px solid #2F80FF"
-: "2px solid #D7DDE8"
+: "2px solid #E6EBF3"
 }}
 >
 <img
