@@ -54,7 +54,7 @@ reloadTimer.current
 reloadTimer.current=
 setTimeout(()=>{
 loadChats();
-},250);
+},500);
 
 }
 )
@@ -66,39 +66,10 @@ supabase.removeChannel(channel);
 
 },[]);
 
-useEffect(()=>{
-
-const refresh=()=>{
-loadChats();
-};
-
-window.addEventListener(
-"focus",
-refresh
-);
-
-return ()=>{
-window.removeEventListener(
-"focus",
-refresh
-);
-};
-
-},[]);
 
 
-useEffect(()=>{
 
-const poll=
-setInterval(()=>{
-loadChats();
-},5000);
 
-return ()=>{
-clearInterval(poll);
-};
-
-},[]);
 
 
 useEffect(()=>{
@@ -139,46 +110,20 @@ clearInterval(timer);
 
 async function loadChats(){
 
-const {data,error} =
+const { data, error } =
 await supabase
 .from("chats")
-.select(`
-id,
-name,
-avatar,
-unread_count,
-messages(
-body,
-created_at
+.select(
+"id,name,avatar,unread_count,last_message,last_message_at"
 )
-`)
 .order(
 "last_message_at",
-{ascending:false}
+{ ascending:false }
 )
 .limit(30);
 
 if(!error && data){
-
-setChats(
-data.map(chat=>{
-
-const last =
-chat.messages?.[
-chat.messages.length-1
-];
-
-return{
-...chat,
-last_message:
-last?.body || "",
-last_message_at:
-last?.created_at || null
-};
-
-})
-);
-
+setChats(data || []);
 }
 
 }
