@@ -201,25 +201,9 @@ const getCroppedImg = async (
 };
 
 
-const saveCrop = async ()=>{
 
- const croppedUrl = await getCroppedImg(
-   editingPhoto,
-   croppedAreaPixels
- );
 
- setPhotos(prev=>{
-   const copy=[...prev];
-   copy[tempIndex]=croppedUrl;
-   return copy;
- });
-
- setMainIndex(tempIndex);
-
- setCropOpen(false);
-
-};
-  return (
+ setMainIndex(tempIndex);  return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
@@ -227,12 +211,6 @@ const saveCrop = async ()=>{
           {photos.length > 0 ? (
 <div style={styles.avatarMask}>
 <img
- src={avatarPreview || photos[mainIndex]}
- style={{
-   ...styles.avatarImage,
-   transform:`scale(${avatarCrop.zoom})`
- }}
-/><img
  src={avatarPreview || photos[mainIndex]}
  style={styles.avatarImage}
 />
@@ -434,9 +412,9 @@ const saveCrop = async ()=>{
  showGrid={false}
  onCropChange={setCrop}
  onZoomChange={setZoom}
- onCropComplete={(a,p)=>
-   setCroppedAreaPixels(p)
- }
+ onCropComplete={(croppedArea,croppedAreaPixels)=>{
+   setCroppedAreaPixels(croppedAreaPixels);
+ }}
 />
 </div>
 
@@ -455,16 +433,15 @@ const saveCrop = async ()=>{
 <button
  style={styles.submit}
  onClick={async()=>{
+   const croppedUrl = await getCroppedImg(
+     editingPhoto,
+     croppedAreaPixels
+   );
 
- const croppedUrl = await getCroppedImg(
-   editingPhoto,
-   croppedAreaPixels
- );
+   setAvatarPreview(croppedUrl);
 
- setAvatarPreview(croppedUrl);
-
- setCropOpen(false);
-}}
+   setCropOpen(false);
+ }}
 >
  Готово
 </button>
