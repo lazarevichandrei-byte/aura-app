@@ -26,6 +26,7 @@ export default function Profile() {
   const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
 const [editingPhoto,setEditingPhoto] = useState("");
+const [tempIndex,setTempIndex] = useState(0);
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 
@@ -363,21 +364,25 @@ style={styles.slider}
 
     {i===mainIndex && (
 <button
- style={styles.editPhotoBtn}
  onClick={(e)=>{
- e.stopPropagation();
-
- setEditingPhoto(p);
- setZoom(avatarFrame.zoom);
-
- setCrop({
-   x:avatarFrame.x,
-   y:avatarFrame.y
- });
-
- setActivePhoto(false); // ВАЖНО
- setCropOpen(true);
-}}
+   e.stopPropagation();
+   setEditingPhoto(p);
+   setTempIndex(i);
+   setActivePhoto(false);
+   setCropOpen(true);
+ }}
+ style={{
+   position:"absolute",
+   right:"-10px",
+   bottom:"-10px",
+   width:"34px",
+   height:"34px",
+   borderRadius:"50%",
+   border:"2px solid #fff",
+   background:"#fff",
+   boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+   zIndex:9999
+ }}
 >
  ✎
 </button>
