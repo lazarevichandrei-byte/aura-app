@@ -510,22 +510,20 @@ avatarTap:{
 
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
-gallery:{
+ gallery:{
  display:"grid",
- gridTemplateColumns:"repeat(3,1fr)",
+ gridTemplateColumns:"repeat(3,110px)",
  gap:"12px",
-
- width:"100%",
- maxWidth:"420px",
-
- margin:"0 auto",          // центрирует
  justifyContent:"center",
  alignContent:"start",
-
+ width:"100%",
+ maxWidth:"420px",
+ margin:"0 auto",
  padding:"20px"
 },
 
-  galleryItem:{position:"relative"},
+
+  
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
 addPhoto:{
