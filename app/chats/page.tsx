@@ -9,53 +9,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 
-const [matches,setMatches] =
-useState([
-{
-img:"/girl1.jpg",
-name:"Алина",
-online:true,
-newMatch:true
-},
-{
-img:"/girl2.jpg",
-name:"Мария",
-online:true,
-newMatch:true
-},
-{
-img:"/girl3.jpg",
-name:"Екатерина",
-online:false,
-newMatch:false
-},
-{
-img:"/girl4.jpg",
-name:"Полина",
-online:true,
-newMatch:false
-}
-]);
-
-useEffect(()=>{
-
-const seen =
-JSON.parse(
-localStorage.getItem(
-"seenMatches"
-) || "[]"
-);
-
-setMatches(prev =>
-prev.map((m,i)=>({
-...m,
-newMatch:
-!seen.includes(i)
-&& m.newMatch
-}))
-);
-
-},[]);
 
 const ChatCard = React.memo(
 function ChatCard({
@@ -216,7 +169,6 @@ export default function Chats(){
 
 
 const router = useRouter();
-
 const [matches,setMatches] =
 useState([
 {
@@ -258,8 +210,8 @@ setMatches(prev =>
 prev.map((m,i)=>({
 ...m,
 newMatch:
-!seen.includes(i) &&
-m.newMatch
+!seen.includes(i)
+&& m.newMatch
 }))
 );
 
@@ -557,9 +509,11 @@ newMatch:false
 )
 );
 
+setTimeout(()=>{
 router.push(
 `/chat/${i+1}`
 );
+},80);
 
 }}
 style={{
