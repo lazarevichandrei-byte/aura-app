@@ -395,6 +395,7 @@ paddingBottom:8
 
 <div style={{textAlign:"center"}}>
 <div
+
 onClick={()=>{
 alert("Новый мэтч 💙");
 }}
@@ -403,6 +404,7 @@ textAlign:"center",
 cursor:"pointer"
 }}
 >
+💙
 </div>
 
 <div
@@ -420,13 +422,7 @@ fontSize:13
 
 <div
 key={i}
-onClick={()=>
-router.push(`/chat/${i+1}`)
-}
-style={{
-textAlign:"center",
-cursor:"pointer"
-}}
+style={{textAlign:"center"}}
 >
 
 <div
