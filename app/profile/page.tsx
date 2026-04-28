@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-
+import Cropper from "react-easy-crop";
 export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
@@ -235,97 +235,151 @@ photos: photos,
       </div>
 
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
-      {activePhoto && (
-        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div
-            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
-            onClick={(e)=>e.stopPropagation()}
+{activePhoto && (
+<div style={styles.viewer} onClick={() => setActivePhoto(false)}>
+  <div
+    style={photos.length===0 ? styles.galleryEmpty : styles.gallery}
+    onClick={(e)=>e.stopPropagation()}
+  >
+
+    <label style={styles.addPhoto}>
+      +
+      <input
+        type="file"
+        multiple
+        accept="image/*"
+        hidden
+        onChange={async(e)=>{
+          const files=e.target.files;
+          if(!files) return;
+
+          if(photos.length + files.length > 6){
+            alert("Максимум 6 фото");
+            return;
+          }
+
+          for(let i=0;i<files.length;i++){
+            await uploadPhoto(files[i]);
+          }
+
+          e.target.value="";
+        }}
+      />
+    </label>
+
+    {photos.map((p,i)=>(
+      <div key={i} style={styles.galleryItem}>
+
+        <img
+          src={p}
+          onClick={()=>setMainIndex(i)}
+          style={{
+            ...styles.galleryImg,
+            border:i===mainIndex
+              ? "3px solid #2AABEE"
+              : "none"
+          }}
+        />
+
+        {i===mainIndex && (
+          <div style={styles.mainBadge}>
+            ★ Главная
+          </div>
+        )}
+
+        {i===mainIndex && (
+          <button
+            style={styles.editPhotoBtn}
+            onClick={(e)=>{
+              e.stopPropagation();
+              setEditingPhoto(p);
+              setTempIndex(i);
+              setCropOpen(true);
+            }}
           >
+            ✎
+          </button>
+        )}
 
-            <label style={styles.addPhoto}>
-              +
-              <input
- type="file"
- multiple
- accept="image/*"
- hidden
- onChange={async (e)=>{
-   const files = e.target.files;
-   if (!files) return;
+        <button
+          style={styles.deleteBtn}
+          onClick={()=>{
+            setPhotos(prev =>
+              prev.filter((_,index)=>index!==i)
+            );
 
-   if (photos.length + files.length > 6){
-      alert("Максимум 6 фото");
-      return;
-   }
+            if(i===mainIndex){
+              setMainIndex(0);
+            }
+          }}
+        >
+          ×
+        </button>
 
-   for(let i=0;i<files.length;i++){
-      await uploadPhoto(files[i]);
-   }
-
-   e.target.value="";
- }}
-/>
-            </label>
-
-            {photos.map((p,i)=>(
-  <div key={i} style={styles.galleryItem}>
-
-    <img
-      src={p}
-      onClick={()=>setMainIndex(i)}
-      style={{
-        ...styles.galleryImg,
-        border: i===mainIndex
-          ? "3px solid #2AABEE"
-          : "none"
-      }}
-    />
-
-    {i===mainIndex && (
-      <div style={styles.mainBadge}>
-        ★ Главная
       </div>
-    )}
-
-    {i===mainIndex && (
-<button
- style={styles.editPhotoBtn}
- onClick={(e)=>{
- e.stopPropagation();
-
- setEditingPhoto(p);
- setTempIndex(i);
- setCropOpen(true);
-}}
->
- ✎
-</button>
-)}
-
-    <button
-      style={styles.deleteBtn}
-      onClick={()=>{
-        setPhotos(prev =>
-          prev.filter((_,index)=>index!==i)
-        );
-
-        if(i===mainIndex){
-          setMainIndex(0);
-        }
-      }}
-    >
-      ✕
-    </button>
+    ))}
 
   </div>
-))}
-      
+</div>
+)}
 
-          </div>
-        </div>
-      )}
-    </div>
-  );
+{cropOpen && (
+<div
+ style={styles.viewer}
+ onClick={()=>setCropOpen(false)}
+>
+<div
+ style={styles.cropModal}
+ onClick={(e)=>e.stopPropagation()}
+>
+
+<div style={{
+ position:"relative",
+ height:"320px"
+}}>
+
+  
+<Cropper
+ image={editingPhoto}
+ crop={crop}
+ zoom={zoom}
+ aspect={1}
+ cropShape="round"
+ onCropChange={setCrop}
+ onZoomChange={setZoom}
+ onCropComplete={(a,p)=>
+   setCroppedAreaPixels(p)
+ }
+/>
+</div>
+
+<input
+ type="range"
+ min="1"
+ max="3"
+ step="0.1"
+ value={zoom}
+ onChange={(e)=>
+   setZoom(Number(e.target.value))
+ }
+ style={styles.slider}
+/>
+
+<button
+ style={styles.submit}
+ onClick={()=>{
+   setCropOpen(false);
+ }}
+>
+Готово
+</button>
+
+</div>
+</div>
+)}
+
+</div>
+);
 }
 
 
