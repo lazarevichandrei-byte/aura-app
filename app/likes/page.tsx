@@ -49,16 +49,13 @@ e.touches[0].clientX;
 
 onTouchEnd={(e)=>{
 
-const delta =
+const deltaX =
 e.changedTouches[0].clientX -
 touchStartX.current;
 
-const startedFromLeft =
-touchStartX.current < 240;
-
 if(
-startedFromLeft &&
-delta > 90
+touchStartX.current < 220 &&
+deltaX > 100
 ){
 router.back();
 }
