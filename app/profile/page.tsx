@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
 import Cropper from "react-easy-crop";
+import { supabase } from "../../lib/supabase";
+
 export default function Profile() {
-  
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
@@ -24,26 +24,16 @@ export default function Profile() {
   const [showMore, setShowMore] = useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
-  const [avatarCrop,setAvatarCrop] = useState({
- x:0,
- y:0,
- zoom:1.2
-});
   const [cropOpen,setCropOpen] = useState(false);
-  const [avatarPreview,setAvatarPreview] = useState("");
 const [editingPhoto,setEditingPhoto] = useState("");
-const [tempIndex,setTempIndex] = useState(0);
-
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
+
 const [avatarFrame,setAvatarFrame] = useState({
  x:0,
  y:0,
  zoom:1.2
 });
-
-const [croppedAreaPixels,setCroppedAreaPixels] =
- useState<any>(null);
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
@@ -147,7 +137,7 @@ useEffect(() => {
       city,
       bio,
       interests: selected,
-      avatar_url: avatarPreview || photos[mainIndex] || null,
+      avatar_url: photos[mainIndex] || null,
 photos: photos,
     });
 
@@ -159,67 +149,30 @@ photos: photos,
   };
 
   if (loading) return <div>Loading...</div>;
-const getCroppedImg = async (
- imageSrc:any,
- pixelCrop:any
-)=>{
- const image = new Image();
- image.crossOrigin="anonymous";
- image.src=imageSrc;
 
- await new Promise(resolve=>{
-   image.onload=resolve;
- });
-
- const size = 600;
-
- const canvas=document.createElement("canvas");
- const ctx=canvas.getContext("2d");
-
- if(!ctx) return imageSrc;
-
- canvas.width=size;
- canvas.height=size;
-
- ctx.drawImage(
-   image,
-   pixelCrop.x,
-   pixelCrop.y,
-   pixelCrop.width,
-   pixelCrop.height,
-
-   0,
-   0,
-   size,
-   size
- );
-
- return canvas.toDataURL(
-   "image/jpeg",
-   0.95
- );
-};
-
-
-
-
-   
- return (
+  return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
-<div style={styles.avatarMask}>
+            <div style={styles.avatarMask}>
 <img
- src={avatarPreview || photos[mainIndex]}
- style={styles.avatarImage}
+ src={photos[mainIndex]}
+ style={{
+  ...styles.avatarImage,
+  transform:`
+   scale(${avatarFrame.zoom})
+   translate(
+    ${avatarFrame.x}px,
+    ${avatarFrame.y}px
+   )
+  `
+ }}
 />
 </div>
-) : (
-            <div style={styles.avatarPlaceholder}>
-  👤
-</div>
+          ) : (
+            <div style={styles.avatar}>👤</div>
           )}
           <div style={styles.plus}>+</div>
         </div>
@@ -296,99 +249,8 @@ const getCroppedImg = async (
         </button>
 
       </div>
-
-      {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
-{activePhoto && (
-<div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-  <div
-    style={photos.length===0 ? styles.galleryEmpty : styles.gallery}
-    onClick={(e)=>e.stopPropagation()}
-  >
-
-    <label style={styles.addPhoto}>
-      +
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        hidden
-        onChange={async(e)=>{
-          const files=e.target.files;
-          if(!files) return;
-
-          if(photos.length + files.length > 6){
-            alert("Максимум 6 фото");
-            return;
-          }
-
-          for(let i=0;i<files.length;i++){
-            await uploadPhoto(files[i]);
-          }
-
-          e.target.value="";
-        }}
-      />
-    </label>
-
-    {photos.map((p,i)=>(
-      <div key={i} style={styles.galleryItem}>
-
-        <img
-          src={p}
-          onClick={()=>setMainIndex(i)}
-          style={{
-            ...styles.galleryImg,
-            border:i===mainIndex
-              ? "3px solid #2AABEE"
-              : "none"
-          }}
-        />
-
-        {i===mainIndex && (
-          <div style={styles.mainBadge}>
-            ★ Главная
-          </div>
-        )}
-
-        {i===mainIndex && (
-          <button
-            style={styles.editPhotoBtn}
-            onClick={(e)=>{
-              e.stopPropagation();
-              setEditingPhoto(p);
-              setTempIndex(i);
-              setCropOpen(true);
-            }}
-          >
-            ✎
-          </button>
-        )}
-
-        <button
-          style={styles.deleteBtn}
-          onClick={()=>{
-            setPhotos(prev =>
-              prev.filter((_,index)=>index!==i)
-            );
-
-            if(i===mainIndex){
-              setMainIndex(0);
-            }
-          }}
-        >
-          ×
-        </button>
-
-      </div>
-    ))}
-
-  </div>
-</div>
-)}
-
 {cropOpen && (
-<div
- style={styles.viewer}
+<div style={styles.viewer}
  onClick={()=>setCropOpen(false)}
 >
 <div
@@ -397,64 +259,146 @@ const getCroppedImg = async (
 >
 
 <div style={{
- position:"relative",
- height:"320px"
+position:"relative",
+height:"320px"
 }}>
 
-  
 <Cropper
  image={editingPhoto}
  crop={crop}
  zoom={zoom}
  aspect={1}
  cropShape="round"
- objectFit="cover"
- restrictPosition={true}
  showGrid={false}
+ restrictPosition={true}
  onCropChange={setCrop}
  onZoomChange={setZoom}
- onCropComplete={(croppedArea,croppedAreaPixels)=>{
-   setCroppedAreaPixels(croppedAreaPixels);
- }}
 />
+
 </div>
 
 <input
- type="range"
- min="1"
- max="3"
- step="0.1"
- value={zoom}
- onChange={(e)=>
-   setZoom(Number(e.target.value))
- }
- style={styles.slider}
+type="range"
+min="1"
+max="3"
+step="0.1"
+value={zoom}
+onChange={(e)=>
+ setZoom(Number(e.target.value))
+}
+style={styles.slider}
 />
 
 <button
- style={styles.submit}
- onClick={()=>{
+style={styles.submit}
+onClick={()=>{
  setAvatarFrame({
-   x: crop.x,
-   y: crop.y,
-   zoom: zoom
+   x:crop.x,
+   y:crop.y,
+   zoom:zoom
  });
 
- setAvatarPreview(editingPhoto);
-
  setCropOpen(false);
-}}   
-
+}}
 >
- Готово
+Готово
 </button>
 
 </div>
 </div>
 )}
+      {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
+      {activePhoto && (
+        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
+          <div
+            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+            onClick={(e)=>e.stopPropagation()}
+          >
 
-</div>
-);
+            <label style={styles.addPhoto}>
+              +
+              <input
+ type="file"
+ multiple
+ accept="image/*"
+ hidden
+ onChange={async (e)=>{
+   const files = e.target.files;
+   if (!files) return;
+
+   if (photos.length + files.length > 6){
+      alert("Максимум 6 фото");
+      return;
+   }
+
+   for(let i=0;i<files.length;i++){
+      await uploadPhoto(files[i]);
+   }
+
+   e.target.value="";
+ }}
+/>
+            </label>
+
+            {photos.map((p,i)=>(
+  <div key={i} style={styles.galleryItem}>
+
+    <img
+      src={p}
+      onClick={()=>setMainIndex(i)}
+      style={{
+        ...styles.galleryImg,
+        border: i===mainIndex
+          ? "3px solid #2AABEE"
+          : "none"
+      }}
+    />
+
+    {i===mainIndex && (
+      <div style={styles.mainBadge}>
+        ★ Главная
+      </div>
+    )}
+
+    {i===mainIndex && (
+<button
+ style={styles.editPhotoBtn}
+ onClick={(e)=>{
+   e.stopPropagation();
+   setEditingPhoto(p);
+   setZoom(1.2);
+   setCrop({x:0,y:0});
+   setCropOpen(true);
+ }}
+>
+ ✎
+</button>
+)}
+
+    <button
+      style={styles.deleteBtn}
+      onClick={()=>{
+        setPhotos(prev =>
+          prev.filter((_,index)=>index!==i)
+        );
+
+        if(i===mainIndex){
+          setMainIndex(0);
+        }
+      }}
+    >
+      ✕
+    </button>
+
+  </div>
+))}
+      
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 
@@ -470,59 +414,9 @@ const styles:any = {
 },
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
-avatarWrapper:{
- display:"flex",
- justifyContent:"center",
- marginBottom:"20px",
- position:"relative"
-},
-avatarMask:{
- width:"92px",
- height:"92px",
-
- minWidth:"92px",
- minHeight:"92px",
-
- borderRadius:"50%",
- overflow:"hidden",
-
- background:"#E7F3FF",
- position:"relative",
-
- display:"flex",
- alignItems:"center",
- justifyContent:"center",
-
- boxShadow:"0 4px 14px rgba(0,0,0,.08)"
-},
-
-avatarImage:{
- position:"absolute",
- top:"50%",
- left:"50%",
- width:"100%",
- height:"100%",
- objectFit:"cover",
- transformOrigin:"center center"
-},
-
-avatarPlaceholder:{
- width:"96px",
- height:"96px",
-
- borderRadius:"50%",
- background:"#E7F3FF",
-
- display:"flex",
- alignItems:"center",
- justifyContent:"center",
-
- fontSize:"42px"
-},
-
-
-
-plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
+  avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
+  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
 
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
@@ -548,18 +442,13 @@ plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE"
  position:"absolute",
  left:8,
  bottom:8,
-
  background:"rgba(42,171,238,.95)",
  color:"#fff",
-
- padding:"3px 8px",
+ padding:"4px 9px",
  borderRadius:"999px",
-
- fontSize:9,
- fontWeight:600,
- letterSpacing:0.2
+ fontSize:10,
+ fontWeight:600
 },
-
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
@@ -593,33 +482,29 @@ gallery:{
  height:"160px",
  aspectRatio:"3/4",
  objectFit:"cover",
- objectPosition:"center",
  borderRadius:"18px",
  display:"block"
 },
 
 addPhoto:{
- width:"110px",
+ width:"100%",
  height:"160px",
  borderRadius:"18px",
  background:"#EEF5FD",
-
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
-
  fontSize:"42px",
  justifySelf:"center"
 },
 
 deleteBtn:{
  position:"absolute",
+ top:-9,
+ right:-9,
 
- top:-7,
- right:-7,
-
- width:"24px",
- height:"24px",
+ width:"30px",
+ height:"30px",
 
  borderRadius:"50%",
  border:"none",
@@ -627,17 +512,14 @@ deleteBtn:{
  background:"#fff",
  color:"#111",
 
- boxShadow:"0 3px 8px rgba(0,0,0,.14)",
+ boxShadow:"0 4px 12px rgba(0,0,0,.18)",
 
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
 
- fontSize:"14px",
- fontWeight:600,
- lineHeight:1,
-
- zIndex:50
+ fontSize:"18px",
+ zIndex:30
 },
 
 slider:{
@@ -652,39 +534,31 @@ slider:{
 
 editPhotoBtn:{
  position:"absolute",
+ right:-10,
+ bottom:10,
 
- right:-12,
- bottom:-12,
-
- width:"34px",
- height:"34px",
+ width:"32px",
+ height:"32px",
 
  borderRadius:"50%",
  border:"none",
 
  background:"#fff",
- boxShadow:"0 6px 16px rgba(0,0,0,.18)",
+
+ boxShadow:"0 4px 12px rgba(0,0,0,.18)",
 
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
 
- fontSize:15,
- cursor:"pointer",
-
- zIndex:999
+ zIndex:30
 },
-
 cropModal:{
  background:"#fff",
  width:"90%",
  maxWidth:"380px",
  borderRadius:"28px",
- padding:"20px",
- position:"relative",
- zIndex:9999
+ padding:"20px"
 }
 
 };
-
-
