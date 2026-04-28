@@ -554,24 +554,25 @@ slider:{
 
 editPhotoBtn:{
  position:"absolute",
- right:-10,
- bottom:10,
 
- width:"32px",
- height:"32px",
+ right:-12,
+ bottom:-12,
+
+ width:"34px",
+ height:"34px",
 
  borderRadius:"50%",
  border:"none",
 
  background:"#fff",
-
- boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+ boxShadow:"0 6px 16px rgba(0,0,0,.18)",
 
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
 
- zIndex:30
+ fontSize:"15px",
+ zIndex:999
 },
 cropModal:{
  background:"#fff",
