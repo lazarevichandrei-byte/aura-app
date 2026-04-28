@@ -496,15 +496,21 @@ avatarWrapper:{
  position:"relative"
 },
 avatarMask:{
- width:"88px",
- height:"88px",
- minWidth:"88px",
- minHeight:"88px",
+ width:"92px",
+ height:"92px",
+
+ minWidth:"92px",
+ minHeight:"92px",
 
  borderRadius:"50%",
  overflow:"hidden",
+
  background:"#E7F3FF",
  position:"relative",
+
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
 
  boxShadow:"0 4px 14px rgba(0,0,0,.08)"
 },
