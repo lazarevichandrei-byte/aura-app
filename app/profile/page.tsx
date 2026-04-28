@@ -171,20 +171,30 @@ photos: photos,
 
   <div style={styles.plus}>+</div>
 
+  <div style={styles.avatarWrapper}>
+
   <div
-    style={styles.editAvatarBtn}
-    onClick={(e)=>{
-      e.stopPropagation();
-
-      if(!photos.length) return;
-
-      setEditingPhoto(photos[mainIndex]);
-      setTempIndex(mainIndex);
-      setCropOpen(true);
-    }}
+    style={styles.avatarTap}
+    onClick={() => setActivePhoto(true)}
   >
-    ✏
+    {photos.length > 0 ? (
+      <img
+        src={photos[mainIndex]}
+        style={styles.avatar}
+      />
+    ) : (
+      <div style={styles.avatar}>👤</div>
+    )}
   </div>
+
+  <div
+    style={styles.plus}
+    onClick={() => setActivePhoto(true)}
+  >
+    +
+  </div>
+
+</div>
 
 </div>
 
@@ -422,6 +432,10 @@ const styles:any = {
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
   avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
   plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
+avatarTap:{
+ cursor:"pointer",
+ borderRadius:"50%"
+},
 
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
@@ -500,21 +514,6 @@ cropModal:{
  padding:"20px"
 },
 
-editPhotoBtn:{
- position:"absolute",
- bottom:"8px",
- right:"8px",
- width:"26px",
- height:"26px",
- borderRadius:"50%",
- background:"#fff",
- boxShadow:"0 3px 10px rgba(0,0,0,.18)",
- display:"flex",
- alignItems:"center",
- justifyContent:"center",
- fontSize:"13px",
- zIndex:3
-},
 
 slider:{
  width:"100%",
