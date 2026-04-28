@@ -395,18 +395,14 @@ paddingBottom:8
 
 <div style={{textAlign:"center"}}>
 <div
+onClick={()=>{
+alert("Новый мэтч 💙");
+}}
 style={{
-width:68,
-height:68,
-borderRadius:"50%",
-background:"#EEF4FF",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:30
+textAlign:"center",
+cursor:"pointer"
 }}
 >
-💙
 </div>
 
 <div
@@ -424,7 +420,13 @@ fontSize:13
 
 <div
 key={i}
-style={{textAlign:"center"}}
+onClick={()=>
+router.push(`/chat/${i+1}`)
+}
+style={{
+textAlign:"center",
+cursor:"pointer"
+}}
 >
 
 <div
@@ -483,24 +485,7 @@ marginTop:6
 )}
 
 
-{/* CHAT LIST */}
-{!searching && (
-<div
-style={{
-marginTop:20,
-marginBottom:14,
-padding:"14px 16px",
-borderRadius:18,
-background:
-"linear-gradient(135deg,#EEF4FF,#F7F9FF)",
-fontSize:15,
-fontWeight:600,
-color:"#2F80FF"
-}}
->
-✨ Новый мэтч сегодня
-</div>
-)}
+
 
 <div style={{
 marginTop:
