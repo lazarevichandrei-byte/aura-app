@@ -30,12 +30,7 @@ const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-
-const [avatarFrame,setAvatarFrame] = useState({
- x:0,
- y:0,
- zoom:1.2
-});
+const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
@@ -127,6 +122,7 @@ useEffect(() => {
 
     if (!name.trim() || !city.trim()) {
       alert("Заполни имя и город");
+      
       return;
     }
 
@@ -139,7 +135,7 @@ useEffect(() => {
       city,
       bio,
       interests: selected,
-      avatar_url: photos[mainIndex] || null,
+      avatar_url: avatarPreview || photos[mainIndex] || null,
 photos: photos,
     });
 
@@ -152,6 +148,43 @@ photos: photos,
 
   if (loading) return <div>Loading...</div>;
 
+
+  if (loading) return <div>Loading...</div>;
+
+const getCroppedImg = async (imageSrc,pixelCrop)=>{
+
+ const image = new Image();
+ image.crossOrigin="anonymous";
+ image.src=imageSrc;
+
+ await new Promise(resolve=>{
+   image.onload=resolve;
+ });
+
+ const canvas=document.createElement("canvas");
+ const ctx=canvas.getContext("2d");
+
+ if(!ctx) return imageSrc;
+
+ canvas.width=600;
+ canvas.height=600;
+
+ ctx.drawImage(
+   image,
+   pixelCrop.x,
+   pixelCrop.y,
+   pixelCrop.width,
+   pixelCrop.height,
+   0,
+   0,
+   600,
+   600
+ );
+
+ return canvas.toDataURL("image/jpeg",1);
+};
+
+
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
@@ -159,21 +192,9 @@ photos: photos,
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
-
-
 <img
-
- src={photos[mainIndex]}
- style={{
-   ...styles.avatarImage,
-   transform: `
-     translate(
-       calc(-50% + ${avatarFrame.x}px),
-       calc(-50% + ${avatarFrame.y}px)
-     )
-     scale(${avatarFrame.zoom})
-   `
- }}
+  src={avatarPreview || photos[mainIndex]}
+  style={styles.avatarImage}
 />
 </div>
           ) : (
@@ -305,7 +326,9 @@ style={{
 
  onCropChange={setCrop}
  onZoomChange={setZoom}
- onCropComplete={()=>{}}
+ onCropComplete={(a,b)=>{
+ setCroppedAreaPixels(b);
+}}
  
 />
 
@@ -323,15 +346,19 @@ style={{
 
 <button
  style={styles.submit}
- onClick={()=>{
-   setAvatarFrame({
-      x: crop.x,
-      y: crop.y,
-      zoom: zoom
-   });
+ onClick={async()=>{
 
-   setCropOpen(false);
- }}
+ const croppedUrl =
+   await getCroppedImg(
+      editingPhoto,
+      croppedAreaPixels
+   );
+
+ setAvatarPreview(croppedUrl);
+
+ setCropOpen(false);
+
+}}
 >
 Готово
 </button>
