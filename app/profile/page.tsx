@@ -147,7 +147,7 @@ useEffect(() => {
       city,
       bio,
       interests: selected,
-      avatar_url: photos[mainIndex] || null,
+      avatar_url: avatarPreview || photos[mainIndex] || null,
 photos: photos,
     });
 
@@ -232,6 +232,9 @@ const saveCrop = async ()=>{
    ...styles.avatarImage,
    transform:`scale(${avatarCrop.zoom})`
  }}
+/><img
+ src={avatarPreview || photos[mainIndex]}
+ style={styles.avatarImage}
 />
 </div>
 ) : (
