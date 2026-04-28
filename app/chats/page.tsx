@@ -476,7 +476,7 @@ borderRadius:"50%",
 padding:2.5,
 border: item.newMatch
 ? "2px solid #2F80FF"
-: "2px solid transparent"
+: "2px solid #D7DDE8"
 }}
 >
 <img
