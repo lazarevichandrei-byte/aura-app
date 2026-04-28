@@ -160,10 +160,17 @@ photos: photos,
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
+
  src={photos[mainIndex]}
  style={{
-  ...styles.avatarImage,
-  
+   ...styles.avatarImage,
+   transform: `
+translate(
+ calc(-50% + ${avatarFrame.x}px),
+ calc(-50% + ${avatarFrame.y}px)
+)
+scale(${avatarFrame.zoom})
+`
  }}
 />
 </div>
@@ -315,7 +322,13 @@ style={{
 <button
  style={styles.submit}
  onClick={()=>{
-setCropOpen(false);   
+   setAvatarFrame({
+     x: crop.x,
+     y: crop.y,
+     zoom: zoom
+   });
+
+   setCropOpen(false);
  }}
 >
 Готово
