@@ -60,6 +60,7 @@ margin:"0 auto"
 style={{
 display:"flex",
 alignItems:"center",
+minHeight:110,
 gap:14,
 paddingTop:8
 }}
@@ -205,7 +206,11 @@ transform:"scale(1.08)"
 <div
 style={{
 flex:1,
-marginLeft:16
+marginLeft:16,
+
+display:"flex",
+flexDirection:"column",
+justifyContent:"center"
 }}
 >
 
@@ -230,13 +235,15 @@ color:"#8A8F9B"
 
 <div
 style={{
-marginTop:12,
+marginTop:14,
 
 display:"inline-flex",
 alignItems:"center",
 justifyContent:"center",
 
-padding:"11px 22px",
+alignSelf:"flex-start",
+
+padding:"12px 24px",
 
 borderRadius:999,
 
@@ -261,20 +268,28 @@ boxShadow:
 <div
 style={{
 display:"flex",
-gap:10
+flexDirection:"column",
+justifyContent:"center",
+gap:12
 }}
 >
 
 <div
 style={{
-width:40,
-height:40,
+width:44,
+height:44,
 borderRadius:"50%",
-background:"#F2F4F7",
+
+background:"#F4F6FB",
 
 display:"flex",
 alignItems:"center",
-justifyContent:"center"
+justifyContent:"center",
+
+fontSize:18,
+
+boxShadow:
+"0 2px 6px rgba(0,0,0,.05)"
 }}
 >
 ✕
@@ -283,15 +298,22 @@ justifyContent:"center"
 
 <div
 style={{
-width:40,
-height:40,
+width:44,
+height:44,
 borderRadius:"50%",
-background:"#2F80FF",
-color:"#fff",
+
+background:
+"linear-gradient(135deg,#44B7FF,#2E7BFF)",
 
 display:"flex",
 alignItems:"center",
-justifyContent:"center"
+justifyContent:"center",
+
+color:"#fff",
+fontSize:18,
+
+boxShadow:
+"0 4px 12px rgba(46,123,255,.25)"
 }}
 >
 ♥
