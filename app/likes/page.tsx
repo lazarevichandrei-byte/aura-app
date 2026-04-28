@@ -311,10 +311,12 @@ boxSizing:"border-box"
 >
 <span
 style={{
-fontSize:22,
+fontSize:24,
 lineHeight:"22px",
 color:"#5EA9FF",
-marginTop:-1
+fontWeight:600,
+transform:"scaleX(1.18)",
+display:"inline-block"
 }}
 >
 ♡
