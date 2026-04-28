@@ -229,7 +229,9 @@ const saveCrop = async ()=>{
     style={styles.avatar}
   />
 ) : (
-            <div style={styles.avatar}>👤</div>
+            <div style={styles.avatarPlaceholder}>
+  👤
+</div>
           )}
           <div style={styles.plus}>+</div>
         </div>
@@ -477,7 +479,7 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-aavatar:{
+avatar:{
  width:"96px",
  height:"96px",
  minWidth:"96px",
@@ -492,6 +494,19 @@ aavatar:{
  boxShadow:"0 4px 14px rgba(0,0,0,.08)"
 },
 
+avatarPlaceholder:{
+ width:"96px",
+ height:"96px",
+
+ borderRadius:"50%",
+ background:"#E7F3FF",
+
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+
+ fontSize:"42px"
+},
 
 
 
