@@ -15,31 +15,48 @@ useState([
 img:"/girl1.jpg",
 name:"Алина",
 online:true,
-unread:2,
 newMatch:true
 },
 {
 img:"/girl2.jpg",
 name:"Мария",
 online:true,
-unread:1,
 newMatch:true
 },
 {
 img:"/girl3.jpg",
 name:"Екатерина",
 online:false,
-unread:0,
 newMatch:false
 },
 {
 img:"/girl4.jpg",
 name:"Полина",
 online:true,
-unread:0,
 newMatch:false
 }
 ]);
+
+useEffect(()=>{
+
+const seen =
+JSON.parse(
+localStorage.getItem(
+"seenMatches"
+) || "[]"
+);
+
+setMatches(prev =>
+prev.map((m,i)=>({
+...m,
+newMatch:
+!seen.includes(i)
+&& m.newMatch
+}))
+);
+
+},[]);
+
 const ChatCard = React.memo(
 function ChatCard({
 chat,
@@ -199,6 +216,54 @@ export default function Chats(){
 
 
 const router = useRouter();
+
+const [matches,setMatches] =
+useState([
+{
+img:"/girl1.jpg",
+name:"Алина",
+online:true,
+newMatch:true
+},
+{
+img:"/girl2.jpg",
+name:"Мария",
+online:true,
+newMatch:true
+},
+{
+img:"/girl3.jpg",
+name:"Екатерина",
+online:false,
+newMatch:false
+},
+{
+img:"/girl4.jpg",
+name:"Полина",
+online:true,
+newMatch:false
+}
+]);
+
+useEffect(()=>{
+
+const seen =
+JSON.parse(
+localStorage.getItem(
+"seenMatches"
+) || "[]"
+);
+
+setMatches(prev =>
+prev.map((m,i)=>({
+...m,
+newMatch:
+!seen.includes(i) &&
+m.newMatch
+}))
+);
+
+},[]);
 
 const [chats,setChats] =
 useState<any[]>([]);
@@ -462,6 +527,24 @@ fontSize:13
 <div
 key={i}
 onClick={()=>{
+
+const seen =
+JSON.parse(
+localStorage.getItem(
+"seenMatches"
+) || "[]"
+);
+
+if(
+!seen.includes(i)
+){
+localStorage.setItem(
+"seenMatches",
+JSON.stringify(
+[...seen,i]
+)
+);
+}
 
 setMatches(prev =>
 prev.map((m,index)=>
