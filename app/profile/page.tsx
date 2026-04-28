@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Cropper from "react-easy-crop";
 import { supabase } from "../../lib/supabase";
 
 export default function Profile() {
@@ -23,6 +24,14 @@ export default function Profile() {
   const [showMore, setShowMore] = useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
+
+  const [cropOpen,setCropOpen]=useState(false);
+const [editingPhoto,setEditingPhoto]=useState("");
+const [tempIndex,setTempIndex]=useState(0);
+
+const [crop,setCrop]=useState({x:0,y:0});
+const [zoom,setZoom]=useState(1.2);
+const [croppedAreaPixels,setCroppedAreaPixels]=useState(null);
 
   const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
   const extra = [
@@ -139,7 +148,11 @@ photos: photos,
 
   if (loading) return <div>Loading...</div>;
 
+  
+
   return (
+
+    
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
@@ -255,6 +268,7 @@ photos: photos,
 
    e.target.value="";
  }}
+ 
 />
             </label>
 
@@ -263,7 +277,11 @@ photos: photos,
 
     <img
       src={p}
-      onClick={()=>setMainIndex(i)}
+      onClick={()=>{
+        setEditingPhoto(p);
+        setTempIndex(i);
+        setCropOpen(true);
+      }}
       style={{
         ...styles.galleryImg,
         border:i===mainIndex
@@ -295,15 +313,59 @@ photos: photos,
 
   </div>
 ))}
-           
 
           </div>
         </div>
       )}
+
+      {cropOpen && (
+        <div style={styles.viewer}>
+          <div style={styles.cropModal}>
+
+            <div style={{position:"relative",height:"320px"}}>
+              <Cropper
+                image={editingPhoto}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={(a,p)=>
+                  setCroppedAreaPixels(p)
+                }
+              />
+            </div>
+
+            <input
+              type="range"
+              min="1"
+              max="3"
+              step="0.1"
+              value={zoom}
+              onChange={(e)=>
+                setZoom(Number(e.target.value))
+              }
+              style={styles.slider}
+            />
+
+            <button
+              style={styles.submit}
+              onClick={()=>{
+                setMainIndex(tempIndex);
+                setCropOpen(false);
+              }}
+            >
+              Готово
+            </button>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
-
 
 
 
