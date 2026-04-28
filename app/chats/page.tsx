@@ -107,8 +107,6 @@ typing
 {
 typing
 ? "Печатает…"
-: chat.last_reply_preview
-? `↩ ${chat.last_reply_preview}`
 : chat.last_message ||
 "Начните общение ✨"
 }
@@ -324,7 +322,7 @@ const { data, error } =
 await supabase
 .from("chats")
 .select(
-"id,name,avatar,unread_count,last_message,last_message_at,last_reply_preview"
+"id,name,avatar,unread_count,last_message,last_message_at"
 )
 .order(
 "last_message_at",
