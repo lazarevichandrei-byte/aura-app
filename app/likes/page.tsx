@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 const likes = [
 {
 id:1,
@@ -36,6 +36,13 @@ img:"/girl4.jpg"
 export default function LikesPage(){
 
 const router = useRouter();
+
+const [people,setPeople] =
+useState(likes);
+
+const [matchedUser,setMatchedUser] =
+useState<any>(null);
+
 const touchStartX = useRef(0);
 
 return(
@@ -171,7 +178,7 @@ color:"#7B8794"
 {/* likes list */}
 <div style={{marginTop:22}}>
 
-{likes.map(user=>(
+{people.map(user=>(
 
 <div
 key={user.id}
@@ -298,6 +305,16 @@ minWidth:42
 >
 
 <div
+onClick={(e)=>{
+e.stopPropagation();
+
+setPeople(prev=>
+prev.filter(
+p=>p.id!==user.id
+)
+);
+}}
+
 style={{
 width:40,
 height:40,
@@ -309,13 +326,19 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:17
+fontSize:17,
+cursor:"pointer"
 }}
 >
 ✕
 </div>
 
 <div
+onClick={(e)=>{
+e.stopPropagation();
+setMatchedUser(user);
+}}
+
 style={{
 width:46,
 height:46,
@@ -353,7 +376,103 @@ display:"inline-block"
 ))}
 
 </div>
+{matchedUser && (
 
+<div
+onClick={()=>
+setMatchedUser(null)
+}
+style={{
+position:"fixed",
+inset:0,
+background:"rgba(15,23,42,.55)",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+zIndex:999
+}}
+>
+
+<div
+style={{
+width:"86%",
+maxWidth:340,
+
+background:"#fff",
+borderRadius:30,
+
+padding:"32px 24px",
+textAlign:"center"
+}}
+>
+
+<div
+style={{
+fontSize:38
+}}
+>
+💙
+</div>
+
+<div
+style={{
+marginTop:12,
+fontSize:28,
+fontWeight:800,
+color:"#2F80FF"
+}}
+>
+MATCH!
+</div>
+
+<div
+style={{
+marginTop:12,
+fontSize:17,
+fontWeight:600
+}}
+>
+У вас взаимная симпатия
+</div>
+
+<div
+style={{
+marginTop:8,
+fontSize:14,
+color:"#7B8794"
+}}
+>
+Можно начать общение
+</div>
+
+<div
+style={{
+marginTop:24,
+
+height:48,
+borderRadius:999,
+
+background:
+"linear-gradient(135deg,#44B7FF,#2E7BFF)",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+color:"#fff",
+fontWeight:700
+}}
+>
+Написать сообщение
+</div>
+
+</div>
+
+</div>
+
+)}
 </div>
 
 )
