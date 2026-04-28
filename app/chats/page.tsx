@@ -22,20 +22,53 @@ typing,
 router
 }:any){
 
+const [pressed,setPressed] =
+useState(false);
+
 return(
 
 <div
-onClick={()=>
-router.push(`/chat/${chat.id}`)
+onPointerDown={()=>{
+setPressed(true);
+
+router.prefetch(
+`/chat/${chat.id}`
+);
+}}
+
+onPointerUp={()=>
+setPressed(false)
 }
+
+onPointerLeave={()=>
+setPressed(false)
+}
+
+onClick={()=>{
+router.push(
+`/chat/${chat.id}`
+);
+}}
+
 style={{
 display:"flex",
 alignItems:"center",
 padding:"14px 14px",
 marginBottom:8,
+
 borderRadius:22,
-background:"#fff",
-boxShadow:"0 1px 4px rgba(0,0,0,.03)",
+
+background:
+pressed
+? "#F2F4F7"
+: "#fff",
+
+boxShadow:
+"0 1px 4px rgba(0,0,0,.03)",
+
+transition:
+"background .15s ease",
+
 cursor:"pointer"
 }}
 >
@@ -178,7 +211,7 @@ reloadTimer.current
 reloadTimer.current=
 setTimeout(()=>{
 loadChats();
-},500);
+},150);
 
 }
 )
