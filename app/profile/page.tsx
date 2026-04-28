@@ -210,17 +210,7 @@ const saveCrop = async ()=>{
 
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
-            <div style={styles.avatar}>
-  <img
-    src={photos[mainIndex]}
-    style={{
-      width:`${100*avatarFrame.zoom}%`,
-      height:`${100*avatarFrame.zoom}%`,
-      objectFit:"cover",
-      transform:`translate(${avatarFrame.x}px, ${avatarFrame.y}px)`
-    }}
-  />
-</div>
+            <img src={photos[mainIndex]} style={styles.avatar} />
           ) : (
             <div style={styles.avatar}>👤</div>
           )}
@@ -319,10 +309,10 @@ const saveCrop = async ()=>{
           const files=e.target.files;
           if(!files) return;
 
-         if(photos.length + files.length > 8){
-  alert("Максимум 8 фото");
-  return;
-}
+          if(photos.length + files.length > 6){
+            alert("Максимум 6 фото");
+            return;
+          }
 
           for(let i=0;i<files.length;i++){
             await uploadPhoto(files[i]);
@@ -468,16 +458,8 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-avatar:{
- width:"90px",
- height:"90px",
- borderRadius:"50%",
- overflow:"hidden",
- background:"#E7F3FF",
- display:"flex",
- alignItems:"center",
- justifyContent:"center"
-},  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
+  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
+  plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
 
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
@@ -530,10 +512,7 @@ avatar:{
 gallery:{
  display:"grid",
  gridTemplateColumns:"repeat(3,1fr)",
-
- columnGap:"14px",
- rowGap:"24px",
-
+ gap:"14px",
  width:"100%",
  maxWidth:"420px",
  margin:"0 auto",
@@ -643,6 +622,5 @@ cropModal:{
 }
 
 };
-
 
 
