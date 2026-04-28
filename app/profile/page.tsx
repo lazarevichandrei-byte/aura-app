@@ -156,14 +156,37 @@ photos: photos,
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
-          {photos.length > 0 ? (
-            <img src={photos[mainIndex]} style={styles.avatar} />
-          ) : (
-            <div style={styles.avatar}>👤</div>
-          )}
-          <div style={styles.plus}>+</div>
-        </div>
+        <div
+  style={styles.avatarWrapper}
+  onClick={() => setActivePhoto(true)}
+>
+  {photos.length > 0 ? (
+    <img
+      src={photos[mainIndex]}
+      style={styles.avatar}
+    />
+  ) : (
+    <div style={styles.avatar}>👤</div>
+  )}
+
+  <div style={styles.plus}>+</div>
+
+  <div
+    style={styles.editAvatarBtn}
+    onClick={(e)=>{
+      e.stopPropagation();
+
+      if(!photos.length) return;
+
+      setEditingPhoto(photos[mainIndex]);
+      setTempIndex(mainIndex);
+      setCropOpen(true);
+    }}
+  >
+    ✏
+  </div>
+
+</div>
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
@@ -174,6 +197,8 @@ photos: photos,
           <div style={styles.inputBox}>
             <p style={styles.label}>Возраст</p>
             <div>{age}</div>
+
+            
 <input
  type="range"
  min="18"
@@ -277,11 +302,7 @@ photos: photos,
 
     <img
       src={p}
-      onClick={()=>{
-        setEditingPhoto(p);
-        setTempIndex(i);
-        setCropOpen(true);
-      }}
+      onClick={()=>setMainIndex(i)}
       style={{
         ...styles.galleryImg,
         border:i===mainIndex
@@ -312,7 +333,10 @@ photos: photos,
     </button>
 
   </div>
+
+  
 ))}
+
 
           </div>
         </div>
@@ -364,6 +388,7 @@ photos: photos,
       )}
 
     </div>
+    
   );
 }
 
@@ -450,6 +475,30 @@ deleteBtn:{
  borderRadius:"50%",
  width:"22px",
  height:"22px"
+},
+
+cropModal:{
+ background:"#fff",
+ width:"90%",
+ maxWidth:"380px",
+ borderRadius:"28px",
+ padding:"20px"
+},
+
+editAvatarBtn:{
+ position:"absolute",
+ right:"calc(50% - 38px)",
+ bottom:-6,
+ width:"28px",
+ height:"28px",
+ borderRadius:"50%",
+ background:"#fff",
+ boxShadow:"0 4px 12px rgba(0,0,0,.12)",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ fontSize:"14px",
+ cursor:"pointer"
 },
 
 slider:{
