@@ -136,8 +136,8 @@ position:"absolute",
 top:6,
 right:"22%",
 
-minWidth:18,
-height:18,
+minWidth:20,
+height:20,
 
 padding:"0 5px",
 
@@ -150,11 +150,11 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:10,
+fontSize:11,
 fontWeight:700
 }}
 >
-{unread}
+{unread > 9 ? "9+" : unread}
 </div>
 )}
 
