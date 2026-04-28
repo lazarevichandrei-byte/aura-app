@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-
+import { useRef } from "react";
 const likes = [
 {
 id:1,
@@ -36,10 +36,35 @@ img:"/girl4.jpg"
 export default function LikesPage(){
 
 const router = useRouter();
+const touchStartX = useRef(0);
 
 return(
 
 <div
+
+onTouchStart={(e)=>{
+touchStartX.current =
+e.touches[0].clientX;
+}}
+
+onTouchEnd={(e)=>{
+
+const delta =
+e.changedTouches[0].clientX -
+touchStartX.current;
+
+const startedFromLeft =
+touchStartX.current < 240;
+
+if(
+startedFromLeft &&
+delta > 90
+){
+router.back();
+}
+
+}}
+
 style={{
 height:"100dvh",
 
@@ -311,7 +336,7 @@ boxSizing:"border-box"
 >
 <span
 style={{
-fontSize:40,
+fontSize:26,
 lineHeight:"22px",
 color:"#5EA9FF",
 fontWeight:600,
