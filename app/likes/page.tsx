@@ -298,21 +298,19 @@ style={{
 width:40,
 height:40,
 borderRadius:"50%",
-background:"#fff",
-border:"2px solid #5EA9FF",
+
+background:"#EEF4FF",
+border:"1.5px solid #CFE2FF",
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:16,
-lineHeight:"16px",
-marginTop:-1,
-
-color:"#2F80FF"
+fontSize:18,
+lineHeight:"18px"
 }}
 >
-♡
+💙
 </div>
 
 </div>
