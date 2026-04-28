@@ -509,24 +509,46 @@ avatarTap:{
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
-  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
+viewer:{
+ position:"fixed",
+ inset:0,
+ background:"rgba(0,0,0,.8)",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ zIndex:999
+},
+
 
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
 gallery:{
  display:"grid",
- gridTemplateColumns:"repeat(3,1fr)",
- gap:"12px",
- padding:"18px",
- width:"100%",
- maxWidth:"420px"
+ gridTemplateColumns:"repeat(4,1fr)",
+ gap:"10px",
+ padding:"20px",
+ background:"#fff",
+ borderRadius:"24px",
+ width:"92%",
+ maxWidth:"420px",
+ margin:"0 auto"
 },
 
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
-  addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
-
+addPhoto:{
+ width:"100%",
+ maxWidth:"120px",
+ aspectRatio:"3/4",
+ borderRadius:"12px",
+ background:"#E7F3FF",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ fontSize:"26px",
+ margin:"0 auto"
+},
 deleteBtn:{
  position:"absolute",
  top:6,
