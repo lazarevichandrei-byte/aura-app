@@ -190,7 +190,7 @@ supabase.removeChannel(channel);
 
 const filteredChats =
 chats.filter(chat=>
-chat.name
+(chat?.name || "")
 .toLowerCase()
 .includes(
 search.toLowerCase()
