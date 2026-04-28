@@ -230,8 +230,9 @@ const saveCrop = async ()=>{
   style={{
     ...styles.avatarImage,
     transform: `
-      translate(${avatarCrop.x}px, ${avatarCrop.y}px)
-      scale(${avatarCrop.zoom})
+      translate(-50%, -50%)
+translate(${avatarCrop.x}px, ${avatarCrop.y}px)
+scale(${avatarCrop.zoom})
     `
   }}
 />
@@ -428,6 +429,9 @@ const saveCrop = async ()=>{
  zoom={zoom}
  aspect={1}
  cropShape="round"
+ objectFit="cover"
+ restrictPosition={true}
+ showGrid={false}
  onCropChange={setCrop}
  onZoomChange={setZoom}
  onCropComplete={(a,p)=>
@@ -493,25 +497,31 @@ avatarWrapper:{
  position:"relative"
 },
 avatarMask:{
- width:"96px",
- height:"96px",
- minWidth:"96px",
- minHeight:"96px",
+ width:"88px",
+ height:"88px",
+ minWidth:"88px",
+ minHeight:"88px",
 
  borderRadius:"50%",
  overflow:"hidden",
  background:"#E7F3FF",
-
  position:"relative",
 
  boxShadow:"0 4px 14px rgba(0,0,0,.08)"
 },
 
 avatarImage:{
+ position:"absolute",
+ top:"50%",
+ left:"50%",
+
  width:"100%",
  height:"100%",
+
  objectFit:"cover",
- transformOrigin:"center center"
+
+ transformOrigin:"center center",
+ willChange:"transform"
 },
 
 avatarPlaceholder:{
