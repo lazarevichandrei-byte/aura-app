@@ -26,7 +26,7 @@ export default function Profile() {
   const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
 const [editingPhoto,setEditingPhoto] = useState("");
-const [tempIndex,setTempIndex] = useState(0);
+
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 
@@ -367,7 +367,6 @@ style={styles.slider}
  onClick={(e)=>{
    e.stopPropagation();
    setEditingPhoto(p);
-   setTempIndex(i);
    setActivePhoto(false);
    setCropOpen(true);
  }}
