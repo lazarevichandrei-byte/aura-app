@@ -41,9 +41,15 @@ return(
 
 <div
 style={{
-minHeight:"100dvh",
+height:"100dvh",
+
+overflowY:"auto",
+WebkitOverflowScrolling:"touch",
+
 background:"#FCFCFE",
+
 padding:"10px 16px 120px",
+
 maxWidth:"430px",
 margin:"0 auto"
 }}
@@ -168,9 +174,16 @@ cursor:"pointer"
 }}
 >
 
-<div style={{
-position:"relative"
-}}>
+<div
+style={{
+position:"relative",
+
+padding:2,
+borderRadius:"50%",
+
+border:"2px solid #2F80FF"
+}}
+>
 
 <img
 src={user.img}
@@ -179,22 +192,12 @@ width:78,
 height:78,
 borderRadius:"50%",
 objectFit:"cover",
-filter:"blur(8px)"
+filter:"blur(14px)",
+transform:"scale(1.08)"
 }}
 />
 
-<div
-style={{
-position:"absolute",
-inset:0,
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:28
-}}
->
-❤️
-</div>
+
 
 </div>
 
@@ -227,13 +230,18 @@ color:"#8A8F9B"
 
 <div
 style={{
-marginTop:8,
-fontSize:14,
-fontWeight:600,
-color:"#2F80FF"
+marginTop:10,
+display:"inline-flex",
+alignItems:"center",
+padding:"8px 14px",
+borderRadius:999,
+background:"#EEF4FF",
+color:"#2F80FF",
+fontSize:13,
+fontWeight:700
 }}
 >
-Посмотреть профиль →
+Открыть профиль →
 </div>
 
 </div>
