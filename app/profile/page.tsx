@@ -30,6 +30,7 @@ export default function Profile() {
  zoom:1.2
 });
   const [cropOpen,setCropOpen] = useState(false);
+  const [avatarPreview,setAvatarPreview] = useState("");
 const [editingPhoto,setEditingPhoto] = useState("");
 const [tempIndex,setTempIndex] = useState(0);
 
@@ -226,7 +227,7 @@ const saveCrop = async ()=>{
           {photos.length > 0 ? (
 <div style={styles.avatarMask}>
 <img
- src={photos[mainIndex]}
+ src={avatarPreview || photos[mainIndex]}
  style={{
    ...styles.avatarImage,
    transform:`scale(${avatarCrop.zoom})`
@@ -450,14 +451,15 @@ const saveCrop = async ()=>{
 
 <button
  style={styles.submit}
- onClick={()=>{
- setAvatarCrop({
- x:0,
- y:0,
- zoom:zoom
-});
+ onClick={async()=>{
 
- setMainIndex(tempIndex);
+ const croppedUrl = await getCroppedImg(
+   editingPhoto,
+   croppedAreaPixels
+ );
+
+ setAvatarPreview(croppedUrl);
+
  setCropOpen(false);
 }}
 >
@@ -515,14 +517,10 @@ avatarImage:{
  position:"absolute",
  top:"50%",
  left:"50%",
-
- width:"140%",
- height:"140%",
-
+ width:"100%",
+ height:"100%",
  objectFit:"cover",
-
- transformOrigin:"center center",
- willChange:"transform"
+ transform:"translate(-50%,-50%)"
 },
 
 avatarPlaceholder:{
