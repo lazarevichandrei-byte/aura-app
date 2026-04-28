@@ -322,54 +322,57 @@ photos: photos,
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
 
-  <img
-    src={p}
-    onClick={()=>setMainIndex(i)}
-    style={{
-      ...styles.galleryImg,
-      border:i===mainIndex
-        ? "3px solid #2AABEE"
-        : "none"
-    }}
-  />
+    <img
+      src={p}
+      onClick={()=>setMainIndex(i)}
+      style={{
+        ...styles.galleryImg,
+        border:i===mainIndex
+          ? "3px solid #2AABEE"
+          : "none"
+      }}
+    />
 
-  {i===mainIndex && (
-    <>
-      <div style={styles.mainBadge}>
-        ★ Главная
-      </div>
+    {i===mainIndex && (
+<>
+  <div style={styles.mainBadge}>
+    ★ Главная
+  </div>
 
-      <button
-        style={styles.editPhotoBtn}
-        onClick={(e)=>{
-          e.stopPropagation();
+  <div
+    style={styles.editPhotoBtn}
+    onClick={(e)=>{
+      e.stopPropagation();
 
-          setEditingPhoto(p);
-          setTempIndex(i);
-          setCropOpen(true);
-        }}
-      >
-        ✏
-      </button>
-    </>
-  )}
-
-  <button
-    style={styles.deleteBtn}
-    onClick={()=>{
-      setPhotos(prev =>
-        prev.filter((_,index)=>index!==i)
-      );
-
-      if(i===mainIndex){
-        setMainIndex(0);
-      }
+      setEditingPhoto(p);
+      setTempIndex(i);
+      setCropOpen(true);
     }}
   >
-    ✕
-  </button>
+    ✏
+  </div>
+</>
+)}
 
-</div>
+
+
+
+    <button
+      style={styles.deleteBtn}
+      onClick={()=>{
+        setPhotos(prev =>
+          prev.filter((_,index)=>index!==i)
+        );
+
+        if(i===mainIndex){
+          setMainIndex(0);
+        }
+      }}
+    >
+      ✕
+    </button>
+
+  </div>
 
   
 ))}
@@ -411,25 +414,24 @@ photos: photos,
             />
 
             <button
- 
  style={styles.submit}
  onClick={async()=>{
-   const croppedUrl = await getCroppedImg(
-      editingPhoto,
-      croppedAreaPixels
-   );
+ const croppedUrl=await getCroppedImg(
+   editingPhoto,
+   croppedAreaPixels
+ );
 
-   setPhotos(prev=>{
-      const copy=[...prev];
-      copy[tempIndex]=croppedUrl;
-      return copy;
-   });
+ setPhotos(prev=>{
+   const copy=[...prev];
+   copy[tempIndex]=croppedUrl;
+   return copy;
+ });
 
-   setMainIndex(tempIndex);
-   setCropOpen(false);
- }}
+ setMainIndex(tempIndex);
+ setCropOpen(false);
+}}
 >
-Готово
+ Готово
 </button>
 
           </div>
@@ -496,17 +498,7 @@ avatarTap:{
     whiteSpace:"nowrap"
   },
 
-  mainBadge:{
- position:"absolute",
- bottom:8,
- left:8,
- background:"#2AABEE",
- color:"#fff",
- padding:"4px 8px",
- borderRadius:"999px",
- fontSize:11,
- fontWeight:600
-},
+  
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
@@ -515,7 +507,7 @@ avatarTap:{
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
-viewer:{
+  viewer:{
  position:"fixed",
  top:0,
  left:0,
@@ -526,9 +518,16 @@ viewer:{
  alignItems:"center",
  justifyContent:"center"
 },
-  galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
- gallery:{
+galleryEmpty:{
+ display:"flex",
+ justifyContent:"center",
+ alignItems:"center",
+ height:"300px",
+ width:"100%"
+},
+
+gallery:{
  display:"grid",
  gridTemplateColumns:"repeat(4,1fr)",
  gap:"10px",
@@ -546,11 +545,35 @@ galleryImg:{
  objectFit:"cover"
 },
 
+addPhoto:{
+ width:"100%",
+ maxWidth:"120px",
+ aspectRatio:"3/4",
+ borderRadius:"12px",
+ background:"#E7F3FF",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ fontSize:"26px"
+},
+
+mainBadge:{
+ position:"absolute",
+ bottom:8,
+ left:8,
+ background:"#2AABEE",
+ color:"#fff",
+ padding:"4px 8px",
+ borderRadius:"999px",
+ fontSize:11,
+ fontWeight:600
+},
+
 deleteBtn:{
  position:"absolute",
  top:6,
  right:6,
- background:"rgba(0,0,0,0.6)",
+ background:"rgba(0,0,0,.6)",
  color:"#fff",
  border:"none",
  borderRadius:"50%",
@@ -560,12 +583,12 @@ deleteBtn:{
 
 editPhotoBtn:{
  position:"absolute",
- right:-10,
- bottom:8,
+ right:-8,
+ bottom:-8,
  width:32,
  height:32,
  borderRadius:"50%",
- border:"2px solid white",
+ border:"2px solid #fff",
  background:"#fff",
  boxShadow:"0 6px 14px rgba(0,0,0,.18)",
  display:"flex",
@@ -584,7 +607,6 @@ cropModal:{
  padding:"20px"
 },
 
-
 slider:{
  width:"100%",
  marginTop:"10px",
@@ -593,6 +615,6 @@ slider:{
  borderRadius:"999px",
  background:"#FFFFFF",
  outline:"none"
-}
+},
 
 };
