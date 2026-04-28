@@ -259,46 +259,43 @@ photos: photos,
             </label>
 
             {photos.map((p,i)=>(
-              <div key={i} style={styles.galleryItem}>
-                <img
-                  src={p}
-                  onClick={()=>setMainIndex(i)}
-                  style={{
-                    ...styles.galleryImg,
-                    border:i===mainIndex?"3px solid #2AABEE":"none"
-                  }}
-                />
-                {photos.map((p,i)=>(
-<div key={i} style={styles.galleryItem}>
+  <div key={i} style={styles.galleryItem}>
 
-<img
- src={p}
- onClick={()=>setMainIndex(i)}
- style={{
-   ...styles.galleryImg,
-   border:i===mainIndex ? "3px solid #2AABEE" : "none"
- }}
-/>
+    <img
+      src={p}
+      onClick={()=>setMainIndex(i)}
+      style={{
+        ...styles.galleryImg,
+        border:i===mainIndex
+          ? "3px solid #2AABEE"
+          : "none"
+      }}
+    />
 
-{i===mainIndex && (
-<div style={styles.mainBadge}>
- ★ Главная
-</div>
-)}
+    {i===mainIndex && (
+      <div style={styles.mainBadge}>
+        ★ Главная
+      </div>
+    )}
 
-<button
- style={styles.deleteBtn}
- onClick={()=>
-   setPhotos(prev=>prev.filter((_,index)=>index!==i))
- }
->
- ✕
-</button>
+    <button
+      style={styles.deleteBtn}
+      onClick={()=>{
+        setPhotos(prev =>
+          prev.filter((_,index)=>index!==i)
+        );
 
-</div>
+        if(i===mainIndex){
+          setMainIndex(0);
+        }
+      }}
+    >
+      ✕
+    </button>
+
+  </div>
 ))}
-              </div>
-            ))}
+           
 
           </div>
         </div>
@@ -367,7 +364,14 @@ const styles:any = {
 
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
-  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
+gallery:{
+ display:"grid",
+ gridTemplateColumns:"repeat(3,1fr)",
+ gap:"12px",
+ padding:"18px",
+ width:"100%",
+ maxWidth:"420px"
+},
 
   galleryItem:{position:"relative"},
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
