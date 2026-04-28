@@ -158,32 +158,40 @@ const getCroppedImg = async (
  pixelCrop:any
 )=>{
  const image = new Image();
-image.crossOrigin="anonymous";
- image.src = imageSrc;
+ image.crossOrigin="anonymous";
+ image.src=imageSrc;
 
  await new Promise(resolve=>{
-   image.onload = resolve;
+   image.onload=resolve;
  });
 
- const canvas = document.createElement("canvas");
- const ctx = canvas.getContext("2d");
+ const size = 600;
 
- canvas.width = pixelCrop.width;
- canvas.height = pixelCrop.height;
+ const canvas=document.createElement("canvas");
+ const ctx=canvas.getContext("2d");
 
- ctx?.drawImage(
+ if(!ctx) return imageSrc;
+
+ canvas.width=size;
+ canvas.height=size;
+
+ ctx.drawImage(
    image,
    pixelCrop.x,
    pixelCrop.y,
    pixelCrop.width,
    pixelCrop.height,
+
    0,
    0,
-   pixelCrop.width,
-   pixelCrop.height
+   size,
+   size
  );
 
- return canvas.toDataURL("image/jpeg");
+ return canvas.toDataURL(
+   "image/jpeg",
+   0.95
+ );
 };
 
 
@@ -475,14 +483,20 @@ const styles:any = {
 avatar:{
  width:"90px",
  height:"90px",
+
  borderRadius:"50%",
  overflow:"hidden",
+
+ background:"#E7F3FF",
+
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
 
  objectFit:"cover",
  objectPosition:"center",
 
- background:"#E7F3FF",
- display:"block"
+ flexShrink:0
 },
 
 plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
