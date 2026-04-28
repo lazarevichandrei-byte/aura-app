@@ -203,7 +203,7 @@ const getCroppedImg = async (
 
 
 
- setMainIndex(tempIndex);  
+   
  return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
@@ -433,11 +433,18 @@ const getCroppedImg = async (
 
 <button
  style={styles.submit}
- onClick={async()=>{
-   
+ onClick={()=>{
+ setAvatarFrame({
+   x: crop.x,
+   y: crop.y,
+   zoom: zoom
+ });
 
-   setCropOpen(false);
- }}
+ setAvatarPreview(editingPhoto);
+
+ setCropOpen(false);
+}}   
+
 >
  Готово
 </button>
