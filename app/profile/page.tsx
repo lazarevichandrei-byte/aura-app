@@ -342,6 +342,9 @@ photos: photos,
 </>
 )}
 
+
+
+
     <button
       style={styles.deleteBtn}
       onClick={()=>{
@@ -504,6 +507,22 @@ deleteBtn:{
  borderRadius:"50%",
  width:"22px",
  height:"22px"
+},
+
+editPhotoBtn:{
+ position:"absolute",
+ bottom:8,
+ right:8,
+ width:26,
+ height:26,
+ borderRadius:"50%",
+ background:"#fff",
+ boxShadow:"0 3px 10px rgba(0,0,0,.18)",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ fontSize:13,
+ zIndex:3
 },
 
 cropModal:{
