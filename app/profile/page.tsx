@@ -203,7 +203,8 @@ const getCroppedImg = async (
 
 
 
- setMainIndex(tempIndex);  return (
+ setMainIndex(tempIndex);  
+ return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
@@ -433,12 +434,7 @@ const getCroppedImg = async (
 <button
  style={styles.submit}
  onClick={async()=>{
-   const croppedUrl = await getCroppedImg(
-     editingPhoto,
-     croppedAreaPixels
-   );
-
-   setAvatarPreview(croppedUrl);
+   
 
    setCropOpen(false);
  }}
@@ -500,7 +496,7 @@ avatarImage:{
  width:"100%",
  height:"100%",
  objectFit:"cover",
- transform:"translate(-50%,-50%)"
+ transformOrigin:"center center"
 },
 
 avatarPlaceholder:{
