@@ -322,57 +322,54 @@ photos: photos,
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
 
-    <img
-      src={p}
-      onClick={()=>setMainIndex(i)}
-      style={{
-        ...styles.galleryImg,
-        border:i===mainIndex
-          ? "3px solid #2AABEE"
-          : "none"
-      }}
-    />
+  <img
+    src={p}
+    onClick={()=>setMainIndex(i)}
+    style={{
+      ...styles.galleryImg,
+      border:i===mainIndex
+        ? "3px solid #2AABEE"
+        : "none"
+    }}
+  />
 
-    {i===mainIndex && (
-<>
-  <div style={styles.mainBadge}>
-    ★ Главная
-  </div>
+  {i===mainIndex && (
+    <>
+      <div style={styles.mainBadge}>
+        ★ Главная
+      </div>
 
-  <div
-    style={styles.editPhotoBtn}
-    onClick={(e)=>{
-      e.stopPropagation();
+      <button
+        style={styles.editPhotoBtn}
+        onClick={(e)=>{
+          e.stopPropagation();
 
-      setEditingPhoto(p);
-      setTempIndex(i);
-      setCropOpen(true);
+          setEditingPhoto(p);
+          setTempIndex(i);
+          setCropOpen(true);
+        }}
+      >
+        ✏
+      </button>
+    </>
+  )}
+
+  <button
+    style={styles.deleteBtn}
+    onClick={()=>{
+      setPhotos(prev =>
+        prev.filter((_,index)=>index!==i)
+      );
+
+      if(i===mainIndex){
+        setMainIndex(0);
+      }
     }}
   >
-    ✏
-  </div>
-</>
-)}
+    ✕
+  </button>
 
-
-
-
-    <button
-      style={styles.deleteBtn}
-      onClick={()=>{
-        setPhotos(prev =>
-          prev.filter((_,index)=>index!==i)
-        );
-
-        if(i===mainIndex){
-          setMainIndex(0);
-        }
-      }}
-    >
-      ✕
-    </button>
-
-  </div>
+</div>
 
   
 ))}
@@ -414,23 +411,25 @@ photos: photos,
             />
 
             <button
+ 
+ style={styles.submit}
  onClick={async()=>{
- const croppedUrl = await getCroppedImg(
-   editingPhoto,
-   croppedAreaPixels
- );
+   const croppedUrl = await getCroppedImg(
+      editingPhoto,
+      croppedAreaPixels
+   );
 
- setPhotos(prev=>{
-   const copy=[...prev];
-   copy[tempIndex]=croppedUrl;
-   return copy;
- });
+   setPhotos(prev=>{
+      const copy=[...prev];
+      copy[tempIndex]=croppedUrl;
+      return copy;
+   });
 
- setMainIndex(tempIndex);
- setCropOpen(false);
-}}
+   setMainIndex(tempIndex);
+   setCropOpen(false);
+ }}
 >
- Готово
+Готово
 </button>
 
           </div>
@@ -536,20 +535,15 @@ viewer:{
  padding:"20px"
 },
 
+galleryItem:{
+ position:"relative"
+},
 
-  
-  galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
-
-addPhoto:{
+galleryImg:{
  width:"100%",
- maxWidth:"120px",
  aspectRatio:"3/4",
  borderRadius:"12px",
- background:"#E7F3FF",
- display:"flex",
- alignItems:"center",
- justifyContent:"center",
- fontSize:"26px"
+ objectFit:"cover"
 },
 
 deleteBtn:{
@@ -566,20 +560,20 @@ deleteBtn:{
 
 editPhotoBtn:{
  position:"absolute",
- right:-12,
- bottom:-12,
- width:36,
- height:36,
+ right:-10,
+ bottom:8,
+ width:32,
+ height:32,
  borderRadius:"50%",
  border:"2px solid white",
  background:"#fff",
- boxShadow:"0 8px 18px rgba(0,0,0,.20)",
+ boxShadow:"0 6px 14px rgba(0,0,0,.18)",
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
  fontSize:14,
- zIndex:50,
- cursor:"pointer"
+ cursor:"pointer",
+ zIndex:5
 },
 
 cropModal:{
