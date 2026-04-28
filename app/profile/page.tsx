@@ -5,6 +5,35 @@ import Cropper from "react-easy-crop";
 import { supabase } from "../../lib/supabase";
 
 export default function Profile() {
+  const getCroppedImg = async (imageSrc:any,crop:any) => {
+
+ const image = new Image();
+ image.src = imageSrc;
+
+ await new Promise(resolve=>{
+   image.onload = resolve;
+ });
+
+ const canvas=document.createElement("canvas");
+ const ctx=canvas.getContext("2d");
+
+ canvas.width=crop.width;
+ canvas.height=crop.height;
+
+ ctx.drawImage(
+   image,
+   crop.x,
+   crop.y,
+   crop.width,
+   crop.height,
+   0,
+   0,
+   crop.width,
+   crop.height
+ );
+
+ return canvas.toDataURL("image/jpeg");
+};
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
@@ -386,10 +415,25 @@ photos: photos,
 
             <button
               style={styles.submit}
-              onClick={()=>{
-                setMainIndex(tempIndex);
-                setCropOpen(false);
-              }}
+              onClick={async()=>{
+
+ const croppedUrl =
+ await getCroppedImg(
+   editingPhoto,
+   croppedAreaPixels
+ );
+
+ setPhotos(prev=>{
+   const copy=[...prev];
+   copy[tempIndex]=croppedUrl;
+   return copy;
+ });
+
+ setMainIndex(tempIndex);
+
+ setCropOpen(false);
+
+}}
             >
               Готово
             </button>
@@ -509,18 +553,19 @@ deleteBtn:{
 
 editPhotoBtn:{
  position:"absolute",
- bottom:8,
- right:8,
- width:26,
- height:26,
+ right:-10,
+ bottom:10,
+ width:34,
+ height:34,
  borderRadius:"50%",
+ border:"none",
  background:"#fff",
- boxShadow:"0 3px 10px rgba(0,0,0,.18)",
+ boxShadow:"0 6px 18px rgba(0,0,0,.18)",
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
- fontSize:13,
- zIndex:3
+ fontSize:15,
+ zIndex:20
 },
 
 cropModal:{
