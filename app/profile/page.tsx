@@ -224,20 +224,10 @@ const saveCrop = async ()=>{
 
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
-  <div style={styles.avatarMask}>
   <img
     src={photos[mainIndex]}
-    style={{
-      ...styles.avatarImage,
-
-      transform:`
-        translate(${avatarCrop.x}px,
-                  ${avatarCrop.y}px)
-        scale(${avatarCrop.zoom})
-      `
-    }}
+    style={styles.avatar}
   />
-</div>
 ) : (
             <div style={styles.avatar}>👤</div>
           )}
@@ -487,21 +477,18 @@ const styles:any = {
   card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
   avatarWrapper:{display:"flex",justifyContent:"center",marginBottom:"20px",position:"relative"},
-avatarMask:{
+aavatar:{
  width:"90px",
  height:"90px",
  borderRadius:"50%",
- overflow:"hidden",
- position:"relative",
+ objectFit:"cover",
+ display:"block",
  background:"#E7F3FF"
+
 },
 
-avatarImage:{
- width:"100%",
- height:"100%",
- objectFit:"cover",
- transformOrigin:"center center"
-},
+
+
 
 plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
 
