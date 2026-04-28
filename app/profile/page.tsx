@@ -278,6 +278,17 @@ photos: photos,
       </div>
     )}
 
+    {i===mainIndex && (
+<button
+ style={styles.editPhotoBtn}
+ onClick={(e)=>{
+   e.stopPropagation();
+ }}
+>
+ ✎
+</button>
+)}
+
     <button
       style={styles.deleteBtn}
       onClick={()=>{
@@ -343,15 +354,20 @@ const styles:any = {
 
   mainBadge:{
  position:"absolute",
- bottom:8,
  left:8,
- background:"#2AABEE",
+ bottom:8,
+
+ background:"rgba(42,171,238,.95)",
  color:"#fff",
- padding:"4px 8px",
+
+ padding:"3px 8px",
  borderRadius:"999px",
- fontSize:11,
- fontWeight:600
+
+ fontSize:9,
+ fontWeight:600,
+ letterSpacing:0.2
 },
+
   active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
@@ -364,23 +380,65 @@ const styles:any = {
 
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
-  gallery:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",padding:"20px"},
+gallery:{
+ display:"grid",
+ gridTemplateColumns:"repeat(3,1fr)",
+ gap:"14px",
+ width:"100%",
+ maxWidth:"420px",
+ margin:"0 auto",
+ padding:"18px"
+},
 
-  galleryItem:{position:"relative"},
-  galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
+  galleryItem:{
+ position:"relative",
+ width:"100%",
+ overflow:"visible"
+},
 
-  addPhoto:{width:"100%",maxWidth:"120px",aspectRatio:"3/4",borderRadius:"12px",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px"},
+  galleryImg:{
+ width:"100%",
+ height:"160px",
+ aspectRatio:"3/4",
+ objectFit:"cover",
+ borderRadius:"18px",
+ display:"block"
+},
+
+addPhoto:{
+ width:"100%",
+ height:"160px",
+ borderRadius:"18px",
+ background:"#EEF5FD",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+ fontSize:"42px",
+ justifySelf:"center"
+},
 
 deleteBtn:{
  position:"absolute",
- top:6,
- right:6,
- background:"rgba(0,0,0,0.6)",
- color:"#fff",
- border:"none",
+ top:-9,
+ right:-9,
+
+ width:"30px",
+ height:"30px",
+
  borderRadius:"50%",
- width:"22px",
- height:"22px"
+ border:"none",
+
+ background:"#fff",
+ color:"#111",
+
+ boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+
+ fontSize:"18px",
+ zIndex:30
 },
 
 slider:{
@@ -391,6 +449,28 @@ slider:{
  borderRadius:"999px",
  background:"#FFFFFF",
  outline:"none"
+},
+
+editPhotoBtn:{
+ position:"absolute",
+ right:-10,
+ bottom:10,
+
+ width:"32px",
+ height:"32px",
+
+ borderRadius:"50%",
+ border:"none",
+
+ background:"#fff",
+
+ boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
+
+ zIndex:30
 }
 
 };
