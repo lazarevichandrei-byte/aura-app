@@ -268,6 +268,19 @@ color:"#8A8F9B"
 </div>
 
 <div
+onClick={(e)=>{
+e.stopPropagation();
+
+router.push(
+`/profile/${user.id}`
+);
+
+/* если профиля пока нет —
+временно можно:
+/chat/${user.id}
+*/
+}}
+
 style={{
 marginTop:12,
 width:150,
@@ -284,7 +297,9 @@ background:"#fff",
 
 fontSize:13,
 fontWeight:600,
-color:"#2F80FF"
+color:"#2F80FF",
+
+cursor:"pointer"
 }}
 >
 Смотреть профиль
@@ -448,6 +463,12 @@ color:"#7B8794"
 </div>
 
 <div
+onClick={()=>{
+router.push(
+`/chat/${matchedUser.id}`
+);
+}}
+
 style={{
 marginTop:24,
 
@@ -462,7 +483,9 @@ alignItems:"center",
 justifyContent:"center",
 
 color:"#fff",
-fontWeight:700
+fontWeight:700,
+
+cursor:"pointer"
 }}
 >
 Написать сообщение
