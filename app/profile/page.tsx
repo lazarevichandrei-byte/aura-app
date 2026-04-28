@@ -514,9 +514,15 @@ gallery:{
  display:"grid",
  gridTemplateColumns:"repeat(3,1fr)",
  gap:"12px",
- padding:"18px",
+
  width:"100%",
- maxWidth:"420px"
+ maxWidth:"420px",
+
+ margin:"0 auto",          // центрирует
+ justifyContent:"center",
+ alignContent:"start",
+
+ padding:"20px"
 },
 
   galleryItem:{position:"relative"},
