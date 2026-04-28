@@ -304,10 +304,10 @@ const saveCrop = async ()=>{
           const files=e.target.files;
           if(!files) return;
 
-          if(photos.length + files.length > 6){
-            alert("Максимум 6 фото");
-            return;
-          }
+         if(photos.length + files.length > 8){
+  alert("Максимум 8 фото");
+  return;
+}
 
           for(let i=0;i<files.length;i++){
             await uploadPhoto(files[i]);
@@ -520,7 +520,10 @@ const styles:any = {
 gallery:{
  display:"grid",
  gridTemplateColumns:"repeat(3,1fr)",
- gap:"14px",
+
+ columnGap:"14px",
+ rowGap:"24px",
+
  width:"100%",
  maxWidth:"420px",
  margin:"0 auto",
