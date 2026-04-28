@@ -127,7 +127,10 @@ useEffect(() => {
 
     const { error } = await supabase.storage
       .from("avatars")
-      .upload(fileName, file);
+      .upload(fileName, file, {
+ contentType:file.type,
+ upsert:false
+});
 
     if (!error) {
       const { data } = supabase.storage
@@ -289,7 +292,7 @@ photos: photos,
       {activePhoto && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
           <div
-            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+            style={styles.gallery}
             onClick={(e)=>e.stopPropagation()}
           >
 
