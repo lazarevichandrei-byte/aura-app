@@ -590,6 +590,113 @@ marginTop:
 searching ? 12 : 24
 }}>
 
+{!searching && (
+<div
+style={{
+marginTop:18,
+marginBottom:14,
+padding:"16px",
+borderRadius:24,
+
+background:
+"linear-gradient(135deg,#EDF4FF,#F8FAFF)",
+
+boxShadow:
+"0 4px 18px rgba(46,123,255,.08)"
+}}
+>
+
+<div
+style={{
+fontSize:15,
+fontWeight:700,
+marginBottom:14
+}}
+>
+Кому ты понравился · 12
+</div>
+
+
+<div
+onClick={()=>{
+alert("Откроем Likes экран дальше");
+}}
+style={{
+display:"flex",
+alignItems:"center",
+cursor:"pointer"
+}}
+>
+
+{[1,2,3].map((i)=>(
+<div
+key={i}
+style={{
+width:62,
+height:62,
+borderRadius:"50%",
+overflow:"hidden",
+
+marginLeft:
+i===1 ? 0 : -18,
+
+border:"3px solid #fff",
+
+filter:"blur(7px)"
+}}
+>
+<img
+src={`/girl${i}.jpg`}
+style={{
+width:"100%",
+height:"100%",
+objectFit:"cover"
+}}
+/>
+</div>
+))}
+
+
+<div
+style={{
+width:62,
+height:62,
+
+marginLeft:-18,
+
+borderRadius:"50%",
+background:"#2F80FF",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+color:"#fff",
+fontWeight:700,
+fontSize:18,
+
+border:"3px solid #fff"
+}}
+>
++9
+</div>
+
+
+<div
+style={{
+marginLeft:18,
+fontSize:14,
+fontWeight:600,
+color:"#2F80FF"
+}}
+>
+Нажми посмотреть →
+</div>
+
+</div>
+
+</div>
+)}
 
 {searching && (
 <div style={{
