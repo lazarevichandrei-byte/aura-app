@@ -205,9 +205,6 @@ transform:"scale(1.08)"
 
 <div
 style={{
-flex:1,
-marginLeft:16,
-
 display:"flex",
 flexDirection:"column",
 justifyContent:"center"
@@ -235,38 +232,26 @@ color:"#8A8F9B"
 
 <div
 style={{
-marginTop:14,
+marginTop:12,
 
-height:46,
-width:198,
+width:175,
+height:40,
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-alignSelf:"flex-start",
-
 borderRadius:999,
 
-background:"#FFFFFF",
-
-border:"1.8px solid #5DA8FF",
-
-boxSizing:"border-box",
+background:"#fff",
+border:"2px solid #5EA9FF",
 
 color:"#2F80FF",
 
-fontSize:15,
+fontSize:14,
 fontWeight:600,
 
-lineHeight:"15px",
-
-whiteSpace:"nowrap",
-
-boxShadow:
-"0 2px 6px rgba(93,169,255,.08)",
-
-transition:"all .15s ease"
+whiteSpace:"nowrap"
 }}
 >
 Смотреть профиль
@@ -278,9 +263,9 @@ transition:"all .15s ease"
 <div
 style={{
 display:"flex",
-flexDirection:"column",
-justifyContent:"center",
-gap:12
+alignItems:"center",
+gap:14,
+marginLeft:14
 }}
 >
 
@@ -289,21 +274,18 @@ style={{
 width:42,
 height:42,
 borderRadius:"50%",
-
 background:"#FAFAFC",
-
 border:"1px solid #ECEFF5",
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:20
+fontSize:18
 }}
 >
 ✕
 </div>
-
 
 <div
 style={{
@@ -312,8 +294,7 @@ height:42,
 borderRadius:"50%",
 
 background:"#fff",
-
-border:"2px solid #5DA8FF",
+border:"2px solid #5EA9FF",
 
 display:"flex",
 alignItems:"center",
