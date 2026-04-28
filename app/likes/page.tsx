@@ -310,7 +310,28 @@ fontSize:18,
 lineHeight:"18px"
 }}
 >
-💙
+<svg
+width="18"
+height="18"
+viewBox="0 0 24 24"
+fill="none"
+stroke="#2F80FF"
+strokeWidth="2.2"
+strokeLinecap="round"
+strokeLinejoin="round"
+>
+<path d="
+M20.4 5.6
+c-1.4-1.5-3.7-1.5-5.1 0
+L12 8.8
+8.7 5.6
+c-1.4-1.5-3.7-1.5-5.1 0
+-1.5 1.6-1.5 4.1 0 5.7
+L12 19
+l8.4-7.7
+c1.5-1.6 1.5-4.1 0-5.7
+"/>
+</svg>
 </div>
 
 </div>
