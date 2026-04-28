@@ -226,15 +226,14 @@ const saveCrop = async ()=>{
           {photos.length > 0 ? (
 <div style={styles.avatarMask}>
 <img
-  src={photos[mainIndex]}
-  style={{
-    ...styles.avatarImage,
-    transform: `
-      translate(-50%, -50%)
-translate(${avatarCrop.x}px, ${avatarCrop.y}px)
-scale(${avatarCrop.zoom})
-    `
-  }}
+ src={photos[mainIndex]}
+ style={{
+   ...styles.avatarImage,
+   transform:`
+     translate(-50%,-50%)
+     scale(${avatarCrop.zoom})
+   `
+ }}
 />
 </div>
 ) : (
@@ -456,10 +455,10 @@ scale(${avatarCrop.zoom})
  style={styles.submit}
  onClick={()=>{
  setAvatarCrop({
-   x:crop.x,
-   y:crop.y,
-   zoom:zoom
- });
+ x:0,
+ y:0,
+ zoom:zoom
+});
 
  setMainIndex(tempIndex);
 
