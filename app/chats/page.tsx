@@ -476,7 +476,7 @@ borderRadius:"50%",
 padding:2.5,
 border: item.newMatch
 ? "2px solid #2F80FF"
-: "2px solid #D7DDE8"
+: "2px solid transparent"
 }}
 >
 <img
@@ -506,27 +506,7 @@ borderRadius:"50%"
 />
 )}
 
-{item.unread > 0 && (
-<div
-style={{
-position:"absolute",
-top:0,
-right:0,
 
-width:10,
-height:10,
-
-borderRadius:"50%",
-
-background:"#2F80FF",
-
-border:"2px solid #fff",
-
-boxShadow:
-"0 0 8px rgba(47,128,255,.35)"
-}}
-/>
-)}
 
 
 </div>
