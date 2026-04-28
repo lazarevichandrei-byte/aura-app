@@ -19,6 +19,8 @@ const userId =
 "11111111-1111-1111-1111-111111111111";
 
 const [messages,setMessages] = useState([]);
+const [ready,setReady] =
+useState(false);
 const [newMessage,setNewMessage] = useState("");
 const [isOnline,setIsOnline] =
 useState(true);
@@ -270,16 +272,6 @@ reply_preview:
 replyTo?.body || null
 };
 
-setMessages(prev=>
-prev.concat(
-optimisticMessage
-));
-
-requestAnimationFrame(()=>{
-requestAnimationFrame(()=>{
-scrollToBottom();
-});
-});
 
 
 const { error } =
@@ -526,7 +518,7 @@ padding:"12px 10px 6px",
 scrollBehavior:"auto",
 
 visibility:
-messages.length
+ready
 ? "visible"
 : "hidden",
 }}
