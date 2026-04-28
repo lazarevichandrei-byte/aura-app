@@ -20,7 +20,9 @@ const router = useRouter();
 const pathname = usePathname();
 
 const [unread,setUnread] =
-useState(3);
+useState<number | null>(
+null
+);
 
 useEffect(()=>{
 
@@ -129,7 +131,8 @@ position:"relative"
 
 <Heart size={28}/>
 
-{unread > 0 && (
+{unread !== null &&
+unread > 0 && (
 <div
 style={{
 position:"absolute",
