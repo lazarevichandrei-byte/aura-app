@@ -1,13 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-export default function LikesPage(){
-
-const router = useRouter();
-
-const [likes] = useState([
+const likes = [
 {
 id:1,
 name:"Анна",
@@ -36,9 +31,14 @@ age:26,
 city:"Berlin",
 img:"/girl4.jpg"
 }
-]);
+];
+
+export default function LikesPage(){
+
+const router = useRouter();
 
 return(
+
 <div
 style={{
 minHeight:"100dvh",
@@ -49,12 +49,12 @@ margin:"0 auto"
 }}
 >
 
-{/* HEADER */}
+{/* header */}
 <div
 style={{
 display:"flex",
 alignItems:"center",
-gap:12,
+gap:14,
 paddingTop:8
 }}
 >
@@ -62,7 +62,8 @@ paddingTop:8
 <div
 onClick={()=>router.back()}
 style={{
-fontSize:34,
+fontSize:52,
+lineHeight:"38px",
 color:"#2F80FF",
 cursor:"pointer"
 }}
@@ -73,7 +74,7 @@ cursor:"pointer"
 <div>
 <div
 style={{
-fontSize:26,
+fontSize:27,
 fontWeight:700
 }}
 >
@@ -83,11 +84,11 @@ fontWeight:700
 <div
 style={{
 fontSize:13,
-color:"#8A8F9B",
-marginTop:4
+marginTop:4,
+color:"#8A8F9B"
 }}
 >
-Люди, которым ты понравился
+Люди которым ты понравился
 </div>
 
 </div>
@@ -95,7 +96,8 @@ marginTop:4
 </div>
 
 
-{/* PREMIUM CARD */}
+
+{/* top card */}
 <div
 style={{
 marginTop:22,
@@ -108,13 +110,13 @@ background:
 "linear-gradient(135deg,#EDF4FF,#F8FAFF)",
 
 boxShadow:
-"0 6px 20px rgba(46,123,255,.08)"
+"0 6px 18px rgba(46,123,255,.08)"
 }}
 >
 
 <div
 style={{
-fontSize:18,
+fontSize:19,
 fontWeight:700
 }}
 >
@@ -125,25 +127,28 @@ fontWeight:700
 style={{
 marginTop:8,
 fontSize:14,
-color:"#718096"
+color:"#7B8794"
 }}
 >
-Посмотри профили и ответь взаимностью
+Посмотри кто проявил интерес
 </div>
 
 </div>
 
 
-{/* USERS */}
+
+{/* likes list */}
 <div style={{marginTop:22}}>
 
 {likes.map(user=>(
 
 <div
 key={user.id}
+
 onClick={()=>{
 alert("Потом откроем профиль");
 }}
+
 style={{
 background:"#fff",
 
@@ -163,11 +168,10 @@ cursor:"pointer"
 }}
 >
 
-<div
-style={{
+<div style={{
 position:"relative"
-}}
->
+}}>
+
 <img
 src={user.img}
 style={{
@@ -213,9 +217,9 @@ fontWeight:700
 
 <div
 style={{
+marginTop:5,
 fontSize:14,
-color:"#8A8F9B",
-marginTop:5
+color:"#8A8F9B"
 }}
 >
 {user.city}
@@ -224,9 +228,9 @@ marginTop:5
 <div
 style={{
 marginTop:8,
-color:"#2F80FF",
+fontSize:14,
 fontWeight:600,
-fontSize:14
+color:"#2F80FF"
 }}
 >
 Посмотреть профиль →
@@ -257,6 +261,7 @@ justifyContent:"center"
 ✕
 </div>
 
+
 <div
 style={{
 width:40,
@@ -282,5 +287,7 @@ justifyContent:"center"
 </div>
 
 </div>
+
 )
+
 }
