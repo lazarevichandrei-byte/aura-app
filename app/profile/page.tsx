@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import Cropper from "react-easy-crop";
 export default function Profile() {
+  
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
@@ -210,25 +211,11 @@ const saveCrop = async ()=>{
 
         <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
           {photos.length > 0 ? (
-<div style={styles.avatar}>
- <img
-   src={photos[mainIndex]}
-   style={{
-     width:`${zoom * 100}%`,
-     height:`${zoom * 100}%`,
-     objectFit:"cover",
-
-     transform:`
-       translate(
-         ${crop.x}px,
-         ${crop.y}px
-       )
-     `,
-
-     transformOrigin:"center center"
-   }}
- />
-</div>        ) : (
+  <img
+    src={photos[mainIndex]}
+    style={styles.avatar}
+  />
+) : (
             <div style={styles.avatar}>👤</div>
           )}
           <div style={styles.plus}>+</div>
@@ -440,13 +427,27 @@ const saveCrop = async ()=>{
 
 <button
  style={styles.submit}
- onClick={()=>{
- setCrop({...crop});
- setZoom(zoom);
- setCropOpen(false);
-}}
+ onClick={async()=>{
+
+   const croppedUrl =
+     await getCroppedImg(
+       editingPhoto,
+       croppedAreaPixels
+     );
+
+   setPhotos(prev=>{
+     const copy=[...prev];
+     copy[tempIndex]=croppedUrl;
+     return copy;
+   });
+
+   setMainIndex(tempIndex);
+
+   setCropOpen(false);
+
+ }}
 >
-Готово
+ Готово
 </button>
 
 </div>
@@ -476,11 +477,13 @@ avatar:{
  height:"90px",
  borderRadius:"50%",
  overflow:"hidden",
+
+ objectFit:"cover",
+ objectPosition:"center",
+
  background:"#E7F3FF",
- display:"flex",
- alignItems:"center",
- justifyContent:"center"
-}, 
+ display:"block"
+},
 
 plus:{position:"absolute",bottom:0,right:"calc(50% - 45px)",background:"#2AABEE",color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center"},
 
@@ -553,6 +556,7 @@ gallery:{
  height:"160px",
  aspectRatio:"3/4",
  objectFit:"cover",
+ objectPosition:"center",
  borderRadius:"18px",
  display:"block"
 },
