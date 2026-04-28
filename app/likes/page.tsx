@@ -333,7 +333,7 @@ boxSizing:"border-box"
 >
 <span
 style={{
-fontSize:26,
+fontSize:23,
 lineHeight:"22px",
 color:"#5EA9FF",
 fontWeight:600,
