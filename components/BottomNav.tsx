@@ -1,12 +1,80 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import {
+useRouter,
+usePathname
+} from "next/navigation";
+
+import {
+useEffect,
+useState
+} from "react";
+
+import { supabase }
+from "../lib/supabase";
 import { Home, Search, Heart, User } from "lucide-react";
 
 export default function BottomNav(){
 
 const router = useRouter();
 const pathname = usePathname();
+
+const [unread,setUnread] =
+useState(0);
+
+useEffect(()=>{
+
+loadUnread();
+
+const channel =
+supabase
+.channel("nav-unread")
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"chats"
+},
+()=>{
+loadUnread();
+}
+)
+.subscribe();
+
+return ()=>{
+supabase.removeChannel(
+channel
+);
+};
+
+},[]);
+
+
+async function loadUnread(){
+
+const { data } =
+await supabase
+.from("chats")
+.select(
+"unread_count"
+);
+
+if(data){
+
+const total =
+data.reduce(
+(sum,chat)=>
+sum+
+(chat.unread_count||0),
+0
+);
+
+setUnread(total);
+
+}
+
+}
 
 const itemStyle = (active:boolean)=>({
 flex:1,
@@ -59,9 +127,45 @@ style={itemStyle(pathname==="/discover")}
 
 <div
 onClick={()=>router.push("/chats")}
-style={itemStyle(pathname==="/chats")}
+style={{
+...itemStyle(
+pathname==="/chats"
+),
+position:"relative"
+}}
 >
+
 <Heart size={28}/>
+
+{unread > 0 && (
+<div
+style={{
+position:"absolute",
+top:10,
+right:"30%",
+
+minWidth:18,
+height:18,
+
+padding:"0 5px",
+
+borderRadius:10,
+
+background:"#2F80FF",
+color:"#fff",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+fontSize:10,
+fontWeight:700
+}}
+>
+{unread}
+</div>
+)}
+
 Чаты
 </div>
 
