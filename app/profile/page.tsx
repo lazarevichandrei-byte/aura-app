@@ -414,11 +414,21 @@ photos: photos,
             />
 
             <button
- style={styles.submit}
- onClick={()=>{
-   setMainIndex(tempIndex);
-   setCropOpen(false);
- }}
+ onClick={async()=>{
+ const croppedUrl = await getCroppedImg(
+   editingPhoto,
+   croppedAreaPixels
+ );
+
+ setPhotos(prev=>{
+   const copy=[...prev];
+   copy[tempIndex]=croppedUrl;
+   return copy;
+ });
+
+ setMainIndex(tempIndex);
+ setCropOpen(false);
+}}
 >
  Готово
 </button>
@@ -514,11 +524,13 @@ avatarTap:{
  display:"grid",
  gridTemplateColumns:"repeat(3,110px)",
  gap:"12px",
- justifyContent:"center",
- alignContent:"start",
- width:"100%",
- maxWidth:"420px",
+
+ width:"fit-content",   // ключевое
  margin:"0 auto",
+
+ justifyItems:"center",
+ placeContent:"center",
+
  padding:"20px"
 },
 
@@ -527,12 +539,8 @@ avatarTap:{
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
 addPhoto:{
- width:"100%",
- maxWidth:"120px",
- aspectRatio:"3/4",
-
- justifySelf:"center",   // центрирует плитку +
-
+ width:"110px",
+ height:"146px",
  borderRadius:"12px",
  background:"#E7F3FF",
 
