@@ -205,16 +205,22 @@ transform:"scale(1.08)"
 
 <div
 style={{
+flex:1,
+marginLeft:16,
+marginRight:12,
+
 display:"flex",
 flexDirection:"column",
-justifyContent:"center"
+justifyContent:"center",
+alignItems:"flex-start"
 }}
 >
 
 <div
 style={{
 fontSize:18,
-fontWeight:700
+fontWeight:700,
+lineHeight:"22px"
 }}
 >
 {user.name}, {user.age}
@@ -222,7 +228,7 @@ fontWeight:700
 
 <div
 style={{
-marginTop:5,
+marginTop:4,
 fontSize:14,
 color:"#8A8F9B"
 }}
@@ -233,25 +239,21 @@ color:"#8A8F9B"
 <div
 style={{
 marginTop:12,
-
-width:175,
-height:40,
+width:150,
+height:34,
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
 borderRadius:999,
-
-background:"#fff",
 border:"2px solid #5EA9FF",
 
-color:"#2F80FF",
+background:"#fff",
 
-fontSize:14,
+fontSize:13,
 fontWeight:600,
-
-whiteSpace:"nowrap"
+color:"#2F80FF"
 }}
 >
 Смотреть профиль
@@ -263,25 +265,27 @@ whiteSpace:"nowrap"
 <div
 style={{
 display:"flex",
+flexDirection:"column",
+justifyContent:"center",
 alignItems:"center",
-gap:14,
-marginLeft:14
+gap:10,
+minWidth:42
 }}
 >
 
 <div
 style={{
-width:42,
-height:42,
+width:40,
+height:40,
 borderRadius:"50%",
-background:"#FAFAFC",
-border:"1px solid #ECEFF5",
+background:"#F7F8FB",
+border:"1px solid #E8EDF5",
 
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:18
+fontSize:17
 }}
 >
 ✕
@@ -289,10 +293,9 @@ fontSize:18
 
 <div
 style={{
-width:42,
-height:42,
+width:40,
+height:40,
 borderRadius:"50%",
-
 background:"#fff",
 border:"2px solid #5EA9FF",
 
@@ -300,7 +303,7 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:18,
+fontSize:17,
 color:"#2F80FF"
 }}
 >
