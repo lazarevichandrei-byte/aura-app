@@ -516,21 +516,23 @@ avatarTap:{
 
   submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
 
-  viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
-
+viewer:{
+ position:"fixed",
+ top:0,
+ left:0,
+ width:"100%",
+ height:"100%",
+ background:"rgba(0,0,0,0.8)",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center"
+},
   galleryEmpty:{display:"flex",justifyContent:"center",alignItems:"center",height:"300px",width:"100%"},
 
  gallery:{
  display:"grid",
- gridTemplateColumns:"repeat(3,110px)",
- gap:"12px",
-
- width:"fit-content",   // ключевое
- margin:"0 auto",
-
- justifyItems:"center",
- placeContent:"center",
-
+ gridTemplateColumns:"repeat(4,1fr)",
+ gap:"10px",
  padding:"20px"
 },
 
@@ -539,15 +541,14 @@ avatarTap:{
   galleryImg:{width:"100%",aspectRatio:"3/4",borderRadius:"12px",objectFit:"cover"},
 
 addPhoto:{
- width:"110px",
- height:"146px",
+ width:"100%",
+ maxWidth:"120px",
+ aspectRatio:"3/4",
  borderRadius:"12px",
  background:"#E7F3FF",
-
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
-
  fontSize:"26px"
 },
 
