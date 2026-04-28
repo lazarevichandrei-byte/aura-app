@@ -237,24 +237,36 @@ color:"#8A8F9B"
 style={{
 marginTop:14,
 
-display:"inline-flex",
+height:46,
+width:198,
+
+display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-padding:"10px 24px",
+alignSelf:"flex-start",
 
-borderRadius:30,
+borderRadius:999,
 
-background:"#fff",
+background:"#FFFFFF",
 
-border:"2px solid #5DA8FF",
+border:"1.8px solid #5DA8FF",
+
+boxSizing:"border-box",
 
 color:"#2F80FF",
 
 fontSize:15,
 fontWeight:600,
 
-minWidth:170
+lineHeight:"15px",
+
+whiteSpace:"nowrap",
+
+boxShadow:
+"0 2px 6px rgba(93,169,255,.08)",
+
+transition:"all .15s ease"
 }}
 >
 Смотреть профиль
