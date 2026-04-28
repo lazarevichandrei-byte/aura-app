@@ -51,7 +51,9 @@ background:"#FCFCFE",
 padding:"10px 16px 120px",
 
 maxWidth:"430px",
-margin:"0 auto"
+margin:"0 auto",
+paddingLeft:18,
+paddingRight:18,
 }}
 >
 
@@ -303,11 +305,14 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:17,
+fontSize:16,
+lineHeight:"16px",
+marginTop:-1,
+
 color:"#2F80FF"
 }}
 >
-♡
+❤
 </div>
 
 </div>
