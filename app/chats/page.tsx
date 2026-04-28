@@ -10,10 +10,32 @@ import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 
 const matches = [
-{img:"/girl1.jpg",name:"Алина"},
-{img:"/girl2.jpg",name:"Мария"},
-{img:"/girl3.jpg",name:"Екатерина"},
-{img:"/girl4.jpg",name:"Полина"},
+{
+img:"/girl1.jpg",
+name:"Алина",
+online:true,
+unread:2,
+newMatch:true
+},
+{
+img:"/girl2.jpg",
+name:"Мария",
+online:true,
+unread:1,
+newMatch:true
+},
+{
+img:"/girl3.jpg",
+name:"Екатерина",
+online:false,
+unread:0
+},
+{
+img:"/girl4.jpg",
+name:"Полина",
+online:true,
+unread:0
+},
 ];
 const ChatCard = React.memo(
 function ChatCard({
@@ -452,7 +474,9 @@ width:68,
 height:68,
 borderRadius:"50%",
 padding:2.5,
-border:"2px solid #2F80FF"
+border: item.newMatch
+? "2px solid #2F80FF"
+: "2px solid #D7DDE8"
 }}
 >
 <img
@@ -467,7 +491,7 @@ objectFit:"cover"
 }}
 />
 
-{i < 3 && (
+{item.online && (
 <div
 style={{
 position:"absolute",
@@ -481,6 +505,36 @@ borderRadius:"50%"
 }}
 />
 )}
+
+{item.unread > 0 && (
+<div
+style={{
+position:"absolute",
+top:-4,
+right:-4,
+
+minWidth:18,
+height:18,
+
+padding:"0 5px",
+
+borderRadius:10,
+
+background:"#2F80FF",
+color:"#fff",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+fontSize:10,
+fontWeight:700
+}}
+>
+{item.unread}
+</div>
+)}
+
 
 </div>
 
