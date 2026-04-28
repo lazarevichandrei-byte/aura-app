@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import React,{
 useEffect,
 useState,
 useRef
@@ -17,6 +17,128 @@ const matches = [
 ];
 
 export default function Chats(){
+const ChatCard = React.memo(
+function ChatCard({
+chat,
+typing,
+router
+}:any){
+
+return(
+
+<div
+onClick={()=>
+router.push(`/chat/${chat.id}`)
+}
+style={{
+display:"flex",
+alignItems:"center",
+padding:"14px 14px",
+marginBottom:8,
+borderRadius:22,
+background:"#fff",
+boxShadow:"0 1px 4px rgba(0,0,0,.03)",
+cursor:"pointer"
+}}
+>
+
+<img
+loading="lazy"
+decoding="async"
+src={chat.avatar || "/girl1.jpg"}
+style={{
+width:60,
+height:60,
+borderRadius:"50%",
+objectFit:"cover"
+}}
+/>
+
+<div style={{
+flex:1,
+marginLeft:14
+}}>
+
+<div style={{
+fontWeight:
+chat.unread_count
+?700
+:600
+}}>
+{chat.name}
+</div>
+
+<div style={{
+fontSize:15,
+marginTop:4,
+color:
+typing
+? "#2E7BFF"
+: chat.unread_count
+? "#2A2D34"
+:"#8A8F9B"
+}}>
+{
+typing
+? "Печатает…"
+: chat.last_message ||
+"Начните общение ✨"
+}
+</div>
+
+</div>
+
+<div style={{
+display:"flex",
+flexDirection:"column",
+alignItems:"flex-end",
+gap:10
+}}>
+
+<div style={{
+fontSize:14,
+color:"#A0A5B0"
+}}>
+{
+chat.last_message_at
+? new Date(
+chat.last_message_at
+).toLocaleTimeString(
+"ru-RU",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+)
+:""
+}
+</div>
+
+{chat.unread_count>0 &&(
+<div style={{
+minWidth:20,
+height:20,
+padding:"0 6px",
+borderRadius:10,
+background:"#2F80FF",
+color:"#fff",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:11,
+fontWeight:700
+}}>
+{chat.unread_count}
+</div>
+)}
+
+</div>
+
+</div>
+
+)
+
+});
 
 const router = useRouter();
 
@@ -311,140 +433,13 @@ color:"#2F80FF"
 
 
 
-{chats.map((chat,i)=>(
-
-<div
+{chats.map(chat=>(
+<ChatCard
 key={chat.id}
-onPointerDown={()=>
-router.push(`/chat/${chat.id}`)
-}
-style={{
-display:"flex",
-alignItems:"center",
-
-padding:"14px 14px",
-marginBottom:8,
-
-borderRadius:22,
-background:"#fff",
-
-boxShadow:
-"0 1px 4px rgba(0,0,0,.03)",
-
-cursor:"pointer"
-}}
->
-
-<img
-loading="lazy"
-decoding="async"
-src={chat.avatar || "/girl1.jpg"}
-style={{
-width:60,
-height:60,
-borderRadius:"50%",
-objectFit:"cover"
-}}
+chat={chat}
+typing={typingChats[chat.id]}
+router={router}
 />
-
-<div
-style={{
-flex:1,
-marginLeft:14
-}}
->
-
-<div
-style={{
-fontWeight:
-chat.unread_count
-?700
-:600
-}}
->
-{chat.name}
-</div>
-
-<div
-style={{
-fontSize:15,
-color:
-typingChats[chat.id]
-? "#2E7BFF"
-: chat.unread_count
-? "#2A2D34"
-:"#8A8F9B",
-marginTop:4
-}}
->
-{
-typingChats[chat.id]
-? "Печатает…"
-: chat.last_message || "Начните общение ✨"
-}
-</div>
-
-</div>
-
-
-<div
-style={{
-display:"flex",
-flexDirection:"column",
-alignItems:"flex-end",
-gap:10
-}}
->
-
-<div
-style={{
-fontSize:14,
-color:"#A0A5B0"
-}}
->
-{
-chat.last_message_at
-? new Date(chat.last_message_at)
-.toLocaleTimeString(
-"ru-RU",
-{
-hour:"2-digit",
-minute:"2-digit"
-}
-)
-: ""
-}
-</div>
-
-{chat.unread_count > 0 && (
-<div
-style={{
-minWidth:20,
-height:20,
-
-padding:"0 6px",
-
-borderRadius:10,
-
-background:"#2F80FF",
-color:"#fff",
-
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-
-fontSize:11,
-fontWeight:700
-}}
->
-{chat.unread_count}
-</div>
-)}
-
-</div>
-
-</div>
-
 ))}
 
 </div>
