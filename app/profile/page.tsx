@@ -25,6 +25,7 @@ export default function Profile() {
 
   const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
+  const [avatarPreview,setAvatarPreview] = useState("");
 const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
@@ -252,18 +253,42 @@ scale(${avatarFrame.zoom})
 
       </div>
 {cropOpen && (
-<div style={styles.cropViewer}
+<div
+ style={{
+   position:"fixed",
+   inset:0,
+   background:"#000",
+   zIndex:999999,
+   display:"flex",
+   justifyContent:"center",
+   alignItems:"center"
+ }}
  onClick={()=>setCropOpen(false)}
 >
+
 <div
- style={styles.cropModal}
  onClick={(e)=>e.stopPropagation()}
+ style={{
+   width:"92%",
+   maxWidth:"380px",
+   background:"#fff",
+   borderRadius:"28px",
+   padding:"20px",
+   position:"relative",
+   overflow:"hidden" // важно
+ }}
 >
 
-<div style={{
-position:"relative",
-height:"320px"
-}}>
+<div
+style={{
+ position:"relative",
+ width:"100%",
+ height:"320px",
+ overflow:"hidden",
+ borderRadius:"18px",
+ background:"#111"
+}}
+>
 
 <Cropper
  image={editingPhoto}
@@ -271,39 +296,37 @@ height:"320px"
  zoom={zoom}
  aspect={1}
  cropShape="round"
+
+ objectFit="contain" 
  showGrid={false}
  restrictPosition={true}
+
  onCropChange={setCrop}
  onZoomChange={setZoom}
+ onCropComplete={()=>{}}
+ 
 />
 
 </div>
 
 <input
-type="range"
-min="1"
-max="3"
-step="0.1"
-value={zoom}
-onChange={(e)=>
- setZoom(Number(e.target.value))
-}
-style={styles.slider}
+ type="range"
+ min="1"
+ max="3"
+ step="0.1"
+ value={zoom}
+ onChange={(e)=>setZoom(Number(e.target.value))}
+ style={styles.slider}
 />
 
 <button
  style={styles.submit}
  onClick={()=>{
-   setAvatarFrame({
-     x: crop.x,
-     y: crop.y,
-     zoom: zoom
-   });
-
+   setAvatarPreview(editingPhoto); // БЕЗ getCroppedImg
    setCropOpen(false);
  }}
 >
- Готово
+Готово
 </button>
 
 </div>
