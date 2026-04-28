@@ -394,17 +394,31 @@ paddingBottom:8
 >
 
 <div style={{textAlign:"center"}}>
-<div
 
+<div
 onClick={()=>{
 alert("Новый мэтч 💙");
 }}
 style={{
-textAlign:"center",
+width:68,
+height:68,
+borderRadius:"50%",
+
+background:
+"linear-gradient(135deg,#59A8FF,#2E7BFF)",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+fontSize:34,
+fontWeight:300,
+color:"#fff",
+
 cursor:"pointer"
 }}
 >
-💙
+＋
 </div>
 
 <div
@@ -413,7 +427,7 @@ marginTop:6,
 fontSize:13
 }}
 >
-Мои пары
+Новый мэтч
 </div>
 </div>
 
@@ -422,7 +436,13 @@ fontSize:13
 
 <div
 key={i}
-style={{textAlign:"center"}}
+onClick={()=>
+router.push(`/chat/${i+1}`)
+}
+style={{
+textAlign:"center",
+cursor:"pointer"
+}}
 >
 
 <div
