@@ -47,7 +47,7 @@ export default function Profile() {
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
 const [saveStatus,setSaveStatus] =
-useState("idle");
+useState("saved");
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -225,10 +225,6 @@ avatar_url:
 );
 
  setSaveStatus("saved");
-
-setTimeout(()=>{
- setSaveStatus("idle");
-},1500);
 
 }
 
@@ -611,9 +607,7 @@ color:"#8A94A6"
 >
 {saveStatus==="saving"
  ? "Сохраняется..."
- : saveStatus==="saved"
- ? "Сохранено ✓"
- : ""}
+ : "Сохранено ✓"}
 </div>
 
       </div>
