@@ -47,7 +47,7 @@ export default function Profile() {
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
 const [saveStatus,setSaveStatus] =
-useState("Сохранено ✓");
+useState("saved");
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -174,7 +174,7 @@ useEffect(()=>{
 }
 
    if(!photoEdits[mainIndex]){
- setSaveStatus("Сохраняется...");
+ setSaveStatus("saving");
 }
 
    const { error } =
@@ -204,8 +204,7 @@ avatar_url:
 );
 
    if(!error){
-    setSaveStatus("Сохранено ✓");
-
+    
  localStorage.setItem(
    "profile_cache",
    JSON.stringify({
@@ -216,9 +215,10 @@ avatar_url:
       city,
       bio,
       interests:selected,
-      photos
+      photos,
+      photo_edits:photoEdits
    })
- );
+);
 
  setSaveStatus("saved");
 }
@@ -600,7 +600,9 @@ textAlign:"center",
 color:"#8A94A6"
 }}
 >
-{saveStatus}
+{saveStatus==="saving"
+ ? "Сохраняется..."
+ : "Сохранено ✓"}
 </div>
 
       </div>
@@ -716,8 +718,10 @@ localStorage.setItem(
 );
 
 setCropOpen(false);
-setSaveStatus("saved");
 
+setTimeout(()=>{
+ setSaveStatus("saved");
+},1000);
 }}
 >
 Готово
