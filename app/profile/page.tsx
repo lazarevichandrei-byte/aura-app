@@ -19,7 +19,7 @@ export default function Profile() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [mainIndex, setMainIndex] = useState(0);
   const [uploading, setUploading] = useState(false);
-
+const [uploadProgress,setUploadProgress] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
@@ -45,6 +45,25 @@ useEffect(() => {
   document.documentElement.style.overflowY = "auto";
 
   const init = async () => {
+
+    const cached = localStorage.getItem("profile_cache");
+
+if(cached){
+ const profile = JSON.parse(cached);
+
+ setName(profile.name || "");
+ setAge(profile.age || 22);
+ setGender(profile.gender || "female");
+ setSearch(profile.looking || "female");
+ setCity(profile.city || "");
+ setBio(profile.bio || "");
+ setSelected(profile.interests || []);
+
+ if(profile.photos?.length){
+   setPhotos(profile.photos);
+ }
+}
+
     const tg = (window as any).Telegram?.WebApp;
 
     if (tg) {
@@ -60,9 +79,20 @@ useEffect(() => {
 
     const { data } = await supabase
       .from("users")
-      .select("*")
-      .eq("telegram_id", user.id)
-      .maybeSingle();
+      .select(`
+telegram_id,
+name,
+age,
+gender,
+looking,
+city,
+bio,
+interests,
+avatar_url,
+photos
+`)
+.eq("telegram_id", user.id)
+.maybeSingle();
 
     if (data) {
       setName(data.name || "");
@@ -81,6 +111,11 @@ useEffect(() => {
     }
 
     setLoading(false);
+
+    localStorage.setItem(
+ "profile_cache",
+ JSON.stringify(data)
+);
   };
 
   init();
@@ -92,6 +127,7 @@ useEffect(() => {
     if (!telegramId) return;
 
     setUploading(true);
+    setUploadProgress(10);
 
     const fileName = `${telegramId}_${Date.now()}.jpg`;
 
@@ -105,9 +141,14 @@ useEffect(() => {
         .getPublicUrl(fileName);
 
       setPhotos((prev) => [...prev, data.publicUrl]);
+      setUploadProgress(100);
     }
 
     setUploading(false);
+    setTimeout(()=>{
+ setUploading(false);
+ setUploadProgress(0);
+},500);
   };
 
   const toggle = (item: string) => {
@@ -146,7 +187,7 @@ photos: photos,
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  
 
 
   if (loading) return <div>Loading...</div>;
@@ -194,6 +235,8 @@ canvas.height=1000
             <div style={styles.avatarMask}>
 <img
   src={avatarPreview || photos[mainIndex]}
+  loading="lazy"
+decoding="async"
   style={styles.avatarImage}
 />
 </div>
@@ -271,8 +314,11 @@ canvas.height=1000
           style={{...styles.submit,opacity:isValid?1:0.5}}
           onClick={handleSubmit}
         >
-          Продолжить
-        </button>
+{
+uploading
+ ? `Загрузка ${uploadProgress}%`
+ : "Продолжить"
+}        </button>
 
       </div>
 {cropOpen && (
@@ -406,6 +452,8 @@ style={{
 
     <img
       src={p}
+      loading="lazy"
+decoding="async"
       onClick={()=>setMainIndex(i)}
       style={{
         ...styles.galleryImg,
