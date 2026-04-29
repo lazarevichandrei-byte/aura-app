@@ -46,8 +46,7 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
-const [saveStatus,setSaveStatus] =
-useState("saved");
+
 const [isSaving,setIsSaving] = useState(false);
 const [savingProfile,setSavingProfile] =
 useState(false);
@@ -176,7 +175,7 @@ if(firstLoad.current){
  const timer = setTimeout(async()=>{
 
    if(!name.trim() || !city.trim()){
- setSaveStatus("saved");
+ setIsSaving(false);
  return;
 }
 
@@ -226,7 +225,6 @@ avatar_url:
 );
 
 setIsSaving(false);
-setSaveStatus("saved");
 
 }if(!error){
 
@@ -246,7 +244,6 @@ setSaveStatus("saved");
  );
 
  setIsSaving(false);
- setSaveStatus("saved");
 
 }else{
  setIsSaving(false);
@@ -629,9 +626,7 @@ textAlign:"center",
 color:"#8A94A6"
 }}
 >
-{isSaving
- ? "Сохраняется..."
- : "Сохранено ✓"}
+{isSaving && "Сохраняется..."}
 </div>
 
       </div>
