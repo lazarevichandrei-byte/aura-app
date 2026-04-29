@@ -180,7 +180,7 @@ if(firstLoad.current){
  return;
 }
 
-   setIsSaving(true);
+   
 
    const { error } =
 await supabase
@@ -228,6 +228,28 @@ avatar_url:
 setIsSaving(false);
 setSaveStatus("saved");
 
+}if(!error){
+
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+      name,
+      age,
+      gender,
+      looking:search,
+      city,
+      bio,
+      interests:selected,
+      photos,
+      photo_edits:photoEdits
+   })
+ );
+
+ setIsSaving(false);
+ setSaveStatus("saved");
+
+}else{
+ setIsSaving(false);
 }
 
  },900);
@@ -725,7 +747,6 @@ localStorage.setItem(
 );
 
 setCropOpen(false);
-setIsSaving(true);
 }}
 >
 Готово
