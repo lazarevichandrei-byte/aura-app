@@ -1,8 +1,33 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import Cropper from "react-easy-crop";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const Cropper:any = dynamic(
+ () => import("react-easy-crop"),
+ { ssr:false }
+);
 import { supabase } from "../../lib/supabase";
+
+const BASE_INTERESTS = [
+ "Путешествия",
+ "Музыка",
+ "Спорт",
+ "Кино"
+];
+
+const EXTRA_INTERESTS = [
+ "Игры",
+ "Бизнес",
+ "Еда",
+ "Йога",
+ "Авто",
+ "Книги",
+ "Технологии",
+ "Искусство",
+ "Танцы",
+ "Природа"
+];
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
@@ -20,6 +45,7 @@ export default function Profile() {
   const [mainIndex, setMainIndex] = useState(0);
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
+const [lastUploadTime,setLastUploadTime] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
@@ -32,27 +58,8 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 
-const interestsList = useMemo(()=>[
-"Путешествия",
-"Музыка",
-"Спорт",
-"Кино"
-],[]);
-
-  const base = interestsList;
-
-const extra = [
- "Игры",
- "Бизнес",
- "Еда",
- "Йога",
- "Авто",
- "Книги",
- "Технологии",
- "Искусство",
- "Танцы",
- "Природа",
-];
+const base = BASE_INTERESTS;
+const extra = EXTRA_INTERESTS;
 
   const isValid = name.trim().length > 0 && city.trim().length > 0;
 
@@ -142,24 +149,105 @@ setLoading(false);
 init();
 }, []);
     
+const compressImage = (file: File): Promise<File> =>
+ new Promise((resolve)=>{
 
+   const img = new Image();
+   const reader = new FileReader();
+
+   reader.onload=(e)=>{
+      img.src = e.target?.result as string;
+   };
+
+   img.onload=()=>{
+
+      const canvas =
+       document.createElement("canvas");
+
+      const ctx =
+       canvas.getContext("2d");
+
+      const maxWidth = 1200;
+
+      const scale =
+ img.width > maxWidth
+   ? maxWidth / img.width
+   : 1;
+
+      canvas.width = img.width * scale;
+canvas.height = img.height * scale;
+
+      ctx?.drawImage(
+        img,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      canvas.toBlob(
+       (blob)=>{
+         if(!blob){
+            resolve(file);
+            return;
+         }
+
+         resolve(
+           new File(
+             [blob],
+             file.name,
+             {
+               type:"image/jpeg"
+             }
+           )
+         );
+       },
+       "image/jpeg",
+       0.82
+      );
+
+   };
+
+   reader.readAsDataURL(file);
+
+});
   const uploadPhoto = async (file: File) => {
-    if (!telegramId) return;
+ if (!telegramId) return;
+ const now = Date.now();
 
-    setUploading(true);
-    setUploadProgress(10);
-    setUploadProgress(35);
+if(now - lastUploadTime < 3000){
+ alert("Подожди пару секунд");
+ return;
+}
 
-    const fileName = `${telegramId}_${Date.now()}.jpg`;
+setLastUploadTime(now);
 
-    const { error } = await supabase.storage
-      .from("avatars")
-      .upload(fileName, file);
+ setUploading(true);
+ setUploadProgress(10);
+
+ setTimeout(()=>{
+   setUploadProgress(35);
+ },150);
+
+ const fileName =
+`${telegramId}/${Date.now()}.jpg`;
+
+ const compressedFile =
+  await compressImage(file);
+
+ const { error } = await supabase.storage
+   .from("avatars")
+   .upload(
+      fileName,
+      compressedFile
+   );
 
     if (!error) {
       const { data } = supabase.storage
         .from("avatars")
-        .getPublicUrl(fileName);
+        .getPublicUrl(
+ fileName + "?v=" + Date.now()
+);
 
       setPhotos((prev) => [...prev, data.publicUrl]);
       setUploadProgress(80);
@@ -183,13 +271,13 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
-    if (!telegramId || uploading) return;
+    if (!telegramId || uploading || loading) return;
 
-    if (!name.trim() || !city.trim()) {
-      alert("Заполни имя и город");
-      
-      return;
-    }
+if (!name.trim() || !city.trim()) {
+ setUploading(false);
+ alert("Заполни имя и город");
+ return;
+}
 
     const { error } = await supabase.from("users").upsert({
       telegram_id: telegramId,
@@ -203,7 +291,7 @@ setTimeout(()=>{
       avatar_url: avatarPreview || photos[mainIndex] || null,
 photos: photos,
     });
-
+     setUploading(false);
     if (error) {
       alert(error.message);
     } else {
@@ -387,20 +475,27 @@ style={{
  image={editingPhoto}
  crop={crop}
  zoom={zoom}
+
  aspect={1}
  cropShape="round"
 
  cropSize={{ width:260, height:260 }}
 
  objectFit="horizontal-cover"
+
  restrictPosition={true}
  showGrid={false}
+
+ rotation={0}
+ minZoom={1}
+ maxZoom={3}
+ zoomSpeed={1}
 
  onCropChange={setCrop}
  onZoomChange={setZoom}
 
  onCropComplete={(a,b)=>{
-   setCroppedAreaPixels(b)
+   setCroppedAreaPixels(b);
  }}
 />
 
@@ -455,6 +550,12 @@ style={{
  hidden
  onChange={async (e)=>{
    const files = e.target.files;
+   for (let f of Array.from(files || [])) {
+ if (f.size > 10 * 1024 * 1024){
+   alert("Фото до 10MB");
+   return;
+ }
+}
    if (!files) return;
 
    if (photos.length + files.length > 6){
