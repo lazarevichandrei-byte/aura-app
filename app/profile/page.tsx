@@ -224,7 +224,11 @@ avatar_url:
    })
 );
 
+setSaveStatus("saved");
+
+setTimeout(()=>{
  setSaveStatus("saved");
+},300);
 
 }
 
