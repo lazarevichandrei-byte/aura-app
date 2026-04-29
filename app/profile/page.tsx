@@ -60,7 +60,7 @@ useState(false);
 const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
-const [zoom,setZoom] = useState(1);
+const [zoom,setZoom] = useState(1.2);
 const [avatarTransform,setAvatarTransform] = useState({
  x:0,
  y:0,
@@ -662,7 +662,7 @@ color:"#8A94A6"
 style={{
  position:"relative",
  width:"100%",
- height:"220px",
+ height:"320px",
  overflow:"hidden",
  borderRadius:"18px",
  background:"#111"
@@ -678,7 +678,7 @@ zoom={zoom}
  cropShape="round"
 
  objectFit="horizontal-cover"
-cropSize={{ width:92, height:92 }}
+cropSize={{ width:220, height:220 }}
  restrictPosition={true}
  showGrid={false}
 
@@ -874,8 +874,7 @@ avatarMask:{
 avatarImage:{
  width:"100%",
  height:"100%",
- objectFit:"cover",
- transformOrigin:"center center"
+ objectFit:"cover"
 },
 
 
