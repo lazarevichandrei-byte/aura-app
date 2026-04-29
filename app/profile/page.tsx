@@ -146,7 +146,6 @@ onboarding_completed
   setBio(data.bio || "");
   setSelected(data.interests || []);
   setPhotoEdits(data.photo_edits || {});
-  setMainIndex(data.main_photo_index || 0);
 
   if (data.photos?.length) {
     setPhotos(data.photos);
@@ -193,7 +192,6 @@ await supabase
  bio,
  interests:selected,
 photo_edits:photoEdits,
-main_photo_index:mainIndex,
 avatar_url:
    avatarPreview ||
    photos[mainIndex] ||
@@ -415,8 +413,7 @@ if (!name.trim() || !city.trim()) {
  bio,
  interests:selected,
  photo_edits:photoEdits,
-main_photo_index:mainIndex,
-avatar_url:
+ avatar_url:
    avatarPreview ||
    photos[mainIndex] ||
    null,
@@ -833,11 +830,8 @@ setCropOpen(true);
  );
 
  if(i===mainIndex){
- setMainIndex(0);
-}
-else if(i < mainIndex){
- setMainIndex(prev=>prev-1);
-}
+   setMainIndex(0);
+ }
 }}
     >
       ✕
