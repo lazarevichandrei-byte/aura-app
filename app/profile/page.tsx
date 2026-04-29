@@ -132,25 +132,31 @@ onboarding_completed
 
     if (data) {
 
-  if (data?.onboarding_completed) {
-    window.location.href="/home";
-    return;
-  }
+ const isEditMode =
+   window.location.search.includes("edit=1");
 
-  setName(data.name || user.first_name || "");
-  setAge(data.age || 22);
-  setGender(data.gender || "female");
-  setSearch(data.looking || "female");
-  setCity(data.city || "");
-  setBio(data.bio || "");
-  setSelected(data.interests || []);
-  setPhotoEdits(data.photo_edits || {});
+ if (
+   data.onboarding_completed &&
+   !isEditMode
+ ){
+   window.location.href="/home";
+   return;
+ }
 
-  if (data.photos?.length) {
-    setPhotos(data.photos);
-  } else if (data.avatar_url) {
-    setPhotos([data.avatar_url]);
-  }
+ setName(data.name || user.first_name || "");
+ setAge(data.age || 22);
+ setGender(data.gender || "female");
+ setSearch(data.looking || "female");
+ setCity(data.city || "");
+ setBio(data.bio || "");
+ setSelected(data.interests || []);
+ setPhotoEdits(data.photo_edits || {});
+
+ if (data.photos?.length) {
+   setPhotos(data.photos);
+ } else if (data.avatar_url) {
+   setPhotos([data.avatar_url]);
+ }
 
 
   localStorage.setItem(
