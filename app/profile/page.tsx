@@ -46,7 +46,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
-
+const [saveStatus,setSaveStatus] =
+useState("saved");
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -55,12 +56,12 @@ useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
-  
+  const [avatarPreview,setAvatarPreview] = useState("");
 const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-
+const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
 
 const base = BASE_INTERESTS;
@@ -69,28 +70,6 @@ const extra = EXTRA_INTERESTS;
   const isValid = name.trim().length > 0 && city.trim().length > 0;
 
 useEffect(() => {
-  useEffect(()=>{
-
- const style=document.createElement("style");
-
- style.innerHTML=`
- @keyframes spin{
-   from{transform:rotate(0deg)}
-   to{transform:rotate(360deg)}
- }
-
- @keyframes pulse{
-   0%{opacity:.7}
-   50%{opacity:1}
-   100%{opacity:.7}
- }
- `;
-
- document.head.appendChild(style);
-
- return ()=>style.remove();
-
-},[]);
   document.body.style.overflowY = "auto";
   document.documentElement.style.overflowY = "auto";
 
@@ -153,33 +132,20 @@ onboarding_completed
 .maybeSingle();
 
     if (data) {
+  setName(data.name || user.first_name || "");
+  setAge(data.age || 22);
+  setGender(data.gender || "female");
+  setSearch(data.looking || "female");
+  setCity(data.city || "");
+  setBio(data.bio || "");
+  setSelected(data.interests || []);
+  setPhotoEdits(data.photo_edits || {});
 
- const isEditMode =
-   window.location.search.includes("edit=1");
-
- if (
-   data.onboarding_completed &&
-   !isEditMode
- ){
-   window.location.href="/home";
-   return;
- }
-
- setName(data.name || user.first_name || "");
- setAge(data.age || 22);
- setGender(data.gender || "female");
- setSearch(data.looking || "female");
- setCity(data.city || "");
- setBio(data.bio || "");
- setSelected(data.interests || []);
- setPhotoEdits(data.photo_edits || {});
-
- if (data.photos?.length) {
-   setPhotos(data.photos);
- } else if (data.avatar_url) {
-   setPhotos([data.avatar_url]);
- }
-
+  if (data.photos?.length) {
+    setPhotos(data.photos);
+  } else if (data.avatar_url) {
+    setPhotos([data.avatar_url]);
+  }
 
   localStorage.setItem(
     "profile_cache",
@@ -204,7 +170,7 @@ useEffect(()=>{
 
    if(!name.trim() || !city.trim()) return;
 
-   
+   setSaveStatus("saving");
 
    const { error } =
 await supabase
@@ -220,7 +186,10 @@ await supabase
  bio,
  interests:selected,
 photo_edits:photoEdits,
-avatar_url: photos[mainIndex] || null,
+avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
  photos,
  onboarding_completed:false
 },
@@ -245,7 +214,7 @@ avatar_url: photos[mainIndex] || null,
    })
  );
 
- 
+ setSaveStatus("saved");
 }
 
  },900);
@@ -262,6 +231,7 @@ bio,
 selected,
 photos,
 mainIndex,
+avatarPreview,
 telegramId,
 photoEdits
 ]);
@@ -384,8 +354,8 @@ setPhotos(prev=>{
  city,
  bio,
  interests:selected,
- photos: updated,
-photo_edits: photoEdits
+ photos,
+ photo_edits:photoEdits
 })
  );
 
@@ -437,7 +407,10 @@ if (!name.trim() || !city.trim()) {
  bio,
  interests:selected,
  photo_edits:photoEdits,
- avatar_url: photos[mainIndex] || null,
+ avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
  photos,
  onboarding_completed:true
 })
@@ -515,7 +488,7 @@ window.location.href="/home";
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
-  src={photos[mainIndex]}
+  src={avatarPreview || photos[mainIndex]}
   loading="lazy"
 decoding="async"
 style={{
@@ -602,20 +575,29 @@ style={{
         </div>
 
         <button
- disabled={!isValid || savingProfile}
- style={{
-   ...styles.submit,
-   opacity:(!isValid || savingProfile) ? .6 : 1
- }}
- onClick={handleSubmit}
->
+          disabled={!isValid || uploading}
+          style={{...styles.submit,opacity:isValid?1:0.5}}
+          onClick={handleSubmit}
+        >
 {
- savingProfile
-   ? "Сохраняем..."
-   : "Продолжить"
-}
-</button>
-
+savingProfile
+ ? "Подождите..."
+ : uploading
+ ? `Загрузка ${uploadProgress}%`
+ : "Продолжить"
+}        </button>
+<div
+style={{
+marginTop:10,
+fontSize:12,
+textAlign:"center",
+color:"#8A94A6"
+}}
+>
+{saveStatus==="saving"
+ ? "Сохраняется..."
+ : "Сохранено ✓"}
+</div>
 
       </div>
 {cropOpen && (
@@ -679,7 +661,9 @@ style={{
  onCropChange={setCrop}
  onZoomChange={setZoom}
 
- 
+ onCropComplete={(a,b)=>{
+   setCroppedAreaPixels(b);
+ }}
 />
 
 </div>
@@ -698,15 +682,13 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- const updatedEdits = {
- ...photoEdits,
+ setPhotoEdits(prev=>({
+ ...prev,
  [mainIndex]:{
    crop,
    zoom
  }
-};
-
-setPhotoEdits(updatedEdits);
+}));
 
 localStorage.setItem(
  "profile_cache",
@@ -719,8 +701,14 @@ localStorage.setItem(
    bio,
    interests:selected,
    photos,
-   photo_edits: updatedEdits
-})
+   photo_edits:{
+     ...photoEdits,
+     [mainIndex]:{
+       crop,
+       zoom
+     }
+   }
+ })
 );
 
 setCropOpen(false);
@@ -771,32 +759,6 @@ setCropOpen(false);
  }}
 />
             </label>
-            {uploading && (
-<div style={styles.uploadingCard}>
-
- <div
-  style={{
-   width:38,
-   height:38,
-   border:"3px solid #d7e9ff",
-   borderTop:"3px solid #2AABEE",
-   borderRadius:"50%",
-   animation:"spin 1s linear infinite"
-  }}
- />
-
- <div
-  style={{
-    marginTop:12,
-    fontSize:12,
-    fontWeight:600
-  }}
- >
-   {uploadProgress}%
- </div>
-
-</div>
-)}
 
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
@@ -858,30 +820,12 @@ setCropOpen(true);
       style={styles.deleteBtn}
       onClick={()=>{
  setPhotos(prev =>
- prev.filter((_,index)=>index!==i)
-);
+   prev.filter((_,index)=>index!==i)
+ );
 
-setPhotoEdits(prev=>{
- const copy:any = {};
-
- Object.keys(prev).forEach(key=>{
-   const k = Number(key);
-
-   if(k < i){
-     copy[k] = prev[k];
-   }
-
-   if(k > i){
-     copy[k-1] = prev[k];
-   }
- });
-
- return copy;
-});
-
-if(i===mainIndex){
- setMainIndex(0);
-}
+ if(i===mainIndex){
+   setMainIndex(0);
+ }
 }}
     >
       ✕
@@ -1054,20 +998,6 @@ addPhoto:{
  justifyContent:"center",
  fontSize:"42px",
  justifySelf:"center"
-},
-
-uploadingCard:{
- width:"110px",
- height:"160px",
- borderRadius:"18px",
- background:"#EEF5FD",
-
- display:"flex",
- flexDirection:"column",
- alignItems:"center",
- justifyContent:"center",
-
- animation:"pulse 1.4s infinite"
 },
 
 deleteBtn:{
