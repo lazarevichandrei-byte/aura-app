@@ -107,7 +107,7 @@ if (cached) {
 if (!user) return setLoading(false);
 
 setTelegramId(user.id);
-
+setName(user.first_name || "");
 const { data } = 
 await supabase
       .from("users")
@@ -128,7 +128,7 @@ onboarding_completed
 .maybeSingle();
 
     if (data) {
-  setName(data.name || "");
+  setName(data.name || user.first_name || "");
   setAge(data.age || 22);
   setGender(data.gender || "female");
   setSearch(data.looking || "female");
@@ -146,6 +146,9 @@ onboarding_completed
     "profile_cache",
     JSON.stringify(data)
   );
+}
+else{
+ setName(user.first_name || "");
 }
 
 setLoading(false);
