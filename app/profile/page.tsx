@@ -168,9 +168,14 @@ useEffect(()=>{
 
  const timer = setTimeout(async()=>{
 
-   if(!name.trim() || !city.trim()) return;
+   if(!name.trim() || !city.trim()){
+ setSaveStatus("saved");
+ return;
+}
 
-   setSaveStatus("saving");
+   if(!photoEdits[mainIndex]){
+ setSaveStatus("saving");
+}
 
    const { error } =
 await supabase
