@@ -127,6 +127,7 @@ bio,
 interests,
 avatar_url,
 photos,
+avatar_transform,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
@@ -140,6 +141,9 @@ onboarding_completed
   setCity(data.city || "");
   setBio(data.bio || "");
   setSelected(data.interests || []);
+  if (data.avatar_transform) {
+ setAvatarTransform(data.avatar_transform);
+}
 
   if (data.photos?.length) {
     setPhotos(data.photos);
@@ -192,7 +196,7 @@ await supabase
 
 photos,
 avatar_transform: avatarTransform,
-onboarding_completed:true
+onboarding_completed:false
 },
 {
  onConflict:"telegram_id"
@@ -412,7 +416,7 @@ if (!name.trim() || !city.trim()) {
  photos,
 avatar_transform: avatarTransform,
 
-onboarding_completed:true
+onboarding_completed:false
 })
 .eq("telegram_id", telegramId);
 
