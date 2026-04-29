@@ -126,6 +126,7 @@ interests,
 avatar_url,
 photos,
 photo_edits,
+main_photo_index,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
@@ -150,7 +151,7 @@ onboarding_completed
   setBio(data.bio || "");
   setSelected(data.interests || []);
   setPhotoEdits(data.photo_edits || {});
-
+setMainIndex(data.main_photo_index || 0);
   if (data.photos?.length) {
     setPhotos(data.photos);
   } else if (data.avatar_url) {
@@ -196,6 +197,7 @@ await supabase
  bio,
  interests:selected,
 photo_edits:photoEdits,
+main_photo_index:mainIndex,
 avatar_url:
    avatarPreview ||
    photos[mainIndex] ||
@@ -417,7 +419,8 @@ if (!name.trim() || !city.trim()) {
  bio,
  interests:selected,
  photo_edits:photoEdits,
- avatar_url:
+main_photo_index:mainIndex,
+avatar_url:
    avatarPreview ||
    photos[mainIndex] ||
    null,
@@ -777,7 +780,10 @@ setCropOpen(false);
       src={p}
       loading="lazy"
 decoding="async"
-      onClick={()=>setMainIndex(i)}
+      onClick={()=>{
+ setMainIndex(i);
+ console.log("Главная фото:", i);
+}}
       style={{
         ...styles.galleryImg,
         border: i===mainIndex
