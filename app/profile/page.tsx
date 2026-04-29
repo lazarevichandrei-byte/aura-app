@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 const Cropper:any = dynamic(
@@ -63,6 +63,7 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
+const firstLoad = useRef(true);
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -165,6 +166,11 @@ init();
 useEffect(()=>{
 
  if(!telegramId) return;
+
+if(firstLoad.current){
+ firstLoad.current = false;
+ return;
+}
 
  const timer = setTimeout(async()=>{
 
