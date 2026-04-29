@@ -189,7 +189,7 @@ await supabase
    photos[mainIndex] ||
    null,
  photos,
- onboarding_completed:true
+ onboarding_completed:false
 })
 .eq("telegram_id", telegramId);
 
@@ -367,7 +367,8 @@ await supabase
    avatarPreview ||
    photos[mainIndex] ||
    null,
- photos
+ photos,
+ onboarding_completed:true
 })
 .eq("telegram_id", telegramId);
     if (error) {
