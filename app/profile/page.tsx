@@ -48,6 +48,9 @@ const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
 const [saveStatus,setSaveStatus] =
 useState("saved");
+const [savingProfile,setSavingProfile] =
+useState(false);
+
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
@@ -162,22 +165,23 @@ useEffect(()=>{
 
    const { error } =
    await supabase
-    .from("users")
-    .upsert({
-      telegram_id:telegramId,
-      name,
-      age,
-      gender,
-      looking:search,
-      city,
-      bio,
-      interests:selected,
-      avatar_url:
-       avatarPreview ||
-       photos[mainIndex] ||
-       null,
-      photos
-    });
+ .from("users")
+ .upsert({
+   telegram_id:telegramId,
+   name,
+   age,
+   gender,
+   looking:search,
+   city,
+   bio,
+   interests:selected,
+   avatar_url:
+     avatarPreview ||
+     photos[mainIndex] ||
+     null,
+   photos,
+   onboarding_completed:false
+ });
 
    if(!error){
      setSaveStatus("saved");
@@ -274,7 +278,7 @@ if(now - lastUploadTime < 3000){
 
 setLastUploadTime(now);
 
- setUploading(true);
+ 
  setUploadProgress(10);
 
  setTimeout(()=>{
@@ -323,27 +327,35 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
-    if (!telegramId || uploading || loading) return;
+    if (!telegramId || savingProfile || loading) return;
+
+setSavingProfile(true);
     setUploading(true);
 
 if (!name.trim() || !city.trim()) {
- setUploading(false);
+ setSavingProfile(false);
  alert("Заполни имя и город");
  return;
 }
 
-    const { error } = await supabase.from("users").upsert({
-      telegram_id: telegramId,
-      name,
-      age,
-      gender,
-      looking: search,
-      city,
-      bio,
-      interests: selected,
-      avatar_url: avatarPreview || photos[mainIndex] || null,
-photos: photos,
-    });
+    const { error } = await supabase
+.from("users")
+.upsert({
+  telegram_id:telegramId,
+  name,
+  age,
+  gender,
+  looking:search,
+  city,
+  bio,
+  interests:selected,
+  avatar_url:
+    avatarPreview ||
+    photos[mainIndex] ||
+    null,
+  photos,
+  onboarding_completed:true
+});
      setUploading(false);
     if (error) {
       alert(error.message);
@@ -523,7 +535,9 @@ decoding="async"
           onClick={handleSubmit}
         >
 {
-uploading
+savingProfile
+ ? "Подождите..."
+ : uploading
  ? `Загрузка ${uploadProgress}%`
  : "Продолжить"
 }        </button>
