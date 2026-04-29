@@ -62,7 +62,6 @@ const [editingPhoto,setEditingPhoto] = useState("");
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
-const [photoEdits,setPhotoEdits] = useState<any>({});
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -88,7 +87,6 @@ if (cached) {
    setCity(profile.city || "");
    setBio(profile.bio || "");
    setSelected(profile.interests || []);
-   setPhotoEdits(profile.photo_edits || {});
 
    if (profile.photos?.length) {
      setPhotos(profile.photos);
@@ -97,7 +95,6 @@ if (cached) {
    localStorage.removeItem("profile_cache");
  }
 }
-
 
     const tg = (window as any).Telegram?.WebApp;
 
@@ -125,7 +122,6 @@ bio,
 interests,
 avatar_url,
 photos,
-photo_edits,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
@@ -139,7 +135,6 @@ onboarding_completed
   setCity(data.city || "");
   setBio(data.bio || "");
   setSelected(data.interests || []);
-  setPhotoEdits(data.photo_edits || {});
 
   if (data.photos?.length) {
     setPhotos(data.photos);
@@ -185,8 +180,7 @@ await supabase
  city,
  bio,
  interests:selected,
-photo_edits:photoEdits,
-avatar_url:
+ avatar_url:
    avatarPreview ||
    photos[mainIndex] ||
    null,
@@ -232,8 +226,7 @@ selected,
 photos,
 mainIndex,
 avatarPreview,
-telegramId,
-photoEdits
+telegramId
 ]);
     
 const compressImage = (file: File): Promise<File> =>
@@ -347,16 +340,15 @@ setPhotos(prev=>{
  localStorage.setItem(
    "profile_cache",
    JSON.stringify({
- name,
- age,
- gender,
- looking:search,
- city,
- bio,
- interests:selected,
- photos,
- photo_edits:photoEdits
-})
+     name,
+     age,
+     gender,
+     looking:search,
+     city,
+     bio,
+     interests:selected,
+     photos:updated
+   })
  );
 
  return updated;
@@ -406,7 +398,6 @@ if (!name.trim() || !city.trim()) {
  city,
  bio,
  interests:selected,
- photo_edits:photoEdits,
  avatar_url:
    avatarPreview ||
    photos[mainIndex] ||
@@ -477,7 +468,38 @@ window.location.href="/home";
  );
 }
 
+const getCroppedImg = async (imageSrc,pixelCrop)=>{
 
+ const image = new Image();
+ image.crossOrigin="anonymous";
+ image.src=imageSrc;
+
+ await new Promise(resolve=>{
+   image.onload=resolve;
+ });
+
+ const canvas=document.createElement("canvas");
+ const ctx=canvas.getContext("2d");
+
+ if(!ctx) return imageSrc;
+
+ canvas.width=1000
+canvas.height=1000
+
+ ctx.drawImage(
+   image,
+   pixelCrop.x,
+   pixelCrop.y,
+   pixelCrop.width,
+   pixelCrop.height,
+   0,
+   0,
+   1000,
+   1000
+ );
+
+ return canvas.toDataURL("image/jpeg",1);
+};
 
 
   return (
@@ -491,19 +513,8 @@ window.location.href="/home";
   src={avatarPreview || photos[mainIndex]}
   loading="lazy"
 decoding="async"
-style={{
- ...styles.avatarImage,
-
- transform: photoEdits[mainIndex]
-   ? `translate(
-        ${photoEdits[mainIndex].crop.x/6}px,
-        ${photoEdits[mainIndex].crop.y/6}px
-      )
-      scale(${photoEdits[mainIndex].zoom})`
-   : "none",
-
- transformOrigin:"center center"
-}}/>
+  style={styles.avatarImage}
+/>
 </div>
           ) : (
             <div style={styles.avatar}>👤</div>
@@ -682,36 +693,36 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- setPhotoEdits(prev=>({
- ...prev,
- [mainIndex]:{
-   crop,
-   zoom
- }
-}));
+ const croppedUrl =
+   await getCroppedImg(
+      editingPhoto,
+      croppedAreaPixels
+   );
 
-localStorage.setItem(
- "profile_cache",
- JSON.stringify({
-   name,
-   age,
-   gender,
-   looking:search,
-   city,
-   bio,
-   interests:selected,
-   photos,
-   photo_edits:{
-     ...photoEdits,
-     [mainIndex]:{
-       crop,
-       zoom
-     }
-   }
- })
-);
+ setPhotos(prev=>{
+   const updated=[...prev];
+   updated[mainIndex]=croppedUrl;
 
-setCropOpen(false);
+   localStorage.setItem(
+     "profile_cache",
+     JSON.stringify({
+       name,
+       age,
+       gender,
+       looking:search,
+       city,
+       bio,
+       interests:selected,
+       photos:updated
+     })
+   );
+
+   return updated;
+ });
+
+ setAvatarPreview(croppedUrl);
+
+ setCropOpen(false);
 
 }}
 >
@@ -787,17 +798,8 @@ decoding="async"
  onClick={(e)=>{
    e.stopPropagation();
    setEditingPhoto(p);
-
-if(photoEdits[i]){
- setCrop(photoEdits[i].crop);
- setZoom(photoEdits[i].zoom);
-}else{
- setCrop({x:0,y:0});
- setZoom(1.2);
-}
-
-setActivePhoto(false);
-setCropOpen(true);
+   setActivePhoto(false);
+   setCropOpen(true);
  }}
  style={{
    position:"absolute",
