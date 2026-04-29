@@ -132,6 +132,10 @@ onboarding_completed
 .maybeSingle();
 
     if (data) {
+      if (data?.onboarding_completed) {
+  window.location.replace("/home");
+  return;
+}
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
   setGender(data.gender || "female");
