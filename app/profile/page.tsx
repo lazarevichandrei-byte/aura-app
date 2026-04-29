@@ -131,11 +131,12 @@ onboarding_completed
 .eq("telegram_id", user.id)
 .maybeSingle();
 
-    if (data) {
-      if (data?.onboarding_completed) {
-  window.location.replace("/home");
-  return;
-}
+  
+  if (data) {
+
+  // если анкета уже заполнена —
+  // открываем профиль как редактирование
+
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
   setGender(data.gender || "female");
@@ -157,7 +158,7 @@ onboarding_completed
   );
 }
 else{
- setName(user.first_name || "");
+  setName(user.first_name || "");
 }
 
 setLoading(false);
