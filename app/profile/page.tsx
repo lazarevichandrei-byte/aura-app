@@ -107,16 +107,7 @@ if (cached) {
 if (!user) return setLoading(false);
 
 setTelegramId(user.id);
-await supabase
- .from("users")
- .upsert(
-   {
-     telegram_id:user.id
-   },
-   {
-     onConflict:"telegram_id"
-   }
- );
+
 const { data } = 
 await supabase
       .from("users")
@@ -352,8 +343,7 @@ if (!name.trim() || !city.trim()) {
  return;
 }
 
-    const { error } =
-await supabase
+    const { error } = await supabase
 .from("users")
 .update({
  name,
@@ -371,11 +361,12 @@ await supabase
  onboarding_completed:true
 })
 .eq("telegram_id", telegramId);
-    if (error) {
-  setSavingProfile(false);
-  setUploading(false);
-  alert(error.message);
-  return;
+
+if (error) {
+ setSavingProfile(false);
+ setUploading(false);
+ alert(error.message);
+ return;
 }
 
 setSavingProfile(false);
