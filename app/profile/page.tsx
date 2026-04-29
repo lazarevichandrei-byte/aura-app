@@ -126,7 +126,6 @@ interests,
 avatar_url,
 photos,
 photo_edits,
-main_photo_index,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
@@ -135,8 +134,13 @@ onboarding_completed
   
   if (data) {
 
-  // если анкета уже заполнена —
-  // открываем профиль как редактирование
+ // если анкета уже завершена —
+ // просто показываем профиль как страницу редактирования
+
+  setName(data.name || user.first_name || "");
+  setAge(data.age || 22);
+  setGender(data.gender || "female");
+
 
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
@@ -159,7 +163,7 @@ onboarding_completed
   );
 }
 else{
-  setName(user.first_name || "");
+ setName(user.first_name || "");
 }
 
 setLoading(false);
