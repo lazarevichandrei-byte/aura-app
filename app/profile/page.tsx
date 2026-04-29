@@ -716,10 +716,7 @@ localStorage.setItem(
 );
 
 setCropOpen(false);
-
-setTimeout(()=>{
- setSaveStatus("saved");
-},300);
+setSaveStatus("saving");
 }}
 >
 Готово
