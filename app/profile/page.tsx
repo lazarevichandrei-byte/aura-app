@@ -46,6 +46,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
+const [saveStatus,setSaveStatus] =
+useState("saved");
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
@@ -148,6 +150,56 @@ setLoading(false);
 
 init();
 }, []);
+useEffect(()=>{
+
+ if(!telegramId) return;
+
+ const timer = setTimeout(async()=>{
+
+   if(!name.trim() || !city.trim()) return;
+
+   setSaveStatus("saving");
+
+   const { error } =
+   await supabase
+    .from("users")
+    .upsert({
+      telegram_id:telegramId,
+      name,
+      age,
+      gender,
+      looking:search,
+      city,
+      bio,
+      interests:selected,
+      avatar_url:
+       avatarPreview ||
+       photos[mainIndex] ||
+       null,
+      photos
+    });
+
+   if(!error){
+     setSaveStatus("saved");
+   }
+
+ },900);
+
+ return ()=>clearTimeout(timer);
+
+},[
+name,
+age,
+gender,
+search,
+city,
+bio,
+selected,
+photos,
+mainIndex,
+avatarPreview,
+telegramId
+]);
     
 const compressImage = (file: File): Promise<File> =>
  new Promise((resolve)=>{
@@ -272,6 +324,7 @@ setTimeout(()=>{
   };
     const handleSubmit = async () => {
     if (!telegramId || uploading || loading) return;
+    setUploading(true);
 
 if (!name.trim() || !city.trim()) {
  setUploading(false);
@@ -302,7 +355,50 @@ photos: photos,
   
 
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+ return (
+  <div style={styles.wrapper}>
+   <div style={styles.card}>
+
+    <div style={{
+      width:92,
+      height:92,
+      borderRadius:"50%",
+      margin:"0 auto 22px",
+      background:"#E9EEF5"
+    }}/>
+
+    <div style={{
+      height:56,
+      borderRadius:16,
+      background:"#EEF3F8",
+      marginBottom:14
+    }}/>
+
+    <div style={{
+      height:56,
+      borderRadius:16,
+      background:"#EEF3F8",
+      marginBottom:14
+    }}/>
+
+    <div style={{
+      height:130,
+      borderRadius:20,
+      background:"#EEF3F8",
+      marginBottom:20
+    }}/>
+
+    <div style={{
+      height:56,
+      borderRadius:18,
+      background:"#DDEBFF"
+    }}/>
+
+   </div>
+  </div>
+ );
+}
 
 const getCroppedImg = async (imageSrc,pixelCrop)=>{
 
@@ -431,6 +527,18 @@ uploading
  ? `Загрузка ${uploadProgress}%`
  : "Продолжить"
 }        </button>
+<div
+style={{
+marginTop:10,
+fontSize:12,
+textAlign:"center",
+color:"#8A94A6"
+}}
+>
+{saveStatus==="saving"
+ ? "Сохраняется..."
+ : "Сохранено ✓"}
+</div>
 
       </div>
 {cropOpen && (
