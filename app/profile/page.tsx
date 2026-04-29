@@ -701,8 +701,28 @@ style={{
 
  setAvatarPreview(croppedUrl);
 
- setCropOpen(false);
+setPhotos(prev=>{
+ const updated=[...prev];
+ updated[mainIndex]=croppedUrl;
 
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+     name,
+     age,
+     gender,
+     looking:search,
+     city,
+     bio,
+     interests:selected,
+     photos:updated
+   })
+ );
+
+ return updated;
+});
+
+setActivePhoto(false);
 }}
 >
 Готово
