@@ -173,9 +173,7 @@ useEffect(()=>{
  return;
 }
 
-   if(!photoEdits[mainIndex]){
- setSaveStatus("saving");
-}
+   setSaveStatus("saving");
 
    const { error } =
 await supabase
