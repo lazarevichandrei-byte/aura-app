@@ -107,8 +107,18 @@ if (cached) {
 if (!user) return setLoading(false);
 
 setTelegramId(user.id);
-
-const { data } = await supabase
+await supabase
+ .from("users")
+ .upsert(
+   {
+     telegram_id:user.id
+   },
+   {
+     onConflict:"telegram_id"
+   }
+ );
+const { data } = 
+await supabase
       .from("users")
       .select(`
 telegram_id,
@@ -164,28 +174,24 @@ useEffect(()=>{
    setSaveStatus("saving");
 
    const { error } =
-   await supabase
- .from("users")
- .upsert(
-   {
-     telegram_id:telegramId,
-     name,
-     age,
-     gender,
-     looking:search,
-     city,
-     bio,
-     interests:selected,
-     avatar_url:
-       avatarPreview ||
-       photos[mainIndex] ||
-       null,
-     photos
-   },
-   {
-     onConflict:"telegram_id"
-   }
-);
+await supabase
+.from("users")
+.update({
+ name,
+ age,
+ gender,
+ looking:search,
+ city,
+ bio,
+ interests:selected,
+ avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
+ photos,
+ onboarding_completed:true
+})
+.eq("telegram_id", telegramId);
 
    if(!error){
      setSaveStatus("saved");
@@ -341,15 +347,15 @@ setSavingProfile(true);
 
 if (!name.trim() || !city.trim()) {
  setSavingProfile(false);
+ setUploading(false);
  alert("Заполни имя и город");
  return;
 }
 
-    const { error } = 
-    await supabase
+    const { error } =
+await supabase
 .from("users")
-.upsert({
- telegram_id:telegramId,
+.update({
  name,
  age,
  gender,
@@ -362,7 +368,8 @@ if (!name.trim() || !city.trim()) {
    photos[mainIndex] ||
    null,
  photos
-});
+})
+.eq("telegram_id", telegramId);
     if (error) {
   setSavingProfile(false);
   setUploading(false);
