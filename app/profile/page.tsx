@@ -46,7 +46,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
-
+const [saveStatus,setSaveStatus] =
+useState("saved");
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -55,12 +56,12 @@ useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
-  
+  const [avatarPreview,setAvatarPreview] = useState("");
 const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-
+const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
 
 const base = BASE_INTERESTS;
@@ -131,12 +132,6 @@ onboarding_completed
 .maybeSingle();
 
     if (data) {
-
-  if (data?.onboarding_completed) {
-    window.location.href="/home";
-    return;
-  }
-
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
   setGender(data.gender || "female");
@@ -151,7 +146,6 @@ onboarding_completed
   } else if (data.avatar_url) {
     setPhotos([data.avatar_url]);
   }
-
 
   localStorage.setItem(
     "profile_cache",
@@ -176,7 +170,7 @@ useEffect(()=>{
 
    if(!name.trim() || !city.trim()) return;
 
-   
+   setSaveStatus("saving");
 
    const { error } =
 await supabase
@@ -192,7 +186,10 @@ await supabase
  bio,
  interests:selected,
 photo_edits:photoEdits,
-avatar_url: photos[mainIndex] || null,
+avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
  photos,
  onboarding_completed:false
 },
@@ -217,7 +214,7 @@ avatar_url: photos[mainIndex] || null,
    })
  );
 
- 
+ setSaveStatus("saved");
 }
 
  },900);
@@ -234,6 +231,7 @@ bio,
 selected,
 photos,
 mainIndex,
+avatarPreview,
 telegramId,
 photoEdits
 ]);
@@ -357,7 +355,7 @@ setPhotos(prev=>{
  bio,
  interests:selected,
  photos,
- photo_edits: photoEdits
+ photo_edits:photoEdits
 })
  );
 
@@ -409,7 +407,10 @@ if (!name.trim() || !city.trim()) {
  bio,
  interests:selected,
  photo_edits:photoEdits,
- avatar_url: photos[mainIndex] || null,
+ avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
  photos,
  onboarding_completed:true
 })
@@ -487,7 +488,7 @@ window.location.href="/home";
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
-  src={photos[mainIndex]}
+  src={avatarPreview || photos[mainIndex]}
   loading="lazy"
 decoding="async"
 style={{
@@ -574,20 +575,29 @@ style={{
         </div>
 
         <button
- disabled={!isValid || savingProfile}
- style={{
-   ...styles.submit,
-   opacity:(!isValid || savingProfile) ? .6 : 1
- }}
- onClick={handleSubmit}
->
+          disabled={!isValid || uploading}
+          style={{...styles.submit,opacity:isValid?1:0.5}}
+          onClick={handleSubmit}
+        >
 {
- savingProfile
-   ? "Сохраняем..."
-   : "Продолжить"
-}
-</button>
-
+savingProfile
+ ? "Подождите..."
+ : uploading
+ ? `Загрузка ${uploadProgress}%`
+ : "Продолжить"
+}        </button>
+<div
+style={{
+marginTop:10,
+fontSize:12,
+textAlign:"center",
+color:"#8A94A6"
+}}
+>
+{saveStatus==="saving"
+ ? "Сохраняется..."
+ : "Сохранено ✓"}
+</div>
 
       </div>
 {cropOpen && (
@@ -651,7 +661,9 @@ style={{
  onCropChange={setCrop}
  onZoomChange={setZoom}
 
- 
+ onCropComplete={(a,b)=>{
+   setCroppedAreaPixels(b);
+ }}
 />
 
 </div>
@@ -670,15 +682,13 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- const updatedEdits = {
- ...photoEdits,
+ setPhotoEdits(prev=>({
+ ...prev,
  [mainIndex]:{
    crop,
    zoom
  }
-};
-
-setPhotoEdits(updatedEdits);
+}));
 
 localStorage.setItem(
  "profile_cache",
@@ -691,8 +701,14 @@ localStorage.setItem(
    bio,
    interests:selected,
    photos,
-   photo_edits: updatedEdits
-})
+   photo_edits:{
+     ...photoEdits,
+     [mainIndex]:{
+       crop,
+       zoom
+     }
+   }
+ })
 );
 
 setCropOpen(false);
@@ -804,30 +820,12 @@ setCropOpen(true);
       style={styles.deleteBtn}
       onClick={()=>{
  setPhotos(prev =>
- prev.filter((_,index)=>index!==i)
-);
+   prev.filter((_,index)=>index!==i)
+ );
 
-setPhotoEdits(prev=>{
- const copy:any = {};
-
- Object.keys(prev).forEach(key=>{
-   const k = Number(key);
-
-   if(k < i){
-     copy[k] = prev[k];
-   }
-
-   if(k > i){
-     copy[k-1] = prev[k];
-   }
- });
-
- return copy;
-});
-
-if(i===mainIndex){
- setMainIndex(0);
-}
+ if(i===mainIndex){
+   setMainIndex(0);
+ }
 }}
     >
       ✕
@@ -1067,5 +1065,3 @@ cropModal:{
 }
 
 };
-
-
