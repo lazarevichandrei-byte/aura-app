@@ -677,9 +677,9 @@ zoom={avatarTransform.zoom}
  aspect={1}
  cropShape="round"
 
- cropSize={{ width:260, height:260 }}
+ cropSize={{ width:240, height:240 }}
 
- objectFit="horizontal-cover"
+ objectFit="cover"
 
  restrictPosition={true}
  showGrid={false}
@@ -822,17 +822,13 @@ decoding="async"
    setCropOpen(true);
  }}
  style={{
-   position:"absolute",
-   right:"-10px",
-   bottom:"-10px",
-   width:"34px",
-   height:"34px",
-   borderRadius:"50%",
-   border:"2px solid #fff",
-   background:"#fff",
-   boxShadow:"0 4px 12px rgba(0,0,0,.18)",
-   zIndex:9999
- }}
+ ...styles.avatarImage,
+ transform:`scale(${avatarTransform.zoom})`,
+ objectPosition: `
+ ${50 - avatarTransform.x/4}% 
+ ${50 - avatarTransform.y/4}%
+ `
+}}
 >
  ✎
 </button>
