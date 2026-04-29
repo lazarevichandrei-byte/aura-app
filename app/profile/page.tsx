@@ -69,6 +69,28 @@ const extra = EXTRA_INTERESTS;
   const isValid = name.trim().length > 0 && city.trim().length > 0;
 
 useEffect(() => {
+  useEffect(()=>{
+
+ const style=document.createElement("style");
+
+ style.innerHTML=`
+ @keyframes spin{
+   from{transform:rotate(0deg)}
+   to{transform:rotate(360deg)}
+ }
+
+ @keyframes pulse{
+   0%{opacity:.7}
+   50%{opacity:1}
+   100%{opacity:.7}
+ }
+ `;
+
+ document.head.appendChild(style);
+
+ return ()=>style.remove();
+
+},[]);
   document.body.style.overflowY = "auto";
   document.documentElement.style.overflowY = "auto";
 
@@ -749,6 +771,32 @@ setCropOpen(false);
  }}
 />
             </label>
+            {uploading && (
+<div style={styles.uploadingCard}>
+
+ <div
+  style={{
+   width:38,
+   height:38,
+   border:"3px solid #d7e9ff",
+   borderTop:"3px solid #2AABEE",
+   borderRadius:"50%",
+   animation:"spin 1s linear infinite"
+  }}
+ />
+
+ <div
+  style={{
+    marginTop:12,
+    fontSize:12,
+    fontWeight:600
+  }}
+ >
+   {uploadProgress}%
+ </div>
+
+</div>
+)}
 
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
@@ -1006,6 +1054,20 @@ addPhoto:{
  justifyContent:"center",
  fontSize:"42px",
  justifySelf:"center"
+},
+
+uploadingCard:{
+ width:"110px",
+ height:"160px",
+ borderRadius:"18px",
+ background:"#EEF5FD",
+
+ display:"flex",
+ flexDirection:"column",
+ alignItems:"center",
+ justifyContent:"center",
+
+ animation:"pulse 1.4s infinite"
 },
 
 deleteBtn:{
