@@ -61,6 +61,11 @@ const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
+const [avatarTransform,setAvatarTransform] = useState({
+ x:0,
+ y:0,
+ zoom:1.2
+});
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 
 const base = BASE_INTERESTS;
@@ -78,6 +83,14 @@ useEffect(() => {
 
 if (cached) {
  try {
+  const savedTransform =
+ localStorage.getItem("avatar_transform");
+
+if(savedTransform){
+ setAvatarTransform(
+   JSON.parse(savedTransform)
+ );
+}
    const profile = JSON.parse(cached);
 
    setName(profile.name || "");
@@ -513,7 +526,14 @@ canvas.height=1000
   src={avatarPreview || photos[mainIndex]}
   loading="lazy"
 decoding="async"
-  style={styles.avatarImage}
+  style={{
+ ...styles.avatarImage,
+ transform: `
+ translate(${avatarTransform.x}px,
+ ${avatarTransform.y}px)
+ scale(${avatarTransform.zoom})
+ `
+}}
 />
 </div>
           ) : (
@@ -651,8 +671,8 @@ style={{
 
 <Cropper
  image={editingPhoto}
- crop={crop}
- zoom={zoom}
+crop={avatarTransform}
+zoom={avatarTransform.zoom}
 
  aspect={1}
  cropShape="round"
@@ -669,8 +689,22 @@ style={{
  maxZoom={3}
  zoomSpeed={1}
 
- onCropChange={setCrop}
- onZoomChange={setZoom}
+ onCropChange={(value)=>{
+ setCrop(value);
+ setAvatarTransform(prev=>({
+   ...prev,
+   x:value.x,
+   y:value.y
+ }));
+}}
+
+onZoomChange={(value)=>{
+ setZoom(value);
+ setAvatarTransform(prev=>({
+   ...prev,
+   zoom:value
+ }));
+}}
 
  onCropComplete={(a,b)=>{
    setCroppedAreaPixels(b);
@@ -693,36 +727,23 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- const croppedUrl =
-   await getCroppedImg(
-      editingPhoto,
-      croppedAreaPixels
-   );
-
- setAvatarPreview(croppedUrl);
-
-setPhotos(prev=>{
- const updated=[...prev];
- updated[mainIndex]=croppedUrl;
-
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
-     name,
-     age,
-     gender,
-     looking:search,
-     city,
-     bio,
-     interests:selected,
-     photos:updated
-   })
- );
-
- return updated;
+ setAvatarTransform({
+ x:crop.x,
+ y:crop.y,
+ zoom
 });
 
-setActivePhoto(false);
+localStorage.setItem(
+ "avatar_transform",
+ JSON.stringify({
+   x:crop.x,
+   y:crop.y,
+   zoom
+ })
+);
+
+setCropOpen(false);
+
 }}
 >
 Готово
