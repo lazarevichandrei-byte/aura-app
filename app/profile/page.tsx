@@ -491,8 +491,19 @@ window.location.href="/home";
   src={avatarPreview || photos[mainIndex]}
   loading="lazy"
 decoding="async"
-  style={styles.avatarImage}
-/>
+style={{
+ ...styles.avatarImage,
+
+ transform: photoEdits[mainIndex]
+   ? `translate(
+        ${photoEdits[mainIndex].crop.x/6}px,
+        ${photoEdits[mainIndex].crop.y/6}px
+      )
+      scale(${photoEdits[mainIndex].zoom})`
+   : "none",
+
+ transformOrigin:"center center"
+}}/>
 </div>
           ) : (
             <div style={styles.avatar}>👤</div>
