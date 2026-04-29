@@ -183,7 +183,7 @@ fontWeight:700
 
 
 <div
-onClick={()=>router.push("/profile")}
+onClick={()=>router.push("/profile?edit=1")}
 style={itemStyle(pathname==="/profile")}
 >
 <User size={28}/>
