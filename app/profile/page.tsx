@@ -46,8 +46,7 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
-const [saveStatus,setSaveStatus] =
-useState("saved");
+
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -56,12 +55,13 @@ useState(false);
 
   const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
-  const [avatarPreview,setAvatarPreview] = useState("");
+  
 const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
+
+const [photoEdits,setPhotoEdits] = useState<any>({});
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -87,6 +87,7 @@ if (cached) {
    setCity(profile.city || "");
    setBio(profile.bio || "");
    setSelected(profile.interests || []);
+   setPhotoEdits(profile.photo_edits || {});
 
    if (profile.photos?.length) {
      setPhotos(profile.photos);
@@ -95,6 +96,7 @@ if (cached) {
    localStorage.removeItem("profile_cache");
  }
 }
+
 
     const tg = (window as any).Telegram?.WebApp;
 
@@ -122,6 +124,7 @@ bio,
 interests,
 avatar_url,
 photos,
+photo_edits,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
@@ -135,6 +138,7 @@ onboarding_completed
   setCity(data.city || "");
   setBio(data.bio || "");
   setSelected(data.interests || []);
+  setPhotoEdits(data.photo_edits || {});
 
   if (data.photos?.length) {
     setPhotos(data.photos);
@@ -165,7 +169,7 @@ useEffect(()=>{
 
    if(!name.trim() || !city.trim()) return;
 
-   setSaveStatus("saving");
+   
 
    const { error } =
 await supabase
@@ -180,10 +184,8 @@ await supabase
  city,
  bio,
  interests:selected,
- avatar_url:
-   avatarPreview ||
-   photos[mainIndex] ||
-   null,
+photo_edits:photoEdits,
+avatar_url: photos[mainIndex] || null,
  photos,
  onboarding_completed:false
 },
@@ -208,7 +210,7 @@ await supabase
    })
  );
 
- setSaveStatus("saved");
+ 
 }
 
  },900);
@@ -225,8 +227,8 @@ bio,
 selected,
 photos,
 mainIndex,
-avatarPreview,
-telegramId
+telegramId,
+photoEdits
 ]);
     
 const compressImage = (file: File): Promise<File> =>
@@ -340,15 +342,16 @@ setPhotos(prev=>{
  localStorage.setItem(
    "profile_cache",
    JSON.stringify({
-     name,
-     age,
-     gender,
-     looking:search,
-     city,
-     bio,
-     interests:selected,
-     photos:updated
-   })
+ name,
+ age,
+ gender,
+ looking:search,
+ city,
+ bio,
+ interests:selected,
+ photos,
+ photo_edits: photoEdits
+})
  );
 
  return updated;
@@ -398,10 +401,8 @@ if (!name.trim() || !city.trim()) {
  city,
  bio,
  interests:selected,
- avatar_url:
-   avatarPreview ||
-   photos[mainIndex] ||
-   null,
+ photo_edits:photoEdits,
+ avatar_url: photos[mainIndex] || null,
  photos,
  onboarding_completed:true
 })
@@ -468,38 +469,7 @@ window.location.href="/home";
  );
 }
 
-const getCroppedImg = async (imageSrc,pixelCrop)=>{
 
- const image = new Image();
- image.crossOrigin="anonymous";
- image.src=imageSrc;
-
- await new Promise(resolve=>{
-   image.onload=resolve;
- });
-
- const canvas=document.createElement("canvas");
- const ctx=canvas.getContext("2d");
-
- if(!ctx) return imageSrc;
-
- canvas.width=1000
-canvas.height=1000
-
- ctx.drawImage(
-   image,
-   pixelCrop.x,
-   pixelCrop.y,
-   pixelCrop.width,
-   pixelCrop.height,
-   0,
-   0,
-   1000,
-   1000
- );
-
- return canvas.toDataURL("image/jpeg",1);
-};
 
 
   return (
@@ -510,11 +480,22 @@ canvas.height=1000
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
-  src={avatarPreview || photos[mainIndex]}
+  src={photos[mainIndex]}
   loading="lazy"
 decoding="async"
-  style={styles.avatarImage}
-/>
+style={{
+ ...styles.avatarImage,
+
+ transform: photoEdits[mainIndex]
+   ? `translate(
+        ${photoEdits[mainIndex].crop.x/6}px,
+        ${photoEdits[mainIndex].crop.y/6}px
+      )
+      scale(${photoEdits[mainIndex].zoom})`
+   : "none",
+
+ transformOrigin:"center center"
+}}/>
 </div>
           ) : (
             <div style={styles.avatar}>👤</div>
@@ -586,29 +567,20 @@ decoding="async"
         </div>
 
         <button
-          disabled={!isValid || uploading}
-          style={{...styles.submit,opacity:isValid?1:0.5}}
-          onClick={handleSubmit}
-        >
-{
-savingProfile
- ? "Подождите..."
- : uploading
- ? `Загрузка ${uploadProgress}%`
- : "Продолжить"
-}        </button>
-<div
-style={{
-marginTop:10,
-fontSize:12,
-textAlign:"center",
-color:"#8A94A6"
-}}
+ disabled={!isValid || savingProfile}
+ style={{
+   ...styles.submit,
+   opacity:(!isValid || savingProfile) ? .6 : 1
+ }}
+ onClick={handleSubmit}
 >
-{saveStatus==="saving"
- ? "Сохраняется..."
- : "Сохранено ✓"}
-</div>
+{
+ savingProfile
+   ? "Сохраняем..."
+   : "Продолжить"
+}
+</button>
+
 
       </div>
 {cropOpen && (
@@ -672,9 +644,7 @@ style={{
  onCropChange={setCrop}
  onZoomChange={setZoom}
 
- onCropComplete={(a,b)=>{
-   setCroppedAreaPixels(b);
- }}
+ 
 />
 
 </div>
@@ -693,36 +663,32 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- const croppedUrl =
-   await getCroppedImg(
-      editingPhoto,
-      croppedAreaPixels
-   );
+ const updatedEdits = {
+ ...photoEdits,
+ [mainIndex]:{
+   crop,
+   zoom
+ }
+};
 
- setPhotos(prev=>{
-   const updated=[...prev];
-   updated[mainIndex]=croppedUrl;
+setPhotoEdits(updatedEdits);
 
-   localStorage.setItem(
-     "profile_cache",
-     JSON.stringify({
-       name,
-       age,
-       gender,
-       looking:search,
-       city,
-       bio,
-       interests:selected,
-       photos:updated
-     })
-   );
+localStorage.setItem(
+ "profile_cache",
+ JSON.stringify({
+   name,
+   age,
+   gender,
+   looking:search,
+   city,
+   bio,
+   interests:selected,
+   photos,
+   photo_edits: updatedEdits
+})
+);
 
-   return updated;
- });
-
- setAvatarPreview(croppedUrl);
-
- setCropOpen(false);
+setCropOpen(false);
 
 }}
 >
@@ -798,8 +764,17 @@ decoding="async"
  onClick={(e)=>{
    e.stopPropagation();
    setEditingPhoto(p);
-   setActivePhoto(false);
-   setCropOpen(true);
+
+if(photoEdits[i]){
+ setCrop(photoEdits[i].crop);
+ setZoom(photoEdits[i].zoom);
+}else{
+ setCrop({x:0,y:0});
+ setZoom(1.2);
+}
+
+setActivePhoto(false);
+setCropOpen(true);
  }}
  style={{
    position:"absolute",
@@ -822,12 +797,30 @@ decoding="async"
       style={styles.deleteBtn}
       onClick={()=>{
  setPhotos(prev =>
-   prev.filter((_,index)=>index!==i)
- );
+ prev.filter((_,index)=>index!==i)
+);
 
- if(i===mainIndex){
-   setMainIndex(0);
- }
+setPhotoEdits(prev=>{
+ const copy:any = {};
+
+ Object.keys(prev).forEach(key=>{
+   const k = Number(key);
+
+   if(k < i){
+     copy[k] = prev[k];
+   }
+
+   if(k > i){
+     copy[k-1] = prev[k];
+   }
+ });
+
+ return copy;
+});
+
+if(i===mainIndex){
+ setMainIndex(0);
+}
 }}
     >
       ✕
