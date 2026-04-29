@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Cropper from "react-easy-crop";
 import { supabase } from "../../lib/supabase";
 
@@ -32,11 +32,27 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 
-  const base = ["Путешествия", "Музыка", "Спорт", "Кино"];
-  const extra = [
-    "Игры","Бизнес","Еда","Йога","Авто",
-    "Книги","Технологии","Искусство","Танцы","Природа",
-  ];
+const interestsList = useMemo(()=>[
+"Путешествия",
+"Музыка",
+"Спорт",
+"Кино"
+],[]);
+
+  const base = interestsList;
+
+const extra = [
+ "Игры",
+ "Бизнес",
+ "Еда",
+ "Йога",
+ "Авто",
+ "Книги",
+ "Технологии",
+ "Искусство",
+ "Танцы",
+ "Природа",
+];
 
   const isValid = name.trim().length > 0 && city.trim().length > 0;
 
@@ -48,19 +64,23 @@ useEffect(() => {
 
     const cached = localStorage.getItem("profile_cache");
 
-if(cached){
- const profile = JSON.parse(cached);
+if (cached) {
+ try {
+   const profile = JSON.parse(cached);
 
- setName(profile.name || "");
- setAge(profile.age || 22);
- setGender(profile.gender || "female");
- setSearch(profile.looking || "female");
- setCity(profile.city || "");
- setBio(profile.bio || "");
- setSelected(profile.interests || []);
+   setName(profile.name || "");
+   setAge(profile.age || 22);
+   setGender(profile.gender || "female");
+   setSearch(profile.looking || "female");
+   setCity(profile.city || "");
+   setBio(profile.bio || "");
+   setSelected(profile.interests || []);
 
- if(profile.photos?.length){
-   setPhotos(profile.photos);
+   if (profile.photos?.length) {
+     setPhotos(profile.photos);
+   }
+ } catch(e){
+   localStorage.removeItem("profile_cache");
  }
 }
 
@@ -95,32 +115,32 @@ photos
 .maybeSingle();
 
     if (data) {
-      setName(data.name || "");
-      setAge(data.age || 22);
-      setGender(data.gender || "female");
-      setSearch(data.looking || "female");
-      setCity(data.city || "");
-      setBio(data.bio || "");
-      setSelected(data.interests || []);
+  setName(data.name || "");
+  setAge(data.age || 22);
+  setGender(data.gender || "female");
+  setSearch(data.looking || "female");
+  setCity(data.city || "");
+  setBio(data.bio || "");
+  setSelected(data.interests || []);
 
-      if (data.photos?.length) {
-  setPhotos(data.photos);
-} else if (data.avatar_url) {
-  setPhotos([data.avatar_url]);
+  if (data.photos?.length) {
+    setPhotos(data.photos);
+  } else if (data.avatar_url) {
+    setPhotos([data.avatar_url]);
+  }
+
+  localStorage.setItem(
+    "profile_cache",
+    JSON.stringify(data)
+  );
 }
-    }
 
-    setLoading(false);
+setLoading(false);
 
-    localStorage.setItem(
- "profile_cache",
- JSON.stringify(data)
-);
-  };
+};
 
-  init();
+init();
 }, []);
-
     
 
   const uploadPhoto = async (file: File) => {
@@ -128,6 +148,7 @@ photos
 
     setUploading(true);
     setUploadProgress(10);
+    setUploadProgress(35);
 
     const fileName = `${telegramId}_${Date.now()}.jpg`;
 
@@ -141,11 +162,14 @@ photos
         .getPublicUrl(fileName);
 
       setPhotos((prev) => [...prev, data.publicUrl]);
-      setUploadProgress(100);
+      setUploadProgress(80);
+
+setTimeout(()=>{
+ setUploadProgress(100);
+},150);
     }
 
-    setUploading(false);
-    setTimeout(()=>{
+        setTimeout(()=>{
  setUploading(false);
  setUploadProgress(0);
 },500);
@@ -267,7 +291,7 @@ decoding="async"
         </div>
 
         <div style={styles.block}>
-          <p style={styles.label}>Пол</p>
+          <p style={styles.label}>Я</p>
           <div style={styles.buttons}>
             <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>Женщина</button>
             <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>Мужчина</button>
