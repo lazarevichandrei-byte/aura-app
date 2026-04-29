@@ -700,7 +700,11 @@ style={{
    );
 
  setAvatarPreview(croppedUrl);
-
+setPhotos(prev=>{
+ const updated=[...prev];
+ updated[mainIndex]=croppedUrl;
+ return updated;
+});
  setCropOpen(false);
 
 }}
