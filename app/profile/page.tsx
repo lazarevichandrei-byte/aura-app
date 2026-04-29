@@ -48,6 +48,7 @@ const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
 const [saveStatus,setSaveStatus] =
 useState("saved");
+const [isSaving,setIsSaving] = useState(false);
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -179,7 +180,7 @@ if(firstLoad.current){
  return;
 }
 
-   setSaveStatus("saving");
+   setIsSaving(true);
 
    const { error } =
 await supabase
@@ -224,11 +225,8 @@ avatar_url:
    })
 );
 
+setIsSaving(false);
 setSaveStatus("saved");
-
-setTimeout(()=>{
- setSaveStatus("saved");
-},100);
 
 }
 
@@ -609,7 +607,7 @@ textAlign:"center",
 color:"#8A94A6"
 }}
 >
-{saveStatus==="saving"
+{isSaving
  ? "Сохраняется..."
  : "Сохранено ✓"}
 </div>
@@ -727,7 +725,7 @@ localStorage.setItem(
 );
 
 setCropOpen(false);
-setSaveStatus("saving");
+setIsSaving(true);
 }}
 >
 Готово
