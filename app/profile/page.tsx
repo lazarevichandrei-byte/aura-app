@@ -178,6 +178,7 @@ if(firstLoad.current){
  setIsSaving(false);
  return;
 }
+ setIsSaving(true);
 
    
 
@@ -226,22 +227,6 @@ avatar_url:
 
 setIsSaving(false);
 
-}if(!error){
-
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
-      name,
-      age,
-      gender,
-      looking:search,
-      city,
-      bio,
-      interests:selected,
-      photos,
-      photo_edits:photoEdits
-   })
- );
 
  setIsSaving(false);
 
