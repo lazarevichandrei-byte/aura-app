@@ -199,6 +199,7 @@ avatar_url:
 );
 
    if(!error){
+    setSaveStatus("saved");
 
  localStorage.setItem(
    "profile_cache",
@@ -712,6 +713,7 @@ localStorage.setItem(
 );
 
 setCropOpen(false);
+setSaveStatus("saved");
 
 }}
 >
