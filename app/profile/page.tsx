@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -61,11 +59,6 @@ const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-const [avatarTransform,setAvatarTransform] = useState({
- x:0,
- y:0,
- zoom:1.2
-});
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 
 const base = BASE_INTERESTS;
@@ -127,7 +120,6 @@ bio,
 interests,
 avatar_url,
 photos,
-avatar_transform,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
@@ -141,9 +133,6 @@ onboarding_completed
   setCity(data.city || "");
   setBio(data.bio || "");
   setSelected(data.interests || []);
-  if (data.avatar_transform) {
- setAvatarTransform(data.avatar_transform);
-}
 
   if (data.photos?.length) {
     setPhotos(data.photos);
@@ -193,10 +182,8 @@ await supabase
    avatarPreview ||
    photos[mainIndex] ||
    null,
-
-photos,
-avatar_transform: avatarTransform,
-onboarding_completed:false
+ photos,
+ onboarding_completed:false
 },
 {
  onConflict:"telegram_id"
@@ -414,9 +401,7 @@ if (!name.trim() || !city.trim()) {
    photos[mainIndex] ||
    null,
  photos,
-avatar_transform: avatarTransform,
-
-onboarding_completed:false
+ onboarding_completed:true
 })
 .eq("telegram_id", telegramId);
 
@@ -523,17 +508,10 @@ canvas.height=1000
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
-
   src={avatarPreview || photos[mainIndex]}
   loading="lazy"
-  decoding="async"
-  style={{
-    ...styles.avatarImage,
-    transform: `
-      translate(${avatarTransform.x}px, ${avatarTransform.y}px)
-      scale(${avatarTransform.zoom})
-    `
-  }}
+decoding="async"
+  style={styles.avatarImage}
 />
 </div>
           ) : (
@@ -713,13 +691,15 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- setAvatarTransform({
- x:crop.x,
- y:crop.y,
- zoom
-});
+ const croppedUrl =
+   await getCroppedImg(
+      editingPhoto,
+      croppedAreaPixels
+   );
 
-setCropOpen(false);
+ setAvatarPreview(croppedUrl);
+
+ setCropOpen(false);
 
 }}
 >
@@ -874,7 +854,7 @@ avatarMask:{
 avatarImage:{
  width:"100%",
  height:"100%",
- objectFit:"cover",
+ objectFit:"cover"
 },
 
 
