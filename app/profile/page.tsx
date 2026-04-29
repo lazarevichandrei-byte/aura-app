@@ -166,22 +166,26 @@ useEffect(()=>{
    const { error } =
    await supabase
  .from("users")
- .upsert({
-   telegram_id:telegramId,
-   name,
-   age,
-   gender,
-   looking:search,
-   city,
-   bio,
-   interests:selected,
-   avatar_url:
-     avatarPreview ||
-     photos[mainIndex] ||
-     null,
-   photos,
-   onboarding_completed: undefined
- });
+ .upsert(
+   {
+     telegram_id:telegramId,
+     name,
+     age,
+     gender,
+     looking:search,
+     city,
+     bio,
+     interests:selected,
+     avatar_url:
+       avatarPreview ||
+       photos[mainIndex] ||
+       null,
+     photos
+   },
+   {
+     onConflict:"telegram_id"
+   }
+);
 
    if(!error){
      setSaveStatus("saved");
@@ -359,13 +363,17 @@ if (!name.trim() || !city.trim()) {
    null,
  photos
 });
-     setUploading(false);
     if (error) {
-      setSavingProfile(false);
-      alert(error.message);
-    } else {
-      window.location.href = "/home";
-    }
+  setSavingProfile(false);
+  setUploading(false);
+  alert(error.message);
+  return;
+}
+
+setSavingProfile(false);
+setUploading(false);
+
+window.location.href="/home";
   };
 
   
