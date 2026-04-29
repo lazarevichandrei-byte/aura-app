@@ -719,7 +719,7 @@ setCropOpen(false);
 
 setTimeout(()=>{
  setSaveStatus("saved");
-},1000);
+},300);
 }}
 >
 Готово
