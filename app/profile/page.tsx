@@ -61,11 +61,6 @@ const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-const [avatarTransform,setAvatarTransform] = useState({
- x:0,
- y:0,
- zoom:1.2
-});
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 
 const base = BASE_INTERESTS;
@@ -127,16 +122,12 @@ bio,
 interests,
 avatar_url,
 photos,
-avatar_transform,
 onboarding_completed
 `)
 .eq("telegram_id", user.id)
 .maybeSingle();
 
     if (data) {
-      if (data.avatar_transform) {
- setAvatarTransform(data.avatar_transform);
-}
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
   setGender(data.gender || "female");
@@ -412,7 +403,6 @@ if (!name.trim() || !city.trim()) {
    photos[mainIndex] ||
    null,
  photos,
- avatar_transform: avatarTransform,
  onboarding_completed:true
 })
 .eq("telegram_id", telegramId);
@@ -520,14 +510,10 @@ canvas.height=1000
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
- src={photos[mainIndex]}
- style={{
-   ...styles.avatarImage,
-   transform: `
-     translate(${avatarTransform.x}px, ${avatarTransform.y}px)
-     scale(${avatarTransform.zoom})
-   `
- }}
+  src={avatarPreview || photos[mainIndex]}
+  loading="lazy"
+decoding="async"
+  style={styles.avatarImage}
 />
 </div>
           ) : (
@@ -705,17 +691,44 @@ style={{
 
 <button
  style={styles.submit}
- onClick={() => {
+ onClick={async()=>{
 
-  setAvatarTransform({
-    x: crop.x,
-    y: crop.y,
-    zoom
-  });
+ const croppedUrl =
+   await getCroppedImg(
+      editingPhoto,
+      croppedAreaPixels
+   );
 
-  setCropOpen(false);
+ // оставляем превью как сейчас
+ setAvatarPreview(croppedUrl);
 
- }}
+ // ВАЖНО:
+ // сохраняем кроп как главную фотографию,
+ // тогда автосохранение подхватит изменения
+ setPhotos(prev=>{
+   const updated=[...prev];
+   updated[mainIndex]=croppedUrl;
+
+   localStorage.setItem(
+    "profile_cache",
+    JSON.stringify({
+      name,
+      age,
+      gender,
+      looking:search,
+      city,
+      bio,
+      interests:selected,
+      photos:updated
+    })
+   );
+
+   return updated;
+ });
+
+ setCropOpen(false);
+
+}}
 >
 Готово
 </button>
