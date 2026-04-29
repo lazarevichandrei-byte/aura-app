@@ -35,16 +35,22 @@ export default function Page() {
         }
 
         const { data } = await supabase
-          .from("users")
-          .select("*")
-          .eq("telegram_id", user.id)
-          .maybeSingle();
+  .from("users")
+  .select("onboarding_completed")
+  .eq("telegram_id", user.id)
+  .maybeSingle();
 
-        if (data) {
-          // ✅ ИЗМЕНЕНО: стабильный переход для Telegram
-          window.location.href = "/home";
-          return;
-        }
+if (data?.onboarding_completed) {
+  window.location.href="/home";
+  return;
+}
+
+if (data && data.onboarding_completed !== true) {
+  window.location.href="/profile";
+  return;
+}
+
+setLoading(false);
 
         setLoading(false);
       } catch (e) {

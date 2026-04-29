@@ -104,12 +104,11 @@ if (cached) {
     }
 
     const user = tg?.initDataUnsafe?.user;
-    if (!user) return setLoading(false);
+if (!user) return setLoading(false);
 
-    setTelegramId(user.id);
-    setName(user.first_name || "");
+setTelegramId(user.id);
 
-    const { data } = await supabase
+const { data } = await supabase
       .from("users")
       .select(`
 telegram_id,
@@ -121,7 +120,8 @@ city,
 bio,
 interests,
 avatar_url,
-photos
+photos,
+onboarding_completed
 `)
 .eq("telegram_id", user.id)
 .maybeSingle();
@@ -180,7 +180,7 @@ useEffect(()=>{
      photos[mainIndex] ||
      null,
    photos,
-   onboarding_completed:false
+   onboarding_completed: undefined
  });
 
    if(!error){
@@ -276,7 +276,10 @@ if(now - lastUploadTime < 3000){
  return;
 }
 
+
 setLastUploadTime(now);
+
+setUploading(true);
 
  
  setUploadProgress(10);
@@ -338,26 +341,27 @@ if (!name.trim() || !city.trim()) {
  return;
 }
 
-    const { error } = await supabase
+    const { error } = 
+    await supabase
 .from("users")
 .upsert({
-  telegram_id:telegramId,
-  name,
-  age,
-  gender,
-  looking:search,
-  city,
-  bio,
-  interests:selected,
-  avatar_url:
-    avatarPreview ||
-    photos[mainIndex] ||
-    null,
-  photos,
-  onboarding_completed:true
+ telegram_id:telegramId,
+ name,
+ age,
+ gender,
+ looking:search,
+ city,
+ bio,
+ interests:selected,
+ avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
+ photos
 });
      setUploading(false);
     if (error) {
+      setSavingProfile(false);
       alert(error.message);
     } else {
       window.location.href = "/home";
