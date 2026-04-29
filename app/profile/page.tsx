@@ -678,7 +678,7 @@ zoom={zoom}
  cropShape="round"
 
  objectFit="horizontal-cover"
-cropSize={{ width:260, height:260 }}
+cropSize={{ width:220, height:220 }}
  restrictPosition={true}
  showGrid={false}
 
@@ -874,7 +874,8 @@ avatarMask:{
 avatarImage:{
  width:"100%",
  height:"100%",
- objectFit:"cover"
+ objectFit:"cover",
+ transformOrigin:"center center"
 },
 
 
