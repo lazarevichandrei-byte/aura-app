@@ -671,16 +671,14 @@ style={{
 
 <Cropper
  image={editingPhoto}
-crop={avatarTransform}
-zoom={avatarTransform.zoom}
+crop={crop}
+zoom={zoom}
 
  aspect={1}
  cropShape="round"
 
- cropSize={{ width:240, height:240 }}
-
- objectFit="cover"
-
+ objectFit="horizontal-cover"
+cropSize={{ width:260, height:260 }}
  restrictPosition={true}
  showGrid={false}
 
@@ -688,23 +686,8 @@ zoom={avatarTransform.zoom}
  minZoom={1}
  maxZoom={3}
  zoomSpeed={1}
-
- onCropChange={(value)=>{
- setCrop(value);
- setAvatarTransform(prev=>({
-   ...prev,
-   x:value.x,
-   y:value.y
- }));
-}}
-
-onZoomChange={(value)=>{
- setZoom(value);
- setAvatarTransform(prev=>({
-   ...prev,
-   zoom:value
- }));
-}}
+onCropChange={setCrop}
+onZoomChange={setZoom}
 
  onCropComplete={(a,b)=>{
    setCroppedAreaPixels(b);
@@ -808,12 +791,6 @@ decoding="async"
     />
 
     {i===mainIndex && (
-      <div style={styles.mainBadge}>
-        ★ Главная
-      </div>
-    )}
-
-    {i===mainIndex && (
 <button
  onClick={(e)=>{
    e.stopPropagation();
@@ -822,13 +799,17 @@ decoding="async"
    setCropOpen(true);
  }}
  style={{
- ...styles.avatarImage,
- transform:`scale(${avatarTransform.zoom})`,
- objectPosition: `
- ${50 - avatarTransform.x/4}% 
- ${50 - avatarTransform.y/4}%
- `
-}}
+   position:"absolute",
+   right:"-10px",
+   bottom:"-10px",
+   width:"34px",
+   height:"34px",
+   borderRadius:"50%",
+   border:"2px solid #fff",
+   background:"#fff",
+   boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+   zIndex:9999
+ }}
 >
  ✎
 </button>
