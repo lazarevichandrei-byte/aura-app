@@ -170,7 +170,9 @@ useEffect(()=>{
    const { error } =
 await supabase
 .from("users")
-.update({
+.upsert(
+{
+ telegram_id:telegramId,
  name,
  age,
  gender,
@@ -184,12 +186,30 @@ await supabase
    null,
  photos,
  onboarding_completed:false
-})
-.eq("telegram_id", telegramId);
+},
+{
+ onConflict:"telegram_id"
+}
+);
 
    if(!error){
-     setSaveStatus("saved");
-   }
+
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+      name,
+      age,
+      gender,
+      looking:search,
+      city,
+      bio,
+      interests:selected,
+      photos
+   })
+ );
+
+ setSaveStatus("saved");
+}
 
  },900);
 
@@ -306,25 +326,47 @@ setUploading(true);
    );
 
     if (!error) {
-      const { data } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(
- fileName + "?v=" + Date.now()
-);
 
-      setPhotos((prev) => [...prev, data.publicUrl]);
-      setUploadProgress(80);
+ const { data } = supabase.storage
+   .from("avatars")
+   .getPublicUrl(
+      fileName + "?v=" + Date.now()
+   );
+
+setPhotos(prev=>{
+
+ const updated=[...prev,data.publicUrl];
+
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+     name,
+     age,
+     gender,
+     looking:search,
+     city,
+     bio,
+     interests:selected,
+     photos:updated
+   })
+ );
+
+ return updated;
+});
+
+setUploadProgress(80);
 
 setTimeout(()=>{
  setUploadProgress(100);
 },150);
-    }
 
-        setTimeout(()=>{
+} // закрывает if (!error)
+
+setTimeout(()=>{
  setUploading(false);
  setUploadProgress(0);
 },500);
-  };
+};
 
   const toggle = (item: string) => {
     setSelected((prev) =>
