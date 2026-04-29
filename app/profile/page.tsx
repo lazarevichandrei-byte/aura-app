@@ -131,6 +131,12 @@ onboarding_completed
 .maybeSingle();
 
     if (data) {
+
+  if (data?.onboarding_completed) {
+    window.location.href="/home";
+    return;
+  }
+
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
   setGender(data.gender || "female");
@@ -145,6 +151,7 @@ onboarding_completed
   } else if (data.avatar_url) {
     setPhotos([data.avatar_url]);
   }
+
 
   localStorage.setItem(
     "profile_cache",
@@ -349,8 +356,8 @@ setPhotos(prev=>{
  city,
  bio,
  interests:selected,
- photos,
- photo_edits: photoEdits
+ photos: updated,
+photo_edits: photoEdits
 })
  );
 
