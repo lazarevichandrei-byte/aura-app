@@ -47,7 +47,7 @@ export default function Profile() {
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
 const [saveStatus,setSaveStatus] =
-useState("saved");
+useState("Сохранено ✓");
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -174,7 +174,7 @@ useEffect(()=>{
 }
 
    if(!photoEdits[mainIndex]){
- setSaveStatus("saving");
+ setSaveStatus("Сохраняется...");
 }
 
    const { error } =
@@ -204,7 +204,7 @@ avatar_url:
 );
 
    if(!error){
-    setSaveStatus("saved");
+    setSaveStatus("Сохранено ✓");
 
  localStorage.setItem(
    "profile_cache",
@@ -600,9 +600,7 @@ textAlign:"center",
 color:"#8A94A6"
 }}
 >
-{saveStatus==="saving"
- ? "Сохраняется..."
- : "Сохранено ✓"}
+{saveStatus}
 </div>
 
       </div>
