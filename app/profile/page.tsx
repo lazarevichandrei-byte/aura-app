@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 const Cropper:any = dynamic(
@@ -46,8 +46,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
 const [uploadProgress,setUploadProgress] = useState(0);
 const [lastUploadTime,setLastUploadTime] = useState(0);
-
-const [isSaving,setIsSaving] = useState(false);
+const [saveStatus,setSaveStatus] =
+useState("saved");
 const [savingProfile,setSavingProfile] =
 useState(false);
 
@@ -63,7 +63,6 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
-const firstLoad = useRef(true);
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -167,20 +166,11 @@ useEffect(()=>{
 
  if(!telegramId) return;
 
-if(firstLoad.current){
- firstLoad.current = false;
- return;
-}
-
  const timer = setTimeout(async()=>{
 
-   if(!name.trim() || !city.trim()){
- setIsSaving(false);
- return;
-}
- setIsSaving(true);
+   if(!name.trim() || !city.trim()) return;
 
-   
+   setSaveStatus("saving");
 
    const { error } =
 await supabase
@@ -209,7 +199,7 @@ avatar_url:
 );
 
    if(!error){
-    
+
  localStorage.setItem(
    "profile_cache",
    JSON.stringify({
@@ -220,18 +210,11 @@ avatar_url:
       city,
       bio,
       interests:selected,
-      photos,
-      photo_edits:photoEdits
+      photos
    })
-);
+ );
 
-setIsSaving(false);
-
-
- setIsSaving(false);
-
-}else{
- setIsSaving(false);
+ setSaveStatus("saved");
 }
 
  },900);
@@ -611,7 +594,9 @@ textAlign:"center",
 color:"#8A94A6"
 }}
 >
-{isSaving && "Сохраняется..."}
+{saveStatus==="saving"
+ ? "Сохраняется..."
+ : "Сохранено ✓"}
 </div>
 
       </div>
@@ -727,6 +712,7 @@ localStorage.setItem(
 );
 
 setCropOpen(false);
+
 }}
 >
 Готово
