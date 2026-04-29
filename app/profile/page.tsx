@@ -228,7 +228,7 @@ setSaveStatus("saved");
 
 setTimeout(()=>{
  setSaveStatus("saved");
-},300);
+},100);
 
 }
 
