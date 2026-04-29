@@ -89,6 +89,7 @@ if (cached) {
    setBio(profile.bio || "");
    setSelected(profile.interests || []);
    setPhotoEdits(profile.photo_edits || {});
+   setMainIndex(profile.main_photo_index || 0);
 
    if (profile.photos?.length) {
      setPhotos(profile.photos);
@@ -138,10 +139,6 @@ onboarding_completed
  // если анкета уже завершена —
  // просто показываем профиль как страницу редактирования
 
-  setName(data.name || user.first_name || "");
-  setAge(data.age || 22);
-  setGender(data.gender || "female");
-
 
   setName(data.name || user.first_name || "");
   setAge(data.age || 22);
@@ -179,7 +176,11 @@ useEffect(()=>{
 
  const timer = setTimeout(async()=>{
 
-   if(!name.trim() || !city.trim()) return;
+   if(
+ !name.trim() ||
+ !city.trim() ||
+ saveStatus==="saving"
+) return;
 
    setSaveStatus("saving");
 
@@ -213,23 +214,25 @@ avatar_url:
    if(!error){
 
  localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
-      name,
-      age,
-      gender,
-      looking:search,
-      city,
-      bio,
-      interests:selected,
-      photos
-   })
- );
+ "profile_cache",
+ JSON.stringify({
+   name,
+   age,
+   gender,
+   looking:search,
+   city,
+   bio,
+   interests:selected,
+   photos,
+   photo_edits:photoEdits,
+   main_photo_index:mainIndex
+ })
+);
 
  setSaveStatus("saved");
 }
 
- },900);
+ },5000);
 
  return ()=>clearTimeout(timer);
 
@@ -266,7 +269,7 @@ const compressImage = (file: File): Promise<File> =>
       const ctx =
        canvas.getContext("2d");
 
-      const maxWidth = 1200;
+      const maxWidth = 800;
 
       const scale =
  img.width > maxWidth
@@ -302,7 +305,7 @@ canvas.height = img.height * scale;
          );
        },
        "image/jpeg",
-       0.82
+       0.72
       );
 
    };
@@ -354,7 +357,10 @@ setUploading(true);
 
 setPhotos(prev=>{
 
- const updated=[...prev,data.publicUrl];
+ const updated=[
+ ...prev,
+data.publicUrl
+];
 
  localStorage.setItem(
    "profile_cache",
@@ -367,7 +373,8 @@ setPhotos(prev=>{
  bio,
  interests:selected,
  photos,
- photo_edits:photoEdits
+ photo_edits:photoEdits,
+ main_photo_index:mainIndex
 })
  );
 
@@ -538,7 +545,12 @@ style={{
  min="18"
  max="60"
  value={age}
- onChange={(e)=>setAge(Number(e.target.value))}
+ onMouseUp={(e:any)=>
+  setAge(Number(e.target.value))
+}
+ onTouchEnd={(e:any)=>
+  setAge(Number(e.target.value))
+}
  style={styles.slider}
 />
           </div>
@@ -720,8 +732,9 @@ localStorage.setItem(
        crop,
        zoom
      }
-   }
- })
+   },
+   main_photo_index:mainIndex
+})
 );
 
 setCropOpen(false);
@@ -782,7 +795,7 @@ setCropOpen(false);
 decoding="async"
       onClick={()=>{
  setMainIndex(i);
- console.log("Главная фото:", i);
+ 
 }}
       style={{
         ...styles.galleryImg,
@@ -840,8 +853,11 @@ setCropOpen(true);
  );
 
  if(i===mainIndex){
-   setMainIndex(0);
- }
+ setMainIndex(0);
+}
+else if(i < mainIndex){
+ setMainIndex(prev=>prev-1);
+}
 }}
     >
       ✕
@@ -996,7 +1012,7 @@ gallery:{
 
   galleryImg:{
  width:"100%",
- height:"160px",
+ height:"140px",
  aspectRatio:"3/4",
  objectFit:"cover",
  borderRadius:"18px",
