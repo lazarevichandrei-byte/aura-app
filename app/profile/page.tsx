@@ -82,7 +82,7 @@ if (cached) {
    const profile = JSON.parse(cached);
 
    setName(profile.name || "");
-   setAge(profile.age || 22);
+   setAge(Math.max(15, profile.age || 22));
    setGender(profile.gender || "female");
    setSearch(profile.looking || "female");
    setCity(profile.city || "");
@@ -141,7 +141,7 @@ onboarding_completed
 
 
   setName(data.name || user.first_name || "");
-  setAge(data.age || 22);
+  setAge(Math.max(15, data.age || 22));
   setGender(data.gender || "female");
   setSearch(data.looking || "female");
   setCity(data.city || "");
@@ -175,6 +175,24 @@ useEffect(()=>{
  if(!telegramId) return;
 
  const timer = setTimeout(async()=>{
+  const newData = {
+  name,
+  age,
+  gender,
+  looking:search,
+  city,
+  bio,
+  interests:selected,
+  photos,
+  photo_edits:photoEdits,
+  main_photo_index:mainIndex
+};
+
+const cached = localStorage.getItem("profile_cache");
+
+if (cached && JSON.stringify(JSON.parse(cached)) === JSON.stringify(newData)) {
+  return;
+}
 
    if(
  !name.trim() ||
@@ -232,8 +250,7 @@ avatar_url:
  setSaveStatus("saved");
 }
 
- },5000);
-
+},10000);
  return ()=>clearTimeout(timer);
 
 },[
@@ -355,31 +372,22 @@ setUploading(true);
       fileName + "?v=" + Date.now()
    );
 
-setPhotos(prev=>{
+const updated = [...photos, data.publicUrl];
 
- const updated=[
- ...prev,
-data.publicUrl
-];
+setPhotos(updated);
 
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
- name,
- age,
- gender,
- looking:search,
- city,
- bio,
- interests:selected,
- photos,
- photo_edits:photoEdits,
- main_photo_index:mainIndex
-})
- );
-
- return updated;
-});
+localStorage.setItem("profile_cache", JSON.stringify({
+  name,
+  age,
+  gender,
+  looking:search,
+  city,
+  bio,
+  interests:selected,
+  photos: updated,
+  photo_edits:photoEdits,
+  main_photo_index:mainIndex
+}));
 
 setUploadProgress(80);
 
@@ -504,7 +512,16 @@ window.location.href="/home";
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
+        <div
+  style={styles.avatarWrapper}
+  onClick={() => {
+    if (photos.length === 0) {
+      document.getElementById("avatarInput")?.click();
+    } else {
+      setActivePhoto(true);
+    }
+  }}
+>
           {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
@@ -525,11 +542,36 @@ style={{
  transformOrigin:"center center"
 }}/>
 </div>
+
+
           ) : (
             <div style={styles.avatar}>👤</div>
           )}
           <div style={styles.plus}>+</div>
         </div>
+
+
+{/* 👇 ВСТАВЬ СЮДА */}
+<input
+  id="avatarInput"
+  type="file"
+  accept="image/*"
+  hidden
+  onChange={async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Фото до 10MB");
+      return;
+    }
+
+    await uploadPhoto(file);
+    e.target.value = "";
+  }}
+/>
+
+
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
@@ -540,18 +582,18 @@ style={{
           <div style={styles.inputBox}>
             <p style={styles.label}>Возраст</p>
             <div>{age}</div>
+
+
+
+
+            
 <input
- type="range"
- min="18"
- max="60"
- value={age}
- onMouseUp={(e:any)=>
-  setAge(Number(e.target.value))
-}
- onTouchEnd={(e:any)=>
-  setAge(Number(e.target.value))
-}
- style={styles.slider}
+  type="range"
+  min="15"
+  max="60"
+  value={age}
+  onChange={(e:any) => setAge(Number(e.target.value))}
+  style={styles.slider}
 />
           </div>
         </div>
@@ -693,15 +735,7 @@ style={{
 
 </div>
 
-<input
- type="range"
- min="1"
- max="3"
- step="0.1"
- value={zoom}
- onChange={(e)=>setZoom(Number(e.target.value))}
- style={styles.slider}
-/>
+
 
 <button
  style={styles.submit}
@@ -734,7 +768,7 @@ localStorage.setItem(
      }
    },
    main_photo_index:mainIndex
-})
+ })
 );
 
 setCropOpen(false);
@@ -755,36 +789,7 @@ setCropOpen(false);
             onClick={(e)=>e.stopPropagation()}
           >
 
-            <label style={styles.addPhoto}>
-              +
-              <input
- type="file"
- multiple
- accept="image/*"
- hidden
- onChange={async (e)=>{
-   const files = e.target.files;
-   for (let f of Array.from(files || [])) {
- if (f.size > 10 * 1024 * 1024){
-   alert("Фото до 10MB");
-   return;
- }
-}
-   if (!files) return;
-
-   if (photos.length + files.length > 6){
-      alert("Максимум 6 фото");
-      return;
-   }
-
-   for(let i=0;i<files.length;i++){
-      await uploadPhoto(files[i]);
-   }
-
-   e.target.value="";
- }}
-/>
-            </label>
+            
 
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
