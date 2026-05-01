@@ -523,24 +523,40 @@ window.location.href="/home";
   }}
 >
           {photos.length > 0 ? (
-            <div style={styles.avatarMask}>
-<img
-  src={avatarPreview || photos[mainIndex]}
-  loading="lazy"
-decoding="async"
-style={{
- ...styles.avatarImage,
+            <div style={styles.avatarWrapper}>
+  
+  {photos.length > 0 ? (
+    <div 
+      style={styles.avatarMask}
+      onClick={() => setActivePhoto(true)}   // ✅ только на аватарке
+    >
+      <img
+        src={avatarPreview || photos[mainIndex]}
+        loading="lazy"
+        decoding="async"
+        style={{
+          ...styles.avatarImage,
+          transform: photoEdits[mainIndex]
+            ? `translate(
+                ${photoEdits[mainIndex].crop.x/6}px,
+                ${photoEdits[mainIndex].crop.y/6}px
+              )
+              scale(${photoEdits[mainIndex].zoom})`
+            : "none",
+          transformOrigin:"center center"
+        }}
+      />
+    </div>
+  ) : (
+    <div 
+      style={styles.avatar}
+      onClick={() => setActivePhoto(true)}   // ✅ и тут тоже
+    >
+      👤
+    </div>
+  )}
 
- transform: photoEdits[mainIndex]
-   ? `translate(
-        ${photoEdits[mainIndex].crop.x/6}px,
-        ${photoEdits[mainIndex].crop.y/6}px
-      )
-      scale(${photoEdits[mainIndex].zoom})`
-   : "none",
-
- transformOrigin:"center center"
-}}/>
+  <div style={styles.plus}>+</div>
 </div>
 
 
