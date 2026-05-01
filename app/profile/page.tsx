@@ -493,7 +493,7 @@ if (!checked || loading) {
           height:56,
           borderRadius:16,
           background:"#EEF3F8",
-          marginBottom:14
+
         }}/>
 
         <div style={{
@@ -694,17 +694,19 @@ color:"#8A94A6"
 >
 
 <div
- onClick={(e)=>e.stopPropagation()}
- style={{
-   width:"92%",
-   maxWidth:"380px",
-   background:"#fff",
-   borderRadius:"28px",
-   padding:"20px",
-   position:"relative",
-   overflow:"hidden" // важно
- }}
+  onClick={(e)=>e.stopPropagation()}
+  style={{
+    width:"100%",
+    maxWidth:"320px",
+    margin:"0 12px", // 👈 ВОТ ЭТО
+    background:"#fff",
+    borderRadius:"28px",
+    padding:"20px",
+    position:"relative",
+    overflow:"hidden"
+  }}
 >
+
 
 <div
 style={{
@@ -894,6 +896,10 @@ else if(i < mainIndex){
 
 
 
+
+
+
+
 const styles:any = {
   wrapper:{
  minHeight:"100vh",
@@ -902,7 +908,11 @@ const styles:any = {
  overflowY:"auto",
  WebkitOverflowScrolling:"touch"
 },
-  card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
+  card:{background:"#fff",
+    borderRadius:"24px",
+    padding:"20px",
+    maxWidth:"340px",
+    margin:"0 auto"},
 
 avatarWrapper:{
  display:"flex",
