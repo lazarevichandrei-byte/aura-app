@@ -226,7 +226,7 @@ avatar_url:
    photos[mainIndex] ||
    null,
  photos,
- onboarding_completed:false
+ 
 },
 {
  onConflict:"telegram_id"
