@@ -512,23 +512,12 @@ window.location.href="/home";
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div
-  style={styles.avatarWrapper}
-  onClick={() => {
-    if (photos.length === 0) {
-      document.getElementById("avatarInput")?.click();
-    } else {
-      setActivePhoto(true);
-    }
-  }}
->
-          {photos.length > 0 ? (
-            <div style={styles.avatarWrapper}>
-  
+        <div style={styles.avatarWrapper}>
+
   {photos.length > 0 ? (
-    <div 
+    <div
       style={styles.avatarMask}
-      onClick={() => setActivePhoto(true)}   // ✅ только на аватарке
+      onClick={() => setActivePhoto(true)}   // ✅ клик только по кругу
     >
       <img
         src={avatarPreview || photos[mainIndex]}
@@ -548,44 +537,42 @@ window.location.href="/home";
       />
     </div>
   ) : (
-    <div 
+    <div
       style={styles.avatar}
-      onClick={() => setActivePhoto(true)}   // ✅ и тут тоже
+      onClick={() => document.getElementById("avatarInput")?.click()} // ✅ только тут
     >
       👤
     </div>
   )}
 
-  <div style={styles.plus}>+</div>
+  {/* ➕ КНОПКА */}
+  <div
+    style={styles.plus}
+    onClick={() => document.getElementById("avatarInput")?.click()}
+  >
+    +
+  </div>
+
+  {/* INPUT */}
+  <input
+    id="avatarInput"
+    type="file"
+    accept="image/*"
+    hidden
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Фото до 10MB");
+        return;
+      }
+
+      await uploadPhoto(file);
+      e.target.value = "";
+    }}
+  />
 </div>
-
-
-          ) : (
-            <div style={styles.avatar}>👤</div>
-          )}
-          <div style={styles.plus}>+</div>
-        </div>
-
-
-{/* 👇 ВСТАВЬ СЮДА */}
-<input
-  id="avatarInput"
-  type="file"
-  accept="image/*"
-  hidden
-  onChange={async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Фото до 10MB");
-      return;
-    }
-
-    await uploadPhoto(file);
-    e.target.value = "";
-  }}
-/>
 
 
 
