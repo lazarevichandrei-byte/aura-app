@@ -180,8 +180,7 @@ init();
 }, []);
 useEffect(()=>{
 
- if(!telegramId) return;
-
+if(!telegramId || redirecting) return;
  const timer = setTimeout(async()=>{
   const newData = {
   name,
@@ -419,6 +418,9 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
+      if (redirecting) return;
+setRedirecting(true);
+
     if (!telegramId || savingProfile || loading) return;
 
 setSavingProfile(true);
@@ -462,8 +464,7 @@ if (error) {
 setSavingProfile(false);
 setUploading(false);
 
-window.location.href="/home";
-  };
+window.location.replace("/home");  };
 
   
 
