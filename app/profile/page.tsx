@@ -31,6 +31,8 @@ const EXTRA_INTERESTS = [
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
+  const [checked, setChecked] = useState(false);
+    const [redirecting, setRedirecting] = useState(false);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
   const [age, setAge] = useState(22);
@@ -135,7 +137,8 @@ onboarding_completed
 
   
   if (data) {
-if (data.onboarding_completed) {
+  if (data.onboarding_completed) {
+  setRedirecting(true); // 👈 добавь
   window.location.replace("/home");
   return;
 }
@@ -168,6 +171,7 @@ else{
  setName(user.first_name || "");
 }
 
+setChecked(true);
 setLoading(false);
 
 };
@@ -463,50 +467,51 @@ window.location.href="/home";
 
   
 
+if (redirecting) return null;
 
-  if (loading) {
- return (
-  <div style={styles.wrapper}>
-   <div style={styles.card}>
+if (!checked || loading) {
+  return (
+    <div style={styles.wrapper}>
+      <div style={styles.card}>
 
-    <div style={{
-      width:92,
-      height:92,
-      borderRadius:"50%",
-      margin:"0 auto 22px",
-      background:"#E9EEF5"
-    }}/>
+        <div style={{
+          width:92,
+          height:92,
+          borderRadius:"50%",
+          margin:"0 auto 22px",
+          background:"#E9EEF5"
+        }}/>
 
-    <div style={{
-      height:56,
-      borderRadius:16,
-      background:"#EEF3F8",
-      marginBottom:14
-    }}/>
+        <div style={{
+          height:56,
+          borderRadius:16,
+          background:"#EEF3F8",
+          marginBottom:14
+        }}/>
 
-    <div style={{
-      height:56,
-      borderRadius:16,
-      background:"#EEF3F8",
-      marginBottom:14
-    }}/>
+        <div style={{
+          height:56,
+          borderRadius:16,
+          background:"#EEF3F8",
+          marginBottom:14
+        }}/>
 
-    <div style={{
-      height:130,
-      borderRadius:20,
-      background:"#EEF3F8",
-      marginBottom:20
-    }}/>
+        <div style={{
+          height:130,
+          borderRadius:20,
+          background:"#EEF3F8",
+          marginBottom:20
+        }}/>
 
-    <div style={{
-      height:56,
-      borderRadius:18,
-      background:"#DDEBFF"
-    }}/>
+        <div style={{
+          height:56,
+          borderRadius:18,
+          background:"#DDEBFF"
+        }}/>
 
-   </div>
-  </div>
- );
+      </div>
+    </div>
+  );
 }
 
 
