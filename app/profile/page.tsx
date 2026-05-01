@@ -418,8 +418,7 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
-      if (redirecting) return;
-setRedirecting(true);
+      
 
     if (!telegramId || savingProfile || loading) return;
 
@@ -455,18 +454,19 @@ avatar_url:
 .eq("telegram_id", telegramId);
 
 if (error) {
- setSavingProfile(false);
- setUploading(false);
- alert(error.message);
- return;
+  setSavingProfile(false);
+  setUploading(false);
+  alert(error.message);
+  return;
 }
 
 setSavingProfile(false);
 setUploading(false);
 
-window.location.replace("/home");  };
+setRedirecting(true);
+window.location.replace("/home");
 
-  
+  };
 
 if (redirecting) return null;
 
