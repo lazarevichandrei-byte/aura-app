@@ -31,8 +31,6 @@ const EXTRA_INTERESTS = [
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
-  const [checked, setChecked] = useState(false);
-    const [redirecting, setRedirecting] = useState(false);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
   const [age, setAge] = useState(22);
@@ -84,14 +82,13 @@ if (cached) {
    const profile = JSON.parse(cached);
 
    setName(profile.name || "");
-   setAge(Math.max(15, profile.age || 22));
+   setAge(profile.age || 22);
    setGender(profile.gender || "female");
    setSearch(profile.looking || "female");
    setCity(profile.city || "");
    setBio(profile.bio || "");
    setSelected(profile.interests || []);
    setPhotoEdits(profile.photo_edits || {});
-   setMainIndex(profile.main_photo_index || 0);
 
    if (profile.photos?.length) {
      setPhotos(profile.photos);
@@ -137,18 +134,13 @@ onboarding_completed
 
   
   if (data) {
-  if (data.onboarding_completed) {
-  setRedirecting(true); // 👈 добавь
-  window.location.replace("/home");
-  return;
-}
 
  // если анкета уже завершена —
  // просто показываем профиль как страницу редактирования
 
 
   setName(data.name || user.first_name || "");
-  setAge(Math.max(15, data.age || 22));
+  setAge(data.age || 22);
   setGender(data.gender || "female");
   setSearch(data.looking || "female");
   setCity(data.city || "");
@@ -171,7 +163,6 @@ else{
  setName(user.first_name || "");
 }
 
-setChecked(true);
 setLoading(false);
 
 };
@@ -180,32 +171,11 @@ init();
 }, []);
 useEffect(()=>{
 
-if(!telegramId || redirecting) return;
+ if(!telegramId) return;
+
  const timer = setTimeout(async()=>{
-  const newData = {
-  name,
-  age,
-  gender,
-  looking:search,
-  city,
-  bio,
-  interests:selected,
-  photos,
-  photo_edits:photoEdits,
-  main_photo_index:mainIndex
-};
 
-const cached = localStorage.getItem("profile_cache");
-
-if (cached && JSON.stringify(JSON.parse(cached)) === JSON.stringify(newData)) {
-  return;
-}
-
-   if(
- !name.trim() ||
- !city.trim() ||
- saveStatus==="saving"
-) return;
+   if(!name.trim() || !city.trim()) return;
 
    setSaveStatus("saving");
 
@@ -229,7 +199,7 @@ avatar_url:
    photos[mainIndex] ||
    null,
  photos,
- 
+ onboarding_completed:false
 },
 {
  onConflict:"telegram_id"
@@ -239,25 +209,24 @@ avatar_url:
    if(!error){
 
  localStorage.setItem(
- "profile_cache",
- JSON.stringify({
-   name,
-   age,
-   gender,
-   looking:search,
-   city,
-   bio,
-   interests:selected,
-   photos,
-   photo_edits:photoEdits,
-   main_photo_index:mainIndex
- })
-);
+   "profile_cache",
+   JSON.stringify({
+      name,
+      age,
+      gender,
+      looking:search,
+      city,
+      bio,
+      interests:selected,
+      photos
+   })
+ );
 
  setSaveStatus("saved");
 }
 
-},10000);
+ },900);
+
  return ()=>clearTimeout(timer);
 
 },[
@@ -293,7 +262,7 @@ const compressImage = (file: File): Promise<File> =>
       const ctx =
        canvas.getContext("2d");
 
-      const maxWidth = 800;
+      const maxWidth = 1200;
 
       const scale =
  img.width > maxWidth
@@ -329,7 +298,7 @@ canvas.height = img.height * scale;
          );
        },
        "image/jpeg",
-       0.72
+       0.82
       );
 
    };
@@ -379,22 +348,27 @@ setUploading(true);
       fileName + "?v=" + Date.now()
    );
 
-const updated = [...photos, data.publicUrl];
+setPhotos(prev=>{
 
-setPhotos(updated);
+ const updated=[...prev,data.publicUrl];
 
-localStorage.setItem("profile_cache", JSON.stringify({
-  name,
-  age,
-  gender,
-  looking:search,
-  city,
-  bio,
-  interests:selected,
-  photos: updated,
-  photo_edits:photoEdits,
-  main_photo_index:mainIndex
-}));
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+ name,
+ age,
+ gender,
+ looking:search,
+ city,
+ bio,
+ interests:selected,
+ photos,
+ photo_edits:photoEdits
+})
+ );
+
+ return updated;
+});
 
 setUploadProgress(80);
 
@@ -418,8 +392,6 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
-      
-
     if (!telegramId || savingProfile || loading) return;
 
 setSavingProfile(true);
@@ -454,65 +426,64 @@ avatar_url:
 .eq("telegram_id", telegramId);
 
 if (error) {
-  setSavingProfile(false);
-  setUploading(false);
-  alert(error.message);
-  return;
+ setSavingProfile(false);
+ setUploading(false);
+ alert(error.message);
+ return;
 }
 
 setSavingProfile(false);
 setUploading(false);
 
-setRedirecting(true);
-window.location.replace("/home");
-
+window.location.href="/home";
   };
 
-if (redirecting) return null;
+  
 
-if (!checked || loading) {
-  return (
-    <div style={styles.wrapper}>
-      <div style={styles.card}>
 
-        <div style={{
-          width:92,
-          height:92,
-          borderRadius:"50%",
-          margin:"0 auto 22px",
-          background:"#E9EEF5"
-        }}/>
+  if (loading) {
+ return (
+  <div style={styles.wrapper}>
+   <div style={styles.card}>
 
-        <div style={{
-          height:56,
-          borderRadius:16,
-          background:"#EEF3F8",
-          marginBottom:14
-        }}/>
+    <div style={{
+      width:92,
+      height:92,
+      borderRadius:"50%",
+      margin:"0 auto 22px",
+      background:"#E9EEF5"
+    }}/>
 
-        <div style={{
-          height:56,
-          borderRadius:16,
-          background:"#EEF3F8",
+    <div style={{
+      height:56,
+      borderRadius:16,
+      background:"#EEF3F8",
+      marginBottom:14
+    }}/>
 
-        }}/>
+    <div style={{
+      height:56,
+      borderRadius:16,
+      background:"#EEF3F8",
+      marginBottom:14
+    }}/>
 
-        <div style={{
-          height:130,
-          borderRadius:20,
-          background:"#EEF3F8",
-          marginBottom:20
-        }}/>
+    <div style={{
+      height:130,
+      borderRadius:20,
+      background:"#EEF3F8",
+      marginBottom:20
+    }}/>
 
-        <div style={{
-          height:56,
-          borderRadius:18,
-          background:"#DDEBFF"
-        }}/>
+    <div style={{
+      height:56,
+      borderRadius:18,
+      background:"#DDEBFF"
+    }}/>
 
-      </div>
-    </div>
-  );
+   </div>
+  </div>
+ );
 }
 
 
@@ -522,69 +493,32 @@ if (!checked || loading) {
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div style={styles.avatarWrapper}>
+        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
+          {photos.length > 0 ? (
+            <div style={styles.avatarMask}>
+<img
+  src={avatarPreview || photos[mainIndex]}
+  loading="lazy"
+decoding="async"
+style={{
+ ...styles.avatarImage,
 
-  {photos.length > 0 ? (
-    <div
-      style={styles.avatarMask}
-      onClick={() => setActivePhoto(true)}   // ✅ клик только по кругу
-    >
-      <img
-        src={avatarPreview || photos[mainIndex]}
-        loading="lazy"
-        decoding="async"
-        style={{
-          ...styles.avatarImage,
-          transform: photoEdits[mainIndex]
-            ? `translate(
-                ${photoEdits[mainIndex].crop.x/6}px,
-                ${photoEdits[mainIndex].crop.y/6}px
-              )
-              scale(${photoEdits[mainIndex].zoom})`
-            : "none",
-          transformOrigin:"center center"
-        }}
-      />
-    </div>
-  ) : (
-    <div
-      style={styles.avatar}
-      onClick={() => document.getElementById("avatarInput")?.click()} // ✅ только тут
-    >
-      👤
-    </div>
-  )}
+ transform: photoEdits[mainIndex]
+   ? `translate(
+        ${photoEdits[mainIndex].crop.x/6}px,
+        ${photoEdits[mainIndex].crop.y/6}px
+      )
+      scale(${photoEdits[mainIndex].zoom})`
+   : "none",
 
-  {/* ➕ КНОПКА */}
-  <div
-    style={styles.plus}
-    onClick={() => document.getElementById("avatarInput")?.click()}
-  >
-    +
-  </div>
-
-  {/* INPUT */}
-  <input
-    id="avatarInput"
-    type="file"
-    accept="image/*"
-    hidden
-    onChange={async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      if (file.size > 10 * 1024 * 1024) {
-        alert("Фото до 10MB");
-        return;
-      }
-
-      await uploadPhoto(file);
-      e.target.value = "";
-    }}
-  />
+ transformOrigin:"center center"
+}}/>
 </div>
-
-
+          ) : (
+            <div style={styles.avatar}>👤</div>
+          )}
+          <div style={styles.plus}>+</div>
+        </div>
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
@@ -595,18 +529,13 @@ if (!checked || loading) {
           <div style={styles.inputBox}>
             <p style={styles.label}>Возраст</p>
             <div>{age}</div>
-
-
-
-
-            
 <input
-  type="range"
-  min="15"
-  max="60"
-  value={age}
-  onChange={(e:any) => setAge(Number(e.target.value))}
-  style={styles.slider}
+ type="range"
+ min="18"
+ max="60"
+ value={age}
+ onChange={(e)=>setAge(Number(e.target.value))}
+ style={styles.slider}
 />
           </div>
         </div>
@@ -695,19 +624,17 @@ color:"#8A94A6"
 >
 
 <div
-  onClick={(e)=>e.stopPropagation()}
-  style={{
-    width:"100%",
-    maxWidth:"320px",
-    margin:"0 12px", // 👈 ВОТ ЭТО
-    background:"#fff",
-    borderRadius:"28px",
-    padding:"20px",
-    position:"relative",
-    overflow:"hidden"
-  }}
+ onClick={(e)=>e.stopPropagation()}
+ style={{
+   width:"92%",
+   maxWidth:"380px",
+   background:"#fff",
+   borderRadius:"28px",
+   padding:"20px",
+   position:"relative",
+   overflow:"hidden" // важно
+ }}
 >
-
 
 <div
 style={{
@@ -750,7 +677,15 @@ style={{
 
 </div>
 
-
+<input
+ type="range"
+ min="1"
+ max="3"
+ step="0.1"
+ value={zoom}
+ onChange={(e)=>setZoom(Number(e.target.value))}
+ style={styles.slider}
+/>
 
 <button
  style={styles.submit}
@@ -781,8 +716,7 @@ localStorage.setItem(
        crop,
        zoom
      }
-   },
-   main_photo_index:mainIndex
+   }
  })
 );
 
@@ -804,7 +738,36 @@ setCropOpen(false);
             onClick={(e)=>e.stopPropagation()}
           >
 
-            
+            <label style={styles.addPhoto}>
+              +
+              <input
+ type="file"
+ multiple
+ accept="image/*"
+ hidden
+ onChange={async (e)=>{
+   const files = e.target.files;
+   for (let f of Array.from(files || [])) {
+ if (f.size > 10 * 1024 * 1024){
+   alert("Фото до 10MB");
+   return;
+ }
+}
+   if (!files) return;
+
+   if (photos.length + files.length > 6){
+      alert("Максимум 6 фото");
+      return;
+   }
+
+   for(let i=0;i<files.length;i++){
+      await uploadPhoto(files[i]);
+   }
+
+   e.target.value="";
+ }}
+/>
+            </label>
 
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
@@ -815,7 +778,7 @@ setCropOpen(false);
 decoding="async"
       onClick={()=>{
  setMainIndex(i);
- 
+ console.log("Главная фото:", i);
 }}
       style={{
         ...styles.galleryImg,
@@ -873,11 +836,8 @@ setCropOpen(true);
  );
 
  if(i===mainIndex){
- setMainIndex(0);
-}
-else if(i < mainIndex){
- setMainIndex(prev=>prev-1);
-}
+   setMainIndex(0);
+ }
 }}
     >
       ✕
@@ -897,10 +857,6 @@ else if(i < mainIndex){
 
 
 
-
-
-
-
 const styles:any = {
   wrapper:{
  minHeight:"100vh",
@@ -909,11 +865,7 @@ const styles:any = {
  overflowY:"auto",
  WebkitOverflowScrolling:"touch"
 },
-  card:{background:"#fff",
-    borderRadius:"24px",
-    padding:"20px",
-    maxWidth:"340px",
-    margin:"0 auto"},
+  card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
 avatarWrapper:{
  display:"flex",
@@ -1040,7 +992,7 @@ gallery:{
 
   galleryImg:{
  width:"100%",
- height:"140px",
+ height:"160px",
  aspectRatio:"3/4",
  objectFit:"cover",
  borderRadius:"18px",
