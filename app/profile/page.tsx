@@ -493,8 +493,7 @@ window.location.href="/home";
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
-          {photos.length > 0 ? (
+<div style={styles.avatarWrapper}>          {photos.length > 0 ? (
             <div style={styles.avatarMask}>
 <img
   src={avatarPreview || photos[mainIndex]}
@@ -515,7 +514,8 @@ style={{
 }}/>
 </div>
           ) : (
-            <div style={styles.avatar}>👤</div>
+            <div style={styles.plus}>+</div>
+ 
           )}
           <div style={styles.plus}>+</div>
         </div>
