@@ -135,7 +135,10 @@ onboarding_completed
 
   
   if (data) {
-
+if (data.onboarding_completed) {
+  window.location.replace("/home");
+  return;
+}
  // если анкета уже завершена —
  // просто показываем профиль как страницу редактирования
 
