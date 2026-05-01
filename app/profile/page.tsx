@@ -626,13 +626,14 @@ color:"#8A94A6"
 <div
  onClick={(e)=>e.stopPropagation()}
  style={{
-   width:"92%",
-   maxWidth:"380px",
+   width:"100%",
+   maxWidth:"320px", // 👈 уже блок
+   margin:"0 12px",  // 👈 чтобы не лип к краям
    background:"#fff",
    borderRadius:"28px",
    padding:"20px",
    position:"relative",
-   overflow:"hidden" // важно
+   overflow:"hidden"
  }}
 >
 
