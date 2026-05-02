@@ -501,7 +501,7 @@ window.location.href="/home";
   {photos.length > 0 ? (
     <div
       style={styles.avatarMask}
-      onClick={() => inputRef.current?.click()}
+      onClick={() => setActivePhoto(true)}
     >
       <img
         src={avatarPreview || photos[mainIndex]}
