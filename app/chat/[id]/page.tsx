@@ -14,15 +14,31 @@ const params = useParams();
 
 const chatId =
 params.id as string;
+console.log("chatId:", chatId);
 
-const userId =
-"11111111-1111-1111-1111-111111111111";
+
+
 
 const [messages,setMessages] = useState([]);
 const [ready,setReady] =
 useState(false);
+
 const [newMessage,setNewMessage] = useState("");
 const channelRef = useRef<any>(null);
+
+const [userId, setUserId] = useState<string | null>(null);
+
+useEffect(() => {
+  const getUser = async () => {
+    const { data } = await supabase.auth.getUser();
+
+    if (data?.user) {
+      setUserId(data.user.id);
+    }
+  };
+
+  getUser();
+}, []);
 
 const typingTimeout = useRef<any>(null);
 
@@ -658,6 +674,8 @@ ready
 
 const mine =
 msg.sender_id===userId;
+
+if (!userId) return null;
 
 return(
 
