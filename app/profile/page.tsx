@@ -9,6 +9,34 @@ const Cropper:any = dynamic(
 );
 import { supabase } from "../../lib/supabase";
 
+
+// ⬇️ ВСТАВЬ СЮДА
+const getCroppedImg = async (imageSrc, crop) => {
+  const image = new Image();
+  image.src = imageSrc;
+
+  await new Promise((res) => (image.onload = res));
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = crop.width;
+  canvas.height = crop.height;
+
+  ctx.drawImage(
+    image,
+    crop.x,
+    crop.y,
+    crop.width,
+    crop.height,
+    0,
+    0,
+    crop.width,
+    crop.height
+  );
+
+  return canvas.toDataURL("image/jpeg");
+};
 const BASE_INTERESTS = [
  "Путешествия",
  "Музыка",
@@ -62,7 +90,7 @@ const [editingPhoto,setEditingPhoto] = useState("");
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
-const [photoEdits,setPhotoEdits] = useState<any>({});
+
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -88,7 +116,7 @@ if (cached) {
    setCity(profile.city || "");
    setBio(profile.bio || "");
    setSelected(profile.interests || []);
-   setPhotoEdits(profile.photo_edits || {});
+   
 
    if (profile.photos?.length) {
      setPhotos(profile.photos);
@@ -146,7 +174,7 @@ onboarding_completed
   setCity(data.city || "");
   setBio(data.bio || "");
   setSelected(data.interests || []);
-  setPhotoEdits(data.photo_edits || {});
+  
 setMainIndex(data.main_photo_index || 0);
   if (data.photos?.length) {
     setPhotos(data.photos);
@@ -192,7 +220,7 @@ await supabase
  city,
  bio,
  interests:selected,
-photo_edits:photoEdits,
+
 main_photo_index:mainIndex,
 avatar_url:
    avatarPreview ||
@@ -241,7 +269,6 @@ photos,
 mainIndex,
 avatarPreview,
 telegramId,
-photoEdits
 ]);
     
 const compressImage = (file: File): Promise<File> =>
@@ -347,6 +374,8 @@ setUploading(true);
    .getPublicUrl(
       fileName + "?v=" + Date.now()
    );
+   setEditingPhoto(data.publicUrl);
+setCropOpen(true);
 
 setPhotos(prev=>{
 
@@ -363,7 +392,7 @@ setPhotos(prev=>{
  bio,
  interests:selected,
  photos,
- photo_edits:photoEdits
+ 
 })
  );
 
@@ -414,7 +443,6 @@ if (!name.trim() || !city.trim()) {
  city,
  bio,
  interests:selected,
- photo_edits:photoEdits,
 main_photo_index:mainIndex,
 avatar_url:
    avatarPreview ||
@@ -505,14 +533,6 @@ window.location.href="/home";
         decoding="async"
         style={{
           ...styles.avatarImage,
-          transform: photoEdits[mainIndex]
-            ? `translate(
-                ${photoEdits[mainIndex].crop.x/6}px,
-                ${photoEdits[mainIndex].crop.y/6}px
-              )
-              scale(${photoEdits[mainIndex].zoom})`
-            : "none",
-          transformOrigin: "center center"
         }}
       />
     </div>
@@ -618,126 +638,99 @@ color:"#8A94A6"
 
       </div>
 {cropOpen && (
-<div
- style={{
-   position:"fixed",
-   inset:0,
-   background:"#000",
-   zIndex:999999,
-   display:"flex",
-   justifyContent:"center",
-   alignItems:"center"
- }}
- onClick={()=>setCropOpen(false)}
->
+  <div
+    style={{
+      position:"fixed",
+      inset:0,
+      background:"#000",
+      zIndex:999999,
+      display:"flex",
+      justifyContent:"center",
+      alignItems:"center"
+    }}
+    onClick={()=>setCropOpen(false)}
+  >
+    <div
+      onClick={(e)=>e.stopPropagation()}
+      style={{
+        width:"92%",
+        maxWidth:"380px",
+        background:"#fff",
+        borderRadius:"28px",
+        padding:"20px",
+        position:"relative",
+        overflow:"hidden"
+      }}
+    >
+      <div
+        style={{
+          position:"relative",
+          width:"100%",
+          height:"320px",
+          overflow:"hidden",
+          borderRadius:"18px",
+          background:"#111"
+        }}
+      >
 
-<div
- onClick={(e)=>e.stopPropagation()}
- style={{
-   width:"92%",
-   maxWidth:"380px",
-   background:"#fff",
-   borderRadius:"28px",
-   padding:"20px",
-   position:"relative",
-   overflow:"hidden" // важно
- }}
->
+        <Cropper
+          image={editingPhoto}
+          crop={crop}
+          zoom={zoom}
+          aspect={1}
+          cropShape="round"
+          cropSize={{ width:260, height:260 }}
+          objectFit="horizontal-cover"
+          restrictPosition={true}
+          showGrid={false}
+          minZoom={1}
+          maxZoom={3}
+          onCropChange={setCrop}
+          onZoomChange={setZoom}
+          onCropComplete={(a,b)=>setCroppedAreaPixels(b)}
+        />
 
-<div
-style={{
- position:"relative",
- width:"100%",
- height:"320px",
- overflow:"hidden",
- borderRadius:"18px",
- background:"#111"
-}}
->
+      </div>
 
-<Cropper
- image={editingPhoto}
- crop={crop}
- zoom={zoom}
+      <input
+        type="range"
+        min="1"
+        max="3"
+        step="0.1"
+        value={zoom}
+        onChange={(e)=>setZoom(Number(e.target.value))}
+        style={styles.slider}
+      />
 
- aspect={1}
- cropShape="round"
+      <button
+        style={styles.submit}
+        onClick={async()=>{
 
- cropSize={{ width:260, height:260 }}
+          if (!croppedAreaPixels) return;
 
- objectFit="horizontal-cover"
+          const croppedImage = await getCroppedImg(
+            editingPhoto,
+            croppedAreaPixels
+          );
 
- restrictPosition={true}
- showGrid={false}
+          setAvatarPreview(croppedImage);
 
- rotation={0}
- minZoom={1}
- maxZoom={3}
- zoomSpeed={1}
+          setPhotos(prev=>{
+            const updated=[...prev];
+            updated[mainIndex] = croppedImage;
+            return updated;
+          });
 
- onCropChange={setCrop}
- onZoomChange={setZoom}
+          setCropOpen(false);
+        }}
+      >
+        Готово
+      </button>
 
- onCropComplete={(a,b)=>{
-   setCroppedAreaPixels(b);
- }}
-/>
-
-</div>
-
-<input
- type="range"
- min="1"
- max="3"
- step="0.1"
- value={zoom}
- onChange={(e)=>setZoom(Number(e.target.value))}
- style={styles.slider}
-/>
-
-<button
- style={styles.submit}
- onClick={async()=>{
-
- setPhotoEdits(prev=>({
- ...prev,
- [mainIndex]:{
-   crop,
-   zoom
- }
-}));
-
-localStorage.setItem(
- "profile_cache",
- JSON.stringify({
-   name,
-   age,
-   gender,
-   looking:search,
-   city,
-   bio,
-   interests:selected,
-   photos,
-   photo_edits:{
-     ...photoEdits,
-     [mainIndex]:{
-       crop,
-       zoom
-     }
-   }
- })
-);
-
-setCropOpen(false);
-
-}}
->
-Готово
-</button>
-
-</div>
-</div>
+    </div>
+  </div>
 )}
+
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
       {activePhoto && !cropOpen && (
         <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
@@ -808,13 +801,8 @@ decoding="async"
    e.stopPropagation();
    setEditingPhoto(p);
 
-if(photoEdits[i]){
- setCrop(photoEdits[i].crop);
- setZoom(photoEdits[i].zoom);
-}else{
- setCrop({x:0,y:0});
- setZoom(1.2);
-}
+setCrop({x:0,y:0});
+setZoom(1.2);
 
 setActivePhoto(false);
 setCropOpen(true);
