@@ -731,22 +731,31 @@ overflowWrap:"break-word"
 
 
 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-  <div style={{
-  position:"absolute",
-  bottom:-6,
-  right: mine ? 6 : "auto",
-  left: mine ? "auto" : 6,
-  background:"#fff",
-  borderRadius:12,
-  padding:"2px 6px",
-  fontSize:12,
-  boxShadow:"0 2px 6px rgba(0,0,0,.15)",
-  zIndex:2
-}}>
-    {Object.entries(msg.reactions).map(([emoji,users]:any)=>(
-      <span key={emoji} style={{marginRight:6}}>
+  <div
+    style={{
+      display:"flex",
+      gap:6,
+      marginTop:6,
+      flexWrap:"wrap"
+    }}
+  >
+    {Object.entries(msg.reactions).map(([emoji, users]:any)=>(
+      <div
+        key={emoji}
+        style={{
+          background: mine
+            ? "rgba(255,255,255,.25)"
+            : "#EEF2FF",
+          padding:"3px 8px",
+          borderRadius:12,
+          fontSize:12,
+          display:"flex",
+          alignItems:"center",
+          gap:4
+        }}
+      >
         {emoji} {users.length}
-      </span>
+      </div>
     ))}
   </div>
 )}
