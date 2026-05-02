@@ -35,6 +35,7 @@ useState(0);
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
+const channelRef = useRef<any>(null);
 
 const inputRef =
 useRef<HTMLInputElement | null>(null);
@@ -202,57 +203,99 @@ handleKeyboard
 
 useEffect(()=>{
 
-const channel=supabase
-.channel(`chat-${chatId}`)
-.on(
-"postgres_changes",
-{
-event:"INSERT",
-schema:"public",
-table:"messages",
-filter:`chat_id=eq.${chatId}`
-},
-(payload)=>{
-
-setMessages(prev=>{
-
-if(
-prev.some(
-m=>m.id===payload.new.id
-)
-){
-return prev;
-}
-
-return prev.concat(
-payload.new
-);
-
+const channel = supabase.channel(`chat-${chatId}`, {
+  config: {
+    presence: {
+      key: userId,
+    },
+  },
 });
 
-requestAnimationFrame(
-scrollToBottom
+channelRef.current = channel;
+
+// 👇 typing indicator
+channel.on("presence", { event: "sync" }, () => {
+  const state = channel.presenceState();
+  const users = Object.values(state).flat() as any[];
+
+  const someoneTyping = users.some(
+    (u:any) => u.user_id !== userId && u.typing === true
+  );
+
+  setIsTyping(someoneTyping);
+});
+
+// 👇 сообщения
+channel.on(
+  "postgres_changes",
+  {
+    event:"INSERT",
+    schema:"public",
+    table:"messages",
+    filter:`chat_id=eq.${chatId}`
+  },
+  (payload)=>{
+
+    setMessages(prev=>{
+      if(prev.some(m=>m.id===payload.new.id)){
+        return prev;
+      }
+      return prev.concat(payload.new);
+    });
+
+    requestAnimationFrame(scrollToBottom);
+
+    supabase
+      .from("chats")
+      .update({
+        last_message:payload.new.body,
+        last_message_at:payload.new.created_at
+      })
+      .eq("id",chatId);
+  }
 );
 
-supabase
-.from("chats")
-.update({
-last_message:payload.new.body,
-last_message_at:
-payload.new.created_at
-})
-.eq("id",chatId);
-
-
-}
-)
-.subscribe();
+channel.subscribe(async (status) => {
+  if (status === "SUBSCRIBED") {
+    await channel.track({
+      user_id: userId,
+      typing: false,
+    });
+  }
+});
 
 return()=>{
-supabase.removeChannel(channel);
+  supabase.removeChannel(channel);
 };
 
 },[chatId]);
+
+let typingTimeout:any;
+
+async function sendTyping(status:boolean){
+
+  const channel = channelRef.current;
+  if(!channel) return;
+
+  await channel.track({
+    user_id: userId,
+    typing: status,
+  });
+
+  if(status){
+    clearTimeout(typingTimeout);
+
+    typingTimeout = setTimeout(()=>{
+      channel.track({
+        user_id: userId,
+        typing: false,
+      });
+    },1500);
+  }
+
+}
+
+
 
 
 
@@ -827,8 +870,10 @@ scrollToBottom();
 }}
 
 onChange={(e)=>{
-setNewMessage(e.target.value);
+  setNewMessage(e.target.value);
+  sendTyping(true);
 }}
+
 
 onKeyDown={(e)=>{
 if(e.key==="Enter"){
