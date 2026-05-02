@@ -33,7 +33,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
-  const [age, setAge] = useState(22);
+  const [age, setAge] = useState(18);
   const [gender, setGender] = useState("female");
   const [search, setSearch] = useState("female");
 
@@ -539,7 +539,7 @@ window.location.href="/home";
             <div>{age}</div>
 <input
  type="range"
- min="18"
+ min="16"
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
@@ -923,10 +923,26 @@ plus:{
  zIndex:20
 },
   row:{display:"flex",gap:"10px"},
-  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+inputBox:{
+  background:"#F9FAFB",
+  borderRadius:"16px",
+  padding:"8px 12px", // было 12px → стало компактнее
+  marginTop:"12px",
+  flex:1
+},
   label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
-  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
+textarea:{
+  width:"100%",
+  border:"none",
+  background:"transparent",
+  outline:"none",
+
+  height:"80px",        // ← фиксируем высоту
+  resize:"none",        // ← убираем растягивание руками
+  overflow:"auto"       // ← скролл если много текста
+},
+
 
   block:{marginTop:"14px"},
 
