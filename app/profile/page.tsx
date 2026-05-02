@@ -65,6 +65,28 @@ const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
 const inputRef = useRef<HTMLInputElement>(null);
+const lastDataRef = useRef("");
+const lastSentDataRef = useRef<any>({});
+const lastSaveTimeRef = useRef(0);
+const isSavingRef = useRef(false);
+const changeTimeoutRef = useRef<any>(null);
+
+const updateField = (cb: () => void) => {
+  if (changeTimeoutRef.current) {
+    clearTimeout(changeTimeoutRef.current);
+  }
+
+  changeTimeoutRef.current = setTimeout(() => {
+    cb();
+  }, 300);
+};
+const runIdle = (cb: () => void) => {
+  if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(cb);
+  } else {
+    setTimeout(cb, 0);
+  }
+};
 
 
 const base = BASE_INTERESTS;
@@ -172,63 +194,120 @@ setLoading(false);
 
 init();
 }, []);
-useEffect(()=>{
+
+ useEffect(()=>{
 
  if(!telegramId) return;
 
+// ❗ проверка изменений
+const currentData = [
+  name,
+  age,
+  gender,
+  search,
+  city,
+  bio,
+  selected.length,
+  photos.length,
+  mainIndex
+].join("|");
+
+if (lastDataRef.current === currentData) return;
+
+lastDataRef.current = currentData;
+
+
  const timer = setTimeout(async()=>{
+  
 
    if(!name.trim() || !city.trim()) return;
+   const now = Date.now();
 
+if (now - lastSaveTimeRef.current < 10000) return;
+
+lastSaveTimeRef.current = now;
+   if (uploading) return;
+ 
    setSaveStatus("saving");
 
-   const { error } =
-await supabase
-.from("users")
-.upsert(
-{
- telegram_id:telegramId,
- name,
- age,
- gender,
- looking:search,
- city,
- bio,
- interests:selected,
-photo_edits:photoEdits,
-main_photo_index:mainIndex,
-avatar_url:
-   avatarPreview ||
-   photos[mainIndex] ||
-   null,
- photos,
- onboarding_completed:false
-},
-{
- onConflict:"telegram_id"
-}
-);
+   // защита от двойного запроса
+if (isSavingRef.current) return;
+isSavingRef.current = true;
 
-   if(!error){
+const newData = {
+  name,
+  age,
+  gender,
+  looking: search,
+  city,
+  bio,
+  interests: selected,
+  photo_edits: photoEdits,
+  main_photo_index: mainIndex,
+  avatar_url:
+    avatarPreview ||
+    photos[mainIndex] ||
+    null,
+  photos
+};
 
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
-      name,
-      age,
-      gender,
-      looking:search,
-      city,
-      bio,
-      interests:selected,
-      photos
-   })
- );
+const payload: any = {
+  telegram_id: telegramId
+};
 
- setSaveStatus("saved");
+// оставляем только изменённые поля
+for (const key in newData) {
+  if (lastSentDataRef.current[key] !== newData[key]) {
+    payload[key] = newData[key];
+  }
 }
 
- },2500);
+// если ничего не изменилось — не шлём
+if (Object.keys(payload).length === 1) {
+  isSavingRef.current = false;
+  return;
+}
+
+// запоминаем
+lastSentDataRef.current = { ...newData };
+
+// отправка
+try {
+  const { error } = await supabase
+    .from("users")
+    .upsert(payload, { onConflict: "telegram_id" });
+
+  if (error) {
+    console.log("error", error);
+     setSaveStatus("error");
+    return;
+  }
+
+  runIdle(()=>{
+    localStorage.setItem(
+      "profile_cache",
+      JSON.stringify({
+        name,
+        age,
+        gender,
+        looking: search,
+        city,
+        bio,
+        interests: selected,
+        photos
+      })
+    );
+  });
+
+  setSaveStatus("saved");
+
+} catch (e) {
+  console.log("network error", e);
+} finally {
+  isSavingRef.current = false;
+}
+
+}, 8000);
 
  return ()=>clearTimeout(timer);
 
@@ -301,7 +380,7 @@ canvas.height = img.height * scale;
          );
        },
        "image/jpeg",
-       0.82
+      0.7
       );
 
    };
@@ -310,14 +389,14 @@ canvas.height = img.height * scale;
 
 });
   const uploadPhoto = async (file: File) => {
+    if (uploading) return;
  if (!telegramId) return;
  const now = Date.now();
 
-if(now - lastUploadTime < 3000){
- alert("Подожди пару секунд");
- return;
+// защита от спама (мягкая)
+if (now - lastUploadTime < 500) {
+  return;
 }
-
 
 setLastUploadTime(now);
 
@@ -333,8 +412,7 @@ setUploading(true);
  const fileName =
 `${telegramId}/${Date.now()}.jpg`;
 
- const compressedFile =
-  await compressImage(file);
+ const compressedFile = await compressImage(file);
 
  const { error } = await supabase.storage
    .from("avatars")
@@ -352,23 +430,24 @@ setUploading(true);
    );
 
 setPhotos(prev=>{
-
  const updated=[...prev,data.publicUrl];
 
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
- name,
- age,
- gender,
- looking:search,
- city,
- bio,
- interests:selected,
- photos,
- photo_edits:photoEdits
-})
- );
+ runIdle(()=>{
+   localStorage.setItem(
+     "profile_cache",
+     JSON.stringify({
+       name,
+       age,
+       gender,
+       looking:search,
+       city,
+       bio,
+       interests:selected,
+       photos: updated,
+       photo_edits:photoEdits
+     })
+   );
+ });
 
  return updated;
 });
@@ -505,8 +584,9 @@ window.location.href="/home";
     >
       <img
         src={avatarPreview || photos[mainIndex]}
-        loading="lazy"
-        decoding="async"
+         loading="lazy"
+ decoding="async"
+ fetchPriority="low"
         style={{
           ...styles.avatarImage,
           transform: photoEdits[mainIndex]
@@ -539,7 +619,7 @@ window.location.href="/home";
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       alert("Фото до 10MB");
       return;
     }
@@ -553,7 +633,8 @@ window.location.href="/home";
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
-            <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
+            <input value={name} onChange={(e)=>updateField(()=>setName(e.target.value))} 
+            style={styles.input}/>
           </div>
 
           <div style={styles.inputBox}>
@@ -590,12 +671,12 @@ window.location.href="/home";
         </div>
                 <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
-          <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
+          <input value={city} onChange={(e)=>updateField(()=>setCity(e.target.value))} style={styles.input}/>
         </div>
 
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
-          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
+          <textarea value={bio} onChange={(e)=>updateField(()=>setBio(e.target.value))} style={styles.textarea}/>
         </div>
 
         <div style={styles.block}>
@@ -721,34 +802,33 @@ style={{
  style={styles.submit}
  onClick={async()=>{
 
- setPhotoEdits(prev=>({
- ...prev,
- [mainIndex]:{
-   crop,
-   zoom
- }
-}));
+ const updatedEdits = {
+  ...photoEdits,
+  [mainIndex]: {
+    crop,
+    zoom
+  }
+};
 
-localStorage.setItem(
- "profile_cache",
- JSON.stringify({
-   name,
-   age,
-   gender,
-   looking:search,
-   city,
-   bio,
-   interests:selected,
-   photos,
-   photo_edits:{
-     ...photoEdits,
-     [mainIndex]:{
-       crop,
-       zoom
-     }
-   }
- })
-);
+setPhotoEdits(updatedEdits);
+
+if (saveStatus !== "saved") {
+  runIdle(()=>{
+    localStorage.setItem(
+      "profile_cache",
+      JSON.stringify({
+        name,
+        age,
+        gender,
+        looking:search,
+        city,
+        bio,
+        interests:selected,
+        photos
+      })
+    );
+  });
+}
 
 setCropOpen(false);
 
@@ -790,9 +870,9 @@ setCropOpen(false);
       return;
    }
 
-   for(let i=0;i<files.length;i++){
-      await uploadPhoto(files[i]);
-   }
+   await Promise.all(
+  Array.from(files).map(f => uploadPhoto(f))
+);
 
    e.target.value="";
  }}
