@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 
 const Cropper:any = dynamic(
@@ -50,6 +50,7 @@ const [saveStatus,setSaveStatus] =
 useState("saved");
 const [savingProfile,setSavingProfile] =
 useState(false);
+const [lastSaveTime,setLastSaveTime] = useState(0);
 
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
@@ -63,6 +64,9 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
+const lastSavedRef = useRef("");
+const [matches, setMatches] = useState<any[]>([]);
+
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -174,6 +178,28 @@ useEffect(()=>{
  if(!telegramId) return;
 
  const timer = setTimeout(async()=>{
+  const payload = JSON.stringify({
+  name,
+  age,
+  gender,
+  looking: search,
+  city,
+  bio,
+  interests: selected,
+  photos,
+  mainIndex
+});
+
+if(payload === lastSavedRef.current){
+  return;
+}
+  const now = Date.now();
+
+if(now - lastSaveTime < 2000){
+ return;
+}
+
+setLastSaveTime(now);
 
    if(!name.trim() || !city.trim()) return;
 
@@ -207,6 +233,7 @@ avatar_url:
 );
 
    if(!error){
+    lastSavedRef.current = payload;
 
  localStorage.setItem(
    "profile_cache",
@@ -219,13 +246,14 @@ avatar_url:
       bio,
       interests:selected,
       photos
+      
    })
  );
 
  setSaveStatus("saved");
 }
 
- },900);
+ },2500);
 
  return ()=>clearTimeout(timer);
 
@@ -243,7 +271,34 @@ avatarPreview,
 telegramId,
 photoEdits
 ]);
-    
+
+
+useEffect(() => {
+  if (!telegramId) return;
+
+  const loadMatches = async () => {
+    let query = supabase
+      .from("users")
+      .select("*")
+      .neq("telegram_id", telegramId);
+
+    if (search !== "any") {
+      query = query.eq("gender", search);
+    }
+
+    const { data, error } = await query.limit(20);
+
+    if (error) {
+      console.log("match error", error);
+      return;
+    }
+
+    setMatches(data || []);
+  };
+
+  loadMatches();
+}, [telegramId, search]);
+
 const compressImage = (file: File): Promise<File> =>
  new Promise((resolve)=>{
 
@@ -262,7 +317,7 @@ const compressImage = (file: File): Promise<File> =>
       const ctx =
        canvas.getContext("2d");
 
-      const maxWidth = 1200;
+      const maxWidth = 900;
 
       const scale =
  img.width > maxWidth
@@ -298,7 +353,7 @@ canvas.height = img.height * scale;
          );
        },
        "image/jpeg",
-       0.82
+       0.7
       );
 
    };
@@ -307,6 +362,10 @@ canvas.height = img.height * scale;
 
 });
   const uploadPhoto = async (file: File) => {
+    if(uploading){
+  alert("Подожди, фото загружается");
+  return;
+}
  if (!telegramId) return;
  const now = Date.now();
 
@@ -355,16 +414,16 @@ setPhotos(prev=>{
  localStorage.setItem(
    "profile_cache",
    JSON.stringify({
- name,
- age,
- gender,
- looking:search,
- city,
- bio,
- interests:selected,
- photos,
- photo_edits:photoEdits
-})
+     name,
+     age,
+     gender,
+     looking:search,
+     city,
+     bio,
+     interests:selected,
+     photos: updated, // ✅ ВОТ ЭТО ВАЖНО
+     photo_edits:photoEdits
+   })
  );
 
  return updated;
@@ -384,7 +443,12 @@ setTimeout(()=>{
 },500);
 };
 
+
+
   const toggle = (item: string) => {
+
+
+    
     setSelected((prev) =>
       prev.includes(item)
         ? prev.filter((i) => i !== item)
@@ -392,6 +456,7 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
+      
     if (!telegramId || savingProfile || loading) return;
 
 setSavingProfile(true);
@@ -506,13 +571,13 @@ window.location.href="/home";
             decoding="async"
             style={{
               ...styles.avatarImage,
-              transform: photoEdits[mainIndex]
-                ? `translate(
-                    ${photoEdits[mainIndex].crop.x/6}px,
-                    ${photoEdits[mainIndex].crop.y/6}px
-                  )
-                  scale(${photoEdits[mainIndex].zoom})`
-                : "none",
+              transform: photoEdits[mainIndex]?.crop
+  ? `translate(
+      ${photoEdits[mainIndex].crop.x / 6}px,
+      ${photoEdits[mainIndex].crop.y / 6}px
+    )
+    scale(${photoEdits[mainIndex].zoom || 1})`
+  : "none",
               transformOrigin:"center center"
             }}
           />
@@ -756,6 +821,13 @@ setCropOpen(false);
  hidden
  onChange={async (e)=>{
    const files = e.target.files;
+
+if(files && files.length > 1){
+  alert("Загружай по одному фото");
+  return;
+}
+
+
    for (let f of Array.from(files || [])) {
  if (f.size > 10 * 1024 * 1024){
    alert("Фото до 10MB");
