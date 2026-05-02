@@ -243,18 +243,11 @@ channel.on("presence", { event: "sync" }, () => {
 });
 
 // 👇 сообщения
-channel.on(
-  "postgres_changes",
-  {
-    event:"INSERT",
-    
-    schema:"public",
-    table:"messages",
-    filter:`chat_id=eq.${chatId}`
-  },
-  (payload)=>{
+// INSERT
 
-    channel.on(
+
+// UPDATE (реакции)
+channel.on(
   "postgres_changes",
   {
     event:"UPDATE",
@@ -275,6 +268,16 @@ channel.on(
   }
 );
 
+    // INSERT
+channel.on(
+  "postgres_changes",
+  {
+    event:"INSERT",
+    schema:"public",
+    table:"messages",
+    filter:`chat_id=eq.${chatId}`
+  },
+  (payload)=>{
     setMessages(prev=>{
       if(prev.some(m=>m.id===payload.new.id)){
         return prev;
@@ -283,14 +286,28 @@ channel.on(
     });
 
     requestAnimationFrame(scrollToBottom);
+  }
+);
 
-    supabase
-      .from("chats")
-      .update({
-        last_message:payload.new.body,
-        last_message_at:payload.new.created_at
-      })
-      .eq("id",chatId);
+// UPDATE (реакции)
+channel.on(
+  "postgres_changes",
+  {
+    event:"UPDATE",
+    schema:"public",
+    table:"messages",
+    filter:`chat_id=eq.${chatId}`
+  },
+  (payload)=>{
+
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === payload.new.id
+          ? { ...m, reactions: payload.new.reactions }
+          : m
+      )
+    );
+
   }
 );
 
@@ -693,7 +710,23 @@ overflowWrap:"break-word"
 >
 
 {msg.body}
-
+{msg.reactions && Object.keys(msg.reactions).length > 0 && (
+  <div style={{marginTop:4,display:"flex",gap:6}}>
+    {Object.entries(msg.reactions).map(([emoji,users]:any)=>(
+      <div
+        key={emoji}
+        style={{
+          fontSize:12,
+          background:"#EEF2FF",
+          padding:"2px 6px",
+          borderRadius:10
+        }}
+      >
+        {emoji} {users.length}
+      </div>
+    ))}
+  </div>
+)}
 
 {msg.reply_preview && (
 
