@@ -1096,13 +1096,13 @@ galleryEmpty:{
 
 
 gallery:{
- display:"grid",
- gridTemplateColumns:"repeat(2,1fr)", // 👈 2 колонки
- gap:"12px",
- width:"100%",
- maxWidth:"260px", // 👈 компактный блок
- margin:"0 auto",
- padding:"18px"
+  display:"grid",
+  gridTemplateColumns:"repeat(4,1fr)", // 👈 4 в ряд
+  gap:"10px",
+  width:"100%",
+  maxWidth:"420px",
+  margin:"0 auto",
+  padding:"18px"
 },
 
   galleryItem:{
@@ -1112,11 +1112,23 @@ gallery:{
 },
 
 galleryImg:{
- width:"100%",
- aspectRatio:"1/1", // 👈 квадрат
- objectFit:"cover",
- borderRadius:"16px",
- display:"block"
+  width:"100%",
+  aspectRatio:"1/1",
+  objectFit:"cover",
+  borderRadius:"12px"
+},
+
+galleryImgPlus:{
+  width:"100%",
+  aspectRatio:"1/1",
+  borderRadius:"12px",
+  background:"#EEF5FD",
+  display:"flex",
+  alignItems:"center",
+  justifyContent:"center",
+  fontSize:"28px",
+  color:"#2AABEE",
+  cursor:"pointer"
 },
 
 addPhoto:{
