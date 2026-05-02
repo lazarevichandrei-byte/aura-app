@@ -915,38 +915,89 @@ style={{
 
       {/* 📸 СЕТКА */}
       <div style={styles.gallery}>
-        {photos.map((p,i)=>(
-          <div key={i} style={styles.galleryItem}>
 
-            <img
-              src={p}
-              style={{
-                ...styles.galleryImg,
-                border: i===mainIndex
-                  ? "3px solid #2AABEE"
-                  : "none"
-              }}
-              onClick={()=>setMainIndex(i)}
-            />
+  {[...photos, ...(photos.length < 4 ? ["add"] : [])].map((p,i)=>{
 
-            <button
-              style={styles.deleteBtn}
-              onClick={()=>{
-                setPhotos(prev =>
-                  prev.filter((_,index)=>index!==i)
-                );
-
-                if(i===mainIndex){
-                  setMainIndex(0);
-                }
-              }}
-            >
-              ✕
-            </button>
-
+    if(p === "add"){
+      return (
+        <label key="add" style={styles.galleryItem}>
+          <div style={{
+            ...styles.galleryImg,
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            background:"#EEF5FD",
+            fontSize:"36px",
+            color:"#2AABEE"
+          }}>
+            +
           </div>
-        ))}
+
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            hidden
+            onChange={async (e)=>{
+              const files = e.target.files;
+              if (!files) return;
+
+              if (photos.length + files.length > 4){
+                alert("Максимум 4 фото");
+                return;
+              }
+
+              for(let f of Array.from(files)){
+                if (f.size > 10 * 1024 * 1024){
+                  alert("Фото до 10MB");
+                  return;
+                }
+                await uploadPhoto(f);
+              }
+
+              e.target.value="";
+            }}
+          />
+        </label>
+      );
+    }
+
+    return (
+      <div key={i} style={styles.galleryItem}>
+
+        <img
+          src={p}
+          loading="lazy"
+          decoding="async"
+          onClick={()=>setMainIndex(i)}
+          style={{
+            ...styles.galleryImg,
+            border: i===mainIndex
+              ? "3px solid #2AABEE"
+              : "none"
+          }}
+        />
+
+        <button
+          style={styles.deleteBtn}
+          onClick={()=>{
+            setPhotos(prev =>
+              prev.filter((_,index)=>index!==i)
+            );
+
+            if(i===mainIndex){
+              setMainIndex(0);
+            }
+          }}
+        >
+          ✕
+        </button>
+
       </div>
+    );
+  })}
+
+</div>
 
     </div>
 
