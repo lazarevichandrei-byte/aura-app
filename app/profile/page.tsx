@@ -953,7 +953,7 @@ avatarImage:{
 plus:{
   position:"absolute",
 
-  top:0,                    // 👈 вместо bottom
+  bottom:0,                     // 👈 вместо bottom
   right:"calc(50% - 46px)",
 
   width:"24px",
