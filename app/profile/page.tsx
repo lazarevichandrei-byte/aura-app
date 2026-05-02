@@ -865,73 +865,78 @@ style={{
   <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
     <div
       style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
-      onClick={(e)=>e.stopPropagation()}
-    >
+  onClick={(e)=>e.stopPropagation()}
+>
 
-      <label style={styles.addPhoto}>
-        +
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          hidden
-          onChange={async (e)=>{
-            const files = e.target.files;
+  {photos.map((p,i)=>(
+    <div key={i} style={styles.galleryItem}>
 
-            for (let f of Array.from(files || [])) {
-              if (f.size > 10 * 1024 * 1024){
-                alert("Фото до 10MB");
-                return;
-              }
-            }
+      <img
+        src={p}
+        loading="lazy"
+        decoding="async"
+        onClick={()=>setMainIndex(i)}
+        style={{
+          ...styles.galleryImg,
+          border: i===mainIndex
+            ? "3px solid #2AABEE"
+            : "none"
+        }}
+      />
 
-            if (!files) return;
+      <button
+        style={styles.deleteBtn}
+        onClick={()=>{
+          setPhotos(prev =>
+            prev.filter((_,index)=>index!==i)
+          );
 
-            if (photos.length + files.length > 6){
-              alert("Максимум 6 фото");
-              return;
-            }
-
-            for(let i=0;i<files.length;i++){
-              await uploadPhoto(files[i]);
-            }
-
-            e.target.value="";
-          }}
-        />
-      </label>
-
-      {photos.map((p,i)=>(
-        <div key={i} style={styles.galleryItem}>
-          <img
-            src={p}
-            onClick={()=>setMainIndex(i)}
-            style={{
-              ...styles.galleryImg,
-              border: i===mainIndex
-                ? "3px solid #2AABEE"
-                : "none"
-            }}
-          />
-
-          <button
-            style={styles.deleteBtn}
-            onClick={()=>{
-              setPhotos(prev =>
-                prev.filter((_,index)=>index!==i)
-              );
-
-              if(i===mainIndex){
-                setMainIndex(0);
-              }
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      ))}
+          if(i===mainIndex){
+            setMainIndex(0);
+          }
+        }}
+      >
+        ✕
+      </button>
 
     </div>
+  ))}
+
+  {/* ➕ В КОНЦЕ СЕТКИ */}
+  {photos.length < 6 && (
+    <label style={styles.galleryItem}>
+      <div style={styles.galleryImgPlus}>+</div>
+
+      <input
+        type="file"
+        multiple
+        accept="image/*"
+        hidden
+        onChange={async (e)=>{
+          const files = e.target.files;
+
+          if (!files) return;
+
+          if (photos.length + files.length > 6){
+            alert("Максимум 6 фото");
+            return;
+          }
+
+          for(let f of Array.from(files)){
+            if (f.size > 10 * 1024 * 1024){
+              alert("Фото до 10MB");
+              return;
+            }
+            await uploadPhoto(f);
+          }
+
+          e.target.value="";
+        }}
+      />
+    </label>
+  )}
+
+</div>
   </div>
 )}
 
