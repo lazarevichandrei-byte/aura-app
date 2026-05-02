@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 const Cropper:any = dynamic(
@@ -34,7 +33,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
-  const [age, setAge] = useState(18);
+  const [age, setAge] = useState(22);
   const [gender, setGender] = useState("female");
   const [search, setSearch] = useState("female");
 
@@ -64,30 +63,6 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
-const inputRef = useRef<HTMLInputElement>(null);
-const lastDataRef = useRef("");
-const lastSentDataRef = useRef<any>({});
-const lastSaveTimeRef = useRef(0);
-const isSavingRef = useRef(false);
-const changeTimeoutRef = useRef<any>(null);
-
-const updateField = (cb: () => void) => {
-  if (changeTimeoutRef.current) {
-    clearTimeout(changeTimeoutRef.current);
-  }
-
-  changeTimeoutRef.current = setTimeout(() => {
-    cb();
-  }, 300);
-};
-const runIdle = (cb: () => void) => {
-  if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-    (window as any).requestIdleCallback(cb);
-  } else {
-    setTimeout(cb, 0);
-  }
-};
-
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -180,10 +155,8 @@ setMainIndex(data.main_photo_index || 0);
   }
 
   localStorage.setItem(
-    
     "profile_cache",
     JSON.stringify(data)
-    
   );
 }
 else{
@@ -196,122 +169,63 @@ setLoading(false);
 
 init();
 }, []);
-
- useEffect(()=>{
+useEffect(()=>{
 
  if(!telegramId) return;
 
-// ❗ проверка изменений
-const currentData = [
-  name,
-  age,
-  gender,
-  search,
-  city,
-  bio,
-  selected.length,
-  photos.length,
-  mainIndex,
-  JSON.stringify(photoEdits),
-].join("|");
-
-if (lastDataRef.current === currentData) return;
-
-lastDataRef.current = currentData;
-
-
  const timer = setTimeout(async()=>{
-  
 
    if(!name.trim() || !city.trim()) return;
-   const now = Date.now();
 
-if (now - lastSaveTimeRef.current < 10000) return;
-
-lastSaveTimeRef.current = now;
-   if (uploading) return;
- 
    setSaveStatus("saving");
 
-   // защита от двойного запроса
-if (isSavingRef.current) return;
-isSavingRef.current = true;
+   const { error } =
+await supabase
+.from("users")
+.upsert(
+{
+ telegram_id:telegramId,
+ name,
+ age,
+ gender,
+ looking:search,
+ city,
+ bio,
+ interests:selected,
+photo_edits:photoEdits,
+main_photo_index:mainIndex,
+avatar_url:
+   avatarPreview ||
+   photos[mainIndex] ||
+   null,
+ photos,
+ onboarding_completed:false
+},
+{
+ onConflict:"telegram_id"
+}
+);
 
-const newData = {
-  name,
-  age,
-  gender,
-  looking: search,
-  city,
-  bio,
-  interests: selected,
-  photo_edits: photoEdits,
-  main_photo_index: mainIndex,
-  avatar_url:
-    avatarPreview ||
-    photos[mainIndex] ||
-    null,
-  photos
-};
+   if(!error){
 
-const payload: any = {
-  telegram_id: telegramId
-};
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+      name,
+      age,
+      gender,
+      looking:search,
+      city,
+      bio,
+      interests:selected,
+      photos
+   })
+ );
 
-// оставляем только изменённые поля
-for (const key in newData) {
-  if (lastSentDataRef.current[key] !== newData[key]) {
-    payload[key] = newData[key];
-  }
+ setSaveStatus("saved");
 }
 
-// если ничего не изменилось — не шлём
-if (Object.keys(payload).length === 1) {
-  isSavingRef.current = false;
-  return;
-}
-
-// запоминаем
-lastSentDataRef.current = { ...newData };
-
-// отправка
-try {
-  const { error } = await supabase
-    .from("users")
-    .upsert(payload, { onConflict: "telegram_id" });
-
-  if (error) {
-    console.log("error", error);
-     setSaveStatus("error");
-    return;
-  }
-
-  runIdle(()=>{
-    localStorage.setItem(
-      "profile_cache",
-      JSON.stringify({
-        name,
-        age,
-        gender,
-        looking: search,
-        city,
-        bio,
-        interests: selected,
-        photos,
-        photo_edits: photoEdits
-      })
-    );
-  });
-
-  setSaveStatus("saved");
-
-} catch (e) {
-  console.log("network error", e);
-} finally {
-  isSavingRef.current = false;
-}
-
-}, 8000);
+ },900);
 
  return ()=>clearTimeout(timer);
 
@@ -384,7 +298,7 @@ canvas.height = img.height * scale;
          );
        },
        "image/jpeg",
-      0.7
+       0.82
       );
 
    };
@@ -393,14 +307,14 @@ canvas.height = img.height * scale;
 
 });
   const uploadPhoto = async (file: File) => {
-    if (uploading) return;
  if (!telegramId) return;
  const now = Date.now();
 
-// защита от спама (мягкая)
-if (now - lastUploadTime < 500) {
-  return;
+if(now - lastUploadTime < 3000){
+ alert("Подожди пару секунд");
+ return;
 }
+
 
 setLastUploadTime(now);
 
@@ -416,7 +330,8 @@ setUploading(true);
  const fileName =
 `${telegramId}/${Date.now()}.jpg`;
 
- const compressedFile = await compressImage(file);
+ const compressedFile =
+  await compressImage(file);
 
  const { error } = await supabase.storage
    .from("avatars")
@@ -428,42 +343,32 @@ setUploading(true);
     if (!error) {
 
  const { data } = supabase.storage
-  .from("avatars")
-  .getPublicUrl(fileName + "?v=" + Date.now());
+   .from("avatars")
+   .getPublicUrl(
+      fileName + "?v=" + Date.now()
+   );
 
-const updated = [...photos, data.publicUrl];
+setPhotos(prev=>{
 
-// обновляем UI
-setPhotos(updated);
-setMainIndex(updated.length - 1);
+ const updated=[...prev,data.publicUrl];
 
-// сохраняем в БД
-await supabase
-  .from("users")
-  .update({
-    photos: updated,
-    avatar_url: updated[updated.length - 1] || null
-  })
-  .eq("telegram_id", telegramId);
+ localStorage.setItem(
+   "profile_cache",
+   JSON.stringify({
+ name,
+ age,
+ gender,
+ looking:search,
+ city,
+ bio,
+ interests:selected,
+ photos,
+ photo_edits:photoEdits
+})
+ );
 
-// кеш
-runIdle(() => {
-  localStorage.setItem(
-    "profile_cache",
-    JSON.stringify({
-      name,
-      age,
-      gender,
-      looking: search,
-      city,
-      bio,
-      interests: selected,
-      photos: updated,
-      photo_edits: photoEdits
-    })
-  );
+ return updated;
 });
-
 
 setUploadProgress(80);
 
@@ -588,70 +493,37 @@ window.location.href="/home";
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-        <div style={styles.avatarWrapper}>
+        <div style={styles.avatarWrapper} onClick={() => setActivePhoto(true)}>
+          {photos.length > 0 ? (
+            <div style={styles.avatarMask}>
+<img
+  src={avatarPreview || photos[mainIndex]}
+  loading="lazy"
+decoding="async"
+style={{
+ ...styles.avatarImage,
 
-  {photos.length > 0 ? (
-  <div
-    style={styles.avatarMask}
-    onClick={() => setActivePhoto(true)}
-  >
-  {(() => {
-  const currentPhoto = avatarPreview || photos[mainIndex];
-  const edit = photoEdits[mainIndex];
+ transform: photoEdits[mainIndex]
+   ? `translate(
+        ${photoEdits[mainIndex].crop.x/6}px,
+        ${photoEdits[mainIndex].crop.y/6}px
+      )
+      scale(${photoEdits[mainIndex].zoom})`
+   : "none",
 
-  return (
-    <img
-      src={currentPhoto}
-      loading="lazy"
-      decoding="async"
-      style={{
-        ...styles.avatarImage,
-        objectFit: "cover",
-        objectPosition: edit
-          ? `${50 - edit.crop.x / 3}% ${50 - edit.crop.y / 3}%`
-          : "center",
-        transform: edit ? `scale(${edit.zoom})` : "none",
-        transformOrigin: "center center"
-      }}
-    />
-  );
-})()}
-   
-  </div>
-) : (
-  <div
-    style={styles.avatar}
-    onClick={() => setActivePhoto(true)}
-  >
-    👤
-  </div>
-)}
-
-<input
-  ref={inputRef}
-  type="file"
-  accept="image/*"
-  hidden
-  onChange={async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Фото до 10MB");
-      return;
-    }
-
-    await uploadPhoto(file);
-    e.target.value = "";
-  }}
-/>
+ transformOrigin:"center center"
+}}/>
+</div>
+          ) : (
+            <div style={styles.avatar}>👤</div>
+          )}
+          <div style={styles.plus}>+</div>
         </div>
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>Имя</p>
-            <input value={name} onChange={(e)=>updateField(()=>setName(e.target.value))} 
-            style={styles.input}/>
+            <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
           </div>
 
           <div style={styles.inputBox}>
@@ -659,7 +531,7 @@ window.location.href="/home";
             <div>{age}</div>
 <input
  type="range"
- min="16"
+ min="18"
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
@@ -688,12 +560,12 @@ window.location.href="/home";
         </div>
                 <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
-          <input value={city} onChange={(e)=>updateField(()=>setCity(e.target.value))} style={styles.input}/>
+          <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
-          <textarea value={bio} onChange={(e)=>updateField(()=>setBio(e.target.value))} style={styles.textarea}/>
+          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
         <div style={styles.block}>
@@ -817,132 +689,173 @@ style={{
 
 <button
  style={styles.submit}
- onClick={() => {
+ onClick={async()=>{
 
-  const updatedEdits = {
-    ...photoEdits,
-    [mainIndex]: {
-      crop,
-      zoom
-    }
-  };
+ setPhotoEdits(prev=>({
+ ...prev,
+ [mainIndex]:{
+   crop,
+   zoom
+ }
+}));
 
-  // 1. обновляем state
-  setPhotoEdits(updatedEdits);
+localStorage.setItem(
+ "profile_cache",
+ JSON.stringify({
+   name,
+   age,
+   gender,
+   looking:search,
+   city,
+   bio,
+   interests:selected,
+   photos,
+   photo_edits:{
+     ...photoEdits,
+     [mainIndex]:{
+       crop,
+       zoom
+     }
+   }
+ })
+);
 
-  // 2. сохраняем ПРАВИЛЬНЫЕ данные
-  runIdle(() => {
-    localStorage.setItem(
-      "profile_cache",
-      JSON.stringify({
-        name,
-        age,
-        gender,
-        looking: search,
-        city,
-        bio,
-        interests: selected,
-        photos,
-        photo_edits: updatedEdits // 👈 ВОТ ЭТО КЛЮЧЕВО
-      })
-    );
-  });
-
-  // 3. закрываем кроп
-  setCropOpen(false);
+setCropOpen(false);
 
 }}
-
-
 >
 Готово
 </button>
+
 </div>
 </div>
 )}
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
       {activePhoto && !cropOpen && (
-  <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-    <div
-      style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
-  onClick={(e)=>e.stopPropagation()}
+        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
+          <div
+            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+            onClick={(e)=>e.stopPropagation()}
+          >
+
+            <label style={styles.addPhoto}>
+              +
+              <input
+ type="file"
+ multiple
+ accept="image/*"
+ hidden
+ onChange={async (e)=>{
+   const files = e.target.files;
+   for (let f of Array.from(files || [])) {
+ if (f.size > 10 * 1024 * 1024){
+   alert("Фото до 10MB");
+   return;
+ }
+}
+   if (!files) return;
+
+   if (photos.length + files.length > 6){
+      alert("Максимум 6 фото");
+      return;
+   }
+
+   for(let i=0;i<files.length;i++){
+      await uploadPhoto(files[i]);
+   }
+
+   e.target.value="";
+ }}
+/>
+            </label>
+
+            {photos.map((p,i)=>(
+  <div key={i} style={styles.galleryItem}>
+
+    <img
+      src={p}
+      loading="lazy"
+decoding="async"
+      onClick={()=>{
+ setMainIndex(i);
+ console.log("Главная фото:", i);
+}}
+      style={{
+        ...styles.galleryImg,
+        border: i===mainIndex
+          ? "3px solid #2AABEE"
+          : "none"
+      }}
+    />
+
+    {i===mainIndex && (
+      <div style={styles.mainBadge}>
+        ★ Главная
+      </div>
+    )}
+
+    {i===mainIndex && (
+<button
+ onClick={(e)=>{
+   e.stopPropagation();
+   setEditingPhoto(p);
+
+if(photoEdits[i]){
+ setCrop(photoEdits[i].crop);
+ setZoom(photoEdits[i].zoom);
+}else{
+ setCrop({x:0,y:0});
+ setZoom(1.2);
+}
+
+setActivePhoto(false);
+setCropOpen(true);
+ }}
+ style={{
+   position:"absolute",
+   right:"-10px",
+   bottom:"-10px",
+   width:"34px",
+   height:"34px",
+   borderRadius:"50%",
+   border:"2px solid #fff",
+   background:"#fff",
+   boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+   zIndex:9999
+ }}
 >
-
-  {photos.map((p,i)=>(
-    <div key={i} style={styles.galleryItem}>
-
-      <img
-        src={p}
-        loading="lazy"
-        decoding="async"
-        onClick={()=>setMainIndex(i)}
-        style={{
-          ...styles.galleryImg,
-          border: i===mainIndex
-            ? "3px solid #2AABEE"
-            : "none"
-        }}
-      />
-
-      <button
-        style={styles.deleteBtn}
-        onClick={()=>{
-          setPhotos(prev =>
-            prev.filter((_,index)=>index!==i)
-          );
-
-          if(i===mainIndex){
-            setMainIndex(0);
-          }
-        }}
-      >
-        ✕
-      </button>
-
-    </div>
-  ))}
-
-  {/* ➕ В КОНЦЕ СЕТКИ */}
-  {photos.length < 6 && (
-    <label style={styles.galleryItem}>
-      <div style={styles.galleryImgPlus}>+</div>
-
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        hidden
-        onChange={async (e)=>{
-          const files = e.target.files;
-
-          if (!files) return;
-
-          if (photos.length + files.length > 6){
-            alert("Максимум 6 фото");
-            return;
-          }
-
-          for(let f of Array.from(files)){
-            if (f.size > 10 * 1024 * 1024){
-              alert("Фото до 10MB");
-              return;
-            }
-            await uploadPhoto(f);
-          }
-
-          e.target.value="";
-        }}
-      />
-    </label>
-  )}
-
-</div>
-  </div>
+ ✎
+</button>
 )}
 
+    <button
+      style={styles.deleteBtn}
+      onClick={()=>{
+ setPhotos(prev =>
+   prev.filter((_,index)=>index!==i)
+ );
+
+ if(i===mainIndex){
+   setMainIndex(0);
+ }
+}}
+    >
+      ✕
+    </button>
+
+  </div>
+))}
+      
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+
+
 
 const styles:any = {
   wrapper:{
@@ -968,10 +881,7 @@ avatarMask:{
  borderRadius:"50%",
  overflow:"hidden",
  background:"#E7F3FF",
- position:"relative",
-
- cursor:"pointer",   
- zIndex:2            
+ position:"relative"
 },
 
 avatarImage:{
@@ -984,60 +894,32 @@ avatarImage:{
 
   avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
 plus:{
-  position:"absolute",
-  bottom:0,
-  right:"calc(50% - 46px)",
+ position:"absolute",
+ bottom:0,
+ right:"calc(50% - 46px)",
 
-  width:"24px",
-  height:"24px",
+ width:"24px",
+ height:"24px",
 
-  borderRadius:"50%",
-  background:"#2AABEE",
-  color:"#fff",
+ borderRadius:"50%",
+ background:"#2AABEE",
+ color:"#fff",
 
-  display:"flex",
-  alignItems:"center",
-  justifyContent:"center",
+ display:"flex",
+ alignItems:"center",
+ justifyContent:"center",
 
-  fontSize:"16px",
-  fontWeight:700,
+ fontSize:"16px",
+ fontWeight:700,
 
-  zIndex:3,
-
-  pointerEvents:"none"   // 👈 ВОТ ЭТО ГЛАВНОЕ
+ zIndex:20
 },
   row:{display:"flex",gap:"10px"},
-inputBox:{
-  background:"#F9FAFB",
-  borderRadius:"16px",
-  padding:"8px 10px",   // 👈 было 12px → стало меньше
-  marginTop:"12px",
+  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+  label:{fontSize:"12px",color:"#6B7280"},
+  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
+  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
-  flex:"0 0 48%"
-},
-label:{
-  fontSize:"11px",      // 👈 было 12px
-  color:"#6B7280"
-},
-input:{
-  width:"100%",
-  border:"none",
-  background:"transparent",
-  outline:"none",
-
-  fontSize:"14px",      // 👈 чуть меньше
-  height:"20px"         // 👈 фикс высоты
-},
-  textarea:{
-  width:"100%",
-  border:"none",
-  background:"transparent",
-  outline:"none",
-
-  resize:"none",
-  height:"22px",       
-  lineHeight:"22px"
-},
   block:{marginTop:"14px"},
 
   buttons:{display:"flex",gap:"8px"},
@@ -1091,18 +973,15 @@ galleryEmpty:{
  width:"100%"
 },
 
-
-
-
-
 gallery:{
-  display:"grid",
-  gridTemplateColumns:"repeat(4,1fr)", // 👈 4 в ряд
-  gap:"10px",
-  width:"100%",
-  maxWidth:"420px",
-  margin:"0 auto",
-  padding:"18px"
+ display:"grid",
+ gridTemplateColumns:"repeat(3,110px)",
+ justifyContent:"center",
+ gap:"14px",
+ width:"100%",
+ maxWidth:"420px",
+ margin:"0 auto",
+ padding:"18px"
 },
 
   galleryItem:{
@@ -1111,24 +990,13 @@ gallery:{
  overflow:"visible"
 },
 
-galleryImg:{
-  width:"100%",
-  aspectRatio:"1/1",
-  objectFit:"cover",
-  borderRadius:"12px"
-},
-
-galleryImgPlus:{
-  width:"100%",
-  aspectRatio:"1/1",
-  borderRadius:"12px",
-  background:"#EEF5FD",
-  display:"flex",
-  alignItems:"center",
-  justifyContent:"center",
-  fontSize:"28px",
-  color:"#2AABEE",
-  cursor:"pointer"
+  galleryImg:{
+ width:"100%",
+ height:"160px",
+ aspectRatio:"3/4",
+ objectFit:"cover",
+ borderRadius:"18px",
+ display:"block"
 },
 
 addPhoto:{
