@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 
 const Cropper:any = dynamic(
@@ -64,6 +64,8 @@ const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
 const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
+const inputRef = useRef<HTMLInputElement>(null);
+
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -226,7 +228,7 @@ avatar_url:
  setSaveStatus("saved");
 }
 
- },900);
+ },2500);
 
  return ()=>clearTimeout(timer);
 
@@ -495,67 +497,40 @@ window.location.href="/home";
       <div style={styles.card}>
 
         <div style={styles.avatarWrapper}>
-          {photos.length > 0 ? (
-            <div
-  style={styles.avatarMask}
-  onClick={() => setActivePhoto(true)}
->
-  <input
-  id="avatarInput"
-  type="file"
-  accept="image/*"
-  hidden
-  onChange={async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Фото до 10MB");
-      return;
-    }
-
-    await uploadPhoto(file);
-    e.target.value = "";
-  }}
-/>
-<img
-  src={avatarPreview || photos[mainIndex]}
-  loading="lazy"
-decoding="async"
-style={{
- ...styles.avatarImage,
-
- transform: photoEdits[mainIndex]
-   ? `translate(
-        ${photoEdits[mainIndex].crop.x/6}px,
-        ${photoEdits[mainIndex].crop.y/6}px
-      )
-      scale(${photoEdits[mainIndex].zoom})`
-   : "none",
-
- transformOrigin:"center center"
-}}/>
-</div>
-          ) : (
-            <div
-  style={styles.avatar}
-  onClick={() => document.getElementById("avatarInput")?.click()}
->
-  👤
-</div>
-          )}
-         <div
-  style={styles.plus}
-  onClick={(e) => {
-    e.stopPropagation(); // ❗ важно
-    document.getElementById("avatarInput")?.click();
-  }}
->
-  +
-</div>
+  {photos.length > 0 ? (
+    <div
+      style={styles.avatarMask}
+      onClick={() => inputRef.current?.click()}
+    >
+      <img
+        src={avatarPreview || photos[mainIndex]}
+        loading="lazy"
+        decoding="async"
+        style={{
+          ...styles.avatarImage,
+          transform: photoEdits[mainIndex]
+            ? `translate(
+                ${photoEdits[mainIndex].crop.x/6}px,
+                ${photoEdits[mainIndex].crop.y/6}px
+              )
+              scale(${photoEdits[mainIndex].zoom})`
+            : "none",
+          transformOrigin:"center center"
+        }}
+      />
+    </div>
+  ) : (
+    <div
+      style={styles.avatar}
+      onClick={() => inputRef.current?.click()}
+    >
+      👤
+    </div>
+  )}
 
 <input
-  id="avatarInput"
+  ref={inputRef}
   type="file"
   accept="image/*"
   hidden
