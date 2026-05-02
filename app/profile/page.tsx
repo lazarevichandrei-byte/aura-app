@@ -868,64 +868,44 @@ style={{
       onClick={(e)=>e.stopPropagation()}
     >
 
-      {/* ➕ ОДНА КАРТОЧКА В СЕТКЕ */}
-      {photos.length < 6 && (
-        <label style={styles.galleryItem}>
-          <div style={{
-            ...styles.galleryImg,
-            display:"flex",
-            alignItems:"center",
-            justifyContent:"center",
-            background:"#EEF5FD",
-            fontSize:"42px",
-            color:"#2AABEE"
-          }}>
-            +
-          </div>
+      <label style={styles.addPhoto}>
+        +
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          hidden
+          onChange={async (e)=>{
+            const files = e.target.files;
 
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            hidden
-            onChange={async (e)=>{
-              const files = e.target.files;
-
-              for (let f of Array.from(files || [])) {
-                if (f.size > 10 * 1024 * 1024){
-                  alert("Фото до 10MB");
-                  return;
-                }
-              }
-
-              if (!files) return;
-
-              if (photos.length + files.length > 6){
-                alert("Максимум 6 фото");
+            for (let f of Array.from(files || [])) {
+              if (f.size > 10 * 1024 * 1024){
+                alert("Фото до 10MB");
                 return;
               }
+            }
 
-              for(let i=0;i<files.length;i++){
-                await uploadPhoto(files[i]);
-              }
+            if (!files) return;
 
-              e.target.value="";
-            }}
-          />
-        </label>
-      )}
+            if (photos.length + files.length > 6){
+              alert("Максимум 6 фото");
+              return;
+            }
 
-      {/* 📸 ФОТО */}
+            for(let i=0;i<files.length;i++){
+              await uploadPhoto(files[i]);
+            }
+
+            e.target.value="";
+          }}
+        />
+      </label>
+
       {photos.map((p,i)=>(
         <div key={i} style={styles.galleryItem}>
-
           <img
             src={p}
-            loading="lazy"
-            decoding="async"
-            onClick={()=>{
-              setMainIndex(i);
-            }}
+            onClick={()=>setMainIndex(i)}
             style={{
               ...styles.galleryImg,
               border: i===mainIndex
@@ -933,46 +913,6 @@ style={{
                 : "none"
             }}
           />
-
-          {i===mainIndex && (
-            <div style={styles.mainBadge}>
-              ★ Главная
-            </div>
-          )}
-
-          {i===mainIndex && (
-            <button
-              onClick={(e)=>{
-                e.stopPropagation();
-                setEditingPhoto(p);
-
-                if(photoEdits[i]){
-                  setCrop(photoEdits[i].crop);
-                  setZoom(photoEdits[i].zoom);
-                } else {
-                  setCrop({x:0,y:0});
-                  setZoom(1.2);
-                }
-
-                setActivePhoto(false);
-                setCropOpen(true);
-              }}
-              style={{
-                position:"absolute",
-                right:"-10px",
-                bottom:"-10px",
-                width:"34px",
-                height:"34px",
-                borderRadius:"50%",
-                border:"2px solid #fff",
-                background:"#fff",
-                boxShadow:"0 4px 12px rgba(0,0,0,.18)",
-                zIndex:9999
-              }}
-            >
-              ✎
-            </button>
-          )}
 
           <button
             style={styles.deleteBtn}
@@ -988,7 +928,6 @@ style={{
           >
             ✕
           </button>
-
         </div>
       ))}
 
