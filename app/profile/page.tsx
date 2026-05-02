@@ -538,8 +538,7 @@ window.location.href="/home";
 
           <div style={styles.inputBox}>
             <p style={styles.label}>Возраст</p>
-            <div>{age}</div>
-<input
+<div style={{fontSize:14, marginBottom:4}}>{age}</div><input
  type="range"
  min="18"
  max="60"
@@ -925,10 +924,26 @@ plus:{
  zIndex:20
 },
   row:{display:"flex",gap:"10px"},
-  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
-  label:{fontSize:"12px",color:"#6B7280"},
+
+inputBox:{
+  background:"#F9FAFB",
+  borderRadius:"16px",
+  padding:"8px 12px", // было 12px
+  marginTop:"10px",   // чуть меньше отступ
+  flex:1
+},
+
+label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
-  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
+
+  textarea:{
+  width:"100%",
+  border:"none",
+  background:"transparent",
+  outline:"none",
+  height:"70px",       // фикс высоты
+  resize:"none"        // убирает растягивание
+},
 
   block:{marginTop:"14px"},
 
