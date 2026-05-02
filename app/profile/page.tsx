@@ -951,25 +951,26 @@ avatarImage:{
 
   avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
 plus:{
- position:"absolute",
- bottom:0,
- right:"calc(50% - 46px)",
+  position:"absolute",
 
- width:"24px",
- height:"24px",
+  top:0,                    // 👈 вместо bottom
+  right:"calc(50% - 46px)",
 
- borderRadius:"50%",
- background:"#2AABEE",
- color:"#fff",
+  width:"24px",
+  height:"24px",
 
- display:"flex",
- alignItems:"center",
- justifyContent:"center",
+  borderRadius:"50%",
+  background:"#2AABEE",
+  color:"#fff",
 
- fontSize:"16px",
- fontWeight:700,
+  display:"flex",
+  alignItems:"center",
+  justifyContent:"center",
 
- zIndex:1
+  fontSize:"16px",
+  fontWeight:700,
+
+  zIndex:3                 // 👈 выше аватарки
 },
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
