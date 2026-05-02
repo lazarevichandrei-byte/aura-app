@@ -863,71 +863,21 @@ style={{
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
       {activePhoto && !cropOpen && (
   <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-    
-    <div onClick={(e)=>e.stopPropagation()}>
+    <div
+      style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
+      onClick={(e)=>e.stopPropagation()}
+    >
 
-      {/* ➕ КНОПКА */}
-      {photos.length < 4 && (
-        <div style={{
-          display:"flex",
-          justifyContent:"center",
-          marginBottom:"16px"
-        }}>
-          <label style={{
-            width:"80px",
-            height:"80px",
-            borderRadius:"20px",
-            background:"#fff",
-            display:"flex",
-            alignItems:"center",
-            justifyContent:"center",
-            fontSize:"36px",
-            color:"#2AABEE",
-            boxShadow:"0 6px 18px rgba(0,0,0,.1)",
-            cursor:"pointer"
-          }}>
-            +
-
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              hidden
-              onChange={async (e)=>{
-                const files = e.target.files;
-                if (!files) return;
-
-                if (photos.length + files.length > 4){
-                  alert("Максимум 4 фото");
-                  return;
-                }
-
-                await Promise.all(
-                  Array.from(files).map(f => uploadPhoto(f))
-                );
-
-                e.target.value="";
-              }}
-            />
-          </label>
-        </div>
-      )}
-
-      {/* 📸 СЕТКА */}
-      <div style={styles.gallery}>
-
-  {[...photos, ...(photos.length < 4 ? ["add"] : [])].map((p,i)=>{
-
-    if(p === "add"){
-      return (
-        <label key="add" style={styles.galleryItem}>
+      {/* ➕ ОДНА КАРТОЧКА В СЕТКЕ */}
+      {photos.length < 6 && (
+        <label style={styles.galleryItem}>
           <div style={{
             ...styles.galleryImg,
             display:"flex",
             alignItems:"center",
             justifyContent:"center",
             background:"#EEF5FD",
-            fontSize:"36px",
+            fontSize:"42px",
             color:"#2AABEE"
           }}>
             +
@@ -940,69 +890,112 @@ style={{
             hidden
             onChange={async (e)=>{
               const files = e.target.files;
-              if (!files) return;
 
-              if (photos.length + files.length > 4){
-                alert("Максимум 4 фото");
-                return;
-              }
-
-              for(let f of Array.from(files)){
+              for (let f of Array.from(files || [])) {
                 if (f.size > 10 * 1024 * 1024){
                   alert("Фото до 10MB");
                   return;
                 }
-                await uploadPhoto(f);
+              }
+
+              if (!files) return;
+
+              if (photos.length + files.length > 6){
+                alert("Максимум 6 фото");
+                return;
+              }
+
+              for(let i=0;i<files.length;i++){
+                await uploadPhoto(files[i]);
               }
 
               e.target.value="";
             }}
           />
         </label>
-      );
-    }
+      )}
 
-    return (
-      <div key={i} style={styles.galleryItem}>
+      {/* 📸 ФОТО */}
+      {photos.map((p,i)=>(
+        <div key={i} style={styles.galleryItem}>
 
-        <img
-          src={p}
-          loading="lazy"
-          decoding="async"
-          onClick={()=>setMainIndex(i)}
-          style={{
-            ...styles.galleryImg,
-            border: i===mainIndex
-              ? "3px solid #2AABEE"
-              : "none"
-          }}
-        />
+          <img
+            src={p}
+            loading="lazy"
+            decoding="async"
+            onClick={()=>{
+              setMainIndex(i);
+            }}
+            style={{
+              ...styles.galleryImg,
+              border: i===mainIndex
+                ? "3px solid #2AABEE"
+                : "none"
+            }}
+          />
 
-        <button
-          style={styles.deleteBtn}
-          onClick={()=>{
-            setPhotos(prev =>
-              prev.filter((_,index)=>index!==i)
-            );
+          {i===mainIndex && (
+            <div style={styles.mainBadge}>
+              ★ Главная
+            </div>
+          )}
 
-            if(i===mainIndex){
-              setMainIndex(0);
-            }
-          }}
-        >
-          ✕
-        </button>
+          {i===mainIndex && (
+            <button
+              onClick={(e)=>{
+                e.stopPropagation();
+                setEditingPhoto(p);
 
-      </div>
-    );
-  })}
+                if(photoEdits[i]){
+                  setCrop(photoEdits[i].crop);
+                  setZoom(photoEdits[i].zoom);
+                } else {
+                  setCrop({x:0,y:0});
+                  setZoom(1.2);
+                }
 
-</div>
+                setActivePhoto(false);
+                setCropOpen(true);
+              }}
+              style={{
+                position:"absolute",
+                right:"-10px",
+                bottom:"-10px",
+                width:"34px",
+                height:"34px",
+                borderRadius:"50%",
+                border:"2px solid #fff",
+                background:"#fff",
+                boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+                zIndex:9999
+              }}
+            >
+              ✎
+            </button>
+          )}
+
+          <button
+            style={styles.deleteBtn}
+            onClick={()=>{
+              setPhotos(prev =>
+                prev.filter((_,index)=>index!==i)
+              );
+
+              if(i===mainIndex){
+                setMainIndex(0);
+              }
+            }}
+          >
+            ✕
+          </button>
+
+        </div>
+      ))}
 
     </div>
-
   </div>
 )}
+
     </div>
   );
 }
