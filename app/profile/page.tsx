@@ -498,7 +498,7 @@ window.location.href="/home";
           {photos.length > 0 ? (
             <div
   style={styles.avatarMask}
-  onClick={() => document.getElementById("avatarInput")?.click()}
+  onClick={() => setActivePhoto(true)}
 >
   <input
   id="avatarInput"
@@ -544,7 +544,15 @@ style={{
   👤
 </div>
           )}
-         <div style={styles.plus}>+</div>
+         <div
+  style={styles.plus}
+  onClick={(e) => {
+    e.stopPropagation(); // ❗ важно
+    document.getElementById("avatarInput")?.click();
+  }}
+>
+  +
+</div>
 
 <input
   id="avatarInput"
