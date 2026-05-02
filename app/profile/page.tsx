@@ -863,145 +863,98 @@ style={{
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
       {activePhoto && !cropOpen && (
   <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-    <div
-      style={styles.gallery}
-      onClick={(e)=>e.stopPropagation()}
-    >
+    
+    <div onClick={(e)=>e.stopPropagation()}>
 
-      {/* ➕ КНОПКА ДОБАВЛЕНИЯ */}
-      {photos.length < 6 && (
-        <label style={styles.galleryItem}>
-          <div style={{
-            ...styles.galleryImg,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#EEF5FD",
-            fontSize: 40,
-            color: "#2AABEE"
+      {/* ➕ КНОПКА */}
+      {photos.length < 4 && (
+        <div style={{
+          display:"flex",
+          justifyContent:"center",
+          marginBottom:"16px"
+        }}>
+          <label style={{
+            width:"80px",
+            height:"80px",
+            borderRadius:"20px",
+            background:"#fff",
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            fontSize:"36px",
+            color:"#2AABEE",
+            boxShadow:"0 6px 18px rgba(0,0,0,.1)",
+            cursor:"pointer"
           }}>
             +
-          </div>
 
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            hidden
-            onChange={async (e)=>{
-              const files = e.target.files;
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              hidden
+              onChange={async (e)=>{
+                const files = e.target.files;
+                if (!files) return;
 
-              for (let f of Array.from(files || [])) {
-                if (f.size > 10 * 1024 * 1024){
-                  alert("Фото до 10MB");
+                if (photos.length + files.length > 4){
+                  alert("Максимум 4 фото");
                   return;
                 }
-              }
 
-              if (!files) return;
+                await Promise.all(
+                  Array.from(files).map(f => uploadPhoto(f))
+                );
 
-              if (photos.length + files.length > 6){
-                alert("Максимум 6 фото");
-                return;
-              }
-
-              await Promise.all(
-                Array.from(files).map(f => uploadPhoto(f))
-              );
-
-              e.target.value="";
-            }}
-          />
-        </label>
-      )}
-
-      {/* 📸 ФОТО */}
-      {photos.map((p,i)=>(
-        <div key={i} style={styles.galleryItem}>
-
-          <img
-            src={p}
-            loading="lazy"
-            decoding="async"
-            onClick={()=>{
-              setMainIndex(i);
-            }}
-            style={{
-              ...styles.galleryImg,
-              border: i===mainIndex
-                ? "3px solid #2AABEE"
-                : "none"
-            }}
-          />
-
-          {i===mainIndex && (
-            <div style={styles.mainBadge}>
-              ★ Главная
-            </div>
-          )}
-
-          {i===mainIndex && (
-            <button
-              onClick={(e)=>{
-                e.stopPropagation();
-                setEditingPhoto(p);
-
-                if(photoEdits[i]){
-                  setCrop(photoEdits[i].crop);
-                  setZoom(photoEdits[i].zoom);
-                } else {
-                  setCrop({x:0,y:0});
-                  setZoom(1.2);
-                }
-
-                setActivePhoto(false);
-                setCropOpen(true);
+                e.target.value="";
               }}
-              style={{
-                position:"absolute",
-                right:"-10px",
-                bottom:"-10px",
-                width:"34px",
-                height:"34px",
-                borderRadius:"50%",
-                border:"2px solid #fff",
-                background:"#fff",
-                boxShadow:"0 4px 12px rgba(0,0,0,.18)",
-                zIndex:9999
-              }}
-            >
-              ✎
-            </button>
-          )}
-
-          <button
-            style={styles.deleteBtn}
-            onClick={()=>{
-              setPhotos(prev =>
-                prev.filter((_,index)=>index!==i)
-              );
-
-              if(i===mainIndex){
-                setMainIndex(0);
-              }
-            }}
-          >
-            ✕
-          </button>
-
-  </div>
-))}
-      
-
-          </div>
+            />
+          </label>
         </div>
       )}
+
+      {/* 📸 СЕТКА */}
+      <div style={styles.gallery}>
+        {photos.map((p,i)=>(
+          <div key={i} style={styles.galleryItem}>
+
+            <img
+              src={p}
+              style={{
+                ...styles.galleryImg,
+                border: i===mainIndex
+                  ? "3px solid #2AABEE"
+                  : "none"
+              }}
+              onClick={()=>setMainIndex(i)}
+            />
+
+            <button
+              style={styles.deleteBtn}
+              onClick={()=>{
+                setPhotos(prev =>
+                  prev.filter((_,index)=>index!==i)
+                );
+
+                if(i===mainIndex){
+                  setMainIndex(0);
+                }
+              }}
+            >
+              ✕
+            </button>
+
+          </div>
+        ))}
+      </div>
+
+    </div>
+
+  </div>
+)}
     </div>
   );
 }
-
-
-
 
 const styles:any = {
   wrapper:{
@@ -1150,13 +1103,16 @@ galleryEmpty:{
  width:"100%"
 },
 
+
+
+
+
 gallery:{
  display:"grid",
- gridTemplateColumns:"repeat(3,110px)",
- justifyContent:"center",
- gap:"14px",
+ gridTemplateColumns:"repeat(2,1fr)", // 👈 2 колонки
+ gap:"12px",
  width:"100%",
- maxWidth:"420px",
+ maxWidth:"260px", // 👈 компактный блок
  margin:"0 auto",
  padding:"18px"
 },
@@ -1167,12 +1123,11 @@ gallery:{
  overflow:"visible"
 },
 
-  galleryImg:{
+galleryImg:{
  width:"100%",
- height:"160px",
- aspectRatio:"3/4",
+ aspectRatio:"1/1", // 👈 квадрат
  objectFit:"cover",
- borderRadius:"18px",
+ borderRadius:"16px",
  display:"block"
 },
 
