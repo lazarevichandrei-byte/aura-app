@@ -195,7 +195,7 @@ if(payload === lastSavedRef.current){
 }
   const now = Date.now();
 
-if(now - lastSaveTime < 2000){
+if(now - lastSaveTime < 10000){
  return;
 }
 
@@ -276,27 +276,61 @@ photoEdits
 useEffect(() => {
   if (!telegramId) return;
 
-  const loadMatches = async () => {
+  const timer = setTimeout(async () => {
+
     let query = supabase
       .from("users")
-      .select("*")
+    .select("telegram_id, name, age, city, avatar_url, photos")
       .neq("telegram_id", telegramId);
 
     if (search !== "any") {
       query = query.eq("gender", search);
     }
 
-    const { data, error } = await query.limit(20);
+let { data, error } = await query.limit(20);
 
-    if (error) {
-      console.log("match error", error);
-      return;
-    }
 
-    setMatches(data || []);
-  };
 
-  loadMatches();
+// 🔥 получаем кто лайкнул тебя
+const { data: likedYou } = await supabase
+  .from("likes")
+  .select("from_user")
+  .eq("to_user", telegramId);
+
+// список id
+const likedIds = (likedYou || []).map(l => l.from_user);
+
+// 🔥 сортируем: сначала те кто лайкнул
+data = (data || []).sort((a, b) => {
+  const aLiked = likedIds.includes(a.telegram_id);
+  const bLiked = likedIds.includes(b.telegram_id);
+
+  if (aLiked === bLiked) return 0;
+  return aLiked ? -1 : 1;
+});
+
+if (error) {
+  console.log("match error", error);
+  return;
+}
+
+// fallback если мало результатов
+if ((data?.length || 0) < 5) {
+  const { data: fallback } = await supabase
+    .from("users")
+    .select("telegram_id, name, age, city, avatar_url, photos")
+    .neq("telegram_id", telegramId)
+    .limit(20);
+
+  data = fallback || data;
+}
+
+setMatches(data || []);
+
+  }, 400); // 👈 задержка
+
+  return () => clearTimeout(timer);
+
 }, [telegramId, search]);
 
 const compressImage = (file: File): Promise<File> =>
