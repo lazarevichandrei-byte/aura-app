@@ -976,8 +976,17 @@ plus:{
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
   label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
-  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
+  textarea:{
+  width:"100%",
+  border:"none",
+  background:"transparent",
+  outline:"none",
+
+  resize:"none",
+  height:"22px",       
+  lineHeight:"22px"
+},
   block:{marginTop:"14px"},
 
   buttons:{display:"flex",gap:"8px"},
