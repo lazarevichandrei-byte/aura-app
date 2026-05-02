@@ -377,27 +377,7 @@ setUploading(true);
    setEditingPhoto(data.publicUrl);
 setCropOpen(true);
 
-setPhotos(prev=>{
 
- const updated=[...prev,data.publicUrl];
-
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
- name,
- age,
- gender,
- looking:search,
- city,
- bio,
- interests:selected,
- photos,
- 
-})
- );
-
- return updated;
-});
 
 setUploadProgress(80);
 
@@ -703,29 +683,26 @@ color:"#8A94A6"
       />
 
       <button
-        style={styles.submit}
-        onClick={async()=>{
+ style={styles.submit}
+ onClick={async()=>{
 
-          if (!croppedAreaPixels) return;
+  if (!croppedAreaPixels) return;
 
-          const croppedImage = await getCroppedImg(
-            editingPhoto,
-            croppedAreaPixels
-          );
+  const croppedImage = await getCroppedImg(
+    editingPhoto,
+    croppedAreaPixels
+  );
 
-          setAvatarPreview(croppedImage);
+  setAvatarPreview(croppedImage);
 
-          setPhotos(prev=>{
-            const updated=[...prev];
-            updated[mainIndex] = croppedImage;
-            return updated;
-          });
+  setPhotos(prev => [...prev, croppedImage]);
+  setMainIndex(prev => prev + 1);
 
-          setCropOpen(false);
-        }}
-      >
-        Готово
-      </button>
+  setCropOpen(false);
+}}
+>
+Готово
+</button>
 
     </div>
   </div>
