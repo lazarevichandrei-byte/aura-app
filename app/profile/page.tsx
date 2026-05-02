@@ -973,7 +973,14 @@ plus:{
   zIndex:3                 // 👈 выше аватарки
 },
   row:{display:"flex",gap:"10px"},
-  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+inputBox:{
+  background:"#F9FAFB",
+  borderRadius:"16px",
+  padding:"12px",
+  marginTop:"12px",
+
+  flex:"0 0 48%"   // 👈 вот ключ
+},
   label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
