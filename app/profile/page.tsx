@@ -595,18 +595,28 @@ window.location.href="/home";
     style={styles.avatarMask}
     onClick={() => setActivePhoto(true)}
   >
+  {(() => {
+  const currentPhoto = avatarPreview || photos[mainIndex];
+  const edit = photoEdits[mainIndex];
+
+  return (
     <img
-      src={avatarPreview || photos[mainIndex]}
+      src={currentPhoto}
       loading="lazy"
       decoding="async"
       style={{
-  ...styles.avatarImage,
-  objectFit: "cover",
-  objectPosition: photoEdits[mainIndex]
-    ? `${50 - photoEdits[mainIndex].crop.x / 10}% ${50 - photoEdits[mainIndex].crop.y / 10}%`
-    : "center"
-}}
+        ...styles.avatarImage,
+        objectFit: "cover",
+        objectPosition: edit
+          ? `${50 - edit.crop.x / 3}% ${50 - edit.crop.y / 3}%`
+          : "center",
+        transform: edit ? `scale(${edit.zoom})` : "none",
+        transformOrigin: "center center"
+      }}
     />
+  );
+})()}
+   
   </div>
 ) : (
   <div
@@ -807,44 +817,46 @@ style={{
 
 <button
  style={styles.submit}
- onClick={async()=>{
+ onClick={() => {
 
- const updatedEdits = {
-  ...photoEdits,
-  [mainIndex]: {
-    crop,
-    zoom
-  }
-};
+  const updatedEdits = {
+    ...photoEdits,
+    [mainIndex]: {
+      crop,
+      zoom
+    }
+  };
 
-setPhotoEdits(updatedEdits);
+  // 1. обновляем state
+  setPhotoEdits(updatedEdits);
 
-if (saveStatus !== "saved") {
-  runIdle(()=>{
+  // 2. сохраняем ПРАВИЛЬНЫЕ данные
+  runIdle(() => {
     localStorage.setItem(
       "profile_cache",
       JSON.stringify({
         name,
         age,
         gender,
-        looking:search,
+        looking: search,
         city,
         bio,
-        interests:selected,
+        interests: selected,
         photos,
-        photo_edits: photoEdits
+        photo_edits: updatedEdits // 👈 ВОТ ЭТО КЛЮЧЕВО
       })
     );
   });
-}
 
-setCropOpen(false);
+  // 3. закрываем кроп
+  setCropOpen(false);
 
 }}
+
+
 >
 Готово
 </button>
-
 </div>
 </div>
 )}
