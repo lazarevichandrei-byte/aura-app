@@ -14,84 +14,14 @@ const params = useParams();
 
 const chatId =
 params.id as string;
-console.log("chatId:", chatId);
 
-
-
+const userId =
+"11111111-1111-1111-1111-111111111111";
 
 const [messages,setMessages] = useState([]);
 const [ready,setReady] =
 useState(false);
-
 const [newMessage,setNewMessage] = useState("");
-const [chats, setChats] = useState<any[]>([]);
-const channelRef = useRef<any>(null);
-const [userId, setUserId] = useState<string | null>(null);
-
-
-
-useEffect(() => {
-  const getUser = async () => {
-    const { data } = await supabase.auth.getUser();
-
-    if (data?.user) {
-      setUserId(data.user.id);
-    }
-  };
-
-  getUser();
-}, []);
-
-const typingTimeout = useRef<any>(null);
-
-async function sendTyping(status: boolean){
-    if(!userId) return;
-
-  const channel = channelRef.current;
-  if(!channel) return;
-  if(channel.state !== "joined" && channel.state !== "SUBSCRIBED") return;
-
-  // отправка статуса печати
-  channel.track({
-    user_id: userId,
-    typing: status,
-    online: true,
-    chat_id: chatId
-  });
-
-  clearTimeout(typingTimeout.current);
-
-  if(status){
-    setMyTyping(true);
-
-    typingTimeout.current = setTimeout(()=>{
-      const ch = channelRef.current;
-      if(!ch) return;
-      if(ch.state !== "joined" && ch.state !== "SUBSCRIBED") return;
-
-      ch.track({
-        user_id: userId,
-        typing: false,
-        online: true,
-        chat_id: chatId,
-        last_seen: new Date().toISOString()
-      });
-
-      setMyTyping(false);
-    },1500);
-
-  } else {
-
-    channel.track({
-      user_id: userId,
-      typing: false,
-      online: true,
-      chat_id: chatId
-    });
-
-    setMyTyping(false);
-  }
-}
 const [isOnline,setIsOnline] =
 useState(true);
 const [replyTo,setReplyTo] =
@@ -102,27 +32,6 @@ const [isTyping,setIsTyping] =
 useState(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
-const [myTyping, setMyTyping] = useState(false);
-const [lastSeen,setLastSeen] = useState<string | null>(null);
-
-function formatLastSeen(dateString:string | null){
-  if(!dateString) return "Оффлайн";
-
-  const date = new Date(dateString);
-  const now = new Date();
-
-  const isToday =
-    now.toDateString() === date.toDateString();
-
-  if(isToday){
-    return "Был сегодня в " + date.toLocaleTimeString("ru-RU", {
-      hour:"2-digit",
-      minute:"2-digit"
-    });
-  }
-
-  return "Был " + date.toLocaleDateString("ru-RU");
-}
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
@@ -149,23 +58,6 @@ chatRef.current.scrollHeight;
 
 }
 
-
-
-
-// 👇 ВОТ СЮДА ВСТАВИЛ
-async function fetchChats() {
-  if (!userId) return;
-
-  const { data } = await supabase
-    .from("chats")
-    .select("*")
-    .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
-    .order("last_message_at", { ascending: false });
-
-  if (data) {
-    setChats(data);
-  }
-}
 
 
 async function fetchMessages(){
@@ -223,14 +115,8 @@ setReady(true);
 
 
 useEffect(()=>{
-  fetchMessages();
+fetchMessages();
 },[chatId]);
-
-useEffect(() => {
-  if(userId){
-    fetchChats();
-  } 
-}, [userId]);
 
 
 useEffect(()=>{
@@ -316,118 +202,67 @@ handleKeyboard
 
 useEffect(()=>{
 
-  const channel = supabase
-    .channel(`chat-${chatId}`, {
-      config: {
-        presence: { key: userId }
-      }
-    })
+const channel=supabase
+.channel(`chat-${chatId}`)
+.on(
+"postgres_changes",
+{
+event:"INSERT",
+schema:"public",
+table:"messages",
+filter:`chat_id=eq.${chatId}`
+},
+(payload)=>{
 
-    .on(
-      "postgres_changes",
-      {
-        event:"INSERT",
-        schema:"public",
-        table:"messages",
-        filter:`chat_id=eq.${chatId}`
-      },
-      (payload)=>{
-        setMessages(prev=>{
-          if(prev.some(m=>m.id===payload.new.id)) return prev;
-          return [...prev, payload.new];
-        });
-      }
-    )
+setMessages(prev=>{
 
-    .on("presence", { event: "sync" }, () => {
+if(
+prev.some(
+m=>m.id===payload.new.id
+)
+){
+return prev;
+}
 
-      const state = channel.presenceState();
-      const users = Object.values(state).flat() as any[];
+return prev.concat(
+payload.new
+);
 
-      // last seen
-      const lastUser = users.find((u:any)=>
-        u.user_id !== userId &&
-        u.chat_id === chatId
-      );
-
-      setLastSeen(lastUser?.last_seen || null);
-
-      // typing
-      const someoneTyping = users.some((u:any) =>
-        u.user_id !== userId &&
-        u.chat_id === chatId &&
-        u.typing
-      );
-
-      // online
-      const someoneOnline = users.some((u:any) =>
-        u.user_id !== userId &&
-        u.chat_id === chatId &&
-        u.online
-      );
-
-      setIsTyping(someoneTyping);
-      setIsOnline(someoneOnline);
-    })
-
-    .subscribe(async (status) => {
-  if (status === "SUBSCRIBED") {
-    await channel.track({
-      user_id: userId,
-      typing: false,
-      online: true,
-      chat_id: chatId,
-      last_seen: new Date().toISOString()
-    });
-  }
 });
 
-  channelRef.current = channel;
+requestAnimationFrame(
+scrollToBottom
+);
 
-  return ()=>{
-    supabase.removeChannel(channel);
-  };
+supabase
+.from("chats")
+.update({
+last_message:payload.new.body,
+last_message_at:
+payload.new.created_at
+})
+.eq("id",chatId);
 
-},[chatId]);
 
-useEffect(()=>{
-  const interval = setInterval(()=>{
-    const channel = channelRef.current;
-    if(!channel) return;
-    if(channel.state !== "joined" && channel.state !== "SUBSCRIBED") return;
+}
+)
+.subscribe();
 
-    channel.track({
-      user_id: userId,
-      typing: false,
-      online: true,
-      chat_id: chatId,
-      last_seen: new Date().toISOString()
-    });
-
-  }, 5000);
-
-  return ()=> clearInterval(interval);
+return()=>{
+supabase.removeChannel(channel);
+};
 
 },[chatId]);
-  
-
-
 
 
 
 async function sendMessage(){
-    if(!userId) return;
 
 if(!newMessage.trim()) return;
 
 const text = newMessage;
 
 setNewMessage("");
-
-
-clearTimeout(typingTimeout.current);
-
-sendTyping(false);
 setReplyTo(null);
 
 const optimisticMessage={
@@ -623,8 +458,8 @@ isOnline
 />
 
 {isOnline
-  ? "Онлайн"
-  : formatLastSeen(lastSeen)}
+? "Онлайн"
+: "Оффлайн"}
 
 </div>
 
@@ -701,8 +536,6 @@ ready
 
 const mine =
 msg.sender_id===userId;
-
-
 
 return(
 
@@ -994,11 +827,7 @@ scrollToBottom();
 }}
 
 onChange={(e)=>{
-  setNewMessage(e.target.value);
-
-  if(!myTyping){
-    sendTyping(true);
-  }
+setNewMessage(e.target.value);
 }}
 
 onKeyDown={(e)=>{
@@ -1044,6 +873,3 @@ color:"#fff"
 )
 
 }
-
-
-
