@@ -541,7 +541,7 @@ window.location.href="/home";
             <div>{age}</div>
 <input
  type="range"
- min="16"
+ min="18"
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
@@ -568,20 +568,10 @@ window.location.href="/home";
             ))}
           </div>
         </div>
-                <div
-  style={{
-    ...styles.inputBox,
-    padding:"12px",      // вернуть как было
-    marginTop:"12px"     // вернуть как было
-  }}
->
-  <p style={styles.label}>Город</p>
-  <input
-    value={city}
-    onChange={(e)=>setCity(e.target.value)}
-    style={styles.input}
-  />
-</div>
+                <div style={styles.inputBox}>
+          <p style={styles.label}>Город</p>
+          <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
+        </div>
 
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
@@ -951,26 +941,8 @@ plus:{
 
 },
   label:{fontSize:"12px",color:"#6B7280"},
-
-  
-input:{
-  width:"100%",
-  border:"none",
-  background:"transparent",
-  outline:"none",
-  fontSize:"14px",
-  height:"18px" // 👈 ограничивает высоту
-},  
-textarea:{
-  width:"100%",
-  border:"none",
-  background:"transparent",
-  outline:"none",
-  fontSize:"14px",
-  minHeight:"60px", // было больше визуально
-  resize:"none"
-},
-
+  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
+  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
   block:{marginTop:"14px"},
 
