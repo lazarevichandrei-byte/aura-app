@@ -34,7 +34,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
-  const [age, setAge] = useState(22);
+  const [age, setAge] = useState(18);
   const [gender, setGender] = useState("female");
   const [search, setSearch] = useState("female");
 
@@ -585,7 +585,7 @@ style={{
             <div>{age}</div>
 <input
  type="range"
- min="18"
+ min="16"
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
