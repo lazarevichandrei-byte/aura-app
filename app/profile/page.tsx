@@ -522,11 +522,12 @@ window.location.href="/home";
     </div>
   ) : (
     <div
-      style={styles.avatar}
-      onClick={() => inputRef.current?.click()}
-    >
-      👤
-    </div>
+  style={styles.avatar}
+  onClick={() => setActivePhoto(true)}
+>
+  👤
+</div>
+   
   )}
 
 <input
@@ -768,7 +769,7 @@ setCropOpen(false);
           >
 
             <label style={styles.addPhoto}>
-              +
+  
               <input
  type="file"
  multiple
