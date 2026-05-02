@@ -491,34 +491,44 @@ window.location.href="/home";
 
   return (
     <div style={styles.wrapper}>
-      <div style={styles.card}>
+  <div style={styles.card}>
 
-        <div style={styles.avatarWrapper}>
-          {photos.length > 0 ? (
-            <div style={styles.avatarMask}>
-<img
-  src={avatarPreview || photos[mainIndex]}
-  loading="lazy"
-decoding="async"
-style={{
- ...styles.avatarImage,
+    <div style={styles.avatarWrapper}>
+      {photos.length > 0 ? (
+        <div
+          style={styles.avatarMask}
+          onClick={() => setActivePhoto(true)}
+        >
 
- transform: photoEdits[mainIndex]
-   ? `translate(
-        ${photoEdits[mainIndex].crop.x/6}px,
-        ${photoEdits[mainIndex].crop.y/6}px
-      )
-      scale(${photoEdits[mainIndex].zoom})`
-   : "none",
+          <img
+            src={avatarPreview || photos[mainIndex]}
+            loading="lazy"
+            decoding="async"
+            style={{
+              ...styles.avatarImage,
+              transform: photoEdits[mainIndex]
+                ? `translate(
+                    ${photoEdits[mainIndex].crop.x/6}px,
+                    ${photoEdits[mainIndex].crop.y/6}px
+                  )
+                  scale(${photoEdits[mainIndex].zoom})`
+                : "none",
+              transformOrigin:"center center"
+            }}
+          />
 
- transformOrigin:"center center"
-}}/>
-</div>
-          ) : (
-            <div style={styles.avatar}>👤</div>
-          )}
-          <div style={styles.plus}>+</div>
         </div>
+      ) : (
+        <div
+          style={styles.avatar}
+          onClick={() => setActivePhoto(true)}
+        >
+          👤
+        </div>
+      )}
+
+      <div style={styles.plus}>+</div>
+    </div>
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
