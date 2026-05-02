@@ -24,6 +24,7 @@ useState(false);
 const [newMessage,setNewMessage] = useState("");
 const [isOnline,setIsOnline] =
 useState(true);
+const [lastSeen,setLastSeen] = useState<string | null>(null);
 const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
@@ -215,14 +216,30 @@ channelRef.current = channel;
 
 // 👇 typing indicator
 channel.on("presence", { event: "sync" }, () => {
+
   const state = channel.presenceState();
   const users = Object.values(state).flat() as any[];
 
+  const otherUser = users.find(
+    (u:any) => u.user_id !== userId
+  );
+
+  // typing
   const someoneTyping = users.some(
     (u:any) => u.user_id !== userId && u.typing === true
   );
 
   setIsTyping(someoneTyping);
+
+  // online
+  if(otherUser){
+    setIsOnline(true);
+    setLastSeen(null);
+  } else {
+    setIsOnline(false);
+    setLastSeen(new Date().toISOString());
+  }
+
 });
 
 // 👇 сообщения
@@ -257,10 +274,13 @@ channel.on(
 
 channel.subscribe(async (status) => {
   if (status === "SUBSCRIBED") {
+
     await channel.track({
       user_id: userId,
       typing: false,
+      online_at: new Date().toISOString(),
     });
+
   }
 });
 
@@ -354,7 +374,6 @@ alert(error.message);
 return;
 }
 
-
 await supabase
 .from("chats")
 .update({
@@ -365,9 +384,25 @@ new Date().toISOString()
 .eq("id",chatId);
 
 }
+
+function formatLastSeen(dateString:string){
+
+  const diff = Date.now() - new Date(dateString).getTime();
+
+  const minutes = Math.floor(diff / 60000);
+
+  if(minutes < 1) return "был только что";
+  if(minutes < 60) return `был ${minutes} мин назад`;
+
+  const hours = Math.floor(minutes / 60);
+
+  if(hours < 24) return `был ${hours} ч назад`;
+
+  return "был давно";
+}
+
 return(
 <div
-
 onTouchStart={(e)=>{
 touchStartX.current =
 e.touches[0].clientX;
@@ -501,8 +536,11 @@ isOnline
 />
 
 {isOnline
-? "Онлайн"
-: "Оффлайн"}
+  ? "Онлайн"
+  : lastSeen
+    ? formatLastSeen(lastSeen)
+    : "Оффлайн"
+}
 
 </div>
 
