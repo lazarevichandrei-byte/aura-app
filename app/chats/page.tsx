@@ -12,13 +12,17 @@ import BottomNav from "../../components/BottomNav";
 
 const ChatCard = React.memo(
 function ChatCard({
-chat,
-typing,
-router
-}:any){
+  chat,
+  typing,
+  online,
+  router
+}: any) {
 
 const [pressed,setPressed] =
 useState(false);
+
+
+
 
 return(
 
@@ -68,17 +72,34 @@ cursor:"pointer"
 }}
 >
 
-<img
-loading="lazy"
-decoding="async"
-src={chat.avatar || "/girl1.jpg"}
-style={{
-width:60,
-height:60,
-borderRadius:"50%",
-objectFit:"cover"
-}}
-/>
+<div style={{ position:"relative" }}>
+
+  <img
+    loading="lazy"
+    decoding="async"
+    src={chat.avatar || "/girl1.jpg"}
+    style={{
+      width:60,
+      height:60,
+      borderRadius:"50%",
+      objectFit:"cover"
+    }}
+  />
+
+  {online && (
+    <div style={{
+      position:"absolute",
+      right:2,
+      bottom:2,
+      width:12,
+      height:12,
+      background:"#47C73B",
+      borderRadius:"50%",
+      border:"2px solid #fff"
+    }}/>
+  )}
+
+</div>
 
 <div style={{
 flex:1,
@@ -169,8 +190,7 @@ export default function Chats(){
 
 
 const router = useRouter();
-const userId = "11111111-1111-1111-1111-111111111111";
-const [matches,setMatches] =
+const userId = useRef(Math.random().toString()).current;const [matches,setMatches] =
 useState([
 {
 img:"/girl1.jpg",
@@ -222,12 +242,11 @@ const [chats,setChats] = useState<any[]>([]);
 const [search,setSearch] = useState("");
 const searching = search.trim().length > 0;
 const [typingChats,setTypingChats] = useState<Record<string, boolean>>({});
+const [onlineChats,setOnlineChats] = useState<Record<string, boolean>>({});
 
 useEffect(()=>{
 
   loadChats();
-
-  
 
   const channel = supabase
     .channel("chats-live")
@@ -273,37 +292,44 @@ useEffect(()=>{
     )
     .subscribe();
 
-
   const presenceChannel = supabase.channel("typing-global", {
     config:{ presence:{ key:userId } }
   });
 
-  presenceChannel.on("presence",{ event:"sync" },()=>{
+  presenceChannel.on("presence", { event: "sync" }, () => {
 
     const state = presenceChannel.presenceState();
     const users = Object.values(state).flat() as any[];
-
+    console.log("users:", users);
     const typingMap:any = {};
+    const onlineMap:any = {};
 
     users.forEach((u:any)=>{
-      if(u.typing && u.chat_id){
-        typingMap[u.chat_id] = true;
-      }
-    });
+
+  if(u.typing && u.chat_id){
+    typingMap[u.chat_id] = true;
+  }
+
+  if(u.online && u.user_id !== userId){
+  onlineMap[u.user_id] = true;
+}
+});
 
     setTypingChats(typingMap);
+    setOnlineChats(onlineMap);
   });
 
-  presenceChannel.subscribe(async(status)=>{
-    if(status==="SUBSCRIBED"){
+  presenceChannel.subscribe(async (status) => {
+    if (status === "SUBSCRIBED") {
       await presenceChannel.track({
-        user_id:userId,
-        typing:false
-      });
+  user_id: userId,
+  online: true
+});
     }
   });
 
-  return ()=>{
+  // 👇 ВОТ ОН — cleanup
+  return () => {
     supabase.removeChannel(channel);
     supabase.removeChannel(presenceChannel);
   };
@@ -312,36 +338,39 @@ useEffect(()=>{
 
 
 
-
 async function loadChats(){
 
-const { data, error } =
-await supabase
-.from("chats")
-.select(
-"id,name,avatar,unread_count,last_message,last_message_at"
-)
-.order(
-"last_message_at",
-{ ascending:false }
-)
-.limit(30);
+  const { data, error } =
+  await supabase
+  .from("chats")
+  .select(`
+  id,
+  name,
+  avatar,
+  user_id,
+  unread_count,
+  last_message,
+  last_message_at
+`)
+  .order("last_message_at",{ ascending:false })
+  .limit(30);
 
-if(!error && data){
-setChats(data || []);
-}
-
+  if(!error && data){
+    setChats(data || []);
+  }
 }
 
 // 👇 ВОТ СЮДА ВСТАВИТЬ
+
+
+
 const filteredChats =
   chats.filter(chat =>
     (chat?.name || "")
       .toLowerCase()
       .includes(search.toLowerCase())
   );
-
-
+  
 return(
     
 <div
@@ -646,11 +675,12 @@ marginBottom:10
 )}
 
 {filteredChats.map(chat=>(
-<ChatCard
-key={chat.id}
-chat={chat}
-typing={typingChats[chat.id]}
-router={router}
+  <ChatCard
+  key={chat.id}
+  chat={chat}
+  typing={typingChats[chat.id]}
+online={onlineChats[chat.user_id]}
+  router={router}
 />
 ))}
 

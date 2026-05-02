@@ -26,33 +26,50 @@ const channelRef = useRef<any>(null);
 
 const typingTimeout = useRef<any>(null);
 
-async function sendTyping(status:boolean){
+async function sendTyping(status: boolean){
 
   const channel = channelRef.current;
   if(!channel) return;
   if(channel.state !== "joined" && channel.state !== "SUBSCRIBED") return;
 
+  // отправка статуса печати
   channel.track({
     user_id: userId,
     typing: status,
+    online: true,
     chat_id: chatId
   });
+
+  clearTimeout(typingTimeout.current);
 
   if(status){
     setMyTyping(true);
 
-    clearTimeout(typingTimeout.current);
-
     typingTimeout.current = setTimeout(()=>{
-      channel.track({
+      const ch = channelRef.current;
+      if(!ch) return;
+      if(ch.state !== "joined" && ch.state !== "SUBSCRIBED") return;
+
+      ch.track({
         user_id: userId,
         typing: false,
-        chat_id: chatId
+        online: true,
+        chat_id: chatId,
+        last_seen: new Date().toISOString()
       });
 
       setMyTyping(false);
     },1500);
+
   } else {
+
+    channel.track({
+      user_id: userId,
+      typing: false,
+      online: true,
+      chat_id: chatId
+    });
+
     setMyTyping(false);
   }
 }
@@ -67,6 +84,26 @@ useState(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
 const [myTyping, setMyTyping] = useState(false);
+const [lastSeen,setLastSeen] = useState<string | null>(null);
+
+function formatLastSeen(dateString:string | null){
+  if(!dateString) return "Оффлайн";
+
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const isToday =
+    now.toDateString() === date.toDateString();
+
+  if(isToday){
+    return "Был сегодня в " + date.toLocaleTimeString("ru-RU", {
+      hour:"2-digit",
+      minute:"2-digit"
+    });
+  }
+
+  return "Был " + date.toLocaleDateString("ru-RU");
+}
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
@@ -265,24 +302,43 @@ useEffect(()=>{
       const state = channel.presenceState();
       const users = Object.values(state).flat() as any[];
 
+      // last seen
+      const lastUser = users.find((u:any)=>
+        u.user_id !== userId &&
+        u.chat_id === chatId
+      );
+
+      setLastSeen(lastUser?.last_seen || null);
+
+      // typing
       const someoneTyping = users.some((u:any) =>
         u.user_id !== userId &&
         u.chat_id === chatId &&
         u.typing
       );
 
+      // online
+      const someoneOnline = users.some((u:any) =>
+        u.user_id !== userId &&
+        u.chat_id === chatId &&
+        u.online
+      );
+
       setIsTyping(someoneTyping);
+      setIsOnline(someoneOnline);
     })
 
-    .subscribe(async(status)=>{
-      if(status==="SUBSCRIBED"){
-        await channel.track({
-          user_id: userId,
-          typing: false,
-          chat_id: chatId
-        });
-      }
+    .subscribe(async (status) => {
+  if (status === "SUBSCRIBED") {
+    await channel.track({
+      user_id: userId,
+      typing: false,
+      online: true,
+      chat_id: chatId,
+      last_seen: new Date().toISOString()
     });
+  }
+});
 
   channelRef.current = channel;
 
@@ -291,6 +347,29 @@ useEffect(()=>{
   };
 
 },[chatId]);
+
+useEffect(()=>{
+  const interval = setInterval(()=>{
+    const channel = channelRef.current;
+    if(!channel) return;
+    if(channel.state !== "joined" && channel.state !== "SUBSCRIBED") return;
+
+    channel.track({
+      user_id: userId,
+      typing: false,
+      online: true,
+      chat_id: chatId,
+      last_seen: new Date().toISOString()
+    });
+
+  }, 5000);
+
+  return ()=> clearInterval(interval);
+
+},[chatId]);
+  
+
+
 
 
 
@@ -501,8 +580,8 @@ isOnline
 />
 
 {isOnline
-? "Онлайн"
-: "Оффлайн"}
+  ? "Онлайн"
+  : formatLastSeen(lastSeen)}
 
 </div>
 
