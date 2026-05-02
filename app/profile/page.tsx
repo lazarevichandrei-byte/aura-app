@@ -541,7 +541,7 @@ window.location.href="/home";
             <div>{age}</div>
 <input
  type="range"
- min="18"
+ min="16"
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
@@ -568,10 +568,20 @@ window.location.href="/home";
             ))}
           </div>
         </div>
-                <div style={styles.inputBox}>
-          <p style={styles.label}>Город</p>
-          <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
-        </div>
+                <div
+  style={{
+    ...styles.inputBox,
+    padding:"12px",      // вернуть как было
+    marginTop:"12px"     // вернуть как было
+  }}
+>
+  <p style={styles.label}>Город</p>
+  <input
+    value={city}
+    onChange={(e)=>setCity(e.target.value)}
+    style={styles.input}
+  />
+</div>
 
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
