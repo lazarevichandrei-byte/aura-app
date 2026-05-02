@@ -180,8 +180,10 @@ setMainIndex(data.main_photo_index || 0);
   }
 
   localStorage.setItem(
+    
     "profile_cache",
     JSON.stringify(data)
+    
   );
 }
 else{
@@ -209,7 +211,8 @@ const currentData = [
   bio,
   selected.length,
   photos.length,
-  mainIndex
+  mainIndex,
+  JSON.stringify(photoEdits),
 ].join("|");
 
 if (lastDataRef.current === currentData) return;
@@ -294,7 +297,8 @@ try {
         city,
         bio,
         interests: selected,
-        photos
+        photos,
+        photo_edits: photoEdits
       })
     );
   });
@@ -424,33 +428,42 @@ setUploading(true);
     if (!error) {
 
  const { data } = supabase.storage
-   .from("avatars")
-   .getPublicUrl(
-      fileName + "?v=" + Date.now()
-   );
+  .from("avatars")
+  .getPublicUrl(fileName + "?v=" + Date.now());
 
-setPhotos(prev=>{
- const updated=[...prev,data.publicUrl];
+const updated = [...photos, data.publicUrl];
 
- runIdle(()=>{
-   localStorage.setItem(
-     "profile_cache",
-     JSON.stringify({
-       name,
-       age,
-       gender,
-       looking:search,
-       city,
-       bio,
-       interests:selected,
-       photos: updated,
-       photo_edits:photoEdits
-     })
-   );
- });
+// обновляем UI
+setPhotos(updated);
+setMainIndex(updated.length - 1);
 
- return updated;
+// сохраняем в БД
+await supabase
+  .from("users")
+  .update({
+    photos: updated,
+    avatar_url: updated[updated.length - 1] || null
+  })
+  .eq("telegram_id", telegramId);
+
+// кеш
+runIdle(() => {
+  localStorage.setItem(
+    "profile_cache",
+    JSON.stringify({
+      name,
+      age,
+      gender,
+      looking: search,
+      city,
+      bio,
+      interests: selected,
+      photos: updated,
+      photo_edits: photoEdits
+    })
+  );
 });
+
 
 setUploadProgress(80);
 
@@ -578,37 +591,35 @@ window.location.href="/home";
         <div style={styles.avatarWrapper}>
 
   {photos.length > 0 ? (
-    <div
-      style={styles.avatarMask}
-      onClick={() => setActivePhoto(true)}
-    >
-      <img
-        src={avatarPreview || photos[mainIndex]}
-         loading="lazy"
- decoding="async"
- fetchPriority="low"
-        style={{
-          ...styles.avatarImage,
-          transform: photoEdits[mainIndex]
-            ? `translate(
-                ${photoEdits[mainIndex].crop.x/6}px,
-                ${photoEdits[mainIndex].crop.y/6}px
-              )
-              scale(${photoEdits[mainIndex].zoom})`
-            : "none",
-          transformOrigin:"center center"
-        }}
-      />
-    </div>
-  ) : (
-    <div
-  style={styles.avatar}
-  onClick={() => setActivePhoto(true)}
->
-  👤
-</div>
-   
-  )}
+  <div
+    style={styles.avatarMask}
+    onClick={() => setActivePhoto(true)}
+  >
+    <img
+      src={avatarPreview || photos[mainIndex]}
+      loading="lazy"
+      decoding="async"
+      style={{
+        ...styles.avatarImage,
+        transform: photoEdits[mainIndex]
+          ? `translate(
+              ${photoEdits[mainIndex].crop.x / 3}px,
+              ${photoEdits[mainIndex].crop.y / 3}px
+            )
+            scale(${photoEdits[mainIndex].zoom})`
+          : "none",
+        transformOrigin: "center center"
+      }}
+    />
+  </div>
+) : (
+  <div
+    style={styles.avatar}
+    onClick={() => setActivePhoto(true)}
+  >
+    👤
+  </div>
+)}
 
 <input
   ref={inputRef}
@@ -824,7 +835,8 @@ if (saveStatus !== "saved") {
         city,
         bio,
         interests:selected,
-        photos
+        photos,
+        photo_edits: photoEdits
       })
     );
   });
