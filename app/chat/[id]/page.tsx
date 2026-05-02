@@ -337,7 +337,9 @@ async function addReaction(msg:any,emoji:string){
 
   const current = msg.reactions || {};
 
-  const users = current[emoji] || [];
+  const users = Array.isArray(current[emoji])
+    ? current[emoji]
+    : [];
 
   const updated = {
     ...current,
@@ -379,10 +381,13 @@ replyTo?.body || null
 };
 
 
-setMessages(prev=>[
-...prev,
-optimisticMessage
-]);
+setMessages(prev=>{
+  if(prev.some(m => m.id === optimisticMessage.id)){
+    return prev;
+  }
+  return [...prev, optimisticMessage];
+});
+
 
 setTimeout(()=>{
 scrollToBottom();
@@ -689,6 +694,8 @@ background: mine
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
 :"#F2F4F7",
 
+position:"relative", // 👈 ВСТАВЬ СЮДА
+
 color: mine ? "#fff" : "#111",
 
 padding:"8px 13px",
@@ -709,6 +716,7 @@ overflowWrap:"break-word"
 
 {msg.body}
 
+
 <div
   onClick={()=>addReaction(msg,"❤️")}
   style={{fontSize:12,marginTop:4,cursor:"pointer"}}
@@ -716,21 +724,23 @@ overflowWrap:"break-word"
   ❤️
 </div>
 
-{msg.body}
 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-  <div style={{marginTop:4,display:"flex",gap:6}}>
+  <div style={{
+    position:"absolute",
+    bottom:-18,
+    right: mine ? 8 : "auto",
+    left: mine ? "auto" : 8,
+    background:"#fff",
+    borderRadius:12,
+    padding:"2px 6px",
+    fontSize:12,
+    boxShadow:"0 2px 6px rgba(0,0,0,.1)",
+    zIndex:2
+  }}>
     {Object.entries(msg.reactions).map(([emoji,users]:any)=>(
-      <div
-        key={emoji}
-        style={{
-          fontSize:12,
-          background:"#EEF2FF",
-          padding:"2px 6px",
-          borderRadius:10
-        }}
-      >
+      <span key={emoji} style={{marginRight:6}}>
         {emoji} {users.length}
-      </div>
+      </span>
     ))}
   </div>
 )}
