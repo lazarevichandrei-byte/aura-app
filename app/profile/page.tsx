@@ -862,119 +862,132 @@ style={{
 )}
       {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
       {activePhoto && !cropOpen && (
-        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div
-            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
-            onClick={(e)=>e.stopPropagation()}
-          >
-
-            <label style={styles.addPhoto}>
-  <span style={{ fontSize: 42, color: "#2AABEE" }}>+</span>
-
-  <input
-    type="file"
-    multiple
-    accept="image/*"
-    hidden
-    onChange={async (e)=>{
-      const files = e.target.files;
-
-      for (let f of Array.from(files || [])) {
-        if (f.size > 10 * 1024 * 1024){
-          alert("Фото до 10MB");
-          return;
-        }
-      }
-
-      if (!files) return;
-
-      if (photos.length + files.length > 6){
-        alert("Максимум 6 фото");
-        return;
-      }
-
-      await Promise.all(
-        Array.from(files).map(f => uploadPhoto(f))
-      );
-
-      e.target.value="";
-    }}
-  />
-</label>
-
-            {photos.map((p,i)=>(
-  <div key={i} style={styles.galleryItem}>
-
-    <img
-      src={p}
-      loading="lazy"
-decoding="async"
-      onClick={()=>{
- setMainIndex(i);
- console.log("Главная фото:", i);
-}}
-      style={{
-        ...styles.galleryImg,
-        border: i===mainIndex
-          ? "3px solid #2AABEE"
-          : "none"
-      }}
-    />
-
-    {i===mainIndex && (
-      <div style={styles.mainBadge}>
-        ★ Главная
-      </div>
-    )}
-
-    {i===mainIndex && (
-<button
- onClick={(e)=>{
-   e.stopPropagation();
-   setEditingPhoto(p);
-
-if(photoEdits[i]){
- setCrop(photoEdits[i].crop);
- setZoom(photoEdits[i].zoom);
-}else{
- setCrop({x:0,y:0});
- setZoom(1.2);
-}
-
-setActivePhoto(false);
-setCropOpen(true);
- }}
- style={{
-   position:"absolute",
-   right:"-10px",
-   bottom:"-10px",
-   width:"34px",
-   height:"34px",
-   borderRadius:"50%",
-   border:"2px solid #fff",
-   background:"#fff",
-   boxShadow:"0 4px 12px rgba(0,0,0,.18)",
-   zIndex:9999
- }}
->
- ✎
-</button>
-)}
-
-    <button
-      style={styles.deleteBtn}
-      onClick={()=>{
- setPhotos(prev =>
-   prev.filter((_,index)=>index!==i)
- );
-
- if(i===mainIndex){
-   setMainIndex(0);
- }
-}}
+  <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
+    <div
+      style={styles.gallery}
+      onClick={(e)=>e.stopPropagation()}
     >
-      ✕
-    </button>
+
+      {/* ➕ КНОПКА ДОБАВЛЕНИЯ */}
+      {photos.length < 6 && (
+        <label style={styles.galleryItem}>
+          <div style={{
+            ...styles.galleryImg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#EEF5FD",
+            fontSize: 40,
+            color: "#2AABEE"
+          }}>
+            +
+          </div>
+
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            hidden
+            onChange={async (e)=>{
+              const files = e.target.files;
+
+              for (let f of Array.from(files || [])) {
+                if (f.size > 10 * 1024 * 1024){
+                  alert("Фото до 10MB");
+                  return;
+                }
+              }
+
+              if (!files) return;
+
+              if (photos.length + files.length > 6){
+                alert("Максимум 6 фото");
+                return;
+              }
+
+              await Promise.all(
+                Array.from(files).map(f => uploadPhoto(f))
+              );
+
+              e.target.value="";
+            }}
+          />
+        </label>
+      )}
+
+      {/* 📸 ФОТО */}
+      {photos.map((p,i)=>(
+        <div key={i} style={styles.galleryItem}>
+
+          <img
+            src={p}
+            loading="lazy"
+            decoding="async"
+            onClick={()=>{
+              setMainIndex(i);
+            }}
+            style={{
+              ...styles.galleryImg,
+              border: i===mainIndex
+                ? "3px solid #2AABEE"
+                : "none"
+            }}
+          />
+
+          {i===mainIndex && (
+            <div style={styles.mainBadge}>
+              ★ Главная
+            </div>
+          )}
+
+          {i===mainIndex && (
+            <button
+              onClick={(e)=>{
+                e.stopPropagation();
+                setEditingPhoto(p);
+
+                if(photoEdits[i]){
+                  setCrop(photoEdits[i].crop);
+                  setZoom(photoEdits[i].zoom);
+                } else {
+                  setCrop({x:0,y:0});
+                  setZoom(1.2);
+                }
+
+                setActivePhoto(false);
+                setCropOpen(true);
+              }}
+              style={{
+                position:"absolute",
+                right:"-10px",
+                bottom:"-10px",
+                width:"34px",
+                height:"34px",
+                borderRadius:"50%",
+                border:"2px solid #fff",
+                background:"#fff",
+                boxShadow:"0 4px 12px rgba(0,0,0,.18)",
+                zIndex:9999
+              }}
+            >
+              ✎
+            </button>
+          )}
+
+          <button
+            style={styles.deleteBtn}
+            onClick={()=>{
+              setPhotos(prev =>
+                prev.filter((_,index)=>index!==i)
+              );
+
+              if(i===mainIndex){
+                setMainIndex(0);
+              }
+            }}
+          >
+            ✕
+          </button>
 
   </div>
 ))}
