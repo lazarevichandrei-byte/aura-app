@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -493,8 +494,30 @@ window.location.href="/home";
     <div style={styles.wrapper}>
       <div style={styles.card}>
 
-<div style={styles.avatarWrapper}>          {photos.length > 0 ? (
-            <div style={styles.avatarMask}>
+        <div style={styles.avatarWrapper}>
+          {photos.length > 0 ? (
+            <div
+  style={styles.avatarMask}
+  onClick={() => document.getElementById("avatarInput")?.click()}
+>
+  <input
+  id="avatarInput"
+  type="file"
+  accept="image/*"
+  hidden
+  onChange={async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Фото до 10MB");
+      return;
+    }
+
+    await uploadPhoto(file);
+    e.target.value = "";
+  }}
+/>
 <img
   src={avatarPreview || photos[mainIndex]}
   loading="lazy"
@@ -514,10 +537,33 @@ style={{
 }}/>
 </div>
           ) : (
-            <div style={styles.plus}>+</div>
- 
+            <div
+  style={styles.avatar}
+  onClick={() => document.getElementById("avatarInput")?.click()}
+>
+  👤
+</div>
           )}
-          <div style={styles.plus}>+</div>
+         <div style={styles.plus}>+</div>
+
+<input
+  id="avatarInput"
+  type="file"
+  accept="image/*"
+  hidden
+  onChange={async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Фото до 10MB");
+      return;
+    }
+
+    await uploadPhoto(file);
+    e.target.value = "";
+  }}
+/>
         </div>
 
         <div style={styles.row}>
@@ -624,15 +670,15 @@ color:"#8A94A6"
 >
 
 <div
+ onClick={(e)=>e.stopPropagation()}
  style={{
+   width:"92%",
+   maxWidth:"380px",
+   background:"#fff",
+   borderRadius:"28px",
+   padding:"20px",
    position:"relative",
-   width:"100%",
-   maxWidth:"260px", // 👈 ВОТ ЭТО главное
-   margin:"0 auto",  // 👈 центр
-   height:"320px",
-   overflow:"hidden",
-   borderRadius:"18px",
-   background:"#111"
+   overflow:"hidden" // важно
  }}
 >
 
@@ -881,7 +927,10 @@ avatarMask:{
  borderRadius:"50%",
  overflow:"hidden",
  background:"#E7F3FF",
- position:"relative"
+ position:"relative",
+
+ cursor:"pointer",   
+ zIndex:2            
 },
 
 avatarImage:{
@@ -912,7 +961,7 @@ plus:{
  fontSize:"16px",
  fontWeight:700,
 
- zIndex:20
+ zIndex:1
 },
   row:{display:"flex",gap:"10px"},
   inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
