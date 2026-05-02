@@ -924,11 +924,43 @@ plus:{
 
  zIndex:20
 },
+
+
+
+
+
+
   row:{display:"flex",gap:"10px"},
-  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
+  inputBox:{inputBox:{
+  background:"#F9FAFB",
+  borderRadius:"16px",
+  padding:"8px 10px", // было 12px
+  marginTop:"10px",   // чуть меньше отступ
+  flex:1
+},
+
+},
   label:{fontSize:"12px",color:"#6B7280"},
-  input:{width:"100%",border:"none",background:"transparent",outline:"none"},
-  textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
+
+  
+input:{
+  width:"100%",
+  border:"none",
+  background:"transparent",
+  outline:"none",
+  fontSize:"14px",
+  height:"18px" // 👈 ограничивает высоту
+},  
+textarea:{
+  width:"100%",
+  border:"none",
+  background:"transparent",
+  outline:"none",
+  fontSize:"14px",
+  minHeight:"60px", // было больше визуально
+  resize:"none"
+},
+
 
   block:{marginTop:"14px"},
 
