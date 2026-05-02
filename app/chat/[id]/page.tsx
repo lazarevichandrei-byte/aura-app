@@ -247,26 +247,6 @@ channel.on("presence", { event: "sync" }, () => {
 
 
 // UPDATE (реакции)
-channel.on(
-  "postgres_changes",
-  {
-    event:"UPDATE",
-    schema:"public",
-    table:"messages",
-    filter:`chat_id=eq.${chatId}`
-  },
-  (payload)=>{
-
-    setMessages(prev =>
-      prev.map(m =>
-        m.id === payload.new.id
-          ? { ...m, reactions: payload.new.reactions }
-          : m
-      )
-    );
-
-  }
-);
 
     // INSERT
 channel.on(
@@ -352,6 +332,24 @@ async function sendTyping(status:boolean){
     },1500);
   }
 
+}
+async function addReaction(msg:any,emoji:string){
+
+  const current = msg.reactions || {};
+
+  const users = current[emoji] || [];
+
+  const updated = {
+    ...current,
+    [emoji]: users.includes(userId)
+      ? users.filter((id:string)=>id!==userId)
+      : [...users,userId]
+  };
+
+  await supabase
+    .from("messages")
+    .update({ reactions: updated })
+    .eq("id",msg.id);
 }
 
 
@@ -708,6 +706,15 @@ wordBreak:"break-word",
 overflowWrap:"break-word"
 }}
 >
+
+{msg.body}
+
+<div
+  onClick={()=>addReaction(msg,"❤️")}
+  style={{fontSize:12,marginTop:4,cursor:"pointer"}}
+>
+  ❤️
+</div>
 
 {msg.body}
 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
