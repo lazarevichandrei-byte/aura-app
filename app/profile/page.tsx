@@ -868,19 +868,39 @@ style={{
             onClick={(e)=>e.stopPropagation()}
           >
 
-            <span style={{
-  width: 50,
-  height: 50,
-  borderRadius: "50%",
-  background: "#2AABEE",
-  color: "#fff",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: 28
-}}>
-  +
-</span>
+            <label style={styles.addPhoto}>
+  <span style={{ fontSize: 42, color: "#2AABEE" }}>+</span>
+
+  <input
+    type="file"
+    multiple
+    accept="image/*"
+    hidden
+    onChange={async (e)=>{
+      const files = e.target.files;
+
+      for (let f of Array.from(files || [])) {
+        if (f.size > 10 * 1024 * 1024){
+          alert("Фото до 10MB");
+          return;
+        }
+      }
+
+      if (!files) return;
+
+      if (photos.length + files.length > 6){
+        alert("Максимум 6 фото");
+        return;
+      }
+
+      await Promise.all(
+        Array.from(files).map(f => uploadPhoto(f))
+      );
+
+      e.target.value="";
+    }}
+  />
+</label>
 
             {photos.map((p,i)=>(
   <div key={i} style={styles.galleryItem}>
