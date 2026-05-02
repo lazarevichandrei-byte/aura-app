@@ -22,6 +22,40 @@ const [messages,setMessages] = useState([]);
 const [ready,setReady] =
 useState(false);
 const [newMessage,setNewMessage] = useState("");
+const channelRef = useRef<any>(null);
+
+const typingTimeout = useRef<any>(null);
+
+async function sendTyping(status:boolean){
+
+  const channel = channelRef.current;
+  if(!channel) return;
+  if(channel.state !== "joined" && channel.state !== "SUBSCRIBED") return;
+
+  channel.track({
+    user_id: userId,
+    typing: status,
+    chat_id: chatId
+  });
+
+  if(status){
+    setMyTyping(true);
+
+    clearTimeout(typingTimeout.current);
+
+    typingTimeout.current = setTimeout(()=>{
+      channel.track({
+        user_id: userId,
+        typing: false,
+        chat_id: chatId
+      });
+
+      setMyTyping(false);
+    },1500);
+  } else {
+    setMyTyping(false);
+  }
+}
 const [isOnline,setIsOnline] =
 useState(true);
 const [replyTo,setReplyTo] =
@@ -32,6 +66,7 @@ const [isTyping,setIsTyping] =
 useState(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
+const [myTyping, setMyTyping] = useState(false);
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
@@ -202,55 +237,58 @@ handleKeyboard
 
 useEffect(()=>{
 
-const channel=supabase
-.channel(`chat-${chatId}`)
-.on(
-"postgres_changes",
-{
-event:"INSERT",
-schema:"public",
-table:"messages",
-filter:`chat_id=eq.${chatId}`
-},
-(payload)=>{
+  const channel = supabase
+    .channel(`chat-${chatId}`, {
+      config: {
+        presence: { key: userId }
+      }
+    })
 
-setMessages(prev=>{
+    .on(
+      "postgres_changes",
+      {
+        event:"INSERT",
+        schema:"public",
+        table:"messages",
+        filter:`chat_id=eq.${chatId}`
+      },
+      (payload)=>{
+        setMessages(prev=>{
+          if(prev.some(m=>m.id===payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
+      }
+    )
 
-if(
-prev.some(
-m=>m.id===payload.new.id
-)
-){
-return prev;
-}
+    .on("presence", { event: "sync" }, () => {
 
-return prev.concat(
-payload.new
-);
+      const state = channel.presenceState();
+      const users = Object.values(state).flat() as any[];
 
-});
+      const someoneTyping = users.some((u:any) =>
+        u.user_id !== userId &&
+        u.chat_id === chatId &&
+        u.typing
+      );
 
-requestAnimationFrame(
-scrollToBottom
-);
+      setIsTyping(someoneTyping);
+    })
 
-supabase
-.from("chats")
-.update({
-last_message:payload.new.body,
-last_message_at:
-payload.new.created_at
-})
-.eq("id",chatId);
+    .subscribe(async(status)=>{
+      if(status==="SUBSCRIBED"){
+        await channel.track({
+          user_id: userId,
+          typing: false,
+          chat_id: chatId
+        });
+      }
+    });
 
+  channelRef.current = channel;
 
-}
-)
-.subscribe();
-
-return()=>{
-supabase.removeChannel(channel);
-};
+  return ()=>{
+    supabase.removeChannel(channel);
+  };
 
 },[chatId]);
 
@@ -263,6 +301,11 @@ if(!newMessage.trim()) return;
 const text = newMessage;
 
 setNewMessage("");
+
+
+clearTimeout(typingTimeout.current);
+
+sendTyping(false);
 setReplyTo(null);
 
 const optimisticMessage={
@@ -827,7 +870,11 @@ scrollToBottom();
 }}
 
 onChange={(e)=>{
-setNewMessage(e.target.value);
+  setNewMessage(e.target.value);
+
+  if(!myTyping){
+    sendTyping(true);
+  }
 }}
 
 onKeyDown={(e)=>{
