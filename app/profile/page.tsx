@@ -540,7 +540,7 @@ window.location.href="/home";
             <p style={styles.label}>Возраст</p>
 <div style={{fontSize:14, marginBottom:4}}>{age}</div><input
  type="range"
- min="18"
+ min="16"
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
