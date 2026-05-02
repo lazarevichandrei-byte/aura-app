@@ -938,9 +938,9 @@ textarea:{
   background:"transparent",
   outline:"none",
 
-  height:"80px",        // ← фиксируем высоту
-  resize:"none",        // ← убираем растягивание руками
-  overflow:"auto"       // ← скролл если много текста
+  height:"60px",   // ↓ было больше
+  resize:"none",
+  overflow:"auto"
 },
 
 
