@@ -938,9 +938,10 @@ textarea:{
   background:"transparent",
   outline:"none",
 
-  height:"60px",   // ↓ было больше
+  height:"50px",   // было 60 → ещё компактнее
   resize:"none",
-  overflow:"auto"
+  overflow:"auto",
+  lineHeight:"1.2" // ↓ плотнее текст
 },
 
 
