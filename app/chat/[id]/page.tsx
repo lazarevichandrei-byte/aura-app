@@ -247,11 +247,33 @@ channel.on(
   "postgres_changes",
   {
     event:"INSERT",
+    
     schema:"public",
     table:"messages",
     filter:`chat_id=eq.${chatId}`
   },
   (payload)=>{
+
+    channel.on(
+  "postgres_changes",
+  {
+    event:"UPDATE",
+    schema:"public",
+    table:"messages",
+    filter:`chat_id=eq.${chatId}`
+  },
+  (payload)=>{
+
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === payload.new.id
+          ? { ...m, reactions: payload.new.reactions }
+          : m
+      )
+    );
+
+  }
+);
 
     setMessages(prev=>{
       if(prev.some(m=>m.id===payload.new.id)){
