@@ -169,6 +169,7 @@ export default function Chats(){
 
 
 const router = useRouter();
+const userId = "11111111-1111-1111-1111-111111111111";
 const [matches,setMatches] =
 useState([
 {
@@ -217,102 +218,98 @@ newMatch:
 
 },[]);
 
-const [chats,setChats] =
-useState<any[]>([]);
-const [search,setSearch] =
-useState("");
-const searching =
-search.trim().length > 0;
-const [typingChats,setTypingChats] =
-useState<any>({});
-const reloadTimer =
-useRef<any>(null);
-
-
+const [chats,setChats] = useState<any[]>([]);
+const [search,setSearch] = useState("");
+const searching = search.trim().length > 0;
+const [typingChats,setTypingChats] = useState<Record<string, boolean>>({});
 
 useEffect(()=>{
 
-loadChats();
+  loadChats();
 
-const channel =
-supabase
-.channel("chats-live")
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"chats"
-},
-()=>{
+  
 
-clearTimeout(
-reloadTimer.current
-);
+  const channel = supabase
+    .channel("chats-live")
+    .on(
+      "postgres_changes",
+      {
+        event:"INSERT",
+        schema:"public",
+        table:"chats"
+      },
+      (payload)=>{
+        setChats(prev=>{
+          if(prev.some(c=>c.id===payload.new.id)) return prev;
+          return [payload.new, ...prev];
+        });
+      }
+    )
+    .on(
+      "postgres_changes",
+      {
+        event:"UPDATE",
+        schema:"public",
+        table:"chats"
+      },
+      (payload)=>{
+        setChats(prev=>{
+          const exists = prev.find(c=>c.id===payload.new.id);
 
-reloadTimer.current=
-setTimeout(()=>{
-loadChats();
-},150);
+          if(exists){
+            const updated = prev.map(c =>
+              c.id === payload.new.id ? payload.new : c
+            );
 
-}
-)
-.subscribe();
+            return [
+              payload.new,
+              ...updated.filter(c=>c.id!==payload.new.id)
+            ];
+          }
 
-return ()=>{
-supabase.removeChannel(channel);
-};
+          return [payload.new, ...prev];
+        });
+      }
+    )
+    .subscribe();
+
+
+  const presenceChannel = supabase.channel("typing-global", {
+    config:{ presence:{ key:userId } }
+  });
+
+  presenceChannel.on("presence",{ event:"sync" },()=>{
+
+    const state = presenceChannel.presenceState();
+    const users = Object.values(state).flat() as any[];
+
+    const typingMap:any = {};
+
+    users.forEach((u:any)=>{
+      if(u.typing && u.chat_id){
+        typingMap[u.chat_id] = true;
+      }
+    });
+
+    setTypingChats(typingMap);
+  });
+
+  presenceChannel.subscribe(async(status)=>{
+    if(status==="SUBSCRIBED"){
+      await presenceChannel.track({
+        user_id:userId,
+        typing:false
+      });
+    }
+  });
+
+  return ()=>{
+    supabase.removeChannel(channel);
+    supabase.removeChannel(presenceChannel);
+  };
 
 },[]);
 
-const filteredChats =
-chats.filter(chat=>
-(chat?.name || "")
-.toLowerCase()
-.includes(
-search.toLowerCase()
-)
-);
-
-
-
-
-
-
-
-useEffect(()=>{
-
-const timer =
-setInterval(()=>{
-
-if(document.hidden){
-return;
-}
-
-
-setTypingChats(prev=>{
-
-if(
-prev["22222222-2222-2222-2222-222222222222"]
-) return prev;
-
-return {
-"22222222-2222-2222-2222-222222222222":true
-};
-
-});
-
-setTimeout(()=>{
-setTypingChats({});
-},2200);
-
-},7000);
-
-return ()=>{
-clearInterval(timer);
-};
-
-},[]);
 
 
 
@@ -335,6 +332,15 @@ setChats(data || []);
 }
 
 }
+
+// 👇 ВОТ СЮДА ВСТАВИТЬ
+const filteredChats =
+  chats.filter(chat =>
+    (chat?.name || "")
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
 
 return(
     
