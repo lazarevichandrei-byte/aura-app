@@ -978,8 +978,7 @@ inputBox:{
   borderRadius:"16px",
   padding:"12px",
   marginTop:"12px",
-
-  flex:"0 0 48%"   // 👈 вот ключ
+flex:"0 0 42%"  // 👈 вот ключ
 },
   label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
