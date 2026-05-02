@@ -24,7 +24,6 @@ useState(false);
 const [newMessage,setNewMessage] = useState("");
 const [isOnline,setIsOnline] =
 useState(true);
-const [lastSeen,setLastSeen] = useState<string | null>(null);
 const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
@@ -33,14 +32,9 @@ const [isTyping,setIsTyping] =
 useState(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
-const [reactionPicker,setReactionPicker] = useState<{
-  msg:any,
-  x:number,
-  y:number
-} | null>(null);
+
 const chatRef =
 useRef<HTMLDivElement | null>(null);
-const channelRef = useRef<any>(null);
 
 const inputRef =
 useRef<HTMLInputElement | null>(null);
@@ -208,155 +202,57 @@ handleKeyboard
 
 useEffect(()=>{
 
-const channel = supabase.channel(`chat-${chatId}`, {
-  config: {
-    presence: {
-      key: userId,
-    },
-  },
-});
+const channel=supabase
+.channel(`chat-${chatId}`)
+.on(
+"postgres_changes",
+{
+event:"INSERT",
+schema:"public",
+table:"messages",
+filter:`chat_id=eq.${chatId}`
+},
+(payload)=>{
 
-channelRef.current = channel;
+setMessages(prev=>{
 
-// 👇 typing indicator
-channel.on("presence", { event: "sync" }, () => {
+if(
+prev.some(
+m=>m.id===payload.new.id
+)
+){
+return prev;
+}
 
-  const state = channel.presenceState();
-  const users = Object.values(state).flat() as any[];
-
-  const otherUser = users.find(
-    (u:any) => u.user_id !== userId
-  );
-
-  // typing
-  const someoneTyping = users.some(
-    (u:any) => u.user_id !== userId && u.typing === true
-  );
-
-  setIsTyping(someoneTyping);
-
-  // online
-  if(otherUser){
-    setIsOnline(true);
-    setLastSeen(null);
-  } else {
-    setIsOnline(false);
-    setLastSeen(new Date().toISOString());
-  }
-
-});
-
-// 👇 сообщения
-// INSERT
-
-
-// UPDATE (реакции)
-
-    // INSERT
-// INSERT
-channel.on(
-  "postgres_changes",
-  {
-    event:"INSERT",
-    schema:"public",
-    table:"messages",
-    filter:`chat_id=eq.${chatId}`
-  },
-  (payload)=>{
-    setMessages(prev =>
-      prev.some(m => m.id === payload.new.id)
-        ? prev
-        : [...prev, payload.new]
-    );
-
-    requestAnimationFrame(scrollToBottom);
-  }
+return prev.concat(
+payload.new
 );
 
-// UPDATE (реакции)
-channel.on(
-  "postgres_changes",
-  {
-    event:"UPDATE",
-    schema:"public",
-    table:"messages",
-    filter:`chat_id=eq.${chatId}`
-  },
-  (payload)=>{
-    setMessages(prev =>
-      prev.map(m =>
-        m.id === payload.new.id
-          ? { ...m, reactions: payload.new.reactions }
-          : m
-      )
-    );
-  }
+});
+
+requestAnimationFrame(
+scrollToBottom
 );
 
-channel.subscribe(async (status) => {
-  if (status === "SUBSCRIBED") {
+supabase
+.from("chats")
+.update({
+last_message:payload.new.body,
+last_message_at:
+payload.new.created_at
+})
+.eq("id",chatId);
 
-    await channel.track({
-      user_id: userId,
-      typing: false,
-      online_at: new Date().toISOString(),
-    });
 
-  }
-});
+}
+)
+.subscribe();
 
 return()=>{
-  supabase.removeChannel(channel);
+supabase.removeChannel(channel);
 };
 
 },[chatId]);
-
-let typingTimeout:any;
-
-async function sendTyping(status:boolean){
-
-  const channel = channelRef.current;
-  if(!channel) return;
-
-  await channel.track({
-    user_id: userId,
-    typing: status,
-  });
-
-  if(status){
-    clearTimeout(typingTimeout);
-
-    typingTimeout = setTimeout(()=>{
-      channel.track({
-        user_id: userId,
-        typing: false,
-      });
-    },1500);
-  }
-
-}
-async function addReaction(msg:any,emoji:string){
-
-  const current = msg.reactions || {};
-
-  const users = Array.isArray(current[emoji])
-    ? current[emoji]
-    : [];
-
-  const updated = {
-    ...current,
-    [emoji]: users.includes(userId)
-      ? users.filter((id:string)=>id!==userId)
-      : [...users,userId]
-  };
-
-  await supabase
-    .from("messages")
-    .update({ reactions: updated })
-    .eq("id",msg.id);
-}
-
-
 
 
 
@@ -383,13 +279,10 @@ replyTo?.body || null
 };
 
 
-setMessages(prev=>{
-  if(prev.some(m => m.id === optimisticMessage.id)){
-    return prev;
-  }
-  return [...prev, optimisticMessage];
-});
-
+setMessages(prev=>[
+...prev,
+optimisticMessage
+]);
 
 setTimeout(()=>{
 scrollToBottom();
@@ -418,6 +311,7 @@ alert(error.message);
 return;
 }
 
+
 await supabase
 .from("chats")
 .update({
@@ -428,25 +322,9 @@ new Date().toISOString()
 .eq("id",chatId);
 
 }
-
-function formatLastSeen(dateString:string){
-
-  const diff = Date.now() - new Date(dateString).getTime();
-
-  const minutes = Math.floor(diff / 60000);
-
-  if(minutes < 1) return "был только что";
-  if(minutes < 60) return `был ${minutes} мин назад`;
-
-  const hours = Math.floor(minutes / 60);
-
-  if(hours < 24) return `был ${hours} ч назад`;
-
-  return "был давно";
-}
-
 return(
 <div
+
 onTouchStart={(e)=>{
 touchStartX.current =
 e.touches[0].clientX;
@@ -507,8 +385,6 @@ marginTop:-6
 ‹
 </span>
 </div>
-
-
 
 <div
 style={{
@@ -582,20 +458,14 @@ isOnline
 />
 
 {isOnline
-  ? "Онлайн"
-  : lastSeen
-    ? formatLastSeen(lastSeen)
-    : "Оффлайн"
-}
+? "Онлайн"
+: "Оффлайн"}
 
 </div>
 
-
 </div>
 
-
 </div>
-
 
 </div>
 
@@ -682,30 +552,24 @@ marginBottom:5
 >
 
 <div
-onTouchStart={(e)=>{
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+onTouchStart={()=>{
+const timer=setTimeout(()=>{
+setReplyTo(msg);
+},100);
 
-  const timer = setTimeout(()=>{
-    setReactionPicker({
-      msg,
-      x: rect.left + rect.width / 2,
-      y: rect.top
-    });
-  },300);
-
-  (window as any).replyTimer = timer;
+(window as any).replyTimer=timer;
 }}
 
 onTouchEnd={()=>{
-  clearTimeout((window as any).replyTimer);
+clearTimeout(
+(window as any).replyTimer
+);
 }}
 
 style={{
 background: mine
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
 :"#F2F4F7",
-
-position:"relative", // 👈 ВСТАВЬ СЮДА
 
 color: mine ? "#fff" : "#111",
 
@@ -727,38 +591,6 @@ overflowWrap:"break-word"
 
 {msg.body}
 
-
-
-
-{msg.reactions && Object.keys(msg.reactions).length > 0 && (
-  <div
-    style={{
-      display:"flex",
-      gap:6,
-      marginTop:6,
-      flexWrap:"wrap"
-    }}
-  >
-    {Object.entries(msg.reactions).map(([emoji, users]:any)=>(
-      <div
-        key={emoji}
-        style={{
-          background: mine
-            ? "rgba(255,255,255,.25)"
-            : "#EEF2FF",
-          padding:"3px 8px",
-          borderRadius:12,
-          fontSize:12,
-          display:"flex",
-          alignItems:"center",
-          gap:4
-        }}
-      >
-        {emoji} {users.length}
-      </div>
-    ))}
-  </div>
-)}
 
 {msg.reply_preview && (
 
@@ -995,10 +827,8 @@ scrollToBottom();
 }}
 
 onChange={(e)=>{
-  setNewMessage(e.target.value);
-  sendTyping(true);
+setNewMessage(e.target.value);
 }}
-
 
 onKeyDown={(e)=>{
 if(e.key==="Enter"){
@@ -1018,75 +848,31 @@ background:"transparent"
 />
 
 <div
-  onPointerDown={(e)=>{
-    e.preventDefault();
-    sendMessage();
-  }}
-  style={{
-    width:38,
-    height:38,
-    borderRadius:"50%",
-    background:"#2E7BFF",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    color:"#fff"
-  }}
+onPointerDown={(e)=>{
+e.preventDefault();
+sendMessage();
+}}
+style={{
+width:38,
+height:38,
+borderRadius:"50%",
+background:"#2E7BFF",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+color:"#fff"
+}}
 >
-  ➤
+➤
 </div>
 
 </div>
 </div>
-
-{/* 🔥 REACTION PICKER — ВАЖНО: ОН ДОЛЖЕН БЫТЬ ЗДЕСЬ */}
-
-{reactionPicker && (
-  <div
-    onClick={()=>setReactionPicker(null)}
-    style={{
-      position:"fixed",
-      inset:0,
-      background:"rgba(0,0,0,0.1)",
-      zIndex:999
-    }}
-  >
-    <div
-  style={{
-    position:"absolute",
-    top: reactionPicker.y - 10,
-    left: reactionPicker.x,
-    transform:"translate(-50%, -100%)",
-
-    background:"#fff",
-    borderRadius:20,
-    padding:"8px 12px",
-    display:"flex",
-    gap:10,
-    boxShadow:"0 6px 20px rgba(0,0,0,.2)"
-  }}
-  onClick={(e)=>e.stopPropagation()}
->
-    
-      {["❤️","😂","😍","👍","😡"].map((emoji)=>(
-        <div
-          key={emoji}
-          onClick={async ()=>{
-            await addReaction(reactionPicker.msg,emoji);
-            setReactionPicker(null);
-          }}
-          style={{
-            fontSize:22,
-            cursor:"pointer"
-          }}
-        >
-          {emoji}
-        </div>
-      ))}
-    </div>
-  </div>
-)}
 
 </div>
 )
+
 }
+
+
+
