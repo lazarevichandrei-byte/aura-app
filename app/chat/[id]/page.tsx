@@ -253,6 +253,7 @@ channel.on("presence", { event: "sync" }, () => {
 // UPDATE (реакции)
 
     // INSERT
+// INSERT
 channel.on(
   "postgres_changes",
   {
@@ -262,13 +263,11 @@ channel.on(
     filter:`chat_id=eq.${chatId}`
   },
   (payload)=>{
-    setMessages(prev=>{
-      if(prev.some(m=>m.id===payload.new.id)){
-        return prev;
-      }
-return prev.some(m => m.id === payload.new.id)
-  ? prev
-  : [...prev, payload.new];    });
+    setMessages(prev =>
+      prev.some(m => m.id === payload.new.id)
+        ? prev
+        : [...prev, payload.new]
+    );
 
     requestAnimationFrame(scrollToBottom);
   }
@@ -284,7 +283,6 @@ channel.on(
     filter:`chat_id=eq.${chatId}`
   },
   (payload)=>{
-
     setMessages(prev =>
       prev.map(m =>
         m.id === payload.new.id
@@ -292,7 +290,6 @@ channel.on(
           : m
       )
     );
-
   }
 );
 
@@ -686,25 +683,21 @@ marginBottom:5
 
 <div
 onTouchStart={(e)=>{
-  const touch = e.touches[0];
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 
   const timer = setTimeout(()=>{
     setReactionPicker({
       msg,
-      x: touch.clientX,
-      y: touch.clientY
+      x: rect.left + rect.width / 2,
+      y: rect.top
     });
   },300);
 
   (window as any).replyTimer = timer;
 }}
 
-
-
 onTouchEnd={()=>{
   clearTimeout((window as any).replyTimer);
-
-
 }}
 
 style={{
@@ -1050,19 +1043,22 @@ background:"transparent"
     }}
   >
     <div
-      style={{
-        position:"absolute",
-        top:reactionPicker.y - 60,
-        left:reactionPicker.x - 100,
-        background:"#fff",
-        borderRadius:20,
-        padding:"8px 12px",
-        display:"flex",
-        gap:10,
-        boxShadow:"0 6px 20px rgba(0,0,0,.2)"
-      }}
-      onClick={(e)=>e.stopPropagation()}
-    >
+  style={{
+    position:"absolute",
+    top: reactionPicker.y - 10,
+    left: reactionPicker.x,
+    transform:"translate(-50%, -100%)",
+
+    background:"#fff",
+    borderRadius:20,
+    padding:"8px 12px",
+    display:"flex",
+    gap:10,
+    boxShadow:"0 6px 20px rgba(0,0,0,.2)"
+  }}
+  onClick={(e)=>e.stopPropagation()}
+>
+    
       {["❤️","😂","😍","👍","😡"].map((emoji)=>(
         <div
           key={emoji}
