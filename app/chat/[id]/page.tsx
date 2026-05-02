@@ -24,9 +24,11 @@ const [ready,setReady] =
 useState(false);
 
 const [newMessage,setNewMessage] = useState("");
+const [chats, setChats] = useState<any[]>([]);
 const channelRef = useRef<any>(null);
-
 const [userId, setUserId] = useState<string | null>(null);
+
+
 
 useEffect(() => {
   const getUser = async () => {
@@ -43,6 +45,7 @@ useEffect(() => {
 const typingTimeout = useRef<any>(null);
 
 async function sendTyping(status: boolean){
+    if(!userId) return;
 
   const channel = channelRef.current;
   if(!channel) return;
@@ -148,6 +151,23 @@ chatRef.current.scrollHeight;
 
 
 
+
+// 👇 ВОТ СЮДА ВСТАВИЛ
+async function fetchChats() {
+  if (!userId) return;
+
+  const { data } = await supabase
+    .from("chats")
+    .select("*")
+    .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+    .order("last_message_at", { ascending: false });
+
+  if (data) {
+    setChats(data);
+  }
+}
+
+
 async function fetchMessages(){
 
 const { data,error } = await supabase
@@ -203,8 +223,14 @@ setReady(true);
 
 
 useEffect(()=>{
-fetchMessages();
+  fetchMessages();
 },[chatId]);
+
+useEffect(() => {
+  if(userId){
+    fetchChats();
+  } 
+}, [userId]);
 
 
 useEffect(()=>{
@@ -390,6 +416,7 @@ useEffect(()=>{
 
 
 async function sendMessage(){
+    if(!userId) return;
 
 if(!newMessage.trim()) return;
 
@@ -675,7 +702,7 @@ ready
 const mine =
 msg.sender_id===userId;
 
-if (!userId) return null;
+
 
 return(
 
