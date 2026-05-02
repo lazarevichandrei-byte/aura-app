@@ -262,8 +262,9 @@ channel.on(
       if(prev.some(m=>m.id===payload.new.id)){
         return prev;
       }
-      return prev.concat(payload.new);
-    });
+return prev.some(m => m.id === payload.new.id)
+  ? prev
+  : [...prev, payload.new];    });
 
     requestAnimationFrame(scrollToBottom);
   }
@@ -676,17 +677,25 @@ marginBottom:5
 
 <div
 onTouchStart={()=>{
-const timer=setTimeout(()=>{
-setReplyTo(msg);
-},100);
+  (window as any).replyTimerFired = false;
 
-(window as any).replyTimer=timer;
+  const timer = setTimeout(()=>{
+    (window as any).replyTimerFired = true;
+    setReplyTo(msg);
+  },300);
+
+  (window as any).replyTimer = timer;
 }}
 
+
+
 onTouchEnd={()=>{
-clearTimeout(
-(window as any).replyTimer
-);
+  clearTimeout((window as any).replyTimer);
+
+  // короткий тап = реакция
+  if(!(window as any).replyTimerFired){
+    addReaction(msg,"❤️");
+  }
 }}
 
 style={{
@@ -717,26 +726,21 @@ overflowWrap:"break-word"
 {msg.body}
 
 
-<div
-  onClick={()=>addReaction(msg,"❤️")}
-  style={{fontSize:12,marginTop:4,cursor:"pointer"}}
->
-  ❤️
-</div>
+
 
 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
   <div style={{
-    position:"absolute",
-    bottom:-18,
-    right: mine ? 8 : "auto",
-    left: mine ? "auto" : 8,
-    background:"#fff",
-    borderRadius:12,
-    padding:"2px 6px",
-    fontSize:12,
-    boxShadow:"0 2px 6px rgba(0,0,0,.1)",
-    zIndex:2
-  }}>
+  position:"absolute",
+  bottom:-6,
+  right: mine ? 6 : "auto",
+  left: mine ? "auto" : 6,
+  background:"#fff",
+  borderRadius:12,
+  padding:"2px 6px",
+  fontSize:12,
+  boxShadow:"0 2px 6px rgba(0,0,0,.15)",
+  zIndex:2
+}}>
     {Object.entries(msg.reactions).map(([emoji,users]:any)=>(
       <span key={emoji} style={{marginRight:6}}>
         {emoji} {users.length}
