@@ -33,7 +33,11 @@ const [isTyping,setIsTyping] =
 useState(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
-
+const [reactionPicker,setReactionPicker] = useState<{
+  msg:any,
+  x:number,
+  y:number
+} | null>(null);
 const chatRef =
 useRef<HTMLDivElement | null>(null);
 const channelRef = useRef<any>(null);
@@ -507,6 +511,8 @@ marginTop:-6
 </span>
 </div>
 
+
+
 <div
 style={{
 marginLeft:14,
@@ -587,9 +593,12 @@ isOnline
 
 </div>
 
-</div>
 
 </div>
+
+
+</div>
+
 
 </div>
 
@@ -676,12 +685,15 @@ marginBottom:5
 >
 
 <div
-onTouchStart={()=>{
-  (window as any).replyTimerFired = false;
+onTouchStart={(e)=>{
+  const touch = e.touches[0];
 
   const timer = setTimeout(()=>{
-    (window as any).replyTimerFired = true;
-    setReplyTo(msg);
+    setReactionPicker({
+      msg,
+      x: touch.clientX,
+      y: touch.clientY
+    });
   },300);
 
   (window as any).replyTimer = timer;
@@ -692,10 +704,7 @@ onTouchStart={()=>{
 onTouchEnd={()=>{
   clearTimeout((window as any).replyTimer);
 
-  // короткий тап = реакция
-  if(!(window as any).replyTimerFired){
-    addReaction(msg,"❤️");
-  }
+
 }}
 
 style={{
@@ -1007,28 +1016,72 @@ background:"transparent"
 />
 
 <div
-onPointerDown={(e)=>{
-e.preventDefault();
-sendMessage();
-}}
-style={{
-width:38,
-height:38,
-borderRadius:"50%",
-background:"#2E7BFF",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-color:"#fff"
-}}
+  onPointerDown={(e)=>{
+    e.preventDefault();
+    sendMessage();
+  }}
+  style={{
+    width:38,
+    height:38,
+    borderRadius:"50%",
+    background:"#2E7BFF",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    color:"#fff"
+  }}
 >
-➤
+  ➤
 </div>
 
 </div>
 </div>
+
+{/* 🔥 REACTION PICKER — ВАЖНО: ОН ДОЛЖЕН БЫТЬ ЗДЕСЬ */}
+
+{reactionPicker && (
+  <div
+    onClick={()=>setReactionPicker(null)}
+    style={{
+      position:"fixed",
+      inset:0,
+      background:"rgba(0,0,0,0.1)",
+      zIndex:999
+    }}
+  >
+    <div
+      style={{
+        position:"absolute",
+        top:reactionPicker.y - 60,
+        left:reactionPicker.x - 100,
+        background:"#fff",
+        borderRadius:20,
+        padding:"8px 12px",
+        display:"flex",
+        gap:10,
+        boxShadow:"0 6px 20px rgba(0,0,0,.2)"
+      }}
+      onClick={(e)=>e.stopPropagation()}
+    >
+      {["❤️","😂","😍","👍","😡"].map((emoji)=>(
+        <div
+          key={emoji}
+          onClick={async ()=>{
+            await addReaction(reactionPicker.msg,emoji);
+            setReactionPicker(null);
+          }}
+          style={{
+            fontSize:22,
+            cursor:"pointer"
+          }}
+        >
+          {emoji}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
 </div>
 )
-
 }
