@@ -491,44 +491,34 @@ window.location.href="/home";
 
   return (
     <div style={styles.wrapper}>
-  <div style={styles.card}>
+      <div style={styles.card}>
 
-    <div style={styles.avatarWrapper}>
-      {photos.length > 0 ? (
-        <div
-          style={styles.avatarMask}
-          onClick={() => setActivePhoto(true)}
-        >
+        <div style={styles.avatarWrapper}>
+          {photos.length > 0 ? (
+            <div style={styles.avatarMask}>
+<img
+  src={avatarPreview || photos[mainIndex]}
+  loading="lazy"
+decoding="async"
+style={{
+ ...styles.avatarImage,
 
-          <img
-            src={avatarPreview || photos[mainIndex]}
-            loading="lazy"
-            decoding="async"
-            style={{
-              ...styles.avatarImage,
-              transform: photoEdits[mainIndex]
-                ? `translate(
-                    ${photoEdits[mainIndex].crop.x/6}px,
-                    ${photoEdits[mainIndex].crop.y/6}px
-                  )
-                  scale(${photoEdits[mainIndex].zoom})`
-                : "none",
-              transformOrigin:"center center"
-            }}
-          />
+ transform: photoEdits[mainIndex]
+   ? `translate(
+        ${photoEdits[mainIndex].crop.x/6}px,
+        ${photoEdits[mainIndex].crop.y/6}px
+      )
+      scale(${photoEdits[mainIndex].zoom})`
+   : "none",
 
+ transformOrigin:"center center"
+}}/>
+</div>
+          ) : (
+            <div style={styles.avatar}>👤</div>
+          )}
+          <div style={styles.plus}>+</div>
         </div>
-      ) : (
-        <div
-          style={styles.avatar}
-          onClick={() => setActivePhoto(true)}
-        >
-          👤
-        </div>
-      )}
-
-      <div style={styles.plus}>+</div>
-    </div>
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
@@ -924,22 +914,8 @@ plus:{
 
  zIndex:20
 },
-
-
-
-
-
-
   row:{display:"flex",gap:"10px"},
-  inputBox:{inputBox:{
-  background:"#F9FAFB",
-  borderRadius:"16px",
-  padding:"8px 10px", // было 12px
-  marginTop:"10px",   // чуть меньше отступ
-  flex:1
-},
-
-},
+  inputBox:{background:"#F9FAFB",borderRadius:"16px",padding:"12px",marginTop:"12px",flex:1},
   label:{fontSize:"12px",color:"#6B7280"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
   textarea:{width:"100%",border:"none",background:"transparent",outline:"none"},
