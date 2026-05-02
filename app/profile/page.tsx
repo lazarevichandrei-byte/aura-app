@@ -695,8 +695,11 @@ color:"#8A94A6"
 
   setAvatarPreview(croppedImage);
 
-  setPhotos(prev => [...prev, croppedImage]);
-  setMainIndex(prev => prev + 1);
+setPhotos(prev => {
+  const updated = [...prev];
+  updated[mainIndex] = croppedImage;
+  return updated;
+});
 
   setCropOpen(false);
 }}
