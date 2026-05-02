@@ -600,16 +600,12 @@ window.location.href="/home";
       loading="lazy"
       decoding="async"
       style={{
-        ...styles.avatarImage,
-        transform: photoEdits[mainIndex]
-          ? `translate(
-              ${photoEdits[mainIndex].crop.x / 3}px,
-              ${photoEdits[mainIndex].crop.y / 3}px
-            )
-            scale(${photoEdits[mainIndex].zoom})`
-          : "none",
-        transformOrigin: "center center"
-      }}
+  ...styles.avatarImage,
+  objectFit: "cover",
+  objectPosition: photoEdits[mainIndex]
+    ? `${50 - photoEdits[mainIndex].crop.x / 10}% ${50 - photoEdits[mainIndex].crop.y / 10}%`
+    : "center"
+}}
     />
   </div>
 ) : (
