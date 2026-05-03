@@ -228,6 +228,9 @@ const reloadTimer =
 useRef<any>(null);
 const [typingChats,setTypingChats] =
 useState<any>({});
+useEffect(()=>{
+  loadChats();
+},[]);
 
 useEffect(()=>{
 
@@ -293,7 +296,8 @@ await supabase
 .limit(30);
 
 if(!error && data){
-setChats(data || []);
+  console.log("CHATS:", data);
+  setChats(data || []);
 }
 
 }
