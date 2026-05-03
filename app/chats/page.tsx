@@ -91,25 +91,16 @@ chat.unread_count
 ?700
 :600
 }}>
-{chat.name}
+{chat.name || "Без имени"}
 </div>
 
 <div style={{
-fontSize:15,
-marginTop:4,
-color:
-typing
-? "#2E7BFF"
-: chat.unread_count
-? "#2A2D34"
-:"#8A8F9B"
+fontWeight:
+chat.unread_count
+?700
+:600
 }}>
-{
-typing
-? "Печатает…"
-: chat.last_message ||
-"Начните общение ✨"
-}
+{chat.name || "Без имени"}
 </div>
 
 </div>
@@ -197,25 +188,7 @@ newMatch:false
 }
 ]);
 
-useEffect(()=>{
 
-const seen =
-JSON.parse(
-localStorage.getItem(
-"seenMatches"
-) || "[]"
-);
-
-setMatches(prev =>
-prev.map((m,i)=>({
-...m,
-newMatch:
-!seen.includes(i)
-&& m.newMatch
-}))
-);
-
-},[]);
 
 const [chats,setChats] =
 useState<any[]>([]);
@@ -234,23 +207,21 @@ useEffect(()=>{
 
 useEffect(()=>{
 
+  loadChats();
+
   const channel = supabase
-    .channel("online-users")
-    .on("presence", { event: "sync" }, () => {
-
-      const state = channel.presenceState();
-      const users = Object.values(state).flat() as any[];
-
-      const typingMap:any = {};
-
-      users.forEach((u:any)=>{
-        if(u.chat_id && u.typing){
-          typingMap[u.chat_id] = true;
-        }
-      });
-
-      setTypingChats(typingMap);
-    })
+    .channel("chats-live")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "chats"
+      },
+      ()=>{
+        loadChats();
+      }
+    )
     .subscribe();
 
   return ()=>{
@@ -258,7 +229,6 @@ useEffect(()=>{
   };
 
 },[]);
-
 
 
 
@@ -283,22 +253,22 @@ search.toLowerCase()
 
 async function loadChats(){
 
-const { data, error } =
-await supabase
-.from("chats")
-.select(
-"id,name,avatar,unread_count,last_message,last_message_at"
-)
-.order(
-"last_message_at",
-{ ascending:false }
-)
-.limit(30);
+  const { data, error } =
+  await supabase
+  .from("chats")
+  .select(
+    "id,name,avatar,unread_count,last_message,last_message_at"
+  )
+  .order(
+    "last_message_at",
+    { ascending:false }
+  )
+  .limit(30);
 
-if(!error && data){
-  console.log("CHATS:", data);
-  setChats(data || []);
-}
+  if(!error && data){
+    console.log("CHATS:", data);
+    setChats(data || []);
+  }
 
 }
 
