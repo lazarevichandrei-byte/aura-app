@@ -223,47 +223,42 @@ const [search,setSearch] =
 useState("");
 const searching =
 search.trim().length > 0;
-const [typingChats,setTypingChats] =
-useState<any>({});
+
 const reloadTimer =
 useRef<any>(null);
-
-
+const [typingChats,setTypingChats] =
+useState<any>({});
 
 useEffect(()=>{
 
-loadChats();
+  const channel = supabase
+    .channel("online-users")
+    .on("presence", { event: "sync" }, () => {
 
-const channel =
-supabase
-.channel("chats-live")
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"chats"
-},
-()=>{
+      const state = channel.presenceState();
+      const users = Object.values(state).flat() as any[];
 
-clearTimeout(
-reloadTimer.current
-);
+      const typingMap:any = {};
 
-reloadTimer.current=
-setTimeout(()=>{
-loadChats();
-},150);
+      users.forEach((u:any)=>{
+        if(u.chat_id && u.typing){
+          typingMap[u.chat_id] = true;
+        }
+      });
 
-}
-)
-.subscribe();
+      setTypingChats(typingMap);
+    })
+    .subscribe();
 
-return ()=>{
-supabase.removeChannel(channel);
-};
+  return ()=>{
+    supabase.removeChannel(channel);
+  };
 
 },[]);
+
+
+
+
 
 const filteredChats =
 chats.filter(chat=>
@@ -280,39 +275,6 @@ search.toLowerCase()
 
 
 
-useEffect(()=>{
-
-const timer =
-setInterval(()=>{
-
-if(document.hidden){
-return;
-}
-
-
-setTypingChats(prev=>{
-
-if(
-prev["22222222-2222-2222-2222-222222222222"]
-) return prev;
-
-return {
-"22222222-2222-2222-2222-222222222222":true
-};
-
-});
-
-setTimeout(()=>{
-setTypingChats({});
-},2200);
-
-},7000);
-
-return ()=>{
-clearInterval(timer);
-};
-
-},[]);
 
 
 
