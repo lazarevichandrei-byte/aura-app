@@ -40,6 +40,7 @@ const inputRef =
 useRef<HTMLInputElement | null>(null);
 const touchStartX =
 useRef(0);
+const channelRef = useRef<any>(null);
 const lastScrollTop =
 useRef(0);
 const scrollTick =
@@ -202,61 +203,74 @@ handleKeyboard
 
 useEffect(()=>{
 
-const channel=supabase
-.channel(`chat-${chatId}`)
-.on(
-"postgres_changes",
-{
-event:"INSERT",
-schema:"public",
-table:"messages",
-filter:`chat_id=eq.${chatId}`
-},
-(payload)=>{
+  const channel = supabase
+    .channel(`chat-${chatId}`, {
+      config:{ presence:{ key:userId } }
+    })
 
-setMessages(prev=>{
+    .on(
+      "postgres_changes",
+      {
+        event:"INSERT",
+        schema:"public",
+        table:"messages",
+        filter:`chat_id=eq.${chatId}`
+      },
+      (payload)=>{
 
-if(
-prev.some(
-m=>m.id===payload.new.id
-)
-){
-return prev;
-}
+        setMessages(prev=>{
+          if(prev.some(m=>m.id===payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
 
-return prev.concat(
-payload.new
-);
+        requestAnimationFrame(scrollToBottom);
+      }
+    )
 
-});
+    .on("presence", { event: "sync" }, () => {
 
-requestAnimationFrame(
-scrollToBottom
-);
+      const state = channel.presenceState();
+      const users = Object.values(state).flat() as any[];
 
-supabase
-.from("chats")
-.update({
-last_message:payload.new.body,
-last_message_at:
-payload.new.created_at
-})
-.eq("id",chatId);
+      const someoneTyping = users.some((u:any)=>
+        u.user_id !== userId &&
+        u.chat_id === chatId &&
+        u.typing
+      );
 
+      setIsTyping(someoneTyping);
+    })
 
-}
-)
-.subscribe();
+    .subscribe(async (status)=>{
+      if(status==="SUBSCRIBED"){
+        await channel.track({
+          user_id:userId,
+          typing:false,
+          chat_id:chatId
+        });
+      }
+    });
 
-return()=>{
-supabase.removeChannel(channel);
-};
+  channelRef.current = channel;
+
+  return ()=>{
+    supabase.removeChannel(channel);
+  };
 
 },[chatId]);
 
 
-
 async function sendMessage(){
+    channelRef.current?.track({
+  user_id: userId,
+  typing: false,
+  chat_id: chatId
+});
+    channelRef.current?.track({
+  user_id: userId,
+  typing: false,
+  chat_id: chatId
+});
 
 if(!newMessage.trim()) return;
 
@@ -827,7 +841,13 @@ scrollToBottom();
 }}
 
 onChange={(e)=>{
-setNewMessage(e.target.value);
+  setNewMessage(e.target.value);
+
+  channelRef.current?.track({
+    user_id: userId,
+    typing: true,
+    chat_id: chatId
+  });
 }}
 
 onKeyDown={(e)=>{
