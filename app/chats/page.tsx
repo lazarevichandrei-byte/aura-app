@@ -7,6 +7,7 @@ useRef
 } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { joinChatPresence } from "../../lib/presence";
 import BottomNav from "../../components/BottomNav";
 
 
@@ -95,12 +96,11 @@ chat.unread_count
 </div>
 
 <div style={{
-fontWeight:
-chat.unread_count
-?700
-:600
+fontSize:13,
+color: typing ? "#2F80FF" : "#8A8F9B",
+marginTop:2
 }}>
-{chat.name || "Без имени"}
+{typing ? "печатает..." : chat.last_message || ""}
 </div>
 
 </div>
@@ -201,9 +201,51 @@ const reloadTimer =
 useRef<any>(null);
 const [typingChats,setTypingChats] =
 useState<any>({});
+const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
   loadChats();
 },[]);
+
+
+useEffect(() => {
+  if (!chats?.length) return;
+
+  chats.forEach((chat) => {
+    if (channelsRef.current[chat.id]) return;
+
+    const channel = joinChatPresence(chat.id, "list");
+
+    channel.on("presence", { event: "sync" }, () => {
+      const state = channel.presenceState();
+
+      let isTyping = false;
+
+      Object.values(state).forEach((list: any) => {
+        list.forEach((p: any) => {
+          if (p.typing) {
+            isTyping = true;
+          }
+        });
+      });
+
+      setTypingChats((prev: any) => ({
+        ...prev,
+        [chat.id]: isTyping,
+      }));
+    });
+
+    channel.subscribe();
+
+    channelsRef.current[chat.id] = channel;
+  });
+
+  return () => {
+    Object.values(channelsRef.current).forEach((ch: any) => {
+      ch.unsubscribe();
+    });
+    channelsRef.current = {};
+  };
+}, [chats]);
 
 useEffect(()=>{
 
