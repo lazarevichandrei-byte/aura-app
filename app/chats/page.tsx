@@ -284,11 +284,39 @@ search.toLowerCase()
 )
 );
 
+const sortedChats = [...filteredChats].sort((a, b) => {
+  const tA = new Date(a.last_message_at || 0).getTime();
+  const tB = new Date(b.last_message_at || 0).getTime();
+
+  return tB - tA;
+});
 
 
 
+async function createChatIfNotExists(userA: string, userB: string){
 
+  const { data: existing } = await supabase
+  .from("chats")
+  .select("id")
+  .or(`and(user1.eq.${userA},user2.eq.${userB}),and(user1.eq.${userB},user2.eq.${userA})`)
+  .maybeSingle();
 
+  if (existing) return existing.id;
+
+  const { data, error } = await supabase
+  .from("chats")
+  .insert({
+    user1: userA,
+    user2: userB,
+    last_message: "",
+  })
+  .select()
+  .single();
+
+  if(error) return null;
+
+  return data.id;
+}
 
 
 
@@ -523,10 +551,18 @@ newMatch:false
 )
 );
 
-setTimeout(()=>{
-router.push(
-`/chat/${i+1}`
-);
+setTimeout(async ()=>{
+
+  const myId = (await supabase.auth.getUser()).data.user?.id;
+
+  const targetId = "user_" + i; // пока заглушка (потом заменим на реальные id)
+
+  const chatId = await createChatIfNotExists(myId, targetId);
+
+  if(chatId){
+    router.push(`/chat/${chatId}`);
+  }
+
 },80);
 
 }}
@@ -617,7 +653,7 @@ marginBottom:10
 </div>
 )}
 
-{filteredChats.map(chat=>(
+{sortedChats.map(chat=>(
 <ChatCard
 key={chat.id}
 chat={chat}
