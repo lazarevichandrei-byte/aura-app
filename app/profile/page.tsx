@@ -111,7 +111,11 @@ if (cached) {
     }
 
     const user = tg?.initDataUnsafe?.user;
-if (!user) return setLoading(false);
+if (!user) {
+  console.log("NO TELEGRAM USER");
+  setLoading(false);
+  return;
+}
 
 setTelegramId(user.id);
 setName(user.first_name || "");
@@ -294,11 +298,11 @@ let { data, error } = await query.limit(20);
 // 🔥 получаем кто лайкнул тебя
 const { data: likedYou } = await supabase
   .from("likes")
-  .select("from_user")
-  .eq("to_user", telegramId);
+  .select("from_user_id")
+.eq("to_user_id", telegramId);
 
 // список id
-const likedIds = (likedYou || []).map(l => l.from_user);
+const likedIds = (likedYou || []).map(l => l.from_user_id);
 
 // 🔥 сортируем: сначала те кто лайкнул
 data = (data || []).sort((a, b) => {
@@ -311,6 +315,7 @@ data = (data || []).sort((a, b) => {
 
 if (error) {
   console.log("match error", error);
+  setMatches([]);
   return;
 }
 
