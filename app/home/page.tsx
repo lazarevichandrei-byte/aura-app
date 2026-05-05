@@ -28,6 +28,13 @@ const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
 
+const [myId,setMyId] = useState<string | null>(null);
+
+useEffect(()=>{
+  supabase.auth.getUser().then(({ data })=>{
+    setMyId(data.user?.id || null);
+  });
+},[]);
 
 const currentUserId =
 
@@ -86,75 +93,34 @@ setIndex(prev=>prev+1);
 
 async function handleLike(){
 
-if(!currentUser) return;
+  if(!currentUser) return;
 
-const likedUserId=currentUser.telegram_id;
+  const likedUserId = currentUser.telegram_id;
 
-if(!likedUserId){
-nextUser();
-return;
+  if(!myId || !currentUser?.id){
+  nextUser();
+  return;
 }
 
-/* сохраняем лайк */
-await supabase
-.from("likes")
-.upsert(
-{
-from_user: currentUserId,
-to_user: likedUserId
-},
-{
-onConflict:"from_user,to_user"
-}
-);
+const { data: chatId, error } = await supabase
+  .rpc("like_user", {
+    from_id: myId,
+    to_id: currentUser.id
+  });
 
+  if(error){
+    console.log("LIKE ERROR:", error);
+    nextUser();
+    return;
+  }
 
-/* ищем ответный лайк */
-const {data:rows}=await supabase
-.from("likes")
-.select("id")
-.eq("from_user",likedUserId)
-.eq("to_user",currentUserId);
+  // если взаимный лайк → показываем матч
+  if(chatId){
+    setMatchedUser(currentUser);
+    setShowMatch(true);
+  }
 
-
-/* MATCH */
-if(rows && rows.length>0){
-
-setMatchedUser(currentUser);
-setShowMatch(true);
-
-
-
-
-/* мой лайк -> его */
-await supabase
-.from("likes")
-.delete()
-.eq("from_user",currentUserId)
-.eq("to_user",likedUserId);
-
-
-/* его лайк -> мой */
-await supabase
-.from("likes")
-.delete()
-.eq("from_user",likedUserId)
-.eq("to_user",currentUserId);
-
-
-/* OPTIONAL: удалить старый match если нужен одноразовый мэтч */
-await supabase
-.from("matches")
-.delete()
-.or(
-`user1.eq.${Math.min(currentUserId,likedUserId)},user2.eq.${Math.max(currentUserId,likedUserId)}`
-);
-
-return;
-}
-
-nextUser();
-
+  nextUser();
 }
 
 
