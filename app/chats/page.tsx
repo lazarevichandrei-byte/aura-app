@@ -537,7 +537,7 @@ fontWeight:600
 
 <div
 key={i}
-onClick={async ()=>{
+onPointerUp={async ()=>{
   if(!myId){
     console.log("NO USER");
     return;
@@ -560,6 +560,7 @@ cursor:"pointer"
 >
 
 <div
+onPointerDown={(e)=>e.stopPropagation()}
 style={{
 position:"relative",
 width:68,
@@ -579,8 +580,10 @@ style={{
 width:"100%",
 height:"100%",
 borderRadius:"50%",
-objectFit:"cover"
+objectFit:"cover",
+pointerEvents:"none"
 }}
+
 />
 
 {item.online && (
