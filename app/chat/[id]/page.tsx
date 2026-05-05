@@ -266,11 +266,22 @@ useEffect(()=>{
       }
     });
 
+    const interval = setInterval(()=>{
+  channel.track({
+    user_id:userId,
+    typing:false,
+    chat_id:chatId,
+    online:true,
+    last_seen:new Date().toISOString()
+  });
+}, 10000);
+
   channelRef.current = channel;
 
   return ()=>{
-    supabase.removeChannel(channel);
-  };
+  clearInterval(interval);
+  supabase.removeChannel(channel);
+};
 
 },[chatId]);
 
@@ -279,12 +290,9 @@ async function sendMessage(){
     channelRef.current?.track({
   user_id: userId,
   typing: false,
-  chat_id: chatId
-});
-    channelRef.current?.track({
-  user_id: userId,
-  typing: false,
-  chat_id: chatId
+  chat_id: chatId,
+  online: true,
+  last_seen: new Date().toISOString()
 });
 
 if(!newMessage.trim()) return;
@@ -863,7 +871,9 @@ onChange={(e)=>{
   channelRef.current?.track({
     user_id: userId,
     typing: true,
-    chat_id: chatId
+    chat_id: chatId,
+    online: true,
+    last_seen: new Date().toISOString()
   });
 }}
 
