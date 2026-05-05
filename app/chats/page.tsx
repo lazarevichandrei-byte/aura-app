@@ -286,6 +286,11 @@ search.toLowerCase()
 );
 
 const sortedChats = [...filteredChats].sort((a, b) => {
+
+  if ((b.liked_by ? 1 : 0) !== (a.liked_by ? 1 : 0)) {
+    return (b.liked_by ? 1 : 0) - (a.liked_by ? 1 : 0);
+  }
+
   const tA = new Date(a.last_message_at || 0).getTime();
   const tB = new Date(b.last_message_at || 0).getTime();
 
@@ -306,10 +311,11 @@ async function createChatIfNotExists(userA: string, userB: string){
   const { data, error } = await supabase
   .from("chats")
   .insert({
-    user1: userA,
-    user2: userB,
-    last_message: "",
-  })
+  user1: userA,
+  user2: userB,
+  last_message: "",
+  liked_by: true
+})
   .select()
   .single();
 
@@ -327,7 +333,7 @@ async function loadChats(){
   await supabase
   .from("chats")
   .select(
-"id,name,avatar,unread_count,last_message,last_message_at"
+"id,name,avatar,unread_count,last_message,last_message_at,liked_by"
 )
   .order(
     "last_message_at",
