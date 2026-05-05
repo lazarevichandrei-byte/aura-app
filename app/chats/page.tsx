@@ -201,6 +201,7 @@ const reloadTimer =
 useRef<any>(null);
 const [typingChats,setTypingChats] =
 useState<any>({});
+const [myId,setMyId] = useState<string | null>(null);
 
 const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
@@ -273,6 +274,11 @@ useEffect(()=>{
 
 },[]);
 
+useEffect(()=>{
+  supabase.auth.getUser().then(({ data })=>{
+    setMyId(data.user?.id || "11111111-1111-1111-1111-111111111111");
+  });
+},[]);
 
 
 
@@ -532,10 +538,6 @@ fontWeight:600
 <div
 key={i}
 onClick={async ()=>{
-
-  const { data } = await supabase.auth.getUser();
-const myId = data.user?.id || "11111111-1111-1111-1111-111111111111";
-
   if(!myId){
     console.log("NO USER");
     return;
@@ -550,9 +552,6 @@ const myId = data.user?.id || "11111111-1111-1111-1111-111111111111";
   } else {
     console.log("CHAT ERROR");
   }
-
-
-
 }}
 style={{
 textAlign:"center",
