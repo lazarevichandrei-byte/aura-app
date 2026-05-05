@@ -11,3 +11,10 @@ export const joinChatPresence = (chatId: string, userId: string) => {
 
   return channel;
 };
+
+export const trackOnline = (channel: any) => {
+  channel.track({
+    online: true,
+    last_seen: new Date().toISOString(),
+  });
+};
