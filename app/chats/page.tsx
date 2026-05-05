@@ -563,13 +563,16 @@ setTimeout(async ()=>{
 
   const myId = (await supabase.auth.getUser()).data.user?.id;
 
-  const targetId = crypto.randomUUID(); // пока заглушка (потом заменим на реальные id)
+  const targetId = "test-user-" + i; // пока заглушка (потом заменим на реальные id)
 
   const chatId = await createChatIfNotExists(myId, targetId);
 
   if(chatId){
-    router.push(`/chat/${chatId}`);
-  }
+  console.log("OPEN CHAT:", chatId);
+  router.push(`/chat/${chatId}`);
+} else {
+  console.log("CHAT NOT CREATED");
+}
 
 },80);
 
