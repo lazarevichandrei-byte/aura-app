@@ -2,48 +2,54 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-const likes = [
-{
-id:1,
-name:"Анна",
-age:24,
-city:"Paris",
-img:"/girl1.jpg"
-},
-{
-id:2,
-name:"София",
-age:27,
-city:"Lyon",
-img:"/girl2.jpg"
-},
-{
-id:3,
-name:"Мария",
-age:22,
-city:"Nice",
-img:"/girl3.jpg"
-},
-{
-id:4,
-name:"Полина",
-age:26,
-city:"Berlin",
-img:"/girl4.jpg"
-}
-];
+import { useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
 export default function LikesPage(){
 
 const router = useRouter();
 
-const [people,setPeople] =
-useState(likes);
-
-const [matchedUser,setMatchedUser] =
-useState<any>(null);
+const [people,setPeople] = useState<any[]>([]);
+const [myId,setMyId] = useState<string | null>(null);
+const [match,setMatch] = useState<any>(null);
+const [matchChatId,setMatchChatId] = useState<string | null>(null);
 
 const touchStartX = useRef(0);
+
+useEffect(()=>{
+  supabase.auth.getUser().then(({ data })=>{
+    const id = data.user?.id;
+    if(id){
+      setMyId(id);
+      loadLikes(id);
+    }
+  });
+},[]);
+
+
+
+
+async function loadLikes(userId:string){
+
+  const { data, error } = await supabase
+    .from("likes")
+    .select(`
+      id,
+      from_user_id,
+      users:from_user_id (
+        id,
+        name,
+        age,
+        city,
+        avatar_url
+      )
+    `)
+    .eq("to_user_id", userId);
+
+  if(!error && data){
+    setPeople(data);
+  }
+}
 
 return(
 
@@ -158,7 +164,7 @@ fontSize:19,
 fontWeight:700
 }}
 >
-12 человек тебя лайкнули ❤️
+{people.length} человек тебя лайкнули ❤️
 </div>
 
 <div
@@ -218,7 +224,7 @@ border:"2px solid #2F80FF"
 >
 
 <img
-src={user.img}
+src={user.users?.avatar_url}
 style={{
 width:78,
 height:78,
@@ -254,7 +260,7 @@ fontWeight:700,
 lineHeight:"22px"
 }}
 >
-{user.name}, {user.age}
+{user.users?.name}, {user.users?.age}
 </div>
 
 <div
@@ -264,7 +270,7 @@ fontSize:14,
 color:"#8A8F9B"
 }}
 >
-{user.city}
+{user.users?.city}
 </div>
 
 <div
@@ -272,7 +278,7 @@ onClick={(e)=>{
 e.stopPropagation();
 
 router.push(
-`/profile/${user.id}`
+`/profile/${user.users?.id}`
 );
 
 /* если профиля пока нет —
@@ -349,9 +355,22 @@ cursor:"pointer"
 </div>
 
 <div
-onClick={(e)=>{
-e.stopPropagation();
-setMatchedUser(user);
+onClick={async (e)=>{
+  e.stopPropagation();
+
+  if(!myId) return;
+
+  const { data: chatId } = await supabase.rpc("like_user", {
+    from_id: myId,
+    to_id: user.from_user_id
+  });
+
+  if(chatId){
+  setMatch(user.users);
+  setMatchChatId(chatId);
+
+  setPeople(prev => prev.filter(p => p.id !== user.id));
+}
 }}
 
 style={{
@@ -391,100 +410,83 @@ display:"inline-block"
 ))}
 
 </div>
-{matchedUser && (
 
+
+
+{match && (
 <div
-onClick={()=>
-setMatchedUser(null)
-}
+onClick={()=>{
+  setMatch(null);
+  setMatchChatId(null);
+}}
 style={{
 position:"fixed",
 inset:0,
-background:"rgba(15,23,42,.55)",
-
+background:"rgba(0,0,0,.5)",
 display:"flex",
-alignItems:"center",
 justifyContent:"center",
-
-zIndex:999
+alignItems:"center",
+zIndex:9999
 }}
 >
 
 <div
+onClick={(e)=>e.stopPropagation()}
 style={{
-width:"86%",
-maxWidth:340,
-
+width:"90%",
+maxWidth:360,
 background:"#fff",
-borderRadius:30,
-
+borderRadius:28,
 padding:"32px 24px",
 textAlign:"center"
 }}
 >
 
-<div
-style={{
-fontSize:38
-}}
->
-💙
-</div>
+<div style={{fontSize:36}}>💙</div>
 
-<div
-style={{
+<div style={{
 marginTop:12,
 fontSize:28,
-fontWeight:800,
-color:"#2F80FF"
-}}
->
-MATCH!
+fontWeight:800
+}}>
+Это матч!
 </div>
 
-<div
-style={{
-marginTop:12,
-fontSize:17,
-fontWeight:600
-}}
->
-У вас взаимная симпатия
+<div style={{
+marginTop:10,
+fontSize:16,
+color:"#666"
+}}>
+Вы и {match?.name || "пользователь"} понравились друг другу
 </div>
 
-<div
+<img
+src={match?.avatar_url || "/girl1.jpg"}
 style={{
-marginTop:8,
-fontSize:14,
-color:"#7B8794"
+width:90,
+height:90,
+borderRadius:"50%",
+objectFit:"cover",
+marginTop:18
 }}
->
-Можно начать общение
-</div>
+/>
 
 <div
 onClick={()=>{
-router.push(
-`/chat/${matchedUser.id}`
-);
+  if(matchChatId){
+    router.push(`/chat/${matchChatId}`);
+  }
 }}
-
 style={{
-marginTop:24,
-
-height:48,
-borderRadius:999,
-
-background:
-"linear-gradient(135deg,#44B7FF,#2E7BFF)",
-
+marginTop:28,
+height:50,
+borderRadius:16,
+background:"#2F80FF",
+color:"#fff",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-
-color:"#fff",
 fontWeight:700,
-
 cursor:"pointer"
 }}
 >
@@ -494,8 +496,8 @@ cursor:"pointer"
 </div>
 
 </div>
-
 )}
+
 </div>
 
 )
