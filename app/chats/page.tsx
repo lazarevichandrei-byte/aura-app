@@ -539,6 +539,7 @@ fontWeight:600
 key={i}
 onClick={async ()=>{
   console.log("CLICK WORKS", i);
+
   if(!myId){
     console.log("NO USER");
     return;
@@ -556,7 +557,9 @@ onClick={async ()=>{
 }}
 style={{
 textAlign:"center",
-cursor:"pointer"
+cursor:"pointer",
+zIndex:9999,
+position:"relative"
 }}
 >
 
