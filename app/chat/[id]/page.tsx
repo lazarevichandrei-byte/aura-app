@@ -22,8 +22,9 @@ const [messages,setMessages] = useState([]);
 const [ready,setReady] =
 useState(false);
 const [newMessage,setNewMessage] = useState("");
-const [isOnline,setIsOnline] =
-useState(true);
+const [pressed,setPressed] = useState(false);
+const [isOnline,setIsOnline] = useState(false);
+const [lastSeen,setLastSeen] = useState<string | null>(null);
 const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
@@ -229,25 +230,39 @@ useEffect(()=>{
 
     .on("presence", { event: "sync" }, () => {
 
-      const state = channel.presenceState();
-      const users = Object.values(state).flat() as any[];
+  const state = channel.presenceState();
+  const users = Object.values(state).flat() as any[];
 
-      const someoneTyping = users.some((u:any)=>
-        u.user_id !== userId &&
-        u.chat_id === chatId &&
-        u.typing
-      );
+  let online = false;
+  let last = null;
 
-      setIsTyping(someoneTyping);
-    })
+  const someoneTyping = users.some((u:any)=>
+    u.user_id !== userId &&
+    u.chat_id === chatId &&
+    u.typing
+  );
+
+  users.forEach((u:any)=>{
+    if(u.user_id !== userId){
+      if(u.online) online = true;
+      if(u.last_seen) last = u.last_seen;
+    }
+  });
+
+  setIsTyping(someoneTyping);
+  setIsOnline(online);
+  setLastSeen(last);
+})
 
     .subscribe(async (status)=>{
       if(status==="SUBSCRIBED"){
         await channel.track({
-          user_id:userId,
-          typing:false,
-          chat_id:chatId
-        });
+  user_id:userId,
+  typing:false,
+  chat_id:chatId,
+  online:true,
+  last_seen:new Date().toISOString()
+});
       }
     });
 
@@ -472,9 +487,11 @@ isOnline
 />
 
 {isOnline
-? "Онлайн"
-: "Оффлайн"}
-
+? "в сети"
+: lastSeen
+  ? "был недавно"
+  : "не в сети"}
+  
 </div>
 
 </div>
@@ -870,7 +887,14 @@ background:"transparent"
 <div
 onPointerDown={(e)=>{
 e.preventDefault();
+setPressed(true);
+}}
+onPointerUp={()=>{
+setPressed(false);
 sendMessage();
+}}
+onPointerLeave={()=>{
+setPressed(false);
 }}
 style={{
 width:38,
@@ -880,7 +904,9 @@ background:"#2E7BFF",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
-color:"#fff"
+color:"#fff",
+transition:"transform .12s ease, background .12s ease",
+transform: pressed ? "scale(0.9)" : "scale(1)"
 }}
 >
 ➤

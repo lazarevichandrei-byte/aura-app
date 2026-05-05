@@ -201,6 +201,7 @@ const reloadTimer =
 useRef<any>(null);
 const [typingChats,setTypingChats] =
 useState<any>({});
+const likedByMap = useRef<Record<string, boolean>>({});
 const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
   loadChats();
@@ -285,6 +286,14 @@ search.toLowerCase()
 );
 
 const sortedChats = [...filteredChats].sort((a, b) => {
+
+  const likedA = likedByMap.current[a.id] ? 1 : 0;
+  const likedB = likedByMap.current[b.id] ? 1 : 0;
+
+  if (likedA !== likedB) {
+    return likedB - likedA;
+  }
+
   const tA = new Date(a.last_message_at || 0).getTime();
   const tB = new Date(b.last_message_at || 0).getTime();
 
@@ -327,7 +336,8 @@ async function loadChats(){
   await supabase
   .from("chats")
   .select(
-    "id,name,avatar,unread_count,last_message,last_message_at"
+"id,name,avatar,unread_count,last_message,last_message_at,liked_by"
+
   )
   .order(
     "last_message_at",
@@ -338,6 +348,9 @@ async function loadChats(){
   if(!error && data){
     console.log("CHATS:", data);
     setChats(data || []);
+    (data || []).forEach((chat:any)=>{
+  likedByMap.current[chat.id] = !!chat.liked_by;
+});
   }
 
 }
