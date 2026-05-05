@@ -160,38 +160,13 @@ export default function Chats(){
 
 
 const router = useRouter();
-const [matches,setMatches] =
-useState([
-{
-img:"/girl1.jpg",
-name:"Алина",
-online:true,
-newMatch:true
-},
-{
-img:"/girl2.jpg",
-name:"Мария",
-online:true,
-newMatch:true
-},
-{
-img:"/girl3.jpg",
-name:"Екатерина",
-online:false,
-newMatch:false
-},
-{
-img:"/girl4.jpg",
-name:"Полина",
-online:true,
-newMatch:false
-}
-]);
 
 
 
 const [chats,setChats] =
 useState<any[]>([]);
+const matches = chats.filter(c => c.is_new_match);
+
 const [search,setSearch] =
 useState("");
 const searching =
@@ -320,7 +295,8 @@ async function createChatIfNotExists(userA: string, userB: string){
   user1: userA,
   user2: userB,
   last_message: "",
-  liked_by: true
+  liked_by: true,
+  is_new_match: true
 })
   .select()
   .single();
@@ -342,7 +318,7 @@ async function loadChats(){
   await supabase
   .from("chats")
   .select(
-"id,name,avatar,unread_count,last_message,last_message_at,liked_by"
+"id,name,avatar,unread_count,last_message,last_message_at,liked_by,is_new_match"
 )
   .order(
     "last_message_at",
@@ -446,240 +422,182 @@ fontSize:15
 
 
 {/* STORIES */}
+{/* STORIES */}
 {!searching && (
+  <div
+    style={{
+      display: "flex",
+      gap: 14,
+      overflowX: "auto",
+      marginTop: 26,
+      paddingBottom: 8,
+    }}
+  >
+    {/* ЛАЙКИ */}
+    <div style={{ textAlign: "center" }}>
+      <div
+        onClick={() => router.push("/likes")}
+        style={{
+          position: "relative",
+          width: 68,
+          height: 68,
+          borderRadius: "50%",
+          overflow: "hidden",
+          border: "2px solid #2F80FF",
+          cursor: "pointer",
+        }}
+      >
+        <img
+          src="/girl1.jpg"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            filter: "blur(8px)",
+          }}
+        />
 
-<div
-style={{
-display:"flex",
-gap:14,
-overflowX:"auto",
-marginTop:26,
-paddingBottom:8
-}}
->
+        <div
+          style={{
+            position: "absolute",
+            right: -4,
+            top: -4,
+            width: 24,
+            height: 24,
+            borderRadius: "50%",
+            background: "#2F80FF",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 11,
+            fontWeight: 700,
+            border: "2px solid #fff",
+          }}
+        >
+          12
+        </div>
+      </div>
 
-<div style={{textAlign:"center"}}>
+      <div style={{ marginTop: 6, fontSize: 12, fontWeight: 600 }}>
+        Тебя лайкнули
+      </div>
+    </div>
 
-<div
-onClick={()=>{
-router.push("/likes");
-}}
-style={{
-position:"relative",
+    {/* MATCHES */}
+    {matches.map((chat) => (
+      <div
+        key={chat.id}
+        onClick={async () => {
+          if (!myId) return;
 
-width:68,
-height:68,
+          setChats((prev) =>
+            prev.map((c) =>
+              c.id === chat.id
+                ? { ...c, is_new_match: false }
+                : c
+            )
+          );
 
-borderRadius:"50%",
-overflow:"hidden",
+          await supabase
+            .from("chats")
+            .update({ is_new_match: false })
+            .eq("id", chat.id);
 
-border:"2px solid #2F80FF",
+          router.push(`/chat/${chat.id}`);
+        }}
+        style={{
+          textAlign: "center",
+          cursor: "pointer",
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: 68,
+            height: 68,
+            borderRadius: "50%",
+            padding: 2.5,
+            border: chat.is_new_match
+              ? "2px solid #2F80FF"
+              : "2px solid #E6EBF3",
+          }}
+        >
+          <img
+            src={chat.avatar || "/girl1.jpg"}
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
+          />
 
-cursor:"pointer"
-}}
->
+          <div
+            style={{
+              position: "absolute",
+              right: -1,
+              bottom: 4,
+              width: 14,
+              height: 14,
+              background: "#47C73B",
+              border: "2px solid #fff",
+              borderRadius: "50%",
+            }}
+          />
+        </div>
 
-<img
-src="/girl1.jpg"
-style={{
-width:"100%",
-height:"100%",
-objectFit:"cover",
-filter:"blur(8px)"
-}}
-/>
-
-
-<div
-style={{
-position:"absolute",
-right:-4,
-top:-4,
-
-width:24,
-height:24,
-
-borderRadius:"50%",
-background:"#2F80FF",
-
-color:"#fff",
-
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-
-fontSize:11,
-fontWeight:700,
-
-border:"2px solid #fff"
-}}
->
-12
-</div>
-
-</div>
-
-
-<div
-style={{
-marginTop:6,
-fontSize:12,
-fontWeight:600
-}}
->
-Тебя лайкнули
-</div>
-
-</div>
-
-
-{matches.map((item,i)=>(
-
-<div
-key={i}
-onClick={async ()=>{
-  console.log("CLICK WORKS", i);
-
-  // 👇 СБРАСЫВАЕМ СИНИЙ КРУГ
-  setMatches(prev =>
-    prev.map((m, index) =>
-      index === i
-        ? { ...m, newMatch: false }
-        : m
-    )
-  );
-
-  if(!myId){
-    console.log("NO USER");
-    return;
-  }
-
-  const targetId = "6dfc7597-36cf-45f2-8abe-81da2c7c2b06";
-
-  const chatId = await createChatIfNotExists(myId, targetId);
-
-  if(chatId){
-    router.push(`/chat/${chatId}`);
-  } else {
-    console.log("CHAT ERROR");
-  }
-}}
-style={{
-textAlign:"center",
-cursor:"pointer",
-zIndex:9999,
-position:"relative"
-}}
->
-
-<div
-style={{
-position:"relative",
-width:68,
-height:68,
-borderRadius:"50%",
-padding:2.5,
-border: item.newMatch
-? "2px solid #2F80FF"
-: "2px solid #E6EBF3"
-}}
->
-<img
-loading="lazy"
-decoding="async"
-src={item.img}
-style={{
-width:"100%",
-height:"100%",
-borderRadius:"50%",
-objectFit:"cover",
-}}
-
-/>
-
-{item.online && (
-<div
-style={{
-position:"absolute",
-right:-1,
-bottom:4,
-width:14,
-height:14,
-background:"#47C73B",
-border:"2px solid #fff",
-borderRadius:"50%"
-}}
-/>
+        <div style={{ fontSize: 13, marginTop: 6 }}>
+          {chat.name || "Без имени"}
+        </div>
+      </div>
+    ))}
+  </div>
 )}
 
-
-
-
-</div>
-
+{/* LIST */}
 <div
-style={{
-fontSize:13,
-marginTop:6
-}}
+  style={{
+    marginTop: searching ? 12 : 24,
+  }}
 >
-{item.name}
+  {searching && (
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 600,
+        color: "#8A8F9B",
+        marginBottom: 10,
+      }}
+    >
+      Результаты
+    </div>
+  )}
+
+  {sortedChats.map((chat) => (
+    <ChatCard
+      key={chat.id}
+      chat={chat}
+      typing={typingChats[chat.id]}
+      router={router}
+    />
+  ))}
+
+  {searching && !filteredChats.length && (
+    <div
+      style={{
+        padding: "30px 0",
+        textAlign: "center",
+        fontSize: 14,
+        color: "#9AA3AF",
+      }}
+    >
+      Никого не найдено
+    </div>
+  )}
 </div>
 
-</div>
-
-))}
-
-</div>
-)}
-
-
-
-
-<div style={{
-marginTop:
-searching ? 12 : 24
-}}>
-
-
-
-{searching && (
-<div style={{
-fontSize:13,
-fontWeight:600,
-color:"#8A8F9B",
-marginBottom:10
-}}>
-Результаты
-</div>
-)}
-
-{sortedChats.map(chat=>(
-<ChatCard
-key={chat.id}
-chat={chat}
-typing={typingChats[chat.id]}
-router={router}
-/>
-))}
-
-
-{searching &&
-!filteredChats.length && (
-<div
-style={{
-padding:"30px 0",
-textAlign:"center",
-fontSize:14,
-color:"#9AA3AF"
-}}
->
-Никого не найдено
-</div>
-)}
-</div>
-
-<BottomNav/>
+<BottomNav />
 
 </div>
 )
