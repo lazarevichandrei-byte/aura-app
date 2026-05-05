@@ -540,12 +540,21 @@ key={i}
 onClick={async ()=>{
   console.log("CLICK WORKS", i);
 
+  // 👇 СБРАСЫВАЕМ СИНИЙ КРУГ
+  setMatches(prev =>
+    prev.map((m, index) =>
+      index === i
+        ? { ...m, newMatch: false }
+        : m
+    )
+  );
+
   if(!myId){
     console.log("NO USER");
     return;
   }
 
-  const targetId = "22222222-2222-2222-2222-22222222222" + i;
+  const targetId = "6dfc7597-36cf-45f2-8abe-81da2c7c2b06";
 
   const chatId = await createChatIfNotExists(myId, targetId);
 

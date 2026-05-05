@@ -1,6 +1,7 @@
 import { Sora } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import Providers from "./providers";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -16,7 +17,12 @@ export default function RootLayout({ children }: any) {
           strategy="beforeInteractive"
         />
       </head>
-      <body className={sora.className}>{children}</body>
+
+      <body className={sora.className}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
