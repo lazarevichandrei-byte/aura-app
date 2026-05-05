@@ -319,7 +319,10 @@ async function createChatIfNotExists(userA: string, userB: string){
   .select()
   .single();
 
-  if(error) return null;
+  if(error){
+  console.log("CREATE CHAT ERROR:", error);
+  return null;
+}
 
   return data.id;
 }
@@ -528,53 +531,27 @@ fontWeight:600
 
 <div
 key={i}
-onClick={()=>{
+onClick={async ()=>{
 
-const seen =
-JSON.parse(
-localStorage.getItem(
-"seenMatches"
-) || "[]"
-);
+  const { data } = await supabase.auth.getUser();
+const myId = data.user?.id || "11111111-1111-1111-1111-111111111111";
 
-if(
-!seen.includes(i)
-){
-localStorage.setItem(
-"seenMatches",
-JSON.stringify(
-[...seen,i]
-)
-);
-}
+  if(!myId){
+    console.log("NO USER");
+    return;
+  }
 
-setMatches(prev =>
-prev.map((m,index)=>
-index===i
-? {
-...m,
-newMatch:false
-}
-: m
-)
-);
-
-setTimeout(async ()=>{
-
-  const myId = (await supabase.auth.getUser()).data.user?.id;
-
-  const targetId = "test-user-" + i; // пока заглушка (потом заменим на реальные id)
+  const targetId = "22222222-2222-2222-2222-22222222222" + i;
 
   const chatId = await createChatIfNotExists(myId, targetId);
 
   if(chatId){
-  console.log("OPEN CHAT:", chatId);
-  router.push(`/chat/${chatId}`);
-} else {
-  console.log("CHAT NOT CREATED");
-}
+    router.push(`/chat/${chatId}`);
+  } else {
+    console.log("CHAT ERROR");
+  }
 
-},80);
+
 
 }}
 style={{
