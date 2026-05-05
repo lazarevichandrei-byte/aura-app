@@ -224,6 +224,15 @@ useEffect(()=>{
           return [...prev, payload.new];
         });
 
+          if(payload.new.sender_id !== userId){
+    supabase
+      .from("chats")
+      .update({ has_messages: true })
+      .eq("id", chatId);
+
+    window.dispatchEvent(new Event("chat-updated"));
+  }
+
         requestAnimationFrame(scrollToBottom);
       }
     )
@@ -352,11 +361,12 @@ return;
 await supabase
 .from("chats")
 .update({
-last_message:text,
-last_message_at:
-new Date().toISOString()
+  last_message: text,
+  last_message_at: new Date().toISOString(),
+  has_messages: true
 })
-.eq("id",chatId);
+.eq("id", chatId);
+
 window.dispatchEvent(new Event("chat-updated"));
 
 }
