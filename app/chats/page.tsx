@@ -256,6 +256,19 @@ useEffect(()=>{
 },[]);
 
 
+useEffect(() => {
+  const handler = () => {
+    loadChats();
+  };
+
+  window.addEventListener("chat-updated", handler);
+
+  return () => {
+    window.removeEventListener("chat-updated", handler);
+  };
+}, []);
+
+
 
 const filteredChats =
 chats.filter(chat=>

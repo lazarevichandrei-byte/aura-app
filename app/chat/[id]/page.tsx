@@ -357,6 +357,7 @@ last_message_at:
 new Date().toISOString()
 })
 .eq("id",chatId);
+window.dispatchEvent(new Event("chat-updated"));
 
 }
 return(
