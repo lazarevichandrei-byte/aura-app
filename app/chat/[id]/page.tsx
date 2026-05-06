@@ -20,21 +20,16 @@ useState<number | null>(null);
 
 
 
-const [messages,setMessages] = useState([]);
+const [messages,setMessages] = useState<any[]>([]);
 const [ready,setReady] =
 useState(false);
 const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
-const [isOnline,setIsOnline] = useState(false);
-const [lastSeen,setLastSeen] = useState<string | null>(null);
 const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
 useState(false);
-const [isTyping,setIsTyping] =
-useState(false);
-const [keyboardOffset,setKeyboardOffset] =
-useState(0);
+
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
@@ -43,7 +38,7 @@ const inputRef =
 useRef<HTMLInputElement | null>(null);
 const touchStartX =
 useRef(0);
-const channelRef = useRef<any>(null);
+
 const lastScrollTop =
 useRef(0);
 const scrollTick =
@@ -162,17 +157,10 @@ window.innerHeight -
 vv.height -
 vv.offsetTop;
 
-const kb =
-offset > 0
-? offset
-: 0;
-
-setKeyboardOffset(kb);
-
-if(kb>0){
-setTimeout(()=>{
-scrollToBottom();
-},30);
+if(offset > 0){
+  setTimeout(()=>{
+    scrollToBottom();
+  },30);
 }
 
 
@@ -222,17 +210,11 @@ handleKeyboard
 
 
 useEffect(()=>{
-    if(!userId) return;
-    
+
+  if(!chatId) return;
 
   const channel = supabase
-    .channel(`chat-${chatId}`, {
-      config:{
-  presence:{
-    key:String(userId)
-  }
-}
-    })
+    .channel(`chat-${chatId}`)
 
     .on(
       "postgres_changes",
@@ -245,91 +227,38 @@ useEffect(()=>{
       (payload)=>{
 
         setMessages(prev=>{
-          if(prev.some(m=>m.id===payload.new.id)) return prev;
+
+          const exists = prev.some(
+            (m:any)=>m.id === payload.new.id
+          );
+
+          if(exists) return prev;
+
           return [...prev, payload.new];
         });
 
-          if(payload.new.sender_id !== userId){
-    supabase
-      .from("chats")
-      .update({ has_messages: true })
-      .eq("id", chatId);
+        requestAnimationFrame(()=>{
+          scrollToBottom();
+        });
 
-    window.dispatchEvent(new Event("chat-updated"));
-  }
-
-        requestAnimationFrame(scrollToBottom);
       }
     )
 
-    .on("presence", { event: "sync" }, () => {
+    .subscribe();
 
-  const state = channel.presenceState();
-  const users = Object.values(state).flat() as any[];
-
-  let online = false;
-  let last = null;
-
-  const someoneTyping = users.some((u:any)=>
-    u.user_id !== userId &&
-    u.chat_id === chatId &&
-    u.typing
-  );
-
-  users.forEach((u:any)=>{
-    if(u.user_id !== userId){
-      if(u.online) online = true;
-      if(u.last_seen) last = u.last_seen;
-    }
-  });
-
-  setIsTyping(someoneTyping);
-  setIsOnline(online);
-  setLastSeen(last);
-})
-
-    .subscribe(async (status)=>{
-      if(status==="SUBSCRIBED"){
-        await channel.track({
-  user_id:userId,
-  typing:false,
-  chat_id:chatId,
-  online:true,
-  last_seen:new Date().toISOString()
-});
-      }
-    });
-
-    const interval = setInterval(()=>{
-  channel.track({
-    user_id:userId,
-    typing:false,
-    chat_id:chatId,
-    online:true,
-    last_seen:new Date().toISOString()
-  });
-}, 10000);
-
-  channelRef.current = channel;
+  
 
   return ()=>{
-  clearInterval(interval);
-  supabase.removeChannel(channel);
-};
+    supabase.removeChannel(channel);
+  };
 
-},[chatId,userId]);
+},[chatId]);
 
 
 async function sendMessage(){
 
 if(!userId) return;
-    channelRef.current?.track({
-  user_id: userId,
-  typing: false,
-  chat_id: chatId,
-  online: true,
-  last_seen: new Date().toISOString()
-});
+    
 
 if(!newMessage.trim()) return;
 
@@ -338,28 +267,7 @@ const text = newMessage;
 setNewMessage("");
 setReplyTo(null);
 
-const optimisticMessage={
-id:Date.now(),
-body:text,
-sender_id:userId,
-created_at:new Date().toISOString(),
 
-reply_to_id:
-replyTo?.id || null,
-
-reply_preview:
-replyTo?.body || null
-};
-
-
-setMessages(prev=>[
-...prev,
-optimisticMessage
-]);
-
-setTimeout(()=>{
-scrollToBottom();
-},0);
 
 
 const { error } =
@@ -393,8 +301,6 @@ await supabase
   has_messages: true
 })
 .eq("id", chatId);
-
-window.dispatchEvent(new Event("chat-updated"));
 
 }
 return(
@@ -498,47 +404,6 @@ fontWeight:600
 Алина
 </div>
 
-<div
-style={{
-display:"flex",
-alignItems:"center",
-gap:6,
-marginTop:4,
-
-fontSize:12,
-
-color:
-isOnline
-? "#34C759"
-: "#A7AFBC"
-}}
->
-
-<div
-style={{
-width:8,
-height:8,
-borderRadius:"50%",
-
-background:
-isOnline
-? "#34C759"
-:"#B8C0CC",
-
-boxShadow:
-isOnline
-? "0 0 8px rgba(52,199,89,.6)"
-:"none"
-}}
-/>
-
-{isOnline
-? "в сети"
-: lastSeen
-  ? "был недавно"
-  : "не в сети"}
-  
-</div>
 
 </div>
 
@@ -597,15 +462,11 @@ scrollTick.current=false;
 style={{
 flex:1,
 overflowY:"auto",
-
 padding:"12px 10px 6px",
-
 scrollBehavior:"auto",
 
-visibility:
-ready
-? "visible"
-: "hidden",
+opacity: ready ? 1 : 0,
+transition:"opacity .15s ease",
 }}
 >
 
@@ -742,30 +603,7 @@ msg.is_read
 )
 
 })}
-{isTyping && (
 
-<div
-style={{
-display:"flex",
-justifyContent:"flex-start",
-paddingLeft:10,
-marginTop:6,
-marginBottom:2
-}}
->
-<div
-style={{
-background:"#F2F4F7",
-padding:"8px 14px",
-borderRadius:18,
-width:52
-}}
->
-•••
-</div>
-</div>
-
-)}
 
 </div>
 {showScrollDown && (
@@ -906,13 +744,7 @@ scrollToBottom();
 onChange={(e)=>{
   setNewMessage(e.target.value);
 
-  channelRef.current?.track({
-    user_id: userId,
-    typing: true,
-    chat_id: chatId,
-    online: true,
-    last_seen: new Date().toISOString()
-  });
+  
 }}
 
 onKeyDown={(e)=>{
