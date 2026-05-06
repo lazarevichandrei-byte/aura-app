@@ -16,7 +16,7 @@ const chatId =
 params.id as string;
 
 const [userId,setUserId] =
-useState<string | null>(null);
+useState<number | null>(null);
 
 
 
@@ -148,11 +148,11 @@ setOtherUser(user);
 useEffect(()=>{
 
   const myId =
-    localStorage.getItem("my_id");
+localStorage.getItem("my_id");
 
-  if(myId){
-    setUserId(myId);
-  }
+if(myId){
+  setUserId(Number(myId));
+}
 
 },[]);
 
@@ -193,12 +193,14 @@ useEffect(()=>{
 
           if(exists) return prev;
 
-          return [...prev, payload.new];
+          return [...prev, {
+  ...payload.new
+}];
         });
 
-        requestAnimationFrame(()=>{
-          scrollToBottom();
-        });
+        setTimeout(()=>{
+  scrollToBottom();
+},50);
 
       }
     )
