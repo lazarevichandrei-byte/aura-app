@@ -16,11 +16,13 @@ const chatId =
 params.id as string;
 
 const [userId,setUserId] =
-useState<number | null>(null);
+useState<string | null>(null);
 
 
 
 const [messages,setMessages] = useState<any[]>([]);
+const [otherUser,setOtherUser] =
+useState<any>(null);
 const [ready,setReady] =
 useState(false);
 const [newMessage,setNewMessage] = useState("");
@@ -109,6 +111,36 @@ setReady(true);
 });
 });
 
+
+
+}
+
+}
+
+
+async function fetchChatUser(){
+
+const { data: chat } = await supabase
+.from("chats")
+.select("*")
+.eq("id", chatId)
+.single();
+
+if(!chat || userId === null) return;
+
+const otherId =
+chat.user1_id === userId
+? chat.user2_id
+: chat.user1_id;
+
+const { data:user } = await supabase
+.from("users")
+.select("*")
+.eq("id", otherId)
+.single();
+
+if(user){
+setOtherUser(user);
 }
 
 }
@@ -119,7 +151,7 @@ useEffect(()=>{
     localStorage.getItem("my_id");
 
   if(myId){
-    setUserId(Number(myId));
+    setUserId(myId);
   }
 
 },[]);
@@ -127,8 +159,9 @@ useEffect(()=>{
 useEffect(()=>{
 
   if(userId){
-    fetchMessages();
-  }
+  fetchMessages();
+  fetchChatUser();
+}
 
 },[chatId,userId]);
 
@@ -197,35 +230,15 @@ if(!newMessage.trim()) return;
 
 const text = newMessage;
 
-const optimisticMessage = {
-  id: Date.now(),
-  body:text,
-  sender_id:userId,
-  created_at:new Date().toISOString(),
-  is_read:false,
-
-  reply_to_id:
-    replyTo?.id || null,
-
-  reply_preview:
-    replyTo?.body || null
-};
-
-setMessages(prev=>[
-  ...prev,
-  optimisticMessage
-]);
-
 setNewMessage("");
-
-scrollToBottom();
-
 setReplyTo(null);
 
 
 
 
-const { error } =
+
+
+const { data, error } =
 await supabase
 .from("messages")
 .insert({
@@ -239,13 +252,17 @@ replyTo?.id || null,
 
 reply_preview:
 replyTo?.body || null
-});
+})
+.select()
+.single();
 
 
 if(error){
 alert(error.message);
 return;
 }
+
+
 
 
 await supabase
@@ -332,33 +349,35 @@ gap:14
 >
 
 <img
-src="/girl1.jpg"
-alt="Алина"
+src={
+  otherUser?.avatar_url ||
+  "/placeholder.jpg"
+}
+alt="user"
 style={{
-width:36,
-height:36,
-borderRadius:"50%",
-objectFit:"cover"
+  width:36,
+  height:36,
+  borderRadius:"50%",
+  objectFit:"cover"
 }}
 />
 
 <div
 style={{
-display:"flex",
-flexDirection:"column",
-lineHeight:1.1
+  display:"flex",
+  flexDirection:"column",
+  lineHeight:1.1
 }}
 >
 
 <div
 style={{
-fontSize:17,
-fontWeight:600
+  fontSize:17,
+  fontWeight:600
 }}
 >
-Алина
+{otherUser?.name || "Пользователь"}
 </div>
-
 
 </div>
 
@@ -420,7 +439,7 @@ overflowY:"auto",
 padding:"12px 10px 6px",
 scrollBehavior:"auto",
 
-opacity: ready ? 1 : 0,
+opacity:1,
 
 }}
 >
