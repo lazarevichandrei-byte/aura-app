@@ -189,7 +189,29 @@ if(!newMessage.trim()) return;
 
 const text = newMessage;
 
+const optimisticMessage = {
+  id: Date.now(),
+  body:text,
+  sender_id:userId,
+  created_at:new Date().toISOString(),
+  is_read:false,
+
+  reply_to_id:
+    replyTo?.id || null,
+
+  reply_preview:
+    replyTo?.body || null
+};
+
+setMessages(prev=>[
+  ...prev,
+  optimisticMessage
+]);
+
 setNewMessage("");
+
+scrollToBottom();
+
 setReplyTo(null);
 
 
