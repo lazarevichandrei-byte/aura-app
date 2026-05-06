@@ -99,6 +99,24 @@ async function loadUsers(){
 
   if(!myId) return;
 
+
+const { data: me } = await supabase
+  .from("users")
+  .select(`
+    id,
+    avatar_url,
+    photos,
+    main_photo_index
+  `)
+  .eq("id", myId)
+  .single();
+
+if(me){
+  setMyProfile(me);
+}
+
+
+
   const { data: liked } = await supabase
   .from("likes")
   .select("to_user_id")
@@ -111,12 +129,14 @@ const { data } = await supabase
   .from("users")
   .select(`
     id,
+    telegram_id,
     name,
     age,
     city,
     bio,
     avatar_url,
     photos,
+    main_photo_index,
     interests
   `)
   .not(
@@ -134,10 +154,6 @@ u=>u.id!==myId
 )
 );
 
-setMyProfile(
-data.find(
-u=>u.id===myId)
-);
 
 }
 
@@ -659,7 +675,13 @@ zIndex:2
 }}
 >
 <img
-src={myProfile?.avatar_url || "/me.jpg"}
+src={
+  myProfile?.photos?.length
+    ? myProfile.photos[
+        myProfile.main_photo_index || 0
+      ]
+    : myProfile?.avatar_url || "/me.jpg"
+}
 style={{
 width:145,
 height:145,
@@ -702,7 +724,13 @@ zIndex:2
 }}
 >
 <img
-src={matchedUser?.avatar_url}
+src={
+  matchedUser?.photos?.length
+    ? matchedUser.photos[
+        matchedUser.main_photo_index || 0
+      ]
+    : matchedUser?.avatar_url || "/noavatar.jpg"
+}
 style={{
 width:145,
 height:145,
