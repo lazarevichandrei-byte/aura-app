@@ -34,8 +34,7 @@ useState(false);
 const chatRef =
 useRef<HTMLDivElement | null>(null);
 
-const inputRef =
-useRef<HTMLInputElement | null>(null);
+
 const touchStartX =
 useRef(0);
 
@@ -126,87 +125,7 @@ useEffect(()=>{
 
 
 
-useEffect(()=>{
 
-if(userId){
-  fetchMessages();
-}
-
-},[chatId,userId]);
-
-
-useEffect(()=>{
-
-if(
-typeof window==="undefined" ||
-!window.visualViewport
-) return;
-
-const vv = window.visualViewport;
-
-let frame:any;
-
-const handleKeyboard=()=>{
-
-cancelAnimationFrame(frame);
-
-frame=requestAnimationFrame(()=>{
-
-const offset=
-window.innerHeight -
-vv.height -
-vv.offsetTop;
-
-if(offset > 0){
-  setTimeout(()=>{
-    scrollToBottom();
-  },30);
-}
-
-
-});
-
-};
-
-vv.addEventListener(
-"resize",
-handleKeyboard
-);
-
-vv.addEventListener(
-"scroll",
-handleKeyboard
-);
-
-inputRef.current?.addEventListener(
-"focus",
-handleKeyboard
-);
-
-handleKeyboard();
-
-return()=>{
-
-cancelAnimationFrame(frame);
-
-vv.removeEventListener(
-"resize",
-handleKeyboard
-);
-
-vv.removeEventListener(
-"scroll",
-handleKeyboard
-);
-
-inputRef.current?.removeEventListener(
-"focus",
-handleKeyboard
-);
-
-};
-
-},[]);
 
 
 useEffect(()=>{
@@ -713,33 +632,11 @@ paddingRight:6
 >
 
 <input
-ref={inputRef}
 autoComplete="off"
 autoCorrect="off"
 spellCheck={false}
 value={newMessage}
 
-onFocus={()=>{
-
-setTimeout(()=>{
-scrollToBottom();
-
-if(chatRef.current){
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight + 500;
-}
-
-},250);
-
-}}
-
-onBlur={()=>{
-
-setTimeout(()=>{
-scrollToBottom();
-},100);
-
-}}
 
 onChange={(e)=>{
   setNewMessage(e.target.value);
