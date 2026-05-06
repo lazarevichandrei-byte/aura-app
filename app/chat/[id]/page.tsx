@@ -126,6 +126,9 @@ const { data: chat } = await supabase
 .eq("id", chatId)
 .single();
 
+console.log("CHAT:", chat);
+console.log("USER ID:", userId);
+
 if(!chat || userId === null) return;
 
 const otherId =
@@ -136,7 +139,7 @@ chat.user1_id === userId
 const { data:user } = await supabase
 .from("users")
 .select("*")
-.eq("id", otherId)
+.eq("telegram_id", otherId)
 .single();
 
 if(user){
@@ -147,12 +150,19 @@ setOtherUser(user);
 
 useEffect(()=>{
 
-  const myId =
-localStorage.getItem("my_id");
+  useEffect(()=>{
 
-if(myId){
-  setUserId(Number(myId));
-}
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const tgId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if(tgId){
+    setUserId(Number(tgId));
+  }
+
+},[]);
 
 },[]);
 
@@ -187,15 +197,13 @@ useEffect(()=>{
 
         setMessages(prev=>{
 
-          const exists = prev.some(
-            (m:any)=>m.id === payload.new.id
-          );
+         const exists = prev.some(
+  (m:any)=>m.id === payload.new.id
+);
 
-          if(exists) return prev;
+if(exists) return prev;
 
-          return [...prev, {
-  ...payload.new
-}];
+return [...prev, payload.new];
         });
 
         setTimeout(()=>{
