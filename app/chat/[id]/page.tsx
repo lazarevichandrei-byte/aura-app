@@ -150,7 +150,15 @@ setOtherUser(user);
 
 useEffect(()=>{
 
- 
+ const tg =
+  (window as any)?.Telegram?.WebApp;
+
+const tgId =
+  tg?.initDataUnsafe?.user?.id;
+
+if(tgId){
+  setUserId(Number(tgId));
+}
 
 },[]);
 
