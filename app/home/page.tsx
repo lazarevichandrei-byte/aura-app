@@ -528,7 +528,7 @@ position:"fixed",
 inset:0,
 zIndex:99999,
 background:
-"linear-gradient(135deg,#2AABEE,#1C8CEB)",
+"radial-gradient(circle at top,#56CCF2 0%,#2F80ED 45%,#1B1F3B 100%)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
@@ -575,21 +575,53 @@ opacity:1;
 
 <div
 style={{
-width:"100%",
-maxWidth:430,
-padding:"40px 28px",
+width:"92%",
+maxWidth:390,
+
+padding:"42px 28px",
+
+borderRadius:36,
+
+background:"rgba(255,255,255,.10)",
+
+border:"1px solid rgba(255,255,255,.18)",
+
+backdropFilter:"blur(24px)",
+WebkitBackdropFilter:"blur(24px)",
+
+boxShadow:"0 10px 40px rgba(0,0,0,.18)",
+
 textAlign:"center"
 }}
 >
 
 <div
 style={{
-fontSize:44,
-fontWeight:700,
-marginBottom:42
+fontSize:42,
+fontWeight:800,
+letterSpacing:1,
+
+background:
+"linear-gradient(135deg,#FFFFFF,#D6E8FF)",
+
+WebkitBackgroundClip:"text",
+WebkitTextFillColor:"transparent",
+
+marginBottom:10
 }}
 >
-Это матч! 💙
+AURA ✨
+</div>
+
+<div
+style={{
+fontSize:17,
+lineHeight:1.5,
+color:"rgba(255,255,255,.82)",
+marginBottom:38
+}}
+>
+Между вами появилась связь ✨
 </div>
 
 
@@ -675,7 +707,7 @@ boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 style={{
 fontSize:21,
 lineHeight:1.45,
-color:"#EAF4FF",
+color:"rgba(255,255,255,.88)",
 marginBottom:38
 }}
 >
