@@ -99,19 +99,32 @@ async function loadUsers(){
 
   if(!myId) return;
 
-  const {data}=await supabase
-    .from("users")
-.select(`
-id,
-name,
-age,
-city,
-bio,
-avatar_url,
-photos,
-interests
-`)
-.limit(30);
+  const { data: liked } = await supabase
+  .from("likes")
+  .select("to_user_id")
+  .eq("from_user_id", myId);
+
+const likedIds =
+  liked?.map(l => l.to_user_id) || [];
+
+const { data } = await supabase
+  .from("users")
+  .select(`
+    id,
+    name,
+    age,
+    city,
+    bio,
+    avatar_url,
+    photos,
+    interests
+  `)
+  .not(
+    "id",
+    "in",
+    `(${[myId,...likedIds].join(",")})`
+  )
+  .limit(30);
 
 if(data){
 
@@ -169,13 +182,14 @@ const { data: chatId, error } = await supabase
   return;
 }
 
-  if(chatId){
+if(chatId){
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
   setShowMatch(true);
+  return;
 }
 
-  nextUser();
+nextUser();
 }
 
 
