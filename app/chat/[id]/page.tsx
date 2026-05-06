@@ -123,7 +123,13 @@ useEffect(()=>{
 
 },[]);
 
+useEffect(()=>{
 
+  if(userId){
+    fetchMessages();
+  }
+
+},[chatId,userId]);
 
 
 
@@ -662,17 +668,7 @@ background:"transparent"
 />
 
 <div
-onPointerDown={(e)=>{
-e.preventDefault();
-setPressed(true);
-}}
-onPointerUp={()=>{
-setPressed(false);
-sendMessage();
-}}
-onPointerLeave={()=>{
-setPressed(false);
-}}
+onClick={sendMessage}
 style={{
 width:38,
 height:38,
@@ -682,8 +678,6 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 color:"#fff",
-transition:"transform .12s ease, background .12s ease",
-transform: pressed ? "scale(0.9)" : "scale(1)"
 }}
 >
 ➤
