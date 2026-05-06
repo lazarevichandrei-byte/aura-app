@@ -23,8 +23,7 @@ useState<string | null>(null);
 const [messages,setMessages] = useState<any[]>([]);
 const [otherUser,setOtherUser] =
 useState<any>(null);
-const [ready,setReady] =
-useState(false);
+
 const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
 const [replyTo,setReplyTo] =
@@ -47,14 +46,10 @@ useRef(false);
 
 function scrollToBottom(){
 
-requestAnimationFrame(()=>{
-
 if(!chatRef.current) return;
 
-chatRef.current.scrollTop=
+chatRef.current.scrollTop =
 chatRef.current.scrollHeight;
-
-});
 
 }
 
@@ -98,18 +93,9 @@ unread_count:0
 })
 .eq("id",chatId);
 
-requestAnimationFrame(()=>{
-requestAnimationFrame(()=>{
-
-if(chatRef.current){
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
-}
-
-setReady(true);
-
-});
-});
+setTimeout(()=>{
+  scrollToBottom();
+},30);
 
 
 
@@ -183,7 +169,7 @@ useEffect(()=>{
   fetchChatUser();
 }
 
-},[chatId,userId]);
+},[chatId]);
 
 
 
@@ -213,19 +199,32 @@ useEffect(()=>{
 
 if(exists) return prev;
 
-return [...prev, payload.new];
+const updated = [...prev, payload.new];
+
+updated.sort(
+(a,b)=>
+new Date(a.created_at).getTime() -
+new Date(b.created_at).getTime()
+);
+
+return updated;
         });
 
-        requestAnimationFrame(()=>{
-  requestAnimationFrame(()=>{
-    scrollToBottom();
-  });
-});
+        setTimeout(()=>{
+  scrollToBottom();
+},20);
 
       }
     )
 
-    .subscribe();
+    .subscribe((status)=>{
+
+console.log(
+"REALTIME STATUS:",
+status
+);
+
+});
 
   
 
@@ -285,12 +284,6 @@ return;
 }
 
 if(data){
-
-  setMessages(prev=>[
-    ...prev,
-    data
-  ]);
-
   scrollToBottom();
 }
 
@@ -722,10 +715,8 @@ spellCheck={false}
 value={newMessage}
 
 
-onChange={(e)=>{
+onInput={(e:any)=>{
   setNewMessage(e.target.value);
-
-  
 }}
 
 onKeyDown={(e)=>{
