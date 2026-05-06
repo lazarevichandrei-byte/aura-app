@@ -100,7 +100,17 @@ async function loadUsers(){
 
   const {data}=await supabase
     .from("users")
-    .select("*");
+.select(`
+id,
+name,
+age,
+city,
+bio,
+avatar_url,
+photos,
+interests
+`)
+.limit(30);
 
 if(data){
 
@@ -142,12 +152,7 @@ async function handleLike(){
     return;
   }
 
-  alert(
-  "MY ID: " +
-  myId +
-  "\nTARGET ID: " +
-  currentUser.id
-);
+  
 
 const { data: chatId, error } = await supabase
   .rpc("like_user", {
@@ -155,17 +160,13 @@ const { data: chatId, error } = await supabase
     to_id: currentUser.id
   });
 
-alert(
-  "CHAT ID: " +
-  chatId +
-  "\nERROR: " +
-  JSON.stringify(error)
-);
+
 
   if(error){
-    console.log("LIKE ERROR:", error);
-    nextUser();
-  }
+  console.log("LIKE ERROR:", error);
+  nextUser();
+  return;
+}
 
   if(chatId){
     setMatchedUser(currentUser);
@@ -249,12 +250,17 @@ onTouchEnd={touchEnd}
 style={{
 position:"relative",
 height:"66vh",
+
+willChange:"transform",
+transformStyle:"preserve-3d",
+backfaceVisibility:"hidden",
+
 borderRadius:36,
 overflow:"hidden",
 background:"#fff",
 boxShadow:"0 10px 30px rgba(0,0,0,.06)",
 transform:dragging
-?`translateX(${dragX}px) rotate(${dragX/24}deg)`
+?`translateX(${dragX}px) rotate(${dragX/80}deg)`
 :`translateX(${dragX}px)`,
 transition:dragging
 ?"none"
@@ -304,8 +310,7 @@ position:"absolute",
 top:26,
 left:26,
 zIndex:12,
-background:"rgba(80,80,80,.45)",
-backdropFilter:"blur(10px)",
+background:"rgba(0,0,0,.35)",
 padding:"12px 18px",
 borderRadius:18,
 color:"#fff"
@@ -518,10 +523,7 @@ style={{
 position:"fixed",
 inset:0,
 zIndex:99999,
-background:
-"linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.28) 100%)",
-backdropFilter:"blur(34px)",
-WebkitBackdropFilter:"blur(34px)",
+background:"rgba(0,0,0,.45)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",

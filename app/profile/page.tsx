@@ -356,7 +356,7 @@ const compressImage = (file: File): Promise<File> =>
       const ctx =
        canvas.getContext("2d");
 
-      const maxWidth = 900;
+      const maxWidth = 500;
 
       const scale =
  img.width > maxWidth
