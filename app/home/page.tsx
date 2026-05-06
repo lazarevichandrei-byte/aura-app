@@ -28,46 +28,78 @@ const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
 
-const [myId,setMyId] = useState<string | null>(null);
+
+
+const [myId,setMyId] = useState<number | null>(null);
 
 useEffect(()=>{
-  supabase.auth.getUser().then(({ data })=>{
-    setMyId(data.user?.id || null);
-  });
+  const waitTelegram = () => {
+    const tg = (window as any)?.Telegram?.WebApp;
+    const tgId = tg?.initDataUnsafe?.user?.id;
+
+    if(tgId){
+      initUser(tgId);
+    } else {
+      setTimeout(waitTelegram, 300);
+    }
+  };
+
+  waitTelegram();
 },[]);
 
-const currentUserId =
+async function initUser(tgId:number){
 
-typeof window !== "undefined" &&
-(window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id
-? Number(
-(window as any).Telegram.WebApp.initDataUnsafe.user.id
-)
-: 123;
+  const { data: user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("telegram_id", tgId)
+    .single();
+
+  if(user){
+    setMyId(user.id);
+    return;
+  }
+
+  const { data: newUser } = await supabase
+    .from("users")
+    .insert({
+      telegram_id: tgId,
+      name: "Новый пользователь"
+    })
+    .select()
+    .single();
+
+  if(newUser){
+    setMyId(newUser.id);
+  }
+}
 
 useEffect(()=>{
- loadUsers();
-},[]);
+  if(myId){
+    loadUsers();
+  }
+},[myId]);
 
 
 async function loadUsers(){
 
-const {data}=await supabase
-.from("users")
-.select("*");
+  if(!myId) return;
+
+  const {data}=await supabase
+    .from("users")
+    .select("*");
 
 if(data){
 
 setUsers(
 data.filter(
-u=>u.telegram_id!==currentUserId
+u=>u.id!==myId
 )
 );
 
 setMyProfile(
 data.find(
-u=>u.telegram_id===currentUserId
-)
+u=>u.id===myId)
 );
 
 }
@@ -93,20 +125,15 @@ setIndex(prev=>prev+1);
 
 async function handleLike(){
 
-  if(!currentUser) return;
-
-  const likedUserId = currentUser.telegram_id;
-
   if(!myId || !currentUser?.id){
-  nextUser();
-  return;
-}
+    return;
+  }
 
-const { data: chatId, error } = await supabase
-  .rpc("like_user", {
-    from_id: myId,
-    to_id: currentUser.id
-  });
+  const { data: chatId, error } = await supabase
+    .rpc("like_user", {
+      from_id: myId,
+      to_id: currentUser.id
+    });
 
   if(error){
     console.log("LIKE ERROR:", error);
@@ -114,7 +141,6 @@ const { data: chatId, error } = await supabase
     return;
   }
 
-  // если взаимный лайк → показываем матч
   if(chatId){
     setMatchedUser(currentUser);
     setShowMatch(true);
