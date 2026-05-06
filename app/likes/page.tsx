@@ -13,12 +13,33 @@ const router = useRouter();
 const [myId,setMyId] = useState<number | null>(null);
 
 useEffect(()=>{
-  const id =
-    (window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
-  if(id){
-    setMyId(Number(id));
-  }
+  const init = async () => {
+
+    const tgId =
+      (window as any)
+      ?.Telegram
+      ?.WebApp
+      ?.initDataUnsafe
+      ?.user
+      ?.id;
+
+    if(!tgId) return;
+
+    const { data:user } = await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", tgId)
+      .single();
+
+    if(user){
+      setMyId(user.id);
+    }
+
+  };
+
+  init();
+
 },[]);
 
 const [people,setPeople] = useState<any[]>([]);

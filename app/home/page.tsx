@@ -129,16 +129,29 @@ async function handleLike(){
     return;
   }
 
-  const { data: chatId, error } = await supabase
-    .rpc("like_user", {
-      from_id: myId,
-      to_id: currentUser.id
-    });
+  alert(
+  "MY ID: " +
+  myId +
+  "\nTARGET ID: " +
+  currentUser.id
+);
+
+const { data: chatId, error } = await supabase
+  .rpc("like_user", {
+    from_id: myId,
+    to_id: currentUser.id
+  });
+
+alert(
+  "CHAT ID: " +
+  chatId +
+  "\nERROR: " +
+  JSON.stringify(error)
+);
 
   if(error){
     console.log("LIKE ERROR:", error);
     nextUser();
-    return;
   }
 
   if(chatId){
