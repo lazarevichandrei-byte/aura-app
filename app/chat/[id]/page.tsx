@@ -56,8 +56,6 @@ chatRef.current.scrollHeight;
 
 }
 
-
-
 async function fetchMessages(){
 
 if(userId === null){
@@ -189,7 +187,10 @@ async function sendMessage(){
 console.log("USER ID:", userId);
 console.log("TEXT:", newMessage);
 
-if(!userId) return;
+if(userId === null){
+  alert("NO USER ID");
+  return;
+}
     
 
 if(!newMessage.trim()) return;
