@@ -15,8 +15,10 @@ const params = useParams();
 const chatId =
 params.id as string;
 
-const userId =
-"11111111-1111-1111-1111-111111111111";
+const [userId,setUserId] =
+useState<number | null>(null);
+
+
 
 const [messages,setMessages] = useState([]);
 const [ready,setReady] =
@@ -63,6 +65,8 @@ chatRef.current.scrollHeight;
 
 
 async function fetchMessages(){
+
+if(!userId) return;
 
 const { data,error } = await supabase
 .from("messages")
@@ -114,11 +118,26 @@ setReady(true);
 
 }
 
+useEffect(()=>{
+
+  const myId =
+    localStorage.getItem("my_id");
+
+  if(myId){
+    setUserId(Number(myId));
+  }
+
+},[]);
+
 
 
 useEffect(()=>{
-fetchMessages();
-},[chatId]);
+
+if(userId){
+  fetchMessages();
+}
+
+},[chatId,userId]);
 
 
 useEffect(()=>{
@@ -203,10 +222,16 @@ handleKeyboard
 
 
 useEffect(()=>{
+    if(!userId) return;
+    
 
   const channel = supabase
     .channel(`chat-${chatId}`, {
-      config:{ presence:{ key:userId } }
+      config:{
+  presence:{
+    key:String(userId)
+  }
+}
     })
 
     .on(
@@ -292,10 +317,12 @@ useEffect(()=>{
   supabase.removeChannel(channel);
 };
 
-},[chatId]);
+},[chatId,userId]);
 
 
 async function sendMessage(){
+
+if(!userId) return;
     channelRef.current?.track({
   user_id: userId,
   typing: false,
