@@ -150,19 +150,7 @@ setOtherUser(user);
 
 useEffect(()=>{
 
-  useEffect(()=>{
-
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const tgId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(tgId){
-    setUserId(Number(tgId));
-  }
-
-},[]);
+ 
 
 },[]);
 
@@ -206,9 +194,11 @@ if(exists) return prev;
 return [...prev, payload.new];
         });
 
-        setTimeout(()=>{
-  scrollToBottom();
-},50);
+        requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>{
+    scrollToBottom();
+  });
+});
 
       }
     )
@@ -221,7 +211,7 @@ return [...prev, payload.new];
     supabase.removeChannel(channel);
   };
 
-},[chatId]);
+},[chatId,userId]);
 
 
 async function sendMessage(){
@@ -272,8 +262,15 @@ alert(error.message);
 return;
 }
 
+if(data){
 
+  setMessages(prev=>[
+    ...prev,
+    data
+  ]);
 
+  scrollToBottom();
+}
 
 await supabase
 .from("chats")
