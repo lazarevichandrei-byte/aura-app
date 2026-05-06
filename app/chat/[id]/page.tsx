@@ -16,7 +16,7 @@ const chatId =
 params.id as string;
 
 const [userId,setUserId] =
-useState<number | null>(null);
+useState<string | null>(null);
 
 
 
@@ -139,7 +139,7 @@ chat.user1_id === userId
 const { data:user } = await supabase
 .from("users")
 .select("*")
-.eq("telegram_id", otherId)
+.eq("id", otherId)
 .single();
 
 if(user){
@@ -150,15 +150,29 @@ setOtherUser(user);
 
 useEffect(()=>{
 
- const tg =
-  (window as any)?.Telegram?.WebApp;
+ async function loadMe(){
 
-const tgId =
-  tg?.initDataUnsafe?.user?.id;
+   const tg =
+    (window as any)?.Telegram?.WebApp;
 
-if(tgId){
-  setUserId(Number(tgId));
-}
+   const tgId =
+    tg?.initDataUnsafe?.user?.id;
+
+   if(!tgId) return;
+
+   const { data:user } = await supabase
+     .from("users")
+     .select("id")
+     .eq("telegram_id", tgId)
+     .single();
+
+   if(user){
+     setUserId(user.id);
+   }
+
+ }
+
+ loadMe();
 
 },[]);
 
