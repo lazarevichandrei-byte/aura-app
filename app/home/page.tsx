@@ -21,6 +21,7 @@ const [dragging,setDragging]=useState(false);
 
 const [showMatch,setShowMatch]=useState(false);
 const [matchedUser,setMatchedUser]=useState<any>(null);
+const [matchChatId,setMatchChatId] = useState<number | null>(null);
 
 const [skipPressed,setSkipPressed]=useState(false);
 const [likePressed,setLikePressed]=useState(false);
@@ -169,9 +170,10 @@ const { data: chatId, error } = await supabase
 }
 
   if(chatId){
-    setMatchedUser(currentUser);
-    setShowMatch(true);
-  }
+  setMatchedUser(currentUser);
+  setMatchChatId(chatId);
+  setShowMatch(true);
+}
 
   nextUser();
 }
@@ -249,7 +251,7 @@ onTouchMove={touchMove}
 onTouchEnd={touchEnd}
 style={{
 position:"relative",
-height:"66vh",
+height:"62vh",
 
 willChange:"transform",
 transformStyle:"preserve-3d",
@@ -287,6 +289,8 @@ NOPE
 
 <img
 src={photos[photoIndex]}
+loading="eager"
+decoding="async"
 alt=""
 style={{
 width:"100%",
@@ -523,7 +527,8 @@ style={{
 position:"fixed",
 inset:0,
 zIndex:99999,
-background:"rgba(0,0,0,.45)",
+background:
+"linear-gradient(135deg,#2AABEE,#1C8CEB)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
@@ -670,7 +675,7 @@ boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
 style={{
 fontSize:21,
 lineHeight:1.45,
-color:"#4C4F5D",
+color:"#EAF4FF",
 marginBottom:38
 }}
 >
@@ -681,7 +686,11 @@ marginBottom:38
 
 
 <button
-onClick={()=>router.push("/chats")}
+onClick={()=>{
+  if(matchChatId){
+    router.push(`/chat/${matchChatId}`);
+  }
+}}
 style={{
 width:"100%",
 height:58,
@@ -707,9 +716,9 @@ marginTop:16,
 width:"78%",
 height:54,
 borderRadius:16,
-border:"2px solid #64A8FF",
-background:"#fff",
-color:"#2F80FF",
+border:"2px solid rgba(255,255,255,.22)",
+background:"rgba(255,255,255,.12)",
+color:"#fff",
 fontSize:18,
 fontWeight:500
 }}
