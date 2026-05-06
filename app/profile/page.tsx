@@ -119,10 +119,11 @@ if (!user) {
 
 setTelegramId(user.id);
 setName(user.first_name || "");
-const { data } = 
+const { data } =
 await supabase
-      .from("users")
-      .select(`
+  .from("users")
+  .select(`
+id,
 telegram_id,
 name,
 age,
@@ -139,6 +140,25 @@ onboarding_completed
 `)
 .eq("telegram_id", user.id)
 .maybeSingle();
+
+if (!data) {
+
+  const { data: createdUser } = await supabase
+    .from("users")
+    .insert({
+      telegram_id: user.id,
+      name: user.first_name || "User"
+    })
+    .select()
+    .single();
+
+  if(createdUser){
+    setName(createdUser.name || "");
+  }
+
+  setLoading(false);
+  return;
+}
 
   
   if (data) {
