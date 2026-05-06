@@ -9,46 +9,65 @@ export default function LikesPage(){
 
 const router = useRouter();
 
+
+const [myId,setMyId] = useState<number | null>(null);
+
+useEffect(()=>{
+  const id =
+    (window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+
+  if(id){
+    setMyId(Number(id));
+  }
+},[]);
+
 const [people,setPeople] = useState<any[]>([]);
-const [myId,setMyId] = useState<string | null>(null);
 const [match,setMatch] = useState<any>(null);
 const [matchChatId,setMatchChatId] = useState<string | null>(null);
 
 const touchStartX = useRef(0);
 
+
 useEffect(()=>{
-  supabase.auth.getUser().then(({ data })=>{
-    const id = data.user?.id;
-    if(id){
-      setMyId(id);
-      loadLikes(id);
-    }
-  });
-},[]);
+  if(myId){
+    loadLikes(myId);
+  }
+},[myId]);
 
 
 
+async function loadLikes(userId:number){
 
-async function loadLikes(userId:string){
-
-  const { data, error } = await supabase
+  const { data: likes, error } = await supabase
     .from("likes")
-    .select(`
-      id,
-      from_user_id,
-      users:from_user_id (
-        id,
-        name,
-        age,
-        city,
-        avatar_url
-      )
-    `)
+    .select("*")
     .eq("to_user_id", userId);
 
-  if(!error && data){
-    setPeople(data);
+  if(error){
+    console.log("LOAD LIKES ERROR:", error);
+    return;
   }
+
+  if(!likes){
+    setPeople([]);
+    return;
+  }
+
+  const ids = likes.map(l => l.from_user_id);
+
+  const { data: users } = await supabase
+    .from("users")
+    .select("*")
+    .in("telegram_id", ids);
+
+  const formatted = likes.map(like => ({
+    ...like,
+    users: users?.find(
+      u => u.telegram_id === like.from_user_id
+    )
+  }));
+
+  setPeople(formatted);
 }
 
 return(
@@ -224,7 +243,7 @@ border:"2px solid #2F80FF"
 >
 
 <img
-src={user.users?.avatar_url}
+src={user.users?.avatar_url || "/placeholder.jpg"}
 style={{
 width:78,
 height:78,

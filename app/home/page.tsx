@@ -56,7 +56,7 @@ async function initUser(tgId:number){
     .single();
 
   if(user){
-    setMyId(user.id);
+    setMyId(user.telegram_id);
     return;
   }
 
@@ -70,7 +70,7 @@ async function initUser(tgId:number){
     .single();
 
   if(newUser){
-    setMyId(newUser.id);
+    setMyId(newUser.telegram_id);
   }
 }
 
@@ -93,13 +93,13 @@ if(data){
 
 setUsers(
 data.filter(
-u=>u.id!==myId
+u=>u.telegram_id!==myId
 )
 );
 
 setMyProfile(
 data.find(
-u=>u.id===myId)
+u=>u.telegram_id===myId)
 );
 
 }
@@ -125,14 +125,14 @@ setIndex(prev=>prev+1);
 
 async function handleLike(){
 
-  if(!myId || !currentUser?.id){
+  if(!myId || !currentUser?.telegram_id){
     return;
   }
 
   const { data: chatId, error } = await supabase
     .rpc("like_user", {
       from_id: myId,
-      to_id: currentUser.id
+      to_id: currentUser.telegram_id
     });
 
   if(error){
