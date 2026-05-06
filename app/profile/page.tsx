@@ -146,14 +146,18 @@ if (!data) {
   const { data: createdUser } = await supabase
     .from("users")
     .insert({
-      telegram_id: user.id,
-      name: user.first_name || "User"
-    })
+  telegram_id: user.id,
+  name: user.first_name || "User",
+  avatar_url: user.photo_url || null
+})
     .select()
     .single();
 
   if(createdUser){
     setName(createdUser.name || "");
+    if(createdUser.avatar_url){
+  setPhotos([createdUser.avatar_url]);
+}
   }
 
   setLoading(false);
