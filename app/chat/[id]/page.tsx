@@ -391,7 +391,7 @@ padding:"12px 10px 6px",
 scrollBehavior:"auto",
 
 opacity: ready ? 1 : 0,
-transition:"opacity .15s ease",
+
 }}
 >
 
@@ -667,7 +667,8 @@ background:"transparent"
 }}
 />
 
-<div
+<button
+type="button"
 onClick={sendMessage}
 style={{
 width:38,
@@ -678,10 +679,14 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 color:"#fff",
+border:"none",
+outline:"none",
+flexShrink:0,
+WebkitTapHighlightColor:"transparent"
 }}
 >
 ➤
-</div>
+</button>
 
 </div>
 </div>
