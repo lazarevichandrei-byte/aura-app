@@ -60,7 +60,10 @@ chatRef.current.scrollHeight;
 
 async function fetchMessages(){
 
-if(!userId) return;
+if(userId === null){
+  alert("NO USER ID");
+  return;
+}
 
 const { data,error } = await supabase
 .from("messages")
@@ -181,6 +184,10 @@ useEffect(()=>{
 
 
 async function sendMessage(){
+
+    console.log("SEND CLICK");
+console.log("USER ID:", userId);
+console.log("TEXT:", newMessage);
 
 if(!userId) return;
     
