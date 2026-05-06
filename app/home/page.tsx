@@ -56,7 +56,14 @@ async function initUser(tgId:number){
     .single();
 
   if(user){
+
+  localStorage.setItem(
+    "my_id",
+    String(user.id)
+  );
+
   setMyId(user.id);
+
   return;
 }
 
@@ -70,6 +77,12 @@ async function initUser(tgId:number){
     .single();
 
  if(newUser){
+
+  localStorage.setItem(
+    "my_id",
+    String(newUser.id)
+  );
+
   setMyId(newUser.id);
 }
 }
