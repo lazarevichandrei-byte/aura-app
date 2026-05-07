@@ -52,19 +52,11 @@ useRef(true);
 
 function scrollToBottom(){
 
-setTimeout(()=>{
-
-requestAnimationFrame(()=>{
-
 const el = chatRef.current;
 
 if(!el) return;
 
-el.scrollTop = el.scrollHeight + 9999;
-
-});
-
-},80);
+el.scrollTop = el.scrollHeight;
 
 }
 
@@ -276,9 +268,7 @@ return updated;
 
 });
 
-requestAnimationFrame(()=>{
 scrollToBottom();
-});
 
 }
 )
