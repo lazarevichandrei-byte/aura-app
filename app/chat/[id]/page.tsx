@@ -262,6 +262,7 @@ if(!data) return;
 
 if(data.user_id === userId) return;
 
+alert("REALTIME WORKS");
 setTypingUser(data.typing);
 
 }
