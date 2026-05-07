@@ -172,7 +172,7 @@ useEffect(()=>{
   const tgId =
    tg?.initDataUnsafe?.user?.id;
 
-  alert("TG ID: " + tgId);
+  
 
   const { data:existingUser } = await supabase
     .from("users")
@@ -182,7 +182,7 @@ useEffect(()=>{
 
   if(existingUser){
 
-    alert("FOUND USER ID: " + existingUser.id);
+    
 
     setUserId(existingUser.id);
 
@@ -198,11 +198,11 @@ useEffect(()=>{
     .select()
     .single();
 
-  alert(JSON.stringify(error));
+  
 
   if(newUser){
 
-    alert("CREATED USER: " + newUser.id);
+    
 
     setUserId(newUser.id);
 
@@ -365,7 +365,7 @@ const payload = {
   updated_at: new Date().toISOString()
 };
 
-alert(JSON.stringify(payload));
+
 
 const { data, error } = await supabase
 .from("typing_status")
@@ -374,8 +374,7 @@ const { data, error } = await supabase
 })
 .select();
 
-alert(JSON.stringify(error));
-alert(JSON.stringify(data));
+
 
 console.log("RESULT DATA:", data);
 console.log("RESULT ERROR:", error);
@@ -396,7 +395,7 @@ console.log("USER ID:", userId);
 console.log("TEXT:", newMessage);
 
 if(userId === null){
-  alert("NO USER ID");
+  
   return;
 }
     
@@ -436,7 +435,7 @@ replyTo?.body || null
 
 
 if(error){
-alert(error.message);
+
 return;
 }
 
@@ -964,7 +963,11 @@ spellCheck={false}
 enterKeyHint="send"
 value={newMessage}
 
-onKeyDown={()=>{
+
+
+onChange={(e:any)=>{
+
+setNewMessage(e.target.value);
 
 updateTyping(true);
 
@@ -977,10 +980,6 @@ updateTyping(false);
 
 },1500);
 
-}}
-
-onChange={(e:any)=>{
-setNewMessage(e.target.value);
 }}
 
 
