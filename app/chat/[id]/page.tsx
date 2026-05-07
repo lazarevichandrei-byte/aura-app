@@ -205,57 +205,6 @@ useEffect(()=>{
 
 if(!chatId || userId === null) return;
 
-const typingChannel = supabase
-
-.channel(`typing-${chatId}`)
-
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"typing_status",
-filter:`chat_id=eq.${chatId}`
-},
-(payload)=>{
-
-const data:any = payload.new;
-
-if(!data) return;
-
-if(data.user_id === userId) return;
-
-setTypingUser(data.typing);
-
-}
-)
-
-.subscribe();
-
-return ()=>{
-
-supabase.removeChannel(typingChannel);
-
-};
-
-},[chatId,userId]);
-
-
-
-useEffect(()=>{
-
-requestAnimationFrame(()=>{
-scrollToBottom();
-});
-
-},[messages]);
-
-
-
-useEffect(()=>{
-
-if(!chatId || userId === null) return;
-
 const channel = supabase
 
 .channel(`chat-${chatId}`)
@@ -299,8 +248,6 @@ return updated;
 
 });
 
-
-
 }
 )
 
@@ -320,6 +267,45 @@ supabase.removeChannel(channel);
 
 
 
+useEffect(()=>{
+
+if(!chatId || userId === null) return;
+
+const typingChannel = supabase
+
+.channel(`typing-${chatId}`)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"typing_status",
+filter:`chat_id=eq.${chatId}`
+},
+(payload)=>{
+
+const data:any = payload.new;
+
+if(!data) return;
+
+if(data.user_id === userId) return;
+
+setTypingUser(data.typing);
+
+}
+)
+
+.subscribe();
+
+return ()=>{
+
+supabase.removeChannel(typingChannel);
+
+};
+
+},[chatId,userId]);
+
 
 async function updateTyping(status:boolean){
 
@@ -328,10 +314,10 @@ if(userId === null) return;
 await supabase
 .from("typing_status")
 .upsert({
-  chat_id: Number(chatId),
-  user_id: userId,
-  typing: status,
-  updated_at: new Date().toISOString()
+chat_id:Number(chatId),
+user_id:userId,
+typing:status,
+updated_at:new Date().toISOString()
 });
 
 }
@@ -360,6 +346,7 @@ const text = newMessage;
 setNewMessage("");
 setReplyTo(null);
 updateTyping(false);
+
 
 
 
@@ -553,13 +540,18 @@ marginTop:2
 
 )}
 
+
+
+</div>
+
 </div>
 
 </div>
 
 
 
-</div>
+
+
     
 <div
 ref={chatRef}
@@ -916,11 +908,7 @@ onInput={(e:any)=>{
 
 setNewMessage(e.target.value);
 
-if(!typingUser){
 updateTyping(true);
-}
-
-clearTimeout(typingTimeout.current);
 
 clearTimeout(typingTimeout.current);
 
@@ -929,7 +917,7 @@ setTimeout(()=>{
 
 updateTyping(false);
 
-},1200);
+},1500);
 
 }}
 
@@ -979,4 +967,4 @@ WebkitTapHighlightColor:"transparent"
 </div>
 )
 
-}    
+}   
