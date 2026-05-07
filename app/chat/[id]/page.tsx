@@ -201,7 +201,19 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
+useEffect(()=>{
 
+if(!chatId || userId === null) return;
+
+const interval = setInterval(()=>{
+
+fetchMessages();
+
+},2500);
+
+return ()=>clearInterval(interval);
+
+},[chatId,userId]);
 
 
 
@@ -256,9 +268,7 @@ return updated;
 
 });
 
-requestAnimationFrame(()=>{
 scrollToBottom();
-});
 
 }
 )
@@ -358,9 +368,9 @@ return updated;
 
 });
 
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 scrollToBottom();
-});
+},50);
 
 }
 
