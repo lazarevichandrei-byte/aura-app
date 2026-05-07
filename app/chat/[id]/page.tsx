@@ -927,9 +927,7 @@ spellCheck={false}
 enterKeyHint="send"
 value={newMessage}
 
-onChange={(e:any)=>{
-
-setNewMessage(e.target.value);
+onKeyDown={()=>{
 
 updateTyping(true);
 
@@ -943,6 +941,11 @@ updateTyping(false);
 },1500);
 
 }}
+
+onChange={(e:any)=>{
+setNewMessage(e.target.value);
+}}
+
 
 placeholder="Сообщение..."
 
