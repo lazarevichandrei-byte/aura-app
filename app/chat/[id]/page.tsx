@@ -50,14 +50,28 @@ useRef(false);
 
 function scrollToBottom(){
 
-setTimeout(()=>{
+setLoadingMessages(false);
 
-if(!chatRef.current) return;
+requestAnimationFrame(()=>{
 
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight + 1000;
+requestAnimationFrame(()=>{
 
-},0);
+requestAnimationFrame(()=>{
+
+if(chatRef.current){
+
+chatRef.current.scrollTo({
+top: chatRef.current.scrollHeight,
+behavior:"instant" as ScrollBehavior
+});
+
+}
+
+});
+
+});
+
+});
 
 }
 
@@ -190,6 +204,24 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
+useEffect(()=>{
+
+if(messages.length){
+
+requestAnimationFrame(()=>{
+
+if(chatRef.current){
+
+chatRef.current.scrollTop =
+chatRef.current.scrollHeight;
+
+}
+
+});
+
+}
+
+},[messages.length]);
 
 
 useEffect(()=>{
