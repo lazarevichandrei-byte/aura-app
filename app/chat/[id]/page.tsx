@@ -16,7 +16,7 @@ const chatId =
 params.id as string;
 
 const [userId,setUserId] =
-useState<string | null>(null);
+useState<number | null>(null);
 
 
 
@@ -35,6 +35,8 @@ useState(false);
 
 const chatRef =
 useRef<HTMLDivElement | null>(null);
+const inputRef =
+useRef<HTMLInputElement | null>(null);
 
 
 const touchStartX =
@@ -249,6 +251,10 @@ const text = newMessage;
 setNewMessage("");
 setReplyTo(null);
 
+setTimeout(()=>{
+  inputRef.current?.focus();
+},10);
+
 
 const tempMessage = {
 id: Date.now(),
@@ -421,34 +427,31 @@ style={{
 </div>
 
 
+
+
+
 <div
 ref={chatRef}
 
 onScroll={(e)=>{
 
-if(
-scrollTick.current
-) return;
+if(scrollTick.current) return;
 
 scrollTick.current=true;
 
-requestAnimationFrame(()=>{   
+requestAnimationFrame(()=>{
 
-const el =
-e.currentTarget;
+const el = e.currentTarget;
 
-const currentScroll =
-el.scrollTop;
+const currentScroll = el.scrollTop;
 
 const goingDown =
-currentScroll >
-lastScrollTop.current;
+currentScroll > lastScrollTop.current;
 
 const distanceFromBottom =
 el.scrollHeight -
 currentScroll -
 el.clientHeight;
-
 
 if(
 goingDown &&
@@ -460,21 +463,18 @@ else{
 setShowScrollDown(false);
 }
 
-lastScrollTop.current =
-currentScroll;
+lastScrollTop.current = currentScroll;
 
 scrollTick.current=false;
+
 });
 }}
-
 
 style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-
-opacity:1,
-
+opacity:1
 }}
 >
 
@@ -490,28 +490,12 @@ key={msg.id}
 style={{
 display:"flex",
 justifyContent:
-mine
-? "flex-end"
-: "flex-start",
+mine ? "flex-end" : "flex-start",
 marginBottom:5
 }}
 >
 
 <div
-onTouchStart={()=>{
-const timer=setTimeout(()=>{
-setReplyTo(msg);
-},100);
-
-(window as any).replyTimer=timer;
-}}
-
-onTouchEnd={()=>{
-clearTimeout(
-(window as any).replyTimer
-);
-}}
-
 style={{
 background: mine
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
@@ -537,81 +521,13 @@ overflowWrap:"break-word"
 
 {msg.body}
 
-
-{msg.reply_preview && (
-
-<div
-style={{
-background:
-mine
-?"rgba(255,255,255,.18)"
-:"#E3ECFF",
-
-padding:"6px 8px",
-borderRadius:10,
-marginBottom:6,
-fontSize:11
-}}
->
-{msg.reply_preview}
-</div>
-
-)}
-
-<div
-style={{
-marginTop:3,
-fontSize:11,
-opacity:.65,
-textAlign:"right",
-display:"flex",
-justifyContent:"flex-end",
-alignItems:"center",
-gap:3
-}}
->
-{new Date(
-msg.created_at || Date.now()
-).toLocaleTimeString(
-"ru-RU",
-{
-hour:"2-digit",
-minute:"2-digit"
-}
-)}
-
-{mine && (
-
-<span
-style={{
-fontSize:10,
-letterSpacing:"-2px",
-fontWeight:700,
-
-color:
-msg.is_read
-? "#58B7FF"
-: "rgba(255,255,255,.75)"
-}}
->
-{
-msg.is_read
-? "✓✓"
-: "✓"
-}
-</span>
-
-)}
 </div>
 
 </div>
 
-</div>
-
-)
+);
 
 })}
-
 
 </div>
 {showScrollDown && (
@@ -721,6 +637,7 @@ paddingRight:6
 >
 
 <input
+ref={inputRef}
 autoComplete="off"
 autoCorrect="off"
 spellCheck={false}
