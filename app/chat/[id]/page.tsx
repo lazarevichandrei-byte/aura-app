@@ -244,7 +244,13 @@ useEffect(()=>{
         setMessages(prev=>{
 
          const exists = prev.some(
-  (m:any)=>m.id === payload.new.id
+(m:any)=>
+m.id === payload.new.id ||
+(
+m.pending &&
+m.body === payload.new.body &&
+m.sender_id === payload.new.sender_id
+)
 );
 
 if(exists) return prev;
@@ -252,9 +258,7 @@ if(exists) return prev;
 return [...prev, payload.new];
         });
 
-        setTimeout(()=>{
-  scrollToBottom();
-},10);
+        scrollToBottom();
 
       }
     )
@@ -298,7 +302,8 @@ chat_id: chatId,
 sender_id: userId,
 body: text,
 created_at: new Date().toISOString(),
-is_read: false
+is_read: false,
+pending:true
 };
 
 setMessages(prev=>[
@@ -339,7 +344,19 @@ return;
 }
 
 if(data){
-  scrollToBottom();
+
+setMessages(prev=>
+prev.map(m=>
+m.pending &&
+m.body === data.body &&
+m.sender_id === data.sender_id
+? data
+: m
+)
+);
+
+scrollToBottom();
+
 }
 
 await supabase
@@ -539,11 +556,23 @@ marginBottom:5
 <div
 
 onTouchStart={()=>{
+
+if((window as any).replyOpened) return;
+
 const timer=setTimeout(()=>{
+
+(window as any).replyOpened = true;
+
 setReplyTo(msg);
+
+setTimeout(()=>{
+(window as any).replyOpened = false;
+},400);
+
 },300);
 
 (window as any).replyTimer=timer;
+
 }}
 
 onTouchEnd={()=>{
