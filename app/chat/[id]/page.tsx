@@ -32,6 +32,8 @@ useState<any>(null);
 
 const [typingUser,setTypingUser] =
 useState(false);
+const typingRef =
+useRef(false);
 const [keyboardOffset,setKeyboardOffset] =
 useState(0);
 
@@ -302,7 +304,13 @@ if(!data) return;
 if(data.user_id === userId) return;
 
 
-setTypingUser(data.typing);
+if(typingRef.current !== data.typing){
+
+ typingRef.current = data.typing;
+
+ setTypingUser(data.typing);
+
+}
 
 }
 )
