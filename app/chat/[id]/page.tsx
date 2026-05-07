@@ -184,6 +184,49 @@ useEffect(()=>{
 
 
 
+useEffect(()=>{
+
+ async function loadMe(){
+
+   const tg =
+    (window as any)?.Telegram?.WebApp;
+
+   const tgId =
+    tg?.initDataUnsafe?.user?.id;
+
+   if(!tgId) return;
+
+   const { data:user } = await supabase
+     .from("users")
+     .select("id")
+     .eq("telegram_id", tgId)
+     .single();
+
+   if(user){
+     setUserId(user.id);
+   }
+
+ }
+
+ loadMe();
+
+},[]);
+
+
+
+useEffect(()=>{
+
+  if(userId){
+    fetchMessages();
+    fetchChatUser();
+  }
+
+},[chatId,userId]);
+
+
+
+
+
 
 useEffect(()=>{
 
@@ -307,10 +350,19 @@ return;
 
 if(data){
 
-setMessages(prev => [
-...prev,
-data
-]);
+setMessages(prev => {
+
+const exists = prev.some(
+(m:any)=>String(m.id) === String(data.id)
+);
+
+if(exists){
+  return prev;
+}
+
+return [...prev,data];
+
+});
 
 setTimeout(()=>{
 scrollToBottom();
