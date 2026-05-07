@@ -64,10 +64,7 @@ function scrollToBottom(){
 
   if(!el) return;
 
-  el.scrollTop =
-   el.scrollHeight -
-   el.clientHeight +
-   100;
+ el.scrollTop = el.scrollHeight;
 
  });
 
