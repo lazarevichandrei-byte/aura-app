@@ -539,22 +539,22 @@ style={{
 {otherUser?.name || "Пользователь"}
 </div>
 
-
-
-</div>
-
-</div>
+{typingUser && (
 
 <div
 style={{
-paddingLeft:66,
-paddingTop:2,
-paddingBottom:4,
 fontSize:12,
-color:"#7A8699"
+color:"#7A8699",
+marginTop:2
 }}
 >
 печатает...
+</div>
+
+)}
+
+</div>
+
 </div>
 
 
