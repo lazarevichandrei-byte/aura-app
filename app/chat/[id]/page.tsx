@@ -200,19 +200,7 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
-useEffect(()=>{
 
-if(!chatId || userId === null) return;
-
-const interval = setInterval(()=>{
-
-fetchMessages();
-
-},2500);
-
-return ()=>clearInterval(interval);
-
-},[chatId,userId]);
 
 
 
