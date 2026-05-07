@@ -52,15 +52,19 @@ useRef(true);
 
 function scrollToBottom(){
 
+setTimeout(()=>{
+
 requestAnimationFrame(()=>{
 
 const el = chatRef.current;
 
 if(!el) return;
 
-el.scrollTop = el.scrollHeight;
+el.scrollTop = el.scrollHeight + 9999;
 
 });
+
+},80);
 
 }
 
@@ -550,7 +554,7 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"22px",
+paddingBottom:"90px",
 
 
 overscrollBehavior:"contain",
