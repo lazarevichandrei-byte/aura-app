@@ -251,9 +251,7 @@ const text = newMessage;
 setNewMessage("");
 setReplyTo(null);
 
-setTimeout(()=>{
-  inputRef.current?.focus();
-},10);
+
 
 
 const tempMessage = {
