@@ -183,7 +183,7 @@ useEffect(()=>{
   fetchChatUser();
 }
 
-},[chatId,userId]);
+},[chatId]);
 
 
 
@@ -285,12 +285,6 @@ return;
 }
 
 if(data){
-
-  setMessages(prev=>[
-    ...prev,
-    data
-  ]);
-
   scrollToBottom();
 }
 
