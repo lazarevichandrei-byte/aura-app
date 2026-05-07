@@ -687,7 +687,7 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"22px",
+paddingBottom:"80px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
