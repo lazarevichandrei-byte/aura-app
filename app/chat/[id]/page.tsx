@@ -50,28 +50,16 @@ useRef(false);
 
 function scrollToBottom(){
 
-setLoadingMessages(false);
-
-requestAnimationFrame(()=>{
-
-requestAnimationFrame(()=>{
-
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 
 if(chatRef.current){
 
-chatRef.current.scrollTo({
-top: chatRef.current.scrollHeight,
-behavior:"instant" as ScrollBehavior
-});
+chatRef.current.scrollTop =
+chatRef.current.scrollHeight + 500;
 
 }
 
-});
-
-});
-
-});
+},120);
 
 }
 
@@ -529,6 +517,8 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
+paddingBottom:"22px",
+scrollBehavior:"smooth",
 
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
@@ -817,6 +807,20 @@ paddingRight:20
 
 <input
 ref={inputRef}
+onFocus={()=>{
+setTimeout(()=>{
+
+if(chatRef.current){
+
+chatRef.current.scrollTo({
+top: chatRef.current.scrollHeight,
+behavior:"smooth"
+});
+
+}
+
+},350);
+}}
 autoComplete="off"
 autoCorrect="off"
 spellCheck={false}
