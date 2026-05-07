@@ -244,11 +244,11 @@ useEffect(()=>{
 
    setKeyboardOffset(keyboardHeight);
 
-   setTimeout(()=>{
+   requestAnimationFrame(()=>{
 
-    scrollToBottom();
+ scrollToBottom();
 
-   },50);
+});
 
   }else{
 
@@ -357,7 +357,7 @@ const newMsg:any = payload.new;
 
 setMessages(prev => {
 
-const exists = prev.find(
+const exists = prev.some(
 (m:any)=>
 String(m.id) === String(newMsg.id)
 );
@@ -372,11 +372,11 @@ return updated;
 
 });
 
-setTimeout(()=>{
+requestAnimationFrame(()=>{
 
  scrollToBottom();
 
-},30);
+});
 
 
 
