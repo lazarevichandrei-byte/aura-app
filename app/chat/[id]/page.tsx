@@ -182,34 +182,7 @@ useEffect(()=>{
 
 },[]);
 
-useEffect(()=>{
 
-  if(userId){
-  fetchMessages();
-  fetchChatUser();
-}
-
-},[chatId,userId]);
-
-
-useEffect(()=>{
-
-if(messages.length){
-
-requestAnimationFrame(()=>{
-
-if(chatRef.current){
-
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
-
-}
-
-});
-
-}
-
-},[messages.length]);
 
 
 useEffect(()=>{
@@ -236,10 +209,12 @@ setMessages(prev=>{
 
 const exists = prev.some(
 (m:any)=>
-m.id === newMsg.id
+String(m.id) === String(newMsg.id)
 );
 
-if(exists) return prev;
+if(exists){
+return prev;
+}
 
 return [...prev,newMsg];
 
@@ -332,19 +307,14 @@ return;
 
 if(data){
 
-setMessages(prev => {
+setMessages(prev => [
+...prev,
+data
+]);
 
-const exists = prev.some(
-(m:any) => m.id === data.id
-);
-
-if(exists) return prev;
-
-return [...prev, data];
-
-});
-
+setTimeout(()=>{
 scrollToBottom();
+},50);
 
 }
 
