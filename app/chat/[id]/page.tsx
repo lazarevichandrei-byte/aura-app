@@ -50,10 +50,14 @@ useRef(false);
 
 function scrollToBottom(){
 
+setTimeout(()=>{
+
 if(!chatRef.current) return;
 
 chatRef.current.scrollTop =
-999999999;
+chatRef.current.scrollHeight + 1000;
+
+},0);
 
 }
 
@@ -77,27 +81,20 @@ const { data,error } = await supabase
 
 if(!error && data){
 
-const reversed =
-data.reverse();
+setMessages(data.reverse());
 
-setMessages(reversed);
-
-requestAnimationFrame(()=>{
-
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 
 if(chatRef.current){
 
 chatRef.current.scrollTop =
-999999999;
+chatRef.current.scrollHeight + 1000;
 
 }
 
 setLoadingMessages(false);
 
-});
-
-});
+},0);
 
 await supabase
 .from("messages")
