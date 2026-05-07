@@ -542,12 +542,16 @@ router.back();
 
 style={{
 position:"fixed",
-inset:0,
-height:"100vh",
-overflow:"hidden",
+top:0,
+left:0,
+right:0,
+bottom:0,
+height:"100%",
+overflow:"clip",
 background:"#fff",
 display:"flex",
-flexDirection:"column"
+flexDirection:"column",
+paddingBottom:"0px"
 }}
 >
 
@@ -856,7 +860,7 @@ zIndex:999
 <div
 style={{
 padding:"8px 10px",
-paddingBottom:"calc(env(safe-area-inset-bottom) + 6px)",
+paddingBottom:"6px",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
 }}
