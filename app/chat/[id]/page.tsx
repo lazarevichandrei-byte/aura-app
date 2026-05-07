@@ -33,7 +33,6 @@ const [showScrollDown,setShowScrollDown] =
 useState(false);
 const [typingUser,setTypingUser] =
 useState(false);
-
 const typingTimeout =
 useRef<any>(null);
 
@@ -201,6 +200,20 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
+useEffect(()=>{
+
+if(!chatId || userId === null) return;
+
+const interval = setInterval(()=>{
+
+fetchMessages();
+
+},2500);
+
+return ()=>clearInterval(interval);
+
+},[chatId,userId]);
+
 
 
 useEffect(()=>{
@@ -210,6 +223,46 @@ scrollToBottom();
 });
 
 },[messages]);
+
+useEffect(()=>{
+
+if(!chatId || userId === null) return;
+
+const typingChannel = supabase
+
+.channel(`typing-${chatId}`)
+
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"typing_status",
+filter:`chat_id=eq.${chatId}`
+},
+(payload)=>{
+
+const data:any = payload.new;
+
+if(!data) return;
+
+if(data.user_id === userId) return;
+
+setTypingUser(data.typing);
+
+}
+)
+
+.subscribe();
+
+return ()=>{
+
+supabase.removeChannel(typingChannel);
+
+};
+
+},[chatId,userId]);
+
 
 
 useEffect(()=>{
@@ -259,6 +312,8 @@ return updated;
 
 });
 
+
+
 }
 )
 
@@ -271,47 +326,6 @@ console.log("REALTIME:",status);
 return ()=>{
 
 supabase.removeChannel(channel);
-
-};
-
-},[chatId,userId]);
-
-
-
-useEffect(()=>{
-
-if(!chatId || userId === null) return;
-
-const typingChannel = supabase
-
-.channel(`typing-${chatId}`)
-
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"typing_status",
-filter:`chat_id=eq.${chatId}`
-},
-(payload)=>{
-
-const data:any = payload.new;
-
-if(!data) return;
-
-if(data.user_id === userId) return;
-
-setTypingUser(data.typing);
-
-}
-)
-
-.subscribe();
-
-return ()=>{
-
-supabase.removeChannel(typingChannel);
 
 };
 
@@ -332,7 +346,6 @@ updated_at:new Date().toISOString()
 });
 
 }
-
 
 async function sendMessage(){
 
@@ -357,7 +370,6 @@ const text = newMessage;
 setNewMessage("");
 setReplyTo(null);
 updateTyping(false);
-
 
 
 
@@ -535,8 +547,6 @@ style={{
 }}
 >
 {otherUser?.name || "Пользователь"}
-</div>
-
 {typingUser && (
 
 <div
@@ -550,8 +560,7 @@ marginTop:2
 </div>
 
 )}
-
-
+</div>
 
 </div>
 
