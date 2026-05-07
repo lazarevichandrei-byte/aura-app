@@ -335,7 +335,7 @@ console.log("TYPING:", status);
 const { error } = await supabase
 .from("typing_status")
 .upsert({
-chat_id:Number(chatId),
+chat_id:chatId,
 user_id:userId,
 typing:status,
 updated_at:new Date().toISOString()
