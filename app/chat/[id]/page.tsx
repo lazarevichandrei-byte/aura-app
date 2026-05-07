@@ -226,50 +226,67 @@ chatRef.current.scrollHeight;
 
 useEffect(()=>{
 
-  if(!chatId) return;
+if(!chatId || userId === null) return;
 
-  const channel = supabase
-    .channel(`chat-${chatId}`)
+const channel = supabase
 
-    .on(
-      "postgres_changes",
-      {
-        event:"INSERT",
-        schema:"public",
-        table:"messages",
-        filter:`chat_id=eq.${chatId}`
-      },
-      (payload)=>{
+.channel(`chat-${chatId}`)
 
-        setMessages(prev=>{
+.on(
+"postgres_changes",
+{
+event:"INSERT",
+schema:"public",
+table:"messages",
+filter:`chat_id=eq.${chatId}`
+},
+(payload)=>{
 
-         const exists = prev.some(
+const newMsg:any = payload.new;
+
+setMessages(prev=>{
+
+const exists = prev.some(
 (m:any)=>
-m.id === payload.new.id ||
-(
-m.pending &&
-m.body === payload.new.body &&
-m.sender_id === payload.new.sender_id
-)
+m.id === newMsg.id
 );
 
 if(exists) return prev;
 
-return [...prev, payload.new];
-        });
+return [...prev,newMsg];
 
-        scrollToBottom();
+});
 
-      }
-    )
+setTimeout(()=>{
 
-    .subscribe();
+if(chatRef.current){
 
-  
+chatRef.current.scrollTo({
+top:chatRef.current.scrollHeight,
+behavior:"smooth"
+});
 
-  return ()=>{
-    supabase.removeChannel(channel);
-  };
+}
+
+},50);
+
+}
+)
+
+.subscribe((status)=>{
+
+console.log(
+"REALTIME:",
+status
+);
+
+});
+
+return ()=>{
+
+supabase.removeChannel(channel);
+
+};
 
 },[chatId,userId]);
 
@@ -345,15 +362,8 @@ return;
 
 if(data){
 
-setMessages(prev=>
-prev.map(m=>
-m.pending &&
-m.body === data.body &&
-m.sender_id === data.sender_id
-? data
-: m
-)
-);
+
+
 
 scrollToBottom();
 
