@@ -859,7 +859,7 @@ zIndex:999
 
 <div
 style={{
-padding:"8px 10px",
+padding:"4px 10px 2px",
 paddingBottom:"6px",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
@@ -922,8 +922,8 @@ paddingRight:20
 style={{
 display:"flex",
 alignItems:"center",
-paddingLeft:18,
-paddingRight:6
+paddingLeft:14,
+paddingRight:4
 }}
 >
 
@@ -1022,7 +1022,9 @@ style={{
 flex:1,
 border:"none",
 outline:"none",
-background:"transparent"
+background:"transparent",
+height:34,
+fontSize:16
 }}
 />
 
@@ -1039,8 +1041,8 @@ onTouchStart={(e)=>{
 
 onClick={sendMessage}
 style={{
-width:38,
-height:38,
+width:34,
+height:34,
 borderRadius:"50%",
 background:"#2E7BFF",
 display:"flex",
