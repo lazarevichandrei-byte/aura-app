@@ -400,7 +400,9 @@ if(!newMessage.trim()) return;
 const text = newMessage;
 
 setNewMessage("");
+setPressed(false);
 setReplyTo(null);
+
 await updateTyping(false);
 
 
@@ -968,14 +970,24 @@ onChange={(e:any)=>{
 
  updateTyping(true);
 
- clearTimeout(typingTimeout.current);
+clearTimeout(typingTimeout.current);
 
- typingTimeout.current =
-  setTimeout(()=>{
+if(!pressed){
 
-   updateTyping(false);
+ setPressed(true);
 
-  },1500);
+ updateTyping(true);
+
+}
+
+typingTimeout.current =
+ setTimeout(async ()=>{
+
+  setPressed(false);
+
+  await updateTyping(false);
+
+ },1500);
 
 }}
 
