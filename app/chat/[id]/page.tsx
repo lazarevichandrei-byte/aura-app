@@ -47,14 +47,10 @@ useRef(false);
 
 function scrollToBottom(){
 
-requestAnimationFrame(()=>{
-
 if(!chatRef.current) return;
 
-chatRef.current.scrollTop=
+chatRef.current.scrollTop =
 chatRef.current.scrollHeight;
-
-});
 
 }
 
@@ -216,11 +212,9 @@ if(exists) return prev;
 return [...prev, payload.new];
         });
 
-        requestAnimationFrame(()=>{
-  requestAnimationFrame(()=>{
-    scrollToBottom();
-  });
-});
+        setTimeout(()=>{
+  scrollToBottom();
+},10);
 
       }
     )
@@ -255,6 +249,24 @@ const text = newMessage;
 setNewMessage("");
 setReplyTo(null);
 
+
+const tempMessage = {
+id: Date.now(),
+chat_id: chatId,
+sender_id: userId,
+body: text,
+created_at: new Date().toISOString(),
+is_read: false
+};
+
+setMessages(prev=>[
+...prev,
+tempMessage
+]);
+
+setTimeout(()=>{
+scrollToBottom();
+},10);
 
 
 
@@ -460,7 +472,6 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-scrollBehavior:"auto",
 
 opacity:1,
 
@@ -716,10 +727,8 @@ spellCheck={false}
 value={newMessage}
 
 
-onChange={(e)=>{
+onInput={(e:any)=>{
   setNewMessage(e.target.value);
-
-  
 }}
 
 onKeyDown={(e)=>{
