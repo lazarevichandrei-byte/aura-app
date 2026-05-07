@@ -255,7 +255,11 @@ setTypingUser(data.typing);
 }
 )
 
-.subscribe();
+.subscribe((status)=>{
+
+console.log("TYPING REALTIME STATUS:", status);
+
+});
 
 return ()=>{
 
