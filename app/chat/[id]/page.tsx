@@ -433,7 +433,7 @@ style={{
 
 
 
-{!loadingMessages && (
+
     
 <div
 ref={chatRef}
@@ -481,7 +481,9 @@ overflowY:"auto",
 padding:"12px 10px 6px",
 
 overscrollBehavior:"contain",
-WebkitOverflowScrolling:"touch"
+WebkitOverflowScrolling:"touch",
+
+opacity: loadingMessages ? 0 : 1
 }}
 >
 
@@ -537,7 +539,6 @@ overflowWrap:"break-word"
 })}
 
 </div>
-)}
 
 {showScrollDown && (
 
@@ -703,4 +704,4 @@ WebkitTapHighlightColor:"transparent"
 </div>
 )
 
-}
+}    
