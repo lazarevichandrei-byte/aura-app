@@ -53,6 +53,8 @@ useRef(false);
 
 const firstLoadRef =
 useRef(true);
+const resizeTimeout =
+useRef<any>(null);
 
 function scrollToBottom(){
 
@@ -224,7 +226,36 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
+useEffect(()=>{
 
+ const handleResize = ()=>{
+
+  clearTimeout(resizeTimeout.current);
+
+  resizeTimeout.current =
+   setTimeout(()=>{
+
+    scrollToBottom();
+
+   },100);
+
+ };
+
+ window.visualViewport?.addEventListener(
+  "resize",
+  handleResize
+ );
+
+ return ()=>{
+
+  window.visualViewport?.removeEventListener(
+   "resize",
+   handleResize
+  );
+
+ };
+
+},[]);
 
 
 
@@ -938,19 +969,6 @@ paddingRight:20
 
 <input
 ref={inputRef}
-onFocus={()=>{
-
- setTimeout(()=>{
-
-  const el = chatRef.current;
-
-  if(!el) return;
-
-  el.scrollTop = el.scrollHeight + 300;
-
- },300);
-
-}}
 autoComplete="off"
 autoCorrect="off"
 spellCheck={false}
