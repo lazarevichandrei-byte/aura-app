@@ -32,6 +32,8 @@ useState<any>(null);
 
 const [typingUser,setTypingUser] =
 useState(false);
+const [keyboardOffset,setKeyboardOffset] =
+useState(0);
 
 const typingTimeout =
 useRef<any>(null);
@@ -218,7 +220,57 @@ useEffect(()=>{
 
 
 
+useEffect(()=>{
 
+ const viewport =
+  window.visualViewport;
+
+ if(!viewport) return;
+
+ const handleKeyboard = ()=>{
+
+  const windowHeight =
+   window.innerHeight;
+
+  const viewportHeight =
+   viewport.height;
+
+  const keyboardHeight =
+   windowHeight - viewportHeight;
+
+  if(keyboardHeight > 120){
+
+   setKeyboardOffset(keyboardHeight);
+
+   setTimeout(()=>{
+
+    scrollToBottom();
+
+   },50);
+
+  }else{
+
+   setKeyboardOffset(0);
+
+  }
+
+ };
+
+ viewport.addEventListener(
+  "resize",
+  handleKeyboard
+ );
+
+ return ()=>{
+
+  viewport.removeEventListener(
+   "resize",
+   handleKeyboard
+  );
+
+ };
+
+},[]);
 
 
 
@@ -494,6 +546,7 @@ position:"fixed",
 top:0,
 left:0,
 right:0,
+bottom:keyboardOffset,
 height:"100dvh",
 overflow:"hidden",
 background:"#fff",
