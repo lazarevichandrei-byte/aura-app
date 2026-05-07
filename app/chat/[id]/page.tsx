@@ -16,7 +16,7 @@ const chatId =
 params.id as string;
 
 const [userId,setUserId] =
-useState<number | null>(null);
+useState<string | null>(null);
 
 
 
@@ -216,7 +216,7 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  if(userId){
+  if(userId !== null){
     fetchMessages();
     fetchChatUser();
   }
@@ -359,8 +359,8 @@ if(userId === null) {
 console.log("UPDATE TYPING START");
 
 const payload = {
-  chat_id: String(chatId),
-  user_id: Number(userId),
+  chat_id: chatId,
+  user_id: userId,
   typing: status,
   updated_at: new Date().toISOString()
 };
