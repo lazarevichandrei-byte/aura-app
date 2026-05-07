@@ -335,13 +335,13 @@ if(userId === null) {
 console.log("UPDATE TYPING START");
 
 const payload = {
-  chat_id: chatId,
-  user_id: userId,
+  chat_id: String(chatId),
+  user_id: Number(userId),
   typing: status,
   updated_at: new Date().toISOString()
 };
 
-console.log("PAYLOAD:", payload);
+alert(JSON.stringify(payload));
 
 const { data, error } = await supabase
 .from("typing_status")
