@@ -23,8 +23,7 @@ useState<number | null>(null);
 const [messages,setMessages] = useState<any[]>([]);
 const [otherUser,setOtherUser] =
 useState<any>(null);
-const [ready,setReady] =
-useState(false);
+
 const [loadingMessages,setLoadingMessages] =
 useState(true);
 const [newMessage,setNewMessage] = useState("");
@@ -54,7 +53,7 @@ function scrollToBottom(){
 if(!chatRef.current) return;
 
 chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
+999999999;
 
 }
 
@@ -94,7 +93,6 @@ chatRef.current.scrollTop =
 
 }
 
-setReady(true);
 setLoadingMessages(false);
 
 });
@@ -484,8 +482,9 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-opacity: ready ? 1 : 0,
-transition:"opacity .15s ease"
+
+overscrollBehavior:"contain",
+WebkitOverflowScrolling:"touch"
 }}
 >
 
