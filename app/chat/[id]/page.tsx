@@ -356,11 +356,15 @@ return updated;
 
 });
 
-setTimeout(()=>{
+requestAnimationFrame(()=>{
 
- scrollToBottom();
+ requestAnimationFrame(()=>{
 
-},180);
+  scrollToBottom();
+
+ });
+
+});
 
 
 
