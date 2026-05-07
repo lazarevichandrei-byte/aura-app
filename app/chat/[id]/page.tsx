@@ -856,12 +856,9 @@ zIndex:999
 <div
 style={{
 padding:"8px 10px",
+paddingBottom:"calc(env(safe-area-inset-bottom) + 6px)",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
-
-
-
-
 }}
 >
 
