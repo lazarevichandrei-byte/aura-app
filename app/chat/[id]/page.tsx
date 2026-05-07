@@ -350,6 +350,9 @@ const { data, error } = await supabase
 })
 .select();
 
+alert(JSON.stringify(error));
+alert(JSON.stringify(data));
+
 console.log("RESULT DATA:", data);
 console.log("RESULT ERROR:", error);
 
