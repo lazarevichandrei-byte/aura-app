@@ -55,15 +55,12 @@ useRef(true);
 
 function scrollToBottom(){
 
- requestAnimationFrame(()=>{
+ const el = chatRef.current;
 
-  const el = chatRef.current;
+ if(!el) return;
 
-  if(!el) return;
-
- el.scrollTop = el.scrollHeight;
-
- });
+ el.scrollTop =
+  el.scrollHeight + 9999;
 
 }
 
@@ -348,15 +345,11 @@ return updated;
 
 });
 
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 
- requestAnimationFrame(()=>{
+ scrollToBottom();
 
-  scrollToBottom();
-
- });
-
-});
+},30);
 
 
 
@@ -788,6 +781,8 @@ style={{
 padding:"4px 10px 0px",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
+position:"relative",
+bottom:"20px",
 }}
 >
 
