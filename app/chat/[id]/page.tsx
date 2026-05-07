@@ -242,6 +242,8 @@ filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
 
+    console.log("TYPING PAYLOAD:", payload);
+
 const data:any = payload.new;
 
 if(!data) return;
@@ -335,6 +337,8 @@ supabase.removeChannel(channel);
 async function updateTyping(status:boolean){
 
 if(userId === null) return;
+
+console.log("TYPING:", status);
 
 await supabase
 .from("typing_status")
@@ -547,6 +551,8 @@ style={{
 }}
 >
 {otherUser?.name || "Пользователь"}
+</div>
+
 {typingUser && (
 
 <div
@@ -560,9 +566,9 @@ marginTop:2
 </div>
 
 )}
-</div>
 
 </div>
+
 
 </div>
 
