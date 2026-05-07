@@ -47,6 +47,9 @@ useRef(0);
 const scrollTick =
 useRef(false);
 
+const firstLoadRef =
+useRef(true);
+
 function scrollToBottom(){
 
 requestAnimationFrame(()=>{
@@ -82,10 +85,18 @@ const { data,error } = await supabase
 
 if(!error && data){
 
-setMessages(data.reverse());
-setTimeout(()=>{
-scrollToBottom();
-},50);
+const reversed = data.reverse();
+
+setMessages(reversed);
+
+if(firstLoadRef.current){
+
+  setTimeout(()=>{
+    scrollToBottom();
+  },50);
+
+  firstLoadRef.current = false;
+}
 
 setTimeout(()=>{
 
@@ -190,6 +201,21 @@ useEffect(()=>{
     fetchMessages();
     fetchChatUser();
   }
+
+},[chatId,userId]);
+
+
+useEffect(()=>{
+
+if(!chatId || userId === null) return;
+
+const interval = setInterval(()=>{
+
+fetchMessages();
+
+},2500);
+
+return ()=>clearInterval(interval);
 
 },[chatId,userId]);
 
