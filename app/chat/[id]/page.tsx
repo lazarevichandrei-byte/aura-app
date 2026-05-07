@@ -52,11 +52,19 @@ useRef(true);
 
 function scrollToBottom(){
 
+setTimeout(()=>{
+
+requestAnimationFrame(()=>{
+
 const el = chatRef.current;
 
 if(!el) return;
 
-el.scrollTop = el.scrollHeight;
+el.scrollTop = el.scrollHeight + 9999;
+
+});
+
+},80);
 
 }
 
@@ -268,7 +276,9 @@ return updated;
 
 });
 
+requestAnimationFrame(()=>{
 scrollToBottom();
+});
 
 }
 )
@@ -543,14 +553,14 @@ scrollTick.current=false;
 style={{
 flex:1,
 overflowY:"auto",
+padding:"12px 10px 6px",
+paddingBottom:"22px",
 
-paddingTop:"12px",
-paddingLeft:"10px",
-paddingRight:"10px",
-paddingBottom:"12px",
 
 overscrollBehavior:"contain",
-WebkitOverflowScrolling:"touch"
+WebkitOverflowScrolling:"touch",
+
+
 }}
 >
 
