@@ -183,7 +183,7 @@ useEffect(()=>{
   fetchChatUser();
 }
 
-},[chatId]);
+},[chatId,userId]);
 
 
 
