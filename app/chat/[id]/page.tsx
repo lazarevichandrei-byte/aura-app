@@ -527,13 +527,13 @@ position:"fixed",
 top:0,
 left:0,
 right:0,
-bottom:0,
 height:viewportHeight,
-overflow:"clip",
+overflow:"hidden",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
-paddingBottom:"0px"
+transform:"translateZ(0)",
+willChange:"height"
 }}
 >
 
@@ -643,11 +643,13 @@ ref={chatRef}
 
 style={{
 flex:1,
+minHeight:0,
 overflowY:"auto",
 padding:"12px 10px 6px",
 paddingBottom:"22px",
 overscrollBehavior:"contain",
-WebkitOverflowScrolling:"auto",
+WebkitOverflowScrolling:"touch",
+transform:"translateZ(0)"
 }}
 >
 
