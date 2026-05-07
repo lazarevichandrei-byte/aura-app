@@ -968,26 +968,24 @@ onChange={(e:any)=>{
 
  setNewMessage(value);
 
- updateTyping(true);
+ clearTimeout(typingTimeout.current);
 
-clearTimeout(typingTimeout.current);
+ if(!pressed){
 
-if(!pressed){
+  setPressed(true);
 
- setPressed(true);
+  updateTyping(true);
 
- updateTyping(true);
+ }
 
-}
+ typingTimeout.current =
+  setTimeout(async ()=>{
 
-typingTimeout.current =
- setTimeout(async ()=>{
+   setPressed(false);
 
-  setPressed(false);
+   await updateTyping(false);
 
-  await updateTyping(false);
-
- },1500);
+  },1500);
 
 }}
 
