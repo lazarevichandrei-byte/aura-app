@@ -293,7 +293,7 @@ filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
 
-    console.log("TYPING PAYLOAD:", payload);
+    
 
 const data:any = payload.new;
 
@@ -309,7 +309,7 @@ setTypingUser(data.typing);
 
 .subscribe((status)=>{
 
-console.log("TYPING REALTIME STATUS:", status);
+
 
 });
 
@@ -355,7 +355,7 @@ String(m.id) === String(newMsg.id)
 );
 
 if(exists){
-  return [...prev];
+  return prev;
 }
 
 const updated = [...prev, newMsg];
@@ -377,7 +377,7 @@ setTimeout(()=>{
 
 .subscribe((status)=>{
 
-console.log("REALTIME:",status);
+
 
 });
 
@@ -420,13 +420,6 @@ async function updateTyping(status:boolean){
 async function sendMessage(){
 
 
-
-    
-
-
-    console.log("SEND CLICK");
-console.log("USER ID:", userId);
-console.log("TEXT:", newMessage);
 
 if(userId === null){
   
@@ -476,37 +469,7 @@ return;
 }
 
 
-if(data){
 
-setMessages(prev => {
-
-const exists = prev.some(
-(m:any)=>String(m.id) === String(data.id)
-);
-
-if(exists){
-  return prev;
-}
-
-const updated = [...prev];
-updated.push(data);
-
-
-
-return updated;
-
-});
-
-
-setTimeout(()=>{
-
- scrollToBottom();
-
-},100);
-
-
-
-}
 
 
 await supabase
