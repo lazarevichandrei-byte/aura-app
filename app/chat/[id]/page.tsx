@@ -537,8 +537,24 @@ marginBottom:5
 >
 
 <div
+
+onTouchStart={()=>{
+const timer=setTimeout(()=>{
+setReplyTo(msg);
+},300);
+
+(window as any).replyTimer=timer;
+}}
+
+onTouchEnd={()=>{
+clearTimeout(
+(window as any).replyTimer
+);
+}}
+
 style={{
 background: mine
+
 ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
 :"#F2F4F7",
 
@@ -560,7 +576,47 @@ overflowWrap:"break-word"
 }}
 >
 
+{msg.reply_preview && (
+
+<div
+style={{
+background:
+mine
+? "rgba(255,255,255,.16)"
+: "#E8F0FF",
+
+padding:"6px 8px",
+borderRadius:10,
+marginBottom:6,
+fontSize:11
+}}
+>
+{msg.reply_preview}
+</div>
+
+)}
+
+
 {msg.body}
+
+<div
+style={{
+marginTop:4,
+fontSize:10,
+opacity:.7,
+textAlign:"right"
+}}
+>
+{new Date(
+msg.created_at || Date.now()
+).toLocaleTimeString(
+"ru-RU",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+)}
+</div>
 
 </div>
 
@@ -677,6 +733,57 @@ paddingLeft:18,
 paddingRight:6
 }}
 >
+
+
+    {replyTo && (
+
+<div
+style={{
+background:"#EDF4FF",
+padding:"10px 12px",
+borderRadius:14,
+marginBottom:8,
+position:"relative"
+}}
+>
+
+<div
+onClick={()=>setReplyTo(null)}
+style={{
+position:"absolute",
+right:10,
+top:8,
+fontSize:14,
+cursor:"pointer",
+color:"#7A8699"
+}}
+>
+✕
+</div>
+
+<div
+style={{
+fontSize:11,
+fontWeight:600,
+color:"#2E7BFF",
+marginBottom:5
+}}
+>
+Ответ
+</div>
+
+<div
+style={{
+fontSize:13,
+paddingRight:20
+}}
+>
+{replyTo.body}
+</div>
+
+</div>
+
+)}
 
 <input
 ref={inputRef}
