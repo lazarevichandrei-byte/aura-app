@@ -169,10 +169,17 @@ useEffect(()=>{
    const tg =
     (window as any)?.Telegram?.WebApp;
 
-   const tgId =
-    tg?.initDataUnsafe?.user?.id;
+ const tgId =
+ tg?.initDataUnsafe?.user?.id;
 
-   if(!tgId) return;
+alert("TG ID: " + tgId);
+
+if(!tgId){
+
+  setUserId(1);
+
+  return;
+}
 
    const { data:user } = await supabase
      .from("users")
