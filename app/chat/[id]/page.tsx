@@ -31,6 +31,11 @@ const [replyTo,setReplyTo] =
 useState<any>(null);
 const [showScrollDown,setShowScrollDown] =
 useState(false);
+const [typingUser,setTypingUser] =
+useState(false);
+
+const typingTimeout =
+useRef<any>(null);
 
 
 const chatRef =
@@ -200,13 +205,38 @@ useEffect(()=>{
 
 if(!chatId || userId === null) return;
 
-const interval = setInterval(()=>{
+const typingChannel = supabase
 
-fetchMessages();
+.channel(`typing-${chatId}`)
 
-},2500);
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"typing_status",
+filter:`chat_id=eq.${chatId}`
+},
+(payload)=>{
 
-return ()=>clearInterval(interval);
+const data:any = payload.new;
+
+if(!data) return;
+
+if(data.user_id === userId) return;
+
+setTypingUser(data.typing);
+
+}
+)
+
+.subscribe();
+
+return ()=>{
+
+supabase.removeChannel(typingChannel);
+
+};
 
 },[chatId,userId]);
 
@@ -289,6 +319,24 @@ supabase.removeChannel(channel);
 },[chatId,userId]);
 
 
+
+
+async function updateTyping(status:boolean){
+
+if(userId === null) return;
+
+await supabase
+.from("typing_status")
+.upsert({
+  chat_id: Number(chatId),
+  user_id: userId,
+  typing: status,
+  updated_at: new Date().toISOString()
+});
+
+}
+
+
 async function sendMessage(){
 
 
@@ -311,7 +359,7 @@ const text = newMessage;
 
 setNewMessage("");
 setReplyTo(null);
-
+updateTyping(false);
 
 
 
@@ -491,16 +539,27 @@ style={{
 {otherUser?.name || "Пользователь"}
 </div>
 
+
+
 </div>
 
 </div>
 
+<div
+style={{
+paddingLeft:66,
+paddingTop:2,
+paddingBottom:4,
+fontSize:12,
+color:"#7A8699"
+}}
+>
+печатает...
 </div>
 
 
 
-
-
+</div>
     
 <div
 ref={chatRef}
@@ -854,7 +913,20 @@ enterKeyHint="send"
 value={newMessage}
 
 onInput={(e:any)=>{
-  setNewMessage(e.target.value);
+
+setNewMessage(e.target.value);
+
+updateTyping(true);
+
+clearTimeout(typingTimeout.current);
+
+typingTimeout.current =
+setTimeout(()=>{
+
+updateTyping(false);
+
+},2000);
+
 }}
 
 placeholder="Сообщение..."
