@@ -313,24 +313,6 @@ setReplyTo(null);
 
 
 
-const tempMessage = {
-id: Date.now(),
-chat_id: chatId,
-sender_id: userId,
-body: text,
-created_at: new Date().toISOString(),
-is_read: false,
-pending:true
-};
-
-setMessages(prev=>[
-...prev,
-tempMessage
-]);
-
-setTimeout(()=>{
-scrollToBottom();
-},10);
 
 
 
@@ -362,8 +344,17 @@ return;
 
 if(data){
 
+setMessages(prev => {
 
+const exists = prev.some(
+(m:any) => m.id === data.id
+);
 
+if(exists) return prev;
+
+return [...prev, data];
+
+});
 
 scrollToBottom();
 
@@ -554,7 +545,7 @@ msg.sender_id===userId;
 return(
 
 <div
-key={msg.id}
+key={`${msg.id}-${msg.created_at}`}
 style={{
 display:"flex",
 justifyContent:
