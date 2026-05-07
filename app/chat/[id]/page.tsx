@@ -658,6 +658,15 @@ background:"transparent"
 
 <button
 type="button"
+
+onMouseDown={(e)=>{
+  e.preventDefault();
+}}
+
+onTouchStart={(e)=>{
+  e.preventDefault();
+}}
+
 onClick={sendMessage}
 style={{
 width:38,
