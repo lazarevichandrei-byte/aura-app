@@ -50,21 +50,19 @@ useRef(false);
 
 function scrollToBottom(){
 
-setTimeout(()=>{
+requestAnimationFrame(()=>{
 
-if(chatRef.current){
+const el = chatRef.current;
 
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight + 500;
+if(!el) return;
 
-}
+el.scrollTop = el.scrollHeight;
 
-},120);
+});
 
 }
 
 async function fetchMessages(){
-    setLoadingMessages(true);
 
 if(userId === null){
   alert("NO USER ID");
@@ -84,6 +82,9 @@ const { data,error } = await supabase
 if(!error && data){
 
 setMessages(data.reverse());
+setTimeout(()=>{
+scrollToBottom();
+},50);
 
 setTimeout(()=>{
 
@@ -94,7 +95,7 @@ chatRef.current.scrollHeight + 1000;
 
 }
 
-setLoadingMessages(false);
+
 
 },0);
 
@@ -184,33 +185,7 @@ useEffect(()=>{
 
 
 
-useEffect(()=>{
 
- async function loadMe(){
-
-   const tg =
-    (window as any)?.Telegram?.WebApp;
-
-   const tgId =
-    tg?.initDataUnsafe?.user?.id;
-
-   if(!tgId) return;
-
-   const { data:user } = await supabase
-     .from("users")
-     .select("id")
-     .eq("telegram_id", tgId)
-     .single();
-
-   if(user){
-     setUserId(user.id);
-   }
-
- }
-
- loadMe();
-
-},[]);
 
 
 
@@ -267,10 +242,8 @@ setTimeout(()=>{
 
 if(chatRef.current){
 
-chatRef.current.scrollTo({
-top:chatRef.current.scrollHeight,
-behavior:"smooth"
-});
+chatRef.current.scrollTop =
+chatRef.current.scrollHeight;
 
 }
 
@@ -298,6 +271,22 @@ supabase.removeChannel(channel);
 
 
 async function sendMessage(){
+
+
+    useEffect(()=>{
+
+const interval = setInterval(()=>{
+
+if(document.hidden) return;
+
+fetchMessages();
+
+},2000);
+
+return ()=>clearInterval(interval);
+
+},[chatId,userId]);
+
 
     console.log("SEND CLICK");
 console.log("USER ID:", userId);
@@ -540,7 +529,7 @@ flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
 paddingBottom:"22px",
-scrollBehavior:"smooth",
+
 
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
@@ -834,10 +823,7 @@ setTimeout(()=>{
 
 if(chatRef.current){
 
-chatRef.current.scrollTo({
-top: chatRef.current.scrollHeight,
-behavior:"smooth"
-});
+scrollToBottom();
 
 }
 
