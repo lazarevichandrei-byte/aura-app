@@ -639,18 +639,11 @@ ref={inputRef}
 autoComplete="off"
 autoCorrect="off"
 spellCheck={false}
+enterKeyHint="send"
 value={newMessage}
-
 
 onInput={(e:any)=>{
   setNewMessage(e.target.value);
-}}
-
-onKeyDown={(e)=>{
-if(e.key==="Enter"){
-e.preventDefault();
-sendMessage();
-}
 }}
 
 placeholder="Сообщение..."
