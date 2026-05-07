@@ -29,8 +29,7 @@ const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
 const [replyTo,setReplyTo] =
 useState<any>(null);
-const [showScrollDown,setShowScrollDown] =
-useState(false);
+
 const [typingUser,setTypingUser] =
 useState(false);
 const typingTimeout =
@@ -46,10 +45,7 @@ useRef<HTMLInputElement | null>(null);
 const touchStartX =
 useRef(0);
 
-const lastScrollTop =
-useRef(0);
-const scrollTick =
-useRef(false);
+
 
 const firstLoadRef =
 useRef(true);
@@ -141,8 +137,7 @@ const { data: chat } = await supabase
 .eq("id", chatId)
 .single();
 
-console.log("CHAT:", chat);
-console.log("USER ID:", userId);
+
 
 if(!chat || userId === null) return;
 
@@ -315,8 +310,6 @@ if(exists){
 }
 
 const updated = [...prev, newMsg];
-
-updated.push(newMsg);
 
 return updated;
 
@@ -620,42 +613,7 @@ marginTop:2
 <div
 ref={chatRef}
 
-onScroll={(e)=>{
 
-if(scrollTick.current) return;
-
-scrollTick.current=true;
-
-requestAnimationFrame(()=>{
-
-const el = e.currentTarget;
-
-const currentScroll = el.scrollTop;
-
-const goingDown =
-currentScroll > lastScrollTop.current;
-
-const distanceFromBottom =
-el.scrollHeight -
-currentScroll -
-el.clientHeight;
-
-if(
-goingDown &&
-distanceFromBottom > 120
-){
-setShowScrollDown(true);
-}
-else{
-setShowScrollDown(false);
-}
-
-lastScrollTop.current = currentScroll;
-
-scrollTick.current=false;
-
-});
-}}
 
 style={{
 flex:1,
@@ -788,35 +746,7 @@ minute:"2-digit"
 
 </div>
 
-{showScrollDown && (
 
-
-
-<div
-onClick={scrollToBottom}
-style={{
-position:"fixed",
-right:18,
-bottom:138,
-
-width:38,
-height:38,
-borderRadius:"50%",
-
-background:"#FFFFFF",
-boxShadow:"0 4px 12px rgba(0,0,0,.12)",
-
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-
-zIndex:999
-}}
->
-⌄
-</div>
-
-)}
 
 
 
