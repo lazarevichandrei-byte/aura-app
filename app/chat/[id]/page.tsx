@@ -356,6 +356,12 @@ return updated;
 
 });
 
+setTimeout(()=>{
+
+ scrollToBottom();
+
+},180);
+
 
 
 }
