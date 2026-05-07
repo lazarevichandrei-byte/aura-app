@@ -927,7 +927,7 @@ spellCheck={false}
 enterKeyHint="send"
 value={newMessage}
 
-onInput={(e:any)=>{
+onChange={(e:any)=>{
 
 setNewMessage(e.target.value);
 
