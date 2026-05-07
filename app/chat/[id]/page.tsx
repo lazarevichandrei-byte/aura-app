@@ -262,7 +262,7 @@ if(!data) return;
 
 if(data.user_id === userId) return;
 
-alert("REALTIME WORKS");
+
 setTypingUser(data.typing);
 
 }
@@ -352,41 +352,35 @@ supabase.removeChannel(channel);
 
 
 async function updateTyping(status:boolean){
-if(userId === null) {
-  console.log("NO USER ID");
-  return;
-}
 
-console.log("UPDATE TYPING START");
+ if(userId === null) return;
 
-const payload = {
+ const payload = {
   chat_id: chatId,
   user_id: userId,
   typing: status,
   updated_at: new Date().toISOString()
-};
+ };
 
+ const { error } = await supabase
+  .from("typing_status")
+  .upsert(
+   payload,
+   {
+    onConflict:"chat_id,user_id"
+   }
+  );
 
-
-const { data, error } = await supabase
-.from("typing_status")
-.upsert(payload,{
-  onConflict:"chat_id,user_id"
-})
-.select();
-
-
-
-console.log("RESULT DATA:", data);
-console.log("RESULT ERROR:", error);
+ if(error){
+  console.log(error);
+ }
 
 }
 
 
 async function sendMessage(){
 
-await updateTyping(true);
-console.log("FORCE TYPING");
+
 
     
 
@@ -407,7 +401,7 @@ const text = newMessage;
 
 setNewMessage("");
 setReplyTo(null);
-updateTyping(false);
+await updateTyping(false);
 
 
 
@@ -968,18 +962,20 @@ value={newMessage}
 
 onChange={(e:any)=>{
 
-setNewMessage(e.target.value);
+ const value = e.target.value;
 
-updateTyping(true);
+ setNewMessage(value);
 
-clearTimeout(typingTimeout.current);
+ updateTyping(true);
 
-typingTimeout.current =
-setTimeout(()=>{
+ clearTimeout(typingTimeout.current);
 
-updateTyping(false);
+ typingTimeout.current =
+  setTimeout(()=>{
 
-},1500);
+   updateTyping(false);
+
+  },1500);
 
 }}
 
