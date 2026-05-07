@@ -32,8 +32,7 @@ useState<any>(null);
 
 const [typingUser,setTypingUser] =
 useState(false);
-const [viewportHeight,setViewportHeight] =
-useState("100dvh");
+
 const typingTimeout =
 useRef<any>(null);
 
@@ -59,8 +58,7 @@ function scrollToBottom(){
 
  if(!el) return;
 
- el.scrollTop =
-  el.scrollHeight + 9999;
+el.scrollTop = el.scrollHeight;
 
 }
 
@@ -221,38 +219,7 @@ useEffect(()=>{
 
 
 
-useEffect(()=>{
 
- const updateViewport = ()=>{
-
-  const height =
-   window.visualViewport?.height;
-
-  if(height){
-
-   setViewportHeight(`${height}px`);
-
-  }
-
- };
-
- updateViewport();
-
- window.visualViewport?.addEventListener(
-  "resize",
-  updateViewport
- );
-
- return ()=>{
-
-  window.visualViewport?.removeEventListener(
-   "resize",
-   updateViewport
-  );
-
- };
-
-},[]);
 
 
 
@@ -527,13 +494,12 @@ position:"fixed",
 top:0,
 left:0,
 right:0,
-height:viewportHeight,
+height:"100dvh",
 overflow:"hidden",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
-transform:"translateZ(0)",
-willChange:"height"
+
 }}
 >
 
@@ -649,7 +615,7 @@ padding:"12px 10px 6px",
 paddingBottom:"22px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
-transform:"translateZ(0)"
+
 }}
 >
 
@@ -911,19 +877,11 @@ value={newMessage}
 
 onFocus={()=>{
 
- scrollToBottom();
-
  setTimeout(()=>{
 
   scrollToBottom();
 
- },120);
-
- setTimeout(()=>{
-
-  scrollToBottom();
-
- },350);
+ },250);
 
 }}
 
