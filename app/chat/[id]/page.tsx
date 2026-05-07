@@ -863,7 +863,7 @@ padding:"4px 10px 0px",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
 position:"relative",
-bottom:"8px",
+bottom:"12px",
 }}
 >
 
