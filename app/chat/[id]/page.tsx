@@ -32,6 +32,8 @@ useState<any>(null);
 
 const [typingUser,setTypingUser] =
 useState(false);
+const [viewportHeight,setViewportHeight] =
+useState("100dvh");
 const typingTimeout =
 useRef<any>(null);
 
@@ -222,7 +224,38 @@ useEffect(()=>{
 
 
 
+useEffect(()=>{
 
+ const updateViewport = ()=>{
+
+  const height =
+   window.visualViewport?.height;
+
+  if(height){
+
+   setViewportHeight(`${height}px`);
+
+  }
+
+ };
+
+ updateViewport();
+
+ window.visualViewport?.addEventListener(
+  "resize",
+  updateViewport
+ );
+
+ return ()=>{
+
+  window.visualViewport?.removeEventListener(
+   "resize",
+   updateViewport
+  );
+
+ };
+
+},[]);
 
 
 
@@ -502,7 +535,7 @@ top:0,
 left:0,
 right:0,
 bottom:0,
-height:"100%",
+height:viewportHeight,
 overflow:"clip",
 background:"#fff",
 display:"flex",
@@ -755,8 +788,6 @@ style={{
 padding:"4px 10px 0px",
 borderTop:"1px solid #eef1f5",
 background:"#fff",
-position:"relative",
-bottom:"20px",
 }}
 >
 
