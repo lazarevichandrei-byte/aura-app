@@ -24,8 +24,7 @@ const [messages,setMessages] = useState<any[]>([]);
 const [otherUser,setOtherUser] =
 useState<any>(null);
 
-const [loadingMessages,setLoadingMessages] =
-useState(true);
+
 const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
 const [replyTo,setReplyTo] =
@@ -64,7 +63,7 @@ el.scrollTop = el.scrollHeight;
 
 async function fetchMessages(){
 
-setLoadingMessages(true);
+
 
 if(userId === null){
   alert("NO USER ID");
@@ -97,7 +96,7 @@ chatRef.current.scrollHeight;
 
 }
 
-setLoadingMessages(false);
+
 
 },0);
 
@@ -225,31 +224,20 @@ filter:`chat_id=eq.${chatId}`
 
 const newMsg:any = payload.new;
 
-setMessages(prev=>{
+setMessages(prev => {
+    requestAnimationFrame(() => {
+  scrollToBottom();
+});
 
-const exists = prev.some(
-(m:any)=>
-String(m.id) === String(newMsg.id)
+const filtered = prev.filter(
+(m:any) => String(m.id) !== String(newMsg.id)
 );
 
-if(exists){
-return prev;
-}
-
-return [...prev,newMsg];
+return [...filtered, newMsg];
 
 });
 
-setTimeout(()=>{
 
-if(chatRef.current){
-
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
-
-}
-
-},50);
 
 }
 )
@@ -327,27 +315,9 @@ alert(error.message);
 return;
 }
 
-if(data){
 
-setMessages(prev => {
 
-const exists = prev.some(
-(m:any)=>String(m.id) === String(data.id)
-);
 
-if(exists){
-  return prev;
-}
-
-return [...prev,data];
-
-});
-
-setTimeout(()=>{
-scrollToBottom();
-},50);
-
-}
 
 await supabase
 .from("chats")
@@ -524,7 +494,7 @@ paddingBottom:"22px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 
-opacity: loadingMessages ? 0 : 1
+
 }}
 >
 
