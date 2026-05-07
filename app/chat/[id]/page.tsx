@@ -53,8 +53,7 @@ useRef(false);
 
 const firstLoadRef =
 useRef(true);
-const resizeTimeout =
-useRef<any>(null);
+
 
 function scrollToBottom(){
 
@@ -226,36 +225,7 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
-useEffect(()=>{
 
- const handleResize = ()=>{
-
-  clearTimeout(resizeTimeout.current);
-
-  resizeTimeout.current =
-   setTimeout(()=>{
-
-    scrollToBottom();
-
-   },100);
-
- };
-
- window.visualViewport?.addEventListener(
-  "resize",
-  handleResize
- );
-
- return ()=>{
-
-  window.visualViewport?.removeEventListener(
-   "resize",
-   handleResize
-  );
-
- };
-
-},[]);
 
 
 
@@ -346,11 +316,7 @@ if(exists){
 
 const updated = [...prev, newMsg];
 
-updated.sort(
-(a,b)=>
-new Date(a.created_at).getTime() -
-new Date(b.created_at).getTime()
-);
+updated.push(newMsg);
 
 return updated;
 
@@ -484,13 +450,10 @@ if(exists){
   return prev;
 }
 
-const updated = [...prev,data];
+const updated = [...prev];
+updated.push(data);
 
-updated.sort(
-(a,b)=>
-new Date(a.created_at).getTime() -
-new Date(b.created_at).getTime()
-);
+
 
 return updated;
 
@@ -700,7 +663,7 @@ overflowY:"auto",
 padding:"12px 10px 6px",
 paddingBottom:"22px",
 overscrollBehavior:"contain",
-WebkitOverflowScrolling:"touch",
+WebkitOverflowScrolling:"auto",
 }}
 >
 
