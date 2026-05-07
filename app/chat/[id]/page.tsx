@@ -502,8 +502,7 @@ router.back();
 style={{
 position:"fixed",
 inset:0,
-height:"100dvh",
-maxHeight:"100dvh",
+height:"100vh",
 overflow:"hidden",
 background:"#fff",
 display:"flex",
@@ -654,7 +653,7 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"120px",
+paddingBottom:"22px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
@@ -943,15 +942,13 @@ onFocus={()=>{
 
  setTimeout(()=>{
 
-  scrollToBottom();
+  const el = chatRef.current;
 
- },100);
+  if(!el) return;
 
- setTimeout(()=>{
+  el.scrollTop = el.scrollHeight + 300;
 
-  scrollToBottom();
-
- },500);
+ },300);
 
 }}
 autoComplete="off"
