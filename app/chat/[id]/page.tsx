@@ -553,14 +553,14 @@ scrollTick.current=false;
 style={{
 flex:1,
 overflowY:"auto",
-padding:"12px 10px 6px",
-paddingBottom:"90px",
 
+paddingTop:"12px",
+paddingLeft:"10px",
+paddingRight:"10px",
+paddingBottom:"12px",
 
 overscrollBehavior:"contain",
-WebkitOverflowScrolling:"touch",
-
-
+WebkitOverflowScrolling:"touch"
 }}
 >
 
