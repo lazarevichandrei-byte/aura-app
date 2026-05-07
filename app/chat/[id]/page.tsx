@@ -184,6 +184,15 @@ useEffect(()=>{
 
 },[]);
 
+useEffect(()=>{
+
+  if(userId){
+    fetchMessages();
+    fetchChatUser();
+  }
+
+},[chatId,userId]);
+
 
 
 
@@ -214,18 +223,26 @@ if(payload.eventType !== "INSERT"){
 
 const newMsg:any = payload.new;
 
-setMessages(prev=>{
+setMessages(prev => {
 
-const exists = prev.some(
+const exists = prev.find(
 (m:any)=>
 String(m.id) === String(newMsg.id)
 );
 
 if(exists){
-return prev;
+  return [...prev];
 }
 
-return [...prev,newMsg];
+const updated = [...prev, newMsg];
+
+updated.sort(
+(a,b)=>
+new Date(a.created_at).getTime() -
+new Date(b.created_at).getTime()
+);
+
+return updated;
 
 });
 
@@ -319,7 +336,15 @@ if(exists){
   return prev;
 }
 
-return [...prev,data];
+const updated = [...prev,data];
+
+updated.sort(
+(a,b)=>
+new Date(a.created_at).getTime() -
+new Date(b.created_at).getTime()
+);
+
+return updated;
 
 });
 
