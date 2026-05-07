@@ -25,6 +25,8 @@ const [otherUser,setOtherUser] =
 useState<any>(null);
 const [ready,setReady] =
 useState(false);
+const [loadingMessages,setLoadingMessages] =
+useState(true);
 const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
 const [replyTo,setReplyTo] =
@@ -57,6 +59,7 @@ chatRef.current.scrollHeight;
 }
 
 async function fetchMessages(){
+    setLoadingMessages(true);
 
 if(userId === null){
   alert("NO USER ID");
@@ -105,6 +108,9 @@ chatRef.current.scrollHeight;
 }
 
 setReady(true);
+setLoadingMessages(false);
+
+
 
 });
 });
@@ -427,7 +433,8 @@ style={{
 
 
 
-
+{!loadingMessages && (
+    
 <div
 ref={chatRef}
 
@@ -472,7 +479,8 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-opacity:1
+opacity: ready ? 1 : 0,
+transition:"opacity .15s ease"
 }}
 >
 
@@ -528,6 +536,8 @@ overflowWrap:"break-word"
 })}
 
 </div>
+)}
+
 {showScrollDown && (
 
 
