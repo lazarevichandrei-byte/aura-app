@@ -501,8 +501,8 @@ router.back();
 style={{
 position:"fixed",
 inset:0,
-height:"100%",
-minHeight:"100vh",
+height:"100dvh",
+maxHeight:"100dvh",
 overflow:"hidden",
 background:"#fff",
 display:"flex",
@@ -653,13 +653,9 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"22px",
-
-
+paddingBottom:"env(safe-area-inset-bottom)",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
-
-
 }}
 >
 
@@ -944,15 +940,19 @@ paddingRight:20
 <input
 ref={inputRef}
 onFocus={()=>{
-setTimeout(()=>{
 
-if(chatRef.current){
+ setTimeout(()=>{
 
-scrollToBottom();
+  scrollToBottom();
 
-}
+ },100);
 
-},350);
+ setTimeout(()=>{
+
+  scrollToBottom();
+
+ },500);
+
 }}
 autoComplete="off"
 autoCorrect="off"
