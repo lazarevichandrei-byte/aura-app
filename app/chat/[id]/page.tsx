@@ -909,6 +909,24 @@ enterKeyHint="send"
 value={newMessage}
 
 
+onFocus={()=>{
+
+ scrollToBottom();
+
+ setTimeout(()=>{
+
+  scrollToBottom();
+
+ },120);
+
+ setTimeout(()=>{
+
+  scrollToBottom();
+
+ },350);
+
+}}
+
 
 onChange={(e:any)=>{
 
