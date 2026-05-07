@@ -192,20 +192,6 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  if(userId){
-    fetchMessages();
-    fetchChatUser();
-  }
-
-},[chatId,userId]);
-
-
-
-
-
-
-useEffect(()=>{
-
 if(!chatId || userId === null) return;
 
 const channel = supabase
@@ -215,43 +201,44 @@ const channel = supabase
 .on(
 "postgres_changes",
 {
-event:"INSERT",
+event:"*",
 schema:"public",
 table:"messages",
 filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
 
-const newMsg:any = payload.new;
-
-if(newMsg.sender_id === userId){
+if(payload.eventType !== "INSERT"){
   return;
 }
 
-setMessages(prev => {
-    requestAnimationFrame(() => {
-  scrollToBottom();
-});
+const newMsg:any = payload.new;
 
-const filtered = prev.filter(
-(m:any) => String(m.id) !== String(newMsg.id)
+setMessages(prev=>{
+
+const exists = prev.some(
+(m:any)=>
+String(m.id) === String(newMsg.id)
 );
 
-return [...filtered, newMsg];
+if(exists){
+return prev;
+}
+
+return [...prev,newMsg];
 
 });
 
-
+requestAnimationFrame(()=>{
+scrollToBottom();
+});
 
 }
 )
 
 .subscribe((status)=>{
 
-console.log(
-"REALTIME:",
-status
-);
+console.log("REALTIME:",status);
 
 });
 
