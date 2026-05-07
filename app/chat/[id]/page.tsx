@@ -224,6 +224,10 @@ filter:`chat_id=eq.${chatId}`
 
 const newMsg:any = payload.new;
 
+if(newMsg.sender_id === userId){
+  return;
+}
+
 setMessages(prev => {
     requestAnimationFrame(() => {
   scrollToBottom();
@@ -316,7 +320,27 @@ return;
 }
 
 
+if(data){
 
+setMessages(prev => {
+
+const exists = prev.some(
+(m:any)=>String(m.id) === String(data.id)
+);
+
+if(exists){
+  return prev;
+}
+
+return [...prev,data];
+
+});
+
+setTimeout(()=>{
+scrollToBottom();
+},50);
+
+}
 
 
 await supabase
