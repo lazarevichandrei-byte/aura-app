@@ -916,7 +916,11 @@ onInput={(e:any)=>{
 
 setNewMessage(e.target.value);
 
+if(!typingUser){
 updateTyping(true);
+}
+
+clearTimeout(typingTimeout.current);
 
 clearTimeout(typingTimeout.current);
 
@@ -925,7 +929,7 @@ setTimeout(()=>{
 
 updateTyping(false);
 
-},2000);
+},1200);
 
 }}
 
