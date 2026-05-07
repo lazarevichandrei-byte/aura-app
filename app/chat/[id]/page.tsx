@@ -418,7 +418,10 @@ router.back();
 }}
 
 style={{
-height:"100dvh",
+position:"fixed",
+inset:0,
+height:"100%",
+minHeight:"100vh",
 overflow:"hidden",
 background:"#fff",
 display:"flex",
