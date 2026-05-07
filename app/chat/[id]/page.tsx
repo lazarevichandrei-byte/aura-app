@@ -166,32 +166,49 @@ useEffect(()=>{
 
  async function loadMe(){
 
-   const tg =
-    (window as any)?.Telegram?.WebApp;
+  const tg =
+   (window as any)?.Telegram?.WebApp;
 
- const tgId =
- tg?.initDataUnsafe?.user?.id;
+  const tgId =
+   tg?.initDataUnsafe?.user?.id;
 
-alert("TG ID: " + tgId);
+  alert("TG ID: " + tgId);
 
-if(!tgId){
+  const { data:existingUser } = await supabase
+    .from("users")
+    .select("*")
+    .eq("telegram_id", tgId)
+    .single();
 
-  setUserId(1);
+  if(existingUser){
 
-  return;
+    alert("FOUND USER ID: " + existingUser.id);
+
+    setUserId(existingUser.id);
+
+    return;
+  }
+
+  const { data:newUser, error } = await supabase
+    .from("users")
+    .insert({
+      telegram_id: tgId,
+      name:"Telegram User"
+    })
+    .select()
+    .single();
+
+  alert(JSON.stringify(error));
+
+  if(newUser){
+
+    alert("CREATED USER: " + newUser.id);
+
+    setUserId(newUser.id);
+
+  }
+
 }
-
-   const { data:user } = await supabase
-     .from("users")
-     .select("id")
-     .eq("telegram_id", tgId)
-     .single();
-
-   if(user){
-     setUserId(user.id);
-   }
-
- }
 
  loadMe();
 
