@@ -78,9 +78,28 @@ const { data,error } = await supabase
 
 if(!error && data){
 
-setMessages(
-data.reverse()
-);
+const reversed =
+data.reverse();
+
+setMessages(reversed);
+
+requestAnimationFrame(()=>{
+
+requestAnimationFrame(()=>{
+
+if(chatRef.current){
+
+chatRef.current.scrollTop =
+999999999;
+
+}
+
+setReady(true);
+setLoadingMessages(false);
+
+});
+
+});
 
 await supabase
 .from("messages")
@@ -99,21 +118,7 @@ unread_count:0
 })
 .eq("id",chatId);
 
-requestAnimationFrame(()=>{
-requestAnimationFrame(()=>{
 
-if(chatRef.current){
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
-}
-
-setReady(true);
-setLoadingMessages(false);
-
-
-
-});
-});
 
 
 
