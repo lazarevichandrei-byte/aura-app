@@ -201,6 +201,17 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
+
+
+useEffect(()=>{
+
+requestAnimationFrame(()=>{
+scrollToBottom();
+});
+
+},[messages]);
+
+
 useEffect(()=>{
 
 if(!chatId || userId === null) return;
