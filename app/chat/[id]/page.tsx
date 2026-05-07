@@ -340,14 +340,27 @@ if(userId === null) return;
 
 console.log("TYPING:", status);
 
+const { error } = await supabase
+.from("typing_status")
+.update({
+typing:status,
+updated_at:new Date().toISOString()
+})
+.eq("chat_id", Number(chatId))
+.eq("user_id", userId);
+
+if(error){
+
 await supabase
 .from("typing_status")
-.upsert({
+.insert({
 chat_id:Number(chatId),
 user_id:userId,
 typing:status,
 updated_at:new Date().toISOString()
 });
+
+}
 
 }
 
