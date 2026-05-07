@@ -52,19 +52,15 @@ useRef(true);
 
 function scrollToBottom(){
 
-setTimeout(()=>{
-
 requestAnimationFrame(()=>{
 
 const el = chatRef.current;
 
 if(!el) return;
 
-el.scrollTop = el.scrollHeight + 9999;
+el.scrollTop = el.scrollHeight;
 
 });
-
-},80);
 
 }
 
@@ -102,18 +98,9 @@ if(firstLoadRef.current){
   firstLoadRef.current = false;
 }
 
-setTimeout(()=>{
-
-if(chatRef.current){
-
-chatRef.current.scrollTop =
-chatRef.current.scrollHeight;
-
-}
 
 
 
-},0);
 
 await supabase
 .from("messages")
@@ -225,7 +212,13 @@ return ()=>clearInterval(interval);
 
 
 
+useEffect(()=>{
 
+requestAnimationFrame(()=>{
+scrollToBottom();
+});
+
+},[messages]);
 
 
 
@@ -276,9 +269,7 @@ return updated;
 
 });
 
-requestAnimationFrame(()=>{
-scrollToBottom();
-});
+
 
 }
 )
@@ -378,9 +369,7 @@ return updated;
 
 });
 
-setTimeout(()=>{
-scrollToBottom();
-},50);
+
 
 }
 
