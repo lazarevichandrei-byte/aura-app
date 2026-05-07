@@ -327,23 +327,31 @@ supabase.removeChannel(channel);
 
 
 async function updateTyping(status:boolean){
+if(userId === null) {
+  console.log("NO USER ID");
+  return;
+}
 
-if(userId === null) return;
+console.log("UPDATE TYPING START");
 
-console.log("TYPING:", status);
+const payload = {
+  chat_id: chatId,
+  user_id: userId,
+  typing: status,
+  updated_at: new Date().toISOString()
+};
 
-const { error } = await supabase
+console.log("PAYLOAD:", payload);
+
+const { data, error } = await supabase
 .from("typing_status")
-.upsert({
-chat_id:chatId,
-user_id:userId,
-typing:status,
-updated_at:new Date().toISOString()
-},{
-onConflict:"chat_id,user_id"
-});
+.upsert(payload,{
+  onConflict:"chat_id,user_id"
+})
+.select();
 
-console.log("UPSERT ERROR:", error);
+console.log("RESULT DATA:", data);
+console.log("RESULT ERROR:", error);
 
 }
 
