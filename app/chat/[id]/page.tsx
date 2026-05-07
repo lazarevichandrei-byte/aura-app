@@ -350,6 +350,8 @@ console.log("UPSERT ERROR:", error);
 
 async function sendMessage(){
 
+await updateTyping(true);
+console.log("FORCE TYPING");
 
     
 
