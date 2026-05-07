@@ -268,7 +268,9 @@ return updated;
 
 });
 
+requestAnimationFrame(()=>{
 scrollToBottom();
+});
 
 }
 )
@@ -368,9 +370,9 @@ return updated;
 
 });
 
-setTimeout(()=>{
+requestAnimationFrame(()=>{
 scrollToBottom();
-},50);
+});
 
 }
 
