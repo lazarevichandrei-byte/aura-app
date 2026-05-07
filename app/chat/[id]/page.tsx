@@ -64,6 +64,8 @@ el.scrollTop = el.scrollHeight;
 
 async function fetchMessages(){
 
+setLoadingMessages(true);
+
 if(userId === null){
   alert("NO USER ID");
   return;
@@ -91,11 +93,11 @@ setTimeout(()=>{
 if(chatRef.current){
 
 chatRef.current.scrollTop =
-chatRef.current.scrollHeight + 1000;
+chatRef.current.scrollHeight;
 
 }
 
-
+setLoadingMessages(false);
 
 },0);
 
@@ -273,19 +275,7 @@ supabase.removeChannel(channel);
 async function sendMessage(){
 
 
-    useEffect(()=>{
-
-const interval = setInterval(()=>{
-
-if(document.hidden) return;
-
-fetchMessages();
-
-},2000);
-
-return ()=>clearInterval(interval);
-
-},[chatId,userId]);
+    
 
 
     console.log("SEND CLICK");
