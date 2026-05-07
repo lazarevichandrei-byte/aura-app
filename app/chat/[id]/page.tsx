@@ -517,13 +517,13 @@ position:"fixed",
 top:0,
 left:0,
 right:0,
-bottom:keyboardOffset,
 height:"100dvh",
 overflow:"hidden",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
-
+transform:`translateY(-${keyboardOffset}px)`,
+transition:"transform .18s ease-out",
 }}
 >
 
