@@ -228,13 +228,7 @@ useEffect(()=>{
 
 
 
-useEffect(()=>{
 
-requestAnimationFrame(()=>{
-scrollToBottom();
-});
-
-},[messages]);
 
 useEffect(()=>{
 
@@ -462,6 +456,13 @@ return updated;
 });
 
 
+setTimeout(()=>{
+
+ scrollToBottom();
+
+},100);
+
+
 
 }
 
@@ -653,7 +654,7 @@ style={{
 flex:1,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"env(safe-area-inset-bottom)",
+paddingBottom:"120px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
@@ -820,8 +821,7 @@ background:"#fff",
 
 
 
-transition:
-"transform .22s ease-out"
+
 }}
 >
 
