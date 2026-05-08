@@ -82,7 +82,7 @@ const { data,error } = await supabase
 "created_at",
 {ascending:false}
 )
-.limit(500);
+.limit(200);
 
 if(!error && data){
 
@@ -514,7 +514,7 @@ if(data){
 
 
 
-const { error: chatUpdateError } = await supabase
+const { error: updateError } = await supabase
 .from("chats")
 .update({
   last_message: text,
@@ -522,12 +522,8 @@ const { error: chatUpdateError } = await supabase
   has_messages: true
 })
 .eq("id", chatId);
+ 
 
-if(chatUpdateError){
-  alert(JSON.stringify(chatUpdateError));
-}else{
-  alert("CHAT UPDATE OK");
-}
 
 }
 return(
