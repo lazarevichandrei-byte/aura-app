@@ -701,11 +701,13 @@ style={{
 }}
 >
 {
-  otherUser?.is_online
+  otherUser?.last_seen &&
+  (
+    Date.now() -
+    new Date(otherUser.last_seen).getTime()
+  ) < 30000
     ? "online"
-    : otherUser?.last_seen
-      ? "был недавно"
-      : ""
+    : "был недавно"
 }
 </div>
 
