@@ -481,22 +481,34 @@ if(error){
 return;
 }
 
+if(data){
 
-requestAnimationFrame(()=>{
+ setMessages(prev => {
 
- requestAnimationFrame(()=>{
+  const exists = prev.some(
+   (m:any)=>
+   String(m.id) === String(data.id)
+  );
 
-  scrollToBottom();
+  if(exists){
+   return prev;
+  }
 
-  setTimeout(()=>{
-
-   scrollToBottom();
-
-  },120);
+  return [...prev,data];
 
  });
 
-});
+ requestAnimationFrame(()=>{
+
+  requestAnimationFrame(()=>{
+
+   scrollToBottom();
+
+  });
+
+ });
+
+}
 
 
 
@@ -656,7 +668,7 @@ flex:1,
 minHeight:0,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"50px",
+paddingBottom:"30px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
