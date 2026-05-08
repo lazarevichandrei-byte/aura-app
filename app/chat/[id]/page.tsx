@@ -523,7 +523,11 @@ const { error: chatUpdateError } = await supabase
 })
 .eq("id", chatId);
 
-console.log("CHAT UPDATE ERROR:", chatUpdateError);
+if(chatUpdateError){
+  alert(JSON.stringify(chatUpdateError));
+}else{
+  alert("CHAT UPDATE OK");
+}
 
 }
 return(
