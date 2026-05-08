@@ -118,18 +118,23 @@ if (!user) {
   return;
 }
 
-alert("USER FOUND");
+
 
 fetch("/api/auth/telegram", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
   },
-  body: JSON.stringify(user),
+  body: JSON.stringify({
+  initData: tg.initData
+}),
+
+
+
+
 })
 .then(r => r.json())
 .then(data => {
-  alert(JSON.stringify(data));
 });
 
 setTelegramId(user.id);
