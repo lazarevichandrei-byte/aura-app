@@ -242,15 +242,27 @@ useEffect(()=>{
 
   if(keyboardHeight > 120){
 
-   setKeyboardOffset(keyboardHeight);
+ setKeyboardOffset(keyboardHeight);
 
-   requestAnimationFrame(()=>{
+ requestAnimationFrame(()=>{
 
- scrollToBottom();
+  scrollToBottom();
 
-});
+ });
 
-  }else{
+ setTimeout(()=>{
+
+  scrollToBottom();
+
+ },120);
+
+ setTimeout(()=>{
+
+  scrollToBottom();
+
+ },320);
+
+}else{
 
    setKeyboardOffset(0);
 
