@@ -648,7 +648,7 @@ overflowY:"auto",
 padding:"12px 10px 6px",
 paddingBottom:
 keyboardOffset > 0
-? "8px"
+? "2px"
 : "22px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
