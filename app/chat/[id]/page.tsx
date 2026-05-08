@@ -82,7 +82,7 @@ const { data,error } = await supabase
 "created_at",
 {ascending:false}
 )
-.limit(50);
+.limit(500);
 
 if(!error && data){
 
