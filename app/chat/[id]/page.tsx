@@ -232,6 +232,20 @@ useEffect(()=>{
 
   loadChat();
 
+  return ()=>{
+
+    if(userId === null) return;
+
+    supabase
+      .from("users")
+      .update({
+        is_online: false,
+        last_seen: new Date().toISOString()
+      })
+      .eq("id", userId);
+
+  };
+
 },[chatId,userId]);
 
 
