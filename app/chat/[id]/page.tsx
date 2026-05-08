@@ -644,6 +644,24 @@ style={{
 {otherUser?.name || "Пользователь"}
 </div>
 
+
+<div
+style={{
+  fontSize:12,
+  color:"#7A8699",
+  marginTop:2
+}}
+>
+{
+  otherUser?.is_online
+    ? "online"
+    : otherUser?.last_seen
+      ? "был недавно"
+      : ""
+}
+</div>
+
+
 {typingUser && (
 
 <div
