@@ -213,9 +213,11 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  if(userId !== null){
+  async function loadChat(){
 
-    supabase
+    if(userId === null) return;
+
+    await supabase
       .from("users")
       .update({
         is_online: true,
@@ -223,9 +225,12 @@ useEffect(()=>{
       })
       .eq("id", userId);
 
-    fetchMessages();
-    fetchChatUser();
+    await fetchMessages();
+    await fetchChatUser();
+
   }
+
+  loadChat();
 
 },[chatId,userId]);
 
