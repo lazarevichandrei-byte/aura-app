@@ -851,9 +851,14 @@ style={{
 marginTop:4,
 fontSize:10,
 opacity:.7,
-textAlign:"right"
+display:"flex",
+alignItems:"center",
+justifyContent:"flex-end",
+gap:4
 }}
 >
+
+<span>
 {new Date(
 msg.created_at || Date.now()
 ).toLocaleTimeString(
@@ -863,6 +868,20 @@ hour:"2-digit",
 minute:"2-digit"
 }
 )}
+</span>
+
+{mine && (
+
+<span
+style={{
+fontSize:11
+}}
+>
+{msg.is_read ? "✓✓" : "✓"}
+</span>
+
+)}
+
 </div>
 
 </div>
