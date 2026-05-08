@@ -648,7 +648,7 @@ overflowY:"auto",
 padding:"12px 10px 6px",
 paddingBottom:
 keyboardOffset > 0
-? "2px"
+? "14px"
 : "22px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
@@ -852,55 +852,7 @@ paddingRight:4
 >
 
 
-    {replyTo && (
-
-<div
-style={{
-background:"#EDF4FF",
-padding:"10px 12px",
-borderRadius:14,
-marginBottom:8,
-position:"relative"
-}}
->
-
-<div
-onClick={()=>setReplyTo(null)}
-style={{
-position:"absolute",
-right:10,
-top:8,
-fontSize:14,
-cursor:"pointer",
-color:"#7A8699"
-}}
->
-✕
-</div>
-
-<div
-style={{
-fontSize:11,
-fontWeight:600,
-color:"#2E7BFF",
-marginBottom:5
-}}
->
-Ответ
-</div>
-
-<div
-style={{
-fontSize:13,
-paddingRight:20
-}}
->
-{replyTo.body}
-</div>
-
-</div>
-
-)}
+   
 
 <input
 ref={inputRef}
