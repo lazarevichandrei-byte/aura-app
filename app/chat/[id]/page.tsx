@@ -249,6 +249,19 @@ useEffect(()=>{
 },[chatId,userId]);
 
 
+useEffect(()=>{
+
+  const interval = setInterval(()=>{
+
+    fetchChatUser();
+
+  },15000);
+
+  return ()=>clearInterval(interval);
+
+},[chatId,userId]);
+
+
 
 useEffect(()=>{
 
