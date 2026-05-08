@@ -213,51 +213,68 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  async function loadChat(){
+  async function setOnline(){
 
     if(userId === null) return;
 
     await supabase
       .from("users")
       .update({
-        is_online: true,
-        last_seen: new Date().toISOString()
+        is_online:true,
+        last_seen:new Date().toISOString()
       })
-      .eq("id", userId);
+      .eq("id",userId);
+
+  }
+
+  async function setOffline(){
+
+    if(userId === null) return;
+
+    await supabase
+      .from("users")
+      .update({
+        is_online:false,
+        last_seen:new Date().toISOString()
+      })
+      .eq("id",userId);
+
+  }
+
+  async function loadChat(){
+
+    await setOnline();
 
     await fetchMessages();
     await fetchChatUser();
 
   }
 
+  function handleVisibility(){
+
+    if(document.hidden){
+      setOffline();
+    }else{
+      setOnline();
+    }
+
+  }
+
   loadChat();
+
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibility
+  );
 
   return ()=>{
 
-    if(userId === null) return;
-
-    supabase
-      .from("users")
-      .update({
-        is_online: false,
-        last_seen: new Date().toISOString()
-      })
-      .eq("id", userId);
+    document.removeEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
 
   };
-
-},[chatId,userId]);
-
-
-useEffect(()=>{
-
-  const interval = setInterval(()=>{
-
-    fetchChatUser();
-
-  },15000);
-
-  return ()=>clearInterval(interval);
 
 },[chatId,userId]);
 
