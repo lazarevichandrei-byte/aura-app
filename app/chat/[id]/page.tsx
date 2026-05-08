@@ -482,6 +482,22 @@ return;
 }
 
 
+requestAnimationFrame(()=>{
+
+ requestAnimationFrame(()=>{
+
+  scrollToBottom();
+
+  setTimeout(()=>{
+
+   scrollToBottom();
+
+  },120);
+
+ });
+
+});
+
 
 
 
