@@ -534,8 +534,6 @@ overflow:"hidden",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
-transform:`translateY(-${keyboardOffset}px)`,
-transition:"transform .18s ease-out",
 }}
 >
 
@@ -648,10 +646,9 @@ flex:1,
 minHeight:0,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"22px",
+paddingBottom:`${keyboardOffset + 22}px`,
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
-
 }}
 >
 
