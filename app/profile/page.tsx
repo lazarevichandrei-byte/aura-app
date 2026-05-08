@@ -121,7 +121,7 @@ fetch("/api/auth/telegram", {
 })
 .then(r => r.json())
 .then(data => {
-  console.log("AUTH API:", data);
+  alert(JSON.stringify(data));
 });
 
 
