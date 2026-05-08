@@ -70,7 +70,6 @@ async function fetchMessages(){
 
 
 if(userId === null){
-  alert("NO USER ID");
   return;
 }
 
