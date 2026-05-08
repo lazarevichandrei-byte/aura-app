@@ -214,6 +214,15 @@ useEffect(()=>{
 useEffect(()=>{
 
   if(userId !== null){
+
+    supabase
+      .from("users")
+      .update({
+        is_online: true,
+        last_seen: new Date().toISOString()
+      })
+      .eq("id", userId);
+
     fetchMessages();
     fetchChatUser();
   }
