@@ -185,7 +185,8 @@ useEffect(()=>{
     return;
   }
 
-  const { data:newUser, error } = await supabase
+  const { data:newUser, error } =
+   await supabase
     .from("users")
     .insert({
       telegram_id: tgId,
@@ -513,7 +514,7 @@ if(data){
 
 
 
-await supabase
+const { error: chatUpdateError } = await supabase
 .from("chats")
 .update({
   last_message: text,
@@ -521,6 +522,8 @@ await supabase
   has_messages: true
 })
 .eq("id", chatId);
+
+console.log("CHAT UPDATE ERROR:", chatUpdateError);
 
 }
 return(
