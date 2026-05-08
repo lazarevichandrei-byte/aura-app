@@ -34,8 +34,7 @@ const [typingUser,setTypingUser] =
 useState(false);
 const typingRef =
 useRef(false);
-const [keyboardOffset,setKeyboardOffset] =
-useState(0);
+
 
 const typingTimeout =
 useRef<any>(null);
@@ -242,8 +241,6 @@ useEffect(()=>{
 
   if(keyboardHeight > 120){
 
- setKeyboardOffset(keyboardHeight);
-
  requestAnimationFrame(()=>{
 
   scrollToBottom();
@@ -262,11 +259,7 @@ useEffect(()=>{
 
  },320);
 
-}else{
-
-   setKeyboardOffset(0);
-
-  }
+}
 
  };
 
@@ -529,7 +522,8 @@ position:"fixed",
 top:0,
 left:0,
 right:0,
-height:"100dvh",
+bottom:0,
+height:"100%",
 overflow:"hidden",
 background:"#fff",
 display:"flex",
@@ -646,10 +640,7 @@ flex:1,
 minHeight:0,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:
-keyboardOffset > 0
-? "14px"
-: "22px",
+paddingBottom:"17px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
