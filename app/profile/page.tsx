@@ -112,6 +112,14 @@ if (cached) {
 
     const user = tg?.initDataUnsafe?.user;
 
+if (!user) {
+  console.log("NO TELEGRAM USER");
+  setLoading(false);
+  return;
+}
+
+alert("USER FOUND");
+
 fetch("/api/auth/telegram", {
   method: "POST",
   headers: {
@@ -123,13 +131,6 @@ fetch("/api/auth/telegram", {
 .then(data => {
   alert(JSON.stringify(data));
 });
-
-
-if (!user) {
-  console.log("NO TELEGRAM USER");
-  setLoading(false);
-  return;
-}
 
 setTelegramId(user.id);
 setName(user.first_name || "");
