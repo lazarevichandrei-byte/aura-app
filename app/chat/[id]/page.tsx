@@ -656,7 +656,7 @@ flex:1,
 minHeight:0,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"17px",
+paddingBottom:"50px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
