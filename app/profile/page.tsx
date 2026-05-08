@@ -111,6 +111,20 @@ if (cached) {
     }
 
     const user = tg?.initDataUnsafe?.user;
+
+fetch("/api/auth/telegram", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(user),
+})
+.then(r => r.json())
+.then(data => {
+  console.log("AUTH API:", data);
+});
+
+
 if (!user) {
   console.log("NO TELEGRAM USER");
   setLoading(false);
