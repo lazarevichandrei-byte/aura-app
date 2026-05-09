@@ -622,6 +622,10 @@ const { error: updateError } = await supabase
     (chatData?.unread_count || 0) + 1
 })
 .eq("id", chatId);
+
+window.dispatchEvent(
+  new CustomEvent("chat-updated")
+);
  
 
 
@@ -750,7 +754,17 @@ style={{
     new Date(otherUser.last_seen).getTime()
   ) < 30000
     ? "online"
-    : "был недавно"
+: otherUser?.last_seen
+? `был ${new Date(
+otherUser.last_seen
+).toLocaleTimeString(
+"ru-RU",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+)}`
+: "offline"
 }
 </div>
 
@@ -810,7 +824,8 @@ style={{
 display:"flex",
 justifyContent:
 mine ? "flex-end" : "flex-start",
-marginBottom:5
+marginBottom:5,
+animation:"msgIn .18s ease"
 }}
 >
 
@@ -1107,6 +1122,19 @@ WebkitTapHighlightColor:"transparent"
 
 </div>
 </div>
+
+<style jsx global>{`
+@keyframes msgIn{
+  from{
+    opacity:0;
+    transform:translateY(6px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0px);
+  }
+}
+`}</style>
 
 </div>
 )
