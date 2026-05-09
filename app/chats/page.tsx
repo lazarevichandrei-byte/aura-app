@@ -224,30 +224,7 @@ useEffect(() => {
   };
 }, [chats]);
 
-useEffect(()=>{
 
-  loadChats();
-
-  const channel = supabase
-    .channel("chats-live")
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "chats"
-      },
-      ()=>{
-        loadChats();
-      }
-    )
-    .subscribe();
-
-  return ()=>{
-    supabase.removeChannel(channel);
-  };
-
-},[]);
 
 useEffect(()=>{
 
