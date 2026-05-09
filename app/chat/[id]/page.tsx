@@ -311,13 +311,51 @@ useEffect(()=>{
 },[]);
 
 
+useEffect(()=>{
 
+  if(!otherUser?.id) return;
+
+  const onlineChannel = supabase
+
+    .channel(`user-${otherUser.id}`)
+
+    .on(
+      "postgres_changes",
+      {
+        event:"UPDATE",
+        schema:"public",
+        table:"users",
+        filter:`id=eq.${otherUser.id}`
+      },
+      (payload)=>{
+
+        const updatedUser:any =
+          payload.new;
+
+        setOtherUser(updatedUser);
+
+      }
+    )
+
+    .subscribe();
+
+  return ()=>{
+
+    supabase.removeChannel(
+      onlineChannel
+    );
+
+  };
+
+},[otherUser?.id]);
 
 useEffect(()=>{
 
 if(!chatId || userId === null) return;
 
 const typingChannel = supabase
+
+
 
 .channel(`typing-${chatId}`)
 
