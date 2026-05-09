@@ -116,13 +116,15 @@ console.log("CHATS:", chats);
       chats
     });
 
-  }catch(e){
+ }catch(e){
 
-    return NextResponse.json(
-      { ok:false },
-      { status:500 }
-    );
+  console.log("CHATS ERROR:", e);
 
-  }
+  return NextResponse.json(
+    { ok:false },
+    { status:500 }
+  );
+
+}
 
 }
