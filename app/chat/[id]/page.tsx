@@ -93,17 +93,7 @@ const reversed = data.reverse();
 
 setMessages(reversed);
 
-if(firstLoadRef.current){
 
-  setTimeout(()=>{
-
-    scrollToBottom();
-
-  },150);
-
-  firstLoadRef.current = false;
-
-}
 
 
 
@@ -501,6 +491,26 @@ supabase.removeChannel(channel);
 };
 
 },[chatId,userId]);
+
+useEffect(()=>{
+
+  if(
+    !messages.length ||
+    !otherUser ||
+    !firstLoadRef.current
+  ){
+    return;
+  }
+
+  setTimeout(()=>{
+
+    scrollToBottom();
+
+    firstLoadRef.current = false;
+
+  },50);
+
+},[messages,otherUser]);
 
 
 async function updateTyping(status:boolean){
