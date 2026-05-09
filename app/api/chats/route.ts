@@ -111,6 +111,7 @@ export async function POST(req: Request){
         console.log("USER ID:", user.id);
 console.log("CHATS:", chats);
 
+    console.log("FINAL CHATS:", chats);
     return NextResponse.json({
       ok:true,
       chats
