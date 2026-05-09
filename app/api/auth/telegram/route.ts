@@ -1,4 +1,13 @@
 import { NextResponse } from "next/server";
+console.log(
+  "BOT TOKEN EXISTS:",
+  !!process.env.TELEGRAM_BOT_TOKEN 
+);
+
+console.log(
+  "SERVICE ROLE EXISTS:",
+  !!process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 import * as crypto from "crypto";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 export const runtime = "nodejs";
