@@ -399,6 +399,20 @@ filter:`chat_id=eq.${chatId}`
 
 const newMsg:any = payload.new;
 
+if(
+payload.eventType === "INSERT" &&
+newMsg.sender_id !== userId
+){
+
+  supabase
+    .from("messages")
+    .update({
+      is_read:true
+    })
+    .eq("id",newMsg.id);
+
+}
+
 if(payload.eventType === "UPDATE"){
 
   setMessages(prev =>
