@@ -277,6 +277,35 @@ useEffect(() => {
   };
 }, []);
 
+useEffect(()=>{
+
+  if(!myId) return;
+
+  const channel = supabase
+    .channel(`chats-${myId}`)
+    .on(
+      "postgres_changes",
+      {
+        event:"*",
+        schema:"public",
+        table:"chats"
+      },
+      ()=>{
+
+        loadChats();
+
+      }
+    )
+    .subscribe();
+
+  return ()=>{
+
+    supabase.removeChannel(channel);
+
+  };
+
+},[myId]);
+
 
 
 const filteredChats =
