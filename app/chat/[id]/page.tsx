@@ -234,15 +234,27 @@ useEffect(()=>{
 
   }
 
-  function handleVisibility(){
+  let offlineTimer:any = null;
 
-    if(document.hidden){
+function handleVisibility(){
+
+  if(document.hidden){
+
+    offlineTimer = setTimeout(()=>{
+
       setOffline();
-    }else{
-      setOnline();
-    }
+
+    },15000);
+
+  }else{
+
+    clearTimeout(offlineTimer);
+
+    setOnline();
 
   }
+
+}
 
   loadChat();
 
@@ -399,19 +411,7 @@ filter:`chat_id=eq.${chatId}`
 
 const newMsg:any = payload.new;
 
-if(
-payload.eventType === "INSERT" &&
-newMsg.sender_id !== userId
-){
 
-  supabase
-    .from("messages")
-    .update({
-      is_read:true
-    })
-    .eq("id",newMsg.id);
-
-}
 
 if(payload.eventType === "UPDATE"){
 
@@ -440,24 +440,39 @@ if(payload.eventType !== "INSERT"){
 
 setMessages(prev => {
 
-const exists = prev.some(
-(m:any)=>
-String(m.id) === String(newMsg.id)
-);
+  const exists = prev.some(
+    (m:any)=>
+    String(m.id) === String(newMsg.id)
+  );
 
-if(exists){
-  return prev;
-}
+  if(exists){
+    return prev;
+  }
 
-const updated = [...prev, newMsg];
+  const updated = [...prev, newMsg];
 
-return updated;
+  setTimeout(async ()=>{
 
-});
+    if(newMsg.sender_id !== userId){
 
-requestAnimationFrame(()=>{
+      await supabase
+        .from("messages")
+        .update({
+          is_read:true
+        })
+        .eq("id",newMsg.id);
 
- scrollToBottom();
+    }
+
+  },100);
+
+  requestAnimationFrame(()=>{
+
+    scrollToBottom();
+
+  });
+
+  return updated;
 
 });
 
