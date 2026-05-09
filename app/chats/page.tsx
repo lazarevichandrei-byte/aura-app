@@ -250,9 +250,41 @@ useEffect(()=>{
 },[]);
 
 useEffect(()=>{
-  supabase.auth.getUser().then(({ data })=>{
-    setMyId(data.user?.id || "11111111-1111-1111-1111-111111111111");
-  });
+
+  async function loadMe(){
+
+    const tg =
+      (window as any)?.Telegram?.WebApp;
+
+    if(!tg?.initData){
+      return;
+    }
+
+    const res = await fetch(
+      "/api/auth/telegram",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          initData: tg.initData
+        })
+      }
+    );
+
+    const result = await res.json();
+
+    if(!result?.ok || !result?.user){
+      return;
+    }
+
+    setMyId(result.user.id);
+
+  }
+
+  loadMe();
+
 },[]);
 
 
