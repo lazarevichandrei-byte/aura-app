@@ -162,47 +162,32 @@ useEffect(()=>{
  async function loadMe(){
 
   const tg =
-   (window as any)?.Telegram?.WebApp;
+ (window as any)?.Telegram?.WebApp;
 
-  const tgId =
-   tg?.initDataUnsafe?.user?.id;
+if(!tg?.initData){
+  return;
+}
 
-  
-
-  const { data:existingUser } = await supabase
-    .from("users")
-    .select("*")
-    .eq("telegram_id", tgId)
-    .single();
-
-  if(existingUser){
-
-    
-
-    setUserId(existingUser.id);
-
-    return;
-  }
-
-  const { data:newUser, error } =
-   await supabase
-    .from("users")
-    .insert({
-      telegram_id: tgId,
-      name:"Telegram User"
+const res = await fetch(
+  "/api/auth/telegram",
+  {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      initData: tg.initData
     })
-    .select()
-    .single();
-
-  
-
-  if(newUser){
-
-    
-
-    setUserId(newUser.id);
-
   }
+);
+
+const result = await res.json();
+
+if(!result?.ok || !result?.user){
+  return;
+}
+
+setUserId(result.user.id);
 
 }
 
