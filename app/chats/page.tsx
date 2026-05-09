@@ -327,24 +327,33 @@ async function createChatIfNotExists(userA: string, userB: string){
 
 async function loadChats(){
 
-  const { data, error } =
-  await supabase
-  .from("chats")
-  .select(
-"id,name,avatar,unread_count,last_message,last_message_at,liked_by,is_new_match"
-)
-  .order(
-    "last_message_at",
-    { ascending:false }
-  )
-  .limit(30);
+  const tg =
+   (window as any)?.Telegram?.WebApp;
 
-  if(!error && data){
-    console.log("CHATS:", data);
-    setChats(data || []);
-    (data || []).forEach((chat:any)=>{
-});
+  if(!tg?.initData){
+    return;
   }
+
+  const res = await fetch(
+    "/api/chats",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        initData: tg.initData
+      })
+    }
+  );
+
+  const result = await res.json();
+
+  if(!result?.ok){
+    return;
+  }
+
+  setChats(result.chats || []);
 
 }
 
