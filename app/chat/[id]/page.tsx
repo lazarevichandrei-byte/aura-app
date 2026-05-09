@@ -91,9 +91,15 @@ setMessages(reversed);
 
 if(firstLoadRef.current){
 
-  setTimeout(()=>{
+  requestAnimationFrame(()=>{
+
+  requestAnimationFrame(()=>{
+
     scrollToBottom();
-  },50);
+
+  });
+
+});
 
   firstLoadRef.current = false;
 }
@@ -634,12 +640,63 @@ window.dispatchEvent(
 if(!otherUser){
 
   return (
+
     <div
       style={{
         height:"100vh",
-        background:"#fff"
+        background:"#fff",
+        display:"flex",
+        flexDirection:"column"
       }}
-    />
+    >
+
+      <div
+        style={{
+          height:70,
+          borderBottom:"1px solid #EEF1F4",
+          display:"flex",
+          alignItems:"center",
+          padding:"0 16px",
+          gap:14
+        }}
+      >
+
+        <div
+          style={{
+            width:36,
+            height:36,
+            borderRadius:"50%",
+            background:"#EEF1F4"
+          }}
+        />
+
+        <div>
+
+          <div
+            style={{
+              width:120,
+              height:12,
+              borderRadius:8,
+              background:"#EEF1F4",
+              marginBottom:8
+            }}
+          />
+
+          <div
+            style={{
+              width:70,
+              height:10,
+              borderRadius:8,
+              background:"#F4F6F8"
+            }}
+          />
+
+        </div>
+
+      </div>
+
+    </div>
+
   );
 
 }
