@@ -606,12 +606,20 @@ if(data){
 
 
 
+const { data: chatData } = await supabase
+  .from("chats")
+  .select("unread_count")
+  .eq("id",chatId)
+  .single();
+
 const { error: updateError } = await supabase
 .from("chats")
 .update({
   last_message: text,
   last_message_at: new Date().toISOString(),
-  has_messages: true
+  has_messages: true,
+  unread_count:
+    (chatData?.unread_count || 0) + 1
 })
 .eq("id", chatId);
  
