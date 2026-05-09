@@ -397,11 +397,32 @@ filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
 
+const newMsg:any = payload.new;
+
+if(payload.eventType === "UPDATE"){
+
+  setMessages(prev =>
+
+    prev.map((m:any)=>
+
+      String(m.id) === String(newMsg.id)
+      ? newMsg
+      : m
+
+    )
+
+  );
+
+  return;
+
+}
+
 if(payload.eventType !== "INSERT"){
   return;
 }
 
-const newMsg:any = payload.new;
+
+
 
 setMessages(prev => {
 
