@@ -107,6 +107,9 @@ export async function POST(req: Request){
           { ascending:false }
         );
 
+        console.log("USER ID:", user.id);
+console.log("CHATS:", chats);
+
     return NextResponse.json({
       ok:true,
       chats
