@@ -224,12 +224,14 @@ useEffect(()=>{
 
   async function loadChat(){
 
-    await setOnline();
+  setOnline();
 
-    await fetchMessages();
-    await fetchChatUser();
+  await Promise.all([
+    fetchMessages(),
+    fetchChatUser()
+  ]);
 
-  }
+}
 
   let offlineTimer:any = null;
 
