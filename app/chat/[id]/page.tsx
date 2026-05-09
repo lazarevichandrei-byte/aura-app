@@ -630,6 +630,22 @@ window.dispatchEvent(
 
 
 }
+
+if(!otherUser){
+
+  return (
+    <div
+      style={{
+        height:"100vh",
+        background:"#fff"
+      }}
+    />
+  );
+
+}
+
+
+
 return(
 <div
 
@@ -666,7 +682,10 @@ flexDirection:"column",
 }}
 >
 
-<div className="chat-header"
+    
+
+<div 
+className="chat-header"
 style={{
 display:"flex",
 alignItems:"center",
