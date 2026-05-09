@@ -156,39 +156,16 @@ setOtherUser(user);
 
 useEffect(()=>{
 
- async function loadMe(){
+  const savedUserId =
+    localStorage.getItem(
+      "aura_user_id"
+    );
 
-  const tg =
- (window as any)?.Telegram?.WebApp;
+  if(savedUserId){
 
-if(!tg?.initData){
-  return;
-}
+    setUserId(savedUserId);
 
-const res = await fetch(
-  "/api/auth/telegram",
-  {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      initData: tg.initData
-    })
   }
-);
-
-const result = await res.json();
-
-if(!result?.ok || !result?.user){
-  return;
-}
-
-setUserId(result.user.id);
-
-}
-
- loadMe();
 
 },[]);
 

@@ -257,6 +257,10 @@ useEffect(()=>{
     }
 
     setMyId(result.user.id);
+    localStorage.setItem(
+  "aura_user_id",
+  result.user.id
+);
 
   }
 
