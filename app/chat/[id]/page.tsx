@@ -95,17 +95,14 @@ setMessages(reversed);
 
 if(firstLoadRef.current){
 
-  requestAnimationFrame(()=>{
-
-  requestAnimationFrame(()=>{
+  setTimeout(()=>{
 
     scrollToBottom();
 
-  });
-
-});
+  },150);
 
   firstLoadRef.current = false;
+
 }
 
 
