@@ -57,11 +57,15 @@ useRef(true);
 
 function scrollToBottom(){
 
- const el = chatRef.current;
+  const el = chatRef.current;
 
- if(!el) return;
+  if(!el) return;
 
-el.scrollTop = el.scrollHeight;
+  requestAnimationFrame(()=>{
+
+    el.scrollTop = el.scrollHeight + 9999;
+
+  });
 
 }
 
