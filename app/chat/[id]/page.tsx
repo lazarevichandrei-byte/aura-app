@@ -1019,7 +1019,7 @@ lineHeight:"17px",
 borderRadius:16,
 
 width:"fit-content",
-maxWidth:"62%",
+maxWidth:"76%",
 
 
 wordBreak:"break-word",
@@ -1125,7 +1125,7 @@ bottom:"20px",
 <div
 style={{
 background:"#EDF4FF",
-padding:"10px 12px",
+padding:"8px 13px",
 borderRadius:14,
 marginBottom:8,
 position:"relative"
