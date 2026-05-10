@@ -1113,7 +1113,10 @@ sameAsNext
 ? 2
 : 10,
 
-animation:"msgIn .18s ease"
+animation:
+mine
+? "msgInMine .18s ease"
+: "msgInOther .22s ease",
 }}
 >
 
@@ -1500,26 +1503,40 @@ WebkitTapHighlightColor:"transparent"
 
 <style jsx global>{`
 
-@keyframes msgIn{
+@keyframes msgInMine{
+
   from{
     opacity:0;
-    transform:translateY(6px);
+    transform:
+      translateY(8px)
+      scale(.96);
   }
+
   to{
     opacity:1;
-    transform:translateY(0px);
+    transform:
+      translateY(0px)
+      scale(1);
   }
+
 }
 
-@keyframes chatOpen{
+@keyframes msgInOther{
+
   from{
     opacity:0;
-    transform:translateY(10px);
+    transform:
+      translateY(10px)
+      scale(.94);
   }
+
   to{
     opacity:1;
-    transform:translateY(0px);
+    transform:
+      translateY(0px)
+      scale(1);
   }
+
 }
 
 `}</style>
