@@ -947,11 +947,64 @@ return(
 <div
 key={`${msg.id}-${msg.created_at}`}
 id={`msg-${msg.id}`}
+
+onTouchStart={(e)=>{
+
+  swipeStartX.current =
+    e.touches[0].clientX;
+
+}}
+
+onTouchMove={(e)=>{
+
+  const delta =
+
+    e.touches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < 0){
+
+    setSwipedMsg(String(msg.id));
+
+    setSwipeOffset(
+      Math.max(delta,-70)
+    );
+
+  }
+
+}}
+
+onTouchEnd={(e)=>{
+
+  const delta =
+
+    e.changedTouches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < -45){
+
+    setReplyTo(msg);
+
+  }
+
+  setSwipedMsg(null);
+
+  setSwipeOffset(0);
+
+}}
+
 style={{
 display:"flex",
 justifyContent:
 mine ? "flex-end" : "flex-start",
+
+paddingLeft: mine ? 60 : 0,
+paddingRight: mine ? 0 : 60,
+
 marginBottom:5,
+
 animation:"msgIn .18s ease"
 }}
 >
@@ -960,12 +1013,6 @@ animation:"msgIn .18s ease"
 
 
 
-onTouchStart={(e)=>{
-
-  swipeStartX.current =
-    e.touches[0].clientX;
-
-}}
 
 onTouchMove={(e)=>{
 
