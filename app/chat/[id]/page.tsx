@@ -966,7 +966,7 @@ onTouchEnd={(e)=>{
     -
     swipeStartX.current;
 
-  if(delta > 70){
+  if(delta < -70){
 
     setReplyTo(msg);
 
