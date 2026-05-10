@@ -61,6 +61,8 @@ useState(false);
 const [highlightedMsg,setHighlightedMsg] =
 useState<string | null>(null);
 
+const [firstUnreadId,setFirstUnreadId] =
+useState<string | null>(null);
 
 
 const firstLoadRef =
@@ -105,10 +107,22 @@ const reversed = data.reverse();
 
 setMessages(reversed);
 
+const firstUnread =
 
+  reversed.find(
+    (m:any)=>
 
+      !m.is_read &&
+      m.sender_id !== userId
+  );
 
+if(firstUnread){
 
+  setFirstUnreadId(
+    String(firstUnread.id)
+  );
+
+}
 
 
 await supabase
@@ -970,6 +984,11 @@ prevMsg
 const showDateDivider =
 currentDate !== prevDate;
 
+const showUnreadDivider =
+
+  firstUnreadId ===
+  String(msg.id);
+
 const dateLabel = (()=>{
 
   const msgDate =
@@ -1013,6 +1032,47 @@ const dateLabel = (()=>{
 return(
 
 <>
+{showUnreadDivider && (
+
+<div
+style={{
+display:"flex",
+alignItems:"center",
+gap:10,
+margin:"8px 0 14px"
+}}
+>
+
+<div
+style={{
+flex:1,
+height:1,
+background:"#E4E9F1"
+}}
+/>
+
+<div
+style={{
+fontSize:12,
+fontWeight:700,
+color:"#2E7BFF",
+whiteSpace:"nowrap"
+}}
+>
+Новые сообщения
+</div>
+
+<div
+style={{
+flex:1,
+height:1,
+background:"#E4E9F1"
+}}
+/>
+
+</div>
+
+)}
 
 {showDateDivider && (
 
