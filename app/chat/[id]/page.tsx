@@ -107,6 +107,16 @@ const reversed = data.reverse();
 
 setMessages(reversed);
 
+requestAnimationFrame(()=>{
+
+  requestAnimationFrame(()=>{
+
+    scrollToBottom();
+
+  });
+
+});
+
 const firstUnread =
 
   reversed.find(
@@ -535,25 +545,7 @@ supabase.removeChannel(channel);
 
 },[chatId,userId]);
 
-useEffect(()=>{
 
-  if(
-    !messages.length ||
-    !otherUser ||
-    !firstLoadRef.current
-  ){
-    return;
-  }
-
-  setTimeout(()=>{
-
-    scrollToBottom();
-
-    firstLoadRef.current = false;
-
-  },50);
-
-},[messages,otherUser]);
 
 
 async function updateTyping(status:boolean){
