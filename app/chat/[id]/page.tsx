@@ -940,8 +940,10 @@ WebkitOverflowScrolling:"touch",
 >
 
 {messages.map((msg,index)=>{
+    
 const mine =
 msg.sender_id===userId;
+
 
 const prevMsg =
 messages[index - 1];
@@ -955,9 +957,91 @@ prevMsg?.sender_id === msg.sender_id;
 const sameAsNext =
 nextMsg?.sender_id === msg.sender_id;
 
+const currentDate =
+new Date(msg.created_at)
+.toDateString();
+
+const prevDate =
+prevMsg
+? new Date(prevMsg.created_at)
+  .toDateString()
+: null;
+
+const showDateDivider =
+currentDate !== prevDate;
+
+const dateLabel = (()=>{
+
+  const msgDate =
+    new Date(msg.created_at);
+
+  const today =
+    new Date();
+
+  const yesterday =
+    new Date();
+
+  yesterday.setDate(
+    yesterday.getDate() - 1
+  );
+
+  if(
+    msgDate.toDateString() ===
+    today.toDateString()
+  ){
+    return "Сегодня";
+  }
+
+  if(
+    msgDate.toDateString() ===
+    yesterday.toDateString()
+  ){
+    return "Вчера";
+  }
+
+  return msgDate.toLocaleDateString(
+    "ru-RU",
+    {
+      day:"numeric",
+      month:"long"
+    }
+  );
+
+})();
 
 
 return(
+
+<>
+
+{showDateDivider && (
+
+<div
+style={{
+display:"flex",
+justifyContent:"center",
+margin:"14px 0 12px"
+}}
+>
+
+<div
+style={{
+background:"#F2F4F7",
+color:"#7B8794",
+fontSize:12,
+fontWeight:600,
+padding:"6px 12px",
+borderRadius:999,
+backdropFilter:"blur(10px)"
+}}
+>
+{dateLabel}
+</div>
+
+</div>
+
+)}
+
 
 <div
 key={`${msg.id}-${msg.created_at}`}
@@ -1234,6 +1318,7 @@ fontSize:11
 </div>
 
 </div>
+</>
 
 );
 
