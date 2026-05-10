@@ -56,6 +56,9 @@ useState<string | null>(null);
 const [swipeOffset,setSwipeOffset] =
 useState(0);
 
+const [highlightedMsg,setHighlightedMsg] =
+useState<string | null>(null);
+
 
 
 const firstLoadRef =
@@ -943,6 +946,7 @@ return(
 
 <div
 key={`${msg.id}-${msg.created_at}`}
+id={`msg-${msg.id}`}
 style={{
 display:"flex",
 justifyContent:
@@ -1024,6 +1028,13 @@ maxWidth:"76%",
 
 wordBreak:"break-word",
 overflowWrap:"break-word",
+boxShadow:
+
+highlightedMsg === String(msg.id)
+
+? "0 0 0 2px rgba(46,123,255,.35)"
+
+: "none",
 
 transform:
 swipedMsg === String(msg.id)
@@ -1038,6 +1049,38 @@ transition:"transform .12s ease",
 {msg.reply_preview && (
 
 <div
+
+onClick={()=>{
+
+  if(!msg.reply_to_id){
+    return;
+  }
+
+  const el = document.getElementById(
+    `msg-${msg.reply_to_id}`
+  );
+
+  if(!el){
+    return;
+  }
+
+  el.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+  setHighlightedMsg(
+    String(msg.reply_to_id)
+  );
+
+  setTimeout(()=>{
+
+    setHighlightedMsg(null);
+
+  },1400);
+
+}}
+
 style={{
 background:
 mine
