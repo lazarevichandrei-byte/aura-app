@@ -48,6 +48,8 @@ useRef<HTMLInputElement | null>(null);
 
 const touchStartX =
 useRef(0);
+const swipeStartX =
+useRef(0);
 
 
 
@@ -947,30 +949,29 @@ animation:"msgIn .18s ease"
 
 <div
 
-onTouchStart={()=>{
 
-if((window as any).replyOpened) return;
 
-const timer=setTimeout(()=>{
+onTouchStart={(e)=>{
 
-(window as any).replyOpened = true;
-
-setReplyTo(msg);
-
-setTimeout(()=>{
-(window as any).replyOpened = false;
-},400);
-
-},300);
-
-(window as any).replyTimer=timer;
+  swipeStartX.current =
+    e.touches[0].clientX;
 
 }}
 
-onTouchEnd={()=>{
-clearTimeout(
-(window as any).replyTimer
-);
+onTouchEnd={(e)=>{
+
+  const delta =
+
+    e.changedTouches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta > 70){
+
+    setReplyTo(msg);
+
+  }
+
 }}
 
 style={{
