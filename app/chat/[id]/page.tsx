@@ -658,7 +658,17 @@ const { error: updateError } = await supabase
 .eq("id", chatId);
 
 window.dispatchEvent(
-  new CustomEvent("chat-updated")
+
+  new CustomEvent(
+    "chat-updated",
+    {
+      detail:{
+        chatId,
+        message:text
+      }
+    }
+  )
+
 );
  
 
