@@ -50,6 +50,11 @@ const touchStartX =
 useRef(0);
 const swipeStartX =
 useRef(0);
+const [swipedMsg,setSwipedMsg] =
+useState<string | null>(null);
+
+const [swipeOffset,setSwipeOffset] =
+useState(0);
 
 
 
@@ -958,6 +963,26 @@ onTouchStart={(e)=>{
 
 }}
 
+onTouchMove={(e)=>{
+
+  const delta =
+
+    e.touches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < 0){
+
+    setSwipedMsg(String(msg.id));
+
+    setSwipeOffset(
+      Math.max(delta,-70)
+    );
+
+  }
+
+}}
+
 onTouchEnd={(e)=>{
 
   const delta =
@@ -972,8 +997,11 @@ onTouchEnd={(e)=>{
 
   }
 
-}}
+  setSwipedMsg(null);
 
+  setSwipeOffset(0);
+
+}}
 style={{
 background: mine
 
@@ -993,8 +1021,17 @@ borderRadius:16,
 width:"fit-content",
 maxWidth:"62%",
 
+
 wordBreak:"break-word",
-overflowWrap:"break-word"
+overflowWrap:"break-word",
+
+transform:
+swipedMsg === String(msg.id)
+? `translateX(${swipeOffset}px)`
+: "translateX(0px)",
+
+transition:"transform .12s ease",
+
 }}
 >
 
