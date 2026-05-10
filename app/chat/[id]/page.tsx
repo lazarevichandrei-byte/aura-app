@@ -55,6 +55,8 @@ useState<string | null>(null);
 
 const [swipeOffset,setSwipeOffset] =
 useState(0);
+const [showReplyIcon,setShowReplyIcon] =
+useState(false);
 
 const [highlightedMsg,setHighlightedMsg] =
 useState<string | null>(null);
@@ -978,13 +980,18 @@ onTouchMove={(e)=>{
 
   if(delta < 0){
 
-    setSwipedMsg(String(msg.id));
+  const limited =
+    Math.max(delta,-85);
 
-    setSwipeOffset(
-      Math.max(delta,-70)
-    );
+  setSwipedMsg(String(msg.id));
 
-  }
+  setSwipeOffset(limited);
+
+  setShowReplyIcon(
+    Math.abs(limited) > 28
+  );
+
+}
 
 }}
 
@@ -1004,8 +1011,9 @@ onTouchEnd={(e)=>{
 
   setSwipedMsg(null);
 
-  setSwipeOffset(0);
+setSwipeOffset(0);
 
+setShowReplyIcon(false);
 }}
 
 style={{
@@ -1025,13 +1033,44 @@ animation:"msgIn .18s ease"
 }}
 >
 
+
+
+
+{showReplyIcon &&
+swipedMsg === String(msg.id) && (
+
 <div
+style={{
+position:"absolute",
+left: mine ? "auto" : -34,
+right: mine ? -34 : "auto",
+top:"50%",
+transform:"translateY(-50%)",
+width:24,
+height:24,
+borderRadius:"50%",
+background:"#E8F1FF",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:13,
+color:"#2E7BFF",
+fontWeight:700,
+opacity:
+Math.min(
+Math.abs(swipeOffset) / 40,
+1
+),
+transition:"opacity .12s ease"
+}}
+>
+↩
+</div>
+
+)}
 
 
-
-
-
-
+<div
 
 style={{
 background: mine
@@ -1272,6 +1311,7 @@ paddingRight:20
 style={{
 display:"flex",
 alignItems:"center",
+position:"relative",
 paddingLeft:14,
 paddingRight:4
 }}
