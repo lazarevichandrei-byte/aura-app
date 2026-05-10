@@ -742,6 +742,7 @@ if(!otherUser){
 
 
 return(
+
 <div
 
 onTouchStart={(e)=>{
@@ -774,6 +775,7 @@ overflow:"hidden",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
+animation:"chatOpen .16s ease"
 }}
 >
 
@@ -1238,6 +1240,7 @@ WebkitTapHighlightColor:"transparent"
 </div>
 
 <style jsx global>{`
+
 @keyframes msgIn{
   from{
     opacity:0;
@@ -1248,6 +1251,18 @@ WebkitTapHighlightColor:"transparent"
     transform:translateY(0px);
   }
 }
+
+@keyframes chatOpen{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0px);
+  }
+}
+
 `}</style>
 
 </div>
