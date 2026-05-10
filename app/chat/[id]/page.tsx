@@ -107,15 +107,16 @@ const reversed = data.reverse();
 
 setMessages(reversed);
 
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 
-  requestAnimationFrame(()=>{
+  const el = chatRef.current;
 
-    scrollToBottom();
+  if(!el) return;
 
-  });
+  el.scrollTop =
+    el.scrollHeight;
 
-});
+},0);
 
 const firstUnread =
 
@@ -459,6 +460,8 @@ filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
 
+
+    
 const newMsg:any = payload.new;
 
 
@@ -546,6 +549,31 @@ supabase.removeChannel(channel);
 },[chatId,userId]);
 
 
+
+useEffect(()=>{
+
+  if(
+    !messages.length ||
+    !otherUser ||
+    !firstLoadRef.current
+  ){
+    return;
+  }
+
+  firstLoadRef.current = false;
+
+  requestAnimationFrame(()=>{
+
+    const el = chatRef.current;
+
+    if(!el) return;
+
+    el.scrollTop =
+      el.scrollHeight;
+
+  });
+
+},[messages,otherUser]);
 
 
 async function updateTyping(status:boolean){
