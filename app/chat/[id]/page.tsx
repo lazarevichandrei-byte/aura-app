@@ -937,10 +937,23 @@ WebkitOverflowScrolling:"touch",
 }}
 >
 
-{messages.map((msg)=>{
-
+{messages.map((msg,index)=>{
 const mine =
 msg.sender_id===userId;
+
+const prevMsg =
+messages[index - 1];
+
+const nextMsg =
+messages[index + 1];
+
+const sameAsPrev =
+prevMsg?.sender_id === msg.sender_id;
+
+const sameAsNext =
+nextMsg?.sender_id === msg.sender_id;
+
+
 
 return(
 
@@ -1003,7 +1016,10 @@ mine ? "flex-end" : "flex-start",
 paddingLeft: mine ? 60 : 0,
 paddingRight: mine ? 0 : 60,
 
-marginBottom:5,
+marginBottom:
+sameAsNext
+? 2
+: 10,
 
 animation:"msgIn .18s ease"
 }}
@@ -1014,45 +1030,9 @@ animation:"msgIn .18s ease"
 
 
 
-onTouchMove={(e)=>{
 
-  const delta =
 
-    e.touches[0].clientX
-    -
-    swipeStartX.current;
 
-  if(delta < 0){
-
-    setSwipedMsg(String(msg.id));
-
-    setSwipeOffset(
-      Math.max(delta,-70)
-    );
-
-  }
-
-}}
-
-onTouchEnd={(e)=>{
-
-  const delta =
-
-    e.changedTouches[0].clientX
-    -
-    swipeStartX.current;
-
-  if(delta < -70){
-
-    setReplyTo(msg);
-
-  }
-
-  setSwipedMsg(null);
-
-  setSwipeOffset(0);
-
-}}
 style={{
 background: mine
 
@@ -1067,7 +1047,29 @@ fontSize:13,
 fontWeight:500,
 lineHeight:"17px",
 
-borderRadius:16,
+borderTopLeftRadius:
+
+!mine && sameAsPrev
+? 8
+: 18,
+
+borderTopRightRadius:
+
+mine && sameAsPrev
+? 8
+: 18,
+
+borderBottomLeftRadius:
+
+!mine && sameAsNext
+? 8
+: 18,
+
+borderBottomRightRadius:
+
+mine && sameAsNext
+? 8
+: 18,
 
 width:"fit-content",
 maxWidth:"80%",
@@ -1148,6 +1150,8 @@ fontSize:11
 
 {msg.body}
 
+{!sameAsNext && (
+
 <div
 style={{
 marginTop:4,
@@ -1185,6 +1189,8 @@ fontSize:11
 )}
 
 </div>
+
+)}
 
 </div>
 
