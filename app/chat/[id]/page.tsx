@@ -1014,16 +1014,16 @@ background: mine
 
 color: mine ? "#fff" : "#111",
 
-padding:"10px 14px",
+padding:"8px 13px",
 
-fontSize:15,
+fontSize:13,
 fontWeight:500,
-lineHeight:"20px",
+lineHeight:"17px",
 
-borderRadius:20,
+borderRadius:16,
 
 width:"fit-content",
-maxWidth:"84%",
+maxWidth:"80%",
 
 
 wordBreak:"break-word",
@@ -1082,56 +1082,18 @@ onClick={()=>{
 }}
 
 style={{
-
 background:
 mine
-? "rgba(255,255,255,.14)"
-: "rgba(46,123,255,.08)",
+? "rgba(255,255,255,.16)"
+: "#E8F0FF",
 
-borderLeft:
-mine
-? "3px solid rgba(255,255,255,.9)"
-: "3px solid #2E7BFF",
-
-padding:"8px 10px",
-
-borderRadius:12,
-
-marginBottom:8,
-
-fontSize:13,
-
-lineHeight:"17px",
-
-opacity:.95
-
-}}
->
-
-<div
-style={{
-fontWeight:700,
-marginBottom:2,
-fontSize:12,
-color:
-mine
-? "#fff"
-: "#2E7BFF"
-}}
->
-Ответ
-</div>
-
-<div
-style={{
-whiteSpace:"nowrap",
-overflow:"hidden",
-textOverflow:"ellipsis"
+padding:"6px 8px",
+borderRadius:10,
+marginBottom:6,
+fontSize:11
 }}
 >
 {msg.reply_preview}
-</div>
-
 </div>
 
 )}
