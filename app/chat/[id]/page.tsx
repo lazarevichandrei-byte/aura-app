@@ -1555,7 +1555,7 @@ minute:"2-digit"
 {mine && (
 <span
 style={{
-fontSize:11
+fontSize:9
 }}
 >
 {msg.is_read ? "✓✓" : "✓"}
