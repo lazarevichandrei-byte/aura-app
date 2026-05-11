@@ -70,6 +70,8 @@ setShowScrollBottom] =
 useState(false);
 
 
+
+
 const firstLoadRef =
 useRef(true);
 
@@ -1336,6 +1338,7 @@ setShowReplyIcon(false);
 }}
 
 style={{
+position:"relative",
 display:"flex",
 justifyContent:
 mine ? "flex-end" : "flex-start",
@@ -1364,12 +1367,12 @@ swipedMsg === String(msg.id) && (
 <div
 style={{
 position:"absolute",
-left: mine ? "auto" : -34,
-right: mine ? -34 : "auto",
+left: mine ? "auto" : 16,
+right: mine ? 16 : "auto",
 top:"50%",
 transform:"translateY(-50%)",
-width:24,
-height:24,
+width:28,
+height:28,
 borderRadius:"50%",
 background:"#E8F1FF",
 display:"flex",
@@ -1515,15 +1518,27 @@ fontSize:11
 
 <div
 style={{
-marginTop:4,
+marginTop:5,
+
 fontSize:10,
-opacity:.7,
+fontWeight:600,
+
+opacity:.72,
+
+letterSpacing:0.2,
 display:"flex",
 alignItems:"center",
 justifyContent:"flex-end",
-gap:4
+gap:3
 }}
 >
+    {mine && (
+<div
+style={{
+flex:1
+}}
+/>
+)}
 
 <span>
 {new Date(
@@ -1544,7 +1559,9 @@ style={{
 fontSize:11
 }}
 >
-{msg.is_read ? "✓✓" : "✓"}
+msg.is_read
+? "✓✓"
+: "✓"
 </span>
 
 )}
