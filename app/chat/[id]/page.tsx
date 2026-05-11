@@ -63,11 +63,69 @@ useState<string | null>(null);
 
 const [firstUnreadId,setFirstUnreadId] =
 useState<string | null>(null);
+const [floatingDate,setFloatingDate] =
+useState("");
 
 
 const firstLoadRef =
 useRef(true);
 
+useEffect(()=>{
+
+  const el = chatRef.current;
+
+  if(!el || !messages.length){
+    return;
+  }
+
+  const handleScroll = ()=>{
+
+    const messageElements =
+      document.querySelectorAll(
+        "[data-msg-date]"
+      );
+
+    let currentDate = "";
+
+    messageElements.forEach((node:any)=>{
+
+      const rect =
+        node.getBoundingClientRect();
+
+      if(rect.top <= 120){
+
+        currentDate =
+          node.dataset.msgDate || "";
+
+      }
+
+    });
+
+    if(currentDate){
+
+      setFloatingDate(currentDate);
+
+    }
+
+  };
+
+  handleScroll();
+
+  el.addEventListener(
+    "scroll",
+    handleScroll
+  );
+
+  return ()=>{
+
+    el.removeEventListener(
+      "scroll",
+      handleScroll
+    );
+
+  };
+
+},[messages]);
 
 function scrollToBottom(){
 
@@ -955,7 +1013,39 @@ marginTop:2
 
 
 
+{floatingDate && (
 
+<div
+style={{
+position:"absolute",
+top:76,
+left:"50%",
+transform:"translateX(-50%)",
+zIndex:50,
+
+background:"rgba(242,244,247,.92)",
+
+backdropFilter:"blur(12px)",
+
+padding:"6px 14px",
+
+borderRadius:999,
+
+fontSize:12,
+fontWeight:700,
+
+color:"#5F6B7A",
+
+pointerEvents:"none",
+
+boxShadow:
+"0 2px 10px rgba(0,0,0,.06)"
+}}
+>
+{floatingDate}
+</div>
+
+)}
     
 <div
 ref={chatRef}
@@ -1126,6 +1216,7 @@ backdropFilter:"blur(10px)"
 <div
 key={`${msg.id}-${msg.created_at}`}
 id={`msg-${msg.id}`}
+data-msg-date={dateLabel}
 
 onTouchStart={(e)=>{
 
