@@ -65,6 +65,9 @@ const [firstUnreadId,setFirstUnreadId] =
 useState<string | null>(null);
 const [floatingDate,setFloatingDate] =
 useState("");
+const [showScrollBottom,
+setShowScrollBottom] =
+useState(false);
 
 
 const firstLoadRef =
@@ -79,6 +82,18 @@ useEffect(()=>{
   }
 
   const handleScroll = ()=>{
+
+const distanceFromBottom =
+
+  el.scrollHeight
+  -
+  el.scrollTop
+  -
+  el.clientHeight;
+
+setShowScrollBottom(
+  distanceFromBottom > 400
+);
 
     const messageElements =
       document.querySelectorAll(
@@ -1046,6 +1061,55 @@ boxShadow:
 </div>
 
 )}
+
+{showScrollBottom && (
+
+<button
+onClick={()=>{
+
+  scrollToBottom();
+
+}}
+
+style={{
+position:"absolute",
+
+right:18,
+bottom:110,
+
+zIndex:70,
+
+width:42,
+height:42,
+
+borderRadius:"50%",
+
+border:"none",
+
+background:"#fff",
+
+boxShadow:
+"0 4px 18px rgba(0,0,0,.12)",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+fontSize:20,
+fontWeight:700,
+
+color:"#2E7BFF",
+
+cursor:"pointer",
+
+animation:
+"scrollBtnIn .18s ease"
+}}
+>
+↓
+</button>
+
+)}
     
 <div
 ref={chatRef}
@@ -1673,6 +1737,24 @@ WebkitTapHighlightColor:"transparent"
 </div>
 
 <style jsx global>{`
+
+@keyframes scrollBtnIn{
+
+  from{
+    opacity:0;
+    transform:
+      scale(.7)
+      translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:
+      scale(1)
+      translateY(0px);
+  }
+
+}
 
 @keyframes msgInMine{
 
