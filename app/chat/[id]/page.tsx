@@ -1103,7 +1103,7 @@ boxShadow:
 
 )}
 
-{showScrollBottom && (
+
 
 <button
 onClick={()=>{
@@ -1160,7 +1160,7 @@ showScrollBottom
 ⌄
 </button>
 
-)}
+
     
 <div
 ref={chatRef}
