@@ -75,6 +75,9 @@ useState(false);
 const firstLoadRef =
 useRef(true);
 
+const lastScrollTopRef =
+useRef(0);
+
 useEffect(()=>{
 
   const timeout = setTimeout(()=>{
@@ -85,9 +88,21 @@ useEffect(()=>{
 
     const handleScroll = ()=>{
 
-      setShowScrollBottom(
-        el.scrollTop > 80
-      );
+      const currentScroll =
+  el.scrollTop;
+
+const isScrollingDown =
+
+  currentScroll <
+  lastScrollTopRef.current;
+
+setShowScrollBottom(
+  isScrollingDown &&
+  currentScroll > 120
+);
+
+lastScrollTopRef.current =
+  currentScroll;
 
       const messageElements =
         document.querySelectorAll(
