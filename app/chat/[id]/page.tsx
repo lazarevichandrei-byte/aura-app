@@ -94,7 +94,7 @@ const distanceFromBottom =
   el.clientHeight;
 
 setShowScrollBottom(
-  distanceFromBottom > 400
+  distanceFromBottom > 120
 );
 
     const messageElements =
@@ -1081,8 +1081,8 @@ bottom:110,
 
 zIndex:70,
 
-width:42,
-height:42,
+width:48,
+height:48,
 
 borderRadius:"50%",
 
@@ -1097,7 +1097,7 @@ display:"flex",
 alignItems:"center",
 justifyContent:"center",
 
-fontSize:20,
+fontSize:24,
 fontWeight:700,
 
 color:"#2E7BFF",
@@ -1215,7 +1215,7 @@ style={{
 display:"flex",
 alignItems:"center",
 gap:10,
-margin:"8px 0 14px"
+margin:"14px 0 18px"
 }}
 >
 
@@ -1223,7 +1223,8 @@ margin:"8px 0 14px"
 style={{
 flex:1,
 height:1,
-background:"#E4E9F1"
+background:
+"linear-gradient(to right,transparent,#D8E5FF,transparent)"
 }}
 />
 
@@ -1231,7 +1232,14 @@ background:"#E4E9F1"
 style={{
 fontSize:12,
 fontWeight:700,
+
 color:"#2E7BFF",
+
+background:"#EEF4FF",
+
+padding:"5px 12px",
+
+borderRadius:999,
 whiteSpace:"nowrap"
 }}
 >
@@ -1586,7 +1594,8 @@ fontSize:9
 style={{
 padding:"4px 10px 0px",
 borderTop:"1px solid #eef1f5",
-background:"#fff",
+background:
+"linear-gradient(135deg,#59A8FF,#2E7BFF)",
 position:"relative",
 bottom:"20px",
 }}
@@ -1622,7 +1631,7 @@ color:"#7A8699"
 style={{
 fontSize:11,
 fontWeight:600,
-color:"#2E7BFF",
+color:"#fff",
 marginBottom:5
 }}
 >
