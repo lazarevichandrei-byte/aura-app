@@ -85,16 +85,18 @@ useEffect(()=>{
 
   const handleScroll = ()=>{
 
-const distanceFromBottom =
-
-  el.scrollHeight
-  -
-  el.scrollTop
-  -
-  el.clientHeight;
-
 setShowScrollBottom(
-  distanceFromBottom > 120
+
+  el.scrollTop < (
+
+    el.scrollHeight
+    -
+    el.clientHeight
+    -
+    120
+
+  )
+
 );
 
     const messageElements =
@@ -1129,7 +1131,7 @@ justifyContent:"center",
 width:"100%",
 height:"100%",
 
-transform:"rotate(90deg)",
+transform:"rotate(-90deg)",
 
 marginLeft:1,
 marginTop:1,
