@@ -1083,7 +1083,14 @@ boxShadow:
 
 )}
 
-{showScrollBottom && (
+<div
+style={{
+pointerEvents:
+showScrollBottom
+? "auto"
+: "none"
+}}
+>
 
 <button
 onClick={()=>{
@@ -1096,7 +1103,7 @@ style={{
 position:"absolute",
 
 right:18,
-bottom:110,
+bottom:58,
 
 zIndex:70,
 
@@ -1123,14 +1130,24 @@ color:"#7A8699",
 
 cursor:"pointer",
 
-animation:
-"scrollBtnIn .18s ease"
+transition:
+"all .22s cubic-bezier(.22,.61,.36,1)",
+
+transform:
+showScrollBottom
+? "translateY(0px) scale(1)"
+: "translateY(18px) scale(.86)",
+
+opacity:
+showScrollBottom
+? 1
+: 0,
 }}
 >
 ⌄
 </button>
 
-)}
+</div>
     
 <div
 ref={chatRef}
