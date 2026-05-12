@@ -132,6 +132,10 @@ setShowScrollBottom(
   handleScroll();
 
 },150);
+el.addEventListener(
+  "scroll",
+  handleScroll
+);
 
   return ()=>{
 
@@ -1290,6 +1294,7 @@ background:"#E4E9F1"
 {showDateDivider && (
 
 <div
+data-msg-date={dateLabel}
 style={{
 display:"flex",
 justifyContent:"center",
@@ -1319,7 +1324,6 @@ backdropFilter:"blur(10px)"
 <div
 key={`${msg.id}-${msg.created_at}`}
 id={`msg-${msg.id}`}
-data-msg-date={dateLabel}
 
 onTouchStart={(e)=>{
 
