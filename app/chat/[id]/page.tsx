@@ -77,66 +77,59 @@ useRef(true);
 
 useEffect(()=>{
 
-  const el = chatRef.current;
+  const timeout = setTimeout(()=>{
 
-  if(!el) return;
+    const el = chatRef.current;
 
-  const handleScroll = ()=>{
+    if(!el) return;
 
-    const distanceFromBottom =
+    const handleScroll = ()=>{
 
-      el.scrollHeight
-      -
-      el.scrollTop
-      -
-      el.clientHeight;
-
-    setShowScrollBottom(
-  el.scrollTop > 80
-);
-
-    const messageElements =
-      document.querySelectorAll(
-        "[data-msg-date]"
+      setShowScrollBottom(
+        el.scrollTop > 80
       );
 
-    let currentDate = "";
+      const messageElements =
+        document.querySelectorAll(
+          "[data-msg-date]"
+        );
 
-    messageElements.forEach((node:any)=>{
+      let currentDate = "";
 
-      const rect =
-        node.getBoundingClientRect();
+      messageElements.forEach((node:any)=>{
 
-      if(rect.top <= 120){
+        const rect =
+          node.getBoundingClientRect();
 
-        currentDate =
-          node.dataset.msgDate || "";
+        if(rect.top <= 120){
+
+          currentDate =
+            node.dataset.msgDate || "";
+
+        }
+
+      });
+
+      if(currentDate){
+
+        setFloatingDate(currentDate);
 
       }
 
-    });
+    };
 
-    if(currentDate){
+    handleScroll();
 
-      setFloatingDate(currentDate);
-
-    }
-
-  };
-
-  handleScroll();
-
-  el.addEventListener(
-    "scroll",
-    handleScroll
-  );
-
-  return ()=>{
-
-    el.removeEventListener(
+    el.addEventListener(
       "scroll",
       handleScroll
     );
+
+  },200);
+
+  return ()=>{
+
+    clearTimeout(timeout);
 
   };
 
