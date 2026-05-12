@@ -1123,7 +1123,7 @@ fontFamily:
 
 marginTop:-8,
 
-color:"#fff",
+color:"#7A8699",
 
 display:"block",
 
