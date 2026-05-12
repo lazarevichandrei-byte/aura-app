@@ -128,12 +128,11 @@ setShowScrollBottom(
 
   };
 
+ setTimeout(()=>{
+
   handleScroll();
 
-  el.addEventListener(
-    "scroll",
-    handleScroll
-  );
+},150);
 
   return ()=>{
 
@@ -1113,28 +1112,28 @@ animation:
 
 <span
 style={{
-fontSize:54,
-lineHeight:"54px",
+
+position:"absolute",
+
+top:"50%",
+left:"50%",
+
+transform:
+"translate(-50%,-50%) rotate(-90deg)",
+
+fontSize:42,
+
+lineHeight:"42px",
 
 fontWeight:300,
-
-color:"#7A8699",
 
 fontFamily:
 "-apple-system, SF Pro Display, sans-serif",
 
-display:"flex",
+color:"#7A8699",
 
-alignItems:"center",
-justifyContent:"center",
+pointerEvents:"none",
 
-width:"100%",
-height:"100%",
-
-transform:"rotate(-90deg)",
-
-marginLeft:1,
-marginTop:1,
 }}
 >
 ‹

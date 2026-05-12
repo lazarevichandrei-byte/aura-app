@@ -270,15 +270,61 @@ useEffect(()=>{
 
 
 useEffect(() => {
-  const handler = () => {
-    loadChats();
+
+  const handler = (e:any) => {
+
+    const detail = e.detail;
+
+    if(!detail) return;
+
+    setChats(prev => {
+
+      const updated = prev.map((chat:any)=>{
+
+        if(chat.id !== detail.chatId){
+          return chat;
+        }
+
+        return {
+          ...chat,
+          last_message: detail.message,
+          last_message_at: new Date().toISOString()
+        };
+
+      });
+
+      return updated.sort((a:any,b:any)=>
+
+        new Date(
+          b.last_message_at || 0
+        ).getTime()
+
+        -
+
+        new Date(
+          a.last_message_at || 0
+        ).getTime()
+
+      );
+
+    });
+
   };
 
-  window.addEventListener("chat-updated", handler);
+  window.addEventListener(
+    "chat-updated",
+    handler
+  );
 
   return () => {
-    window.removeEventListener("chat-updated", handler);
+
+    window.removeEventListener(
+      "chat-updated",
+      handler
+    );
+
   };
+
 }, []);
 
 useEffect(()=>{
