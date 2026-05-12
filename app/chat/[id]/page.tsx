@@ -1118,7 +1118,7 @@ position:"absolute",
 right:18,
 bottom:68,
 
-zIndex:70,
+zIndex:20,
 
 width:48,
 height:48,
@@ -1650,7 +1650,7 @@ position:"relative",
 
 bottom:0,
 
-zIndex:40,
+zIndex:60,
 
 flexShrink:0,
 }}
