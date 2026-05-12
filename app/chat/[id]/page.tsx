@@ -83,8 +83,16 @@ useEffect(()=>{
 
     if(!el) return;
 
+    const distanceFromBottom =
+
+      el.scrollHeight
+      -
+      el.scrollTop
+      -
+      el.clientHeight;
+
     setShowScrollBottom(
-      el.scrollTop > 120
+      distanceFromBottom > 220
     );
 
     const messageElements =
@@ -116,24 +124,20 @@ useEffect(()=>{
 
   };
 
-  window.addEventListener(
+  const el = chatRef.current;
+
+  if(!el) return;
+
+  el.addEventListener(
     "scroll",
-    handleScroll,
-    true
+    handleScroll
   );
-
-  requestAnimationFrame(()=>{
-
-    handleScroll();
-
-  });
 
   return ()=>{
 
-    window.removeEventListener(
+    el.removeEventListener(
       "scroll",
-      handleScroll,
-      true
+      handleScroll
     );
 
   };
@@ -1704,8 +1708,10 @@ paddingRight:6,
 
 height:52,
 
-background:"transparent",
 
+borderRadius:999,
+
+border:"1px solid #E7ECF2",
 }}
 >
 
