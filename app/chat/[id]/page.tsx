@@ -1083,14 +1083,7 @@ boxShadow:
 
 )}
 
-<div
-style={{
-pointerEvents:
-showScrollBottom
-? "auto"
-: "none"
-}}
->
+{showScrollBottom && (
 
 <button
 onClick={()=>{
@@ -1103,7 +1096,7 @@ style={{
 position:"absolute",
 
 right:18,
-bottom:58,
+bottom:68,
 
 zIndex:70,
 
@@ -1147,7 +1140,7 @@ showScrollBottom
 ⌄
 </button>
 
-</div>
+)}
     
 <div
 ref={chatRef}
@@ -1711,11 +1704,8 @@ paddingRight:6,
 
 height:52,
 
-background:"#F4F6F8",
+background:"transparent",
 
-borderRadius:999,
-
-border:"1px solid #E7ECF2",
 }}
 >
 
