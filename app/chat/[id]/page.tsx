@@ -85,18 +85,17 @@ useEffect(()=>{
 
   const handleScroll = ()=>{
 
+const isNearBottom =
+
+  el.scrollHeight
+  -
+  el.scrollTop
+  -
+  el.clientHeight
+  < 150;
+
 setShowScrollBottom(
-
-  el.scrollTop < (
-
-    el.scrollHeight
-    -
-    el.clientHeight
-    -
-    120
-
-  )
-
+  !isNearBottom
 );
 
     const messageElements =
@@ -1669,7 +1668,7 @@ color:"#7A8699"
 style={{
 fontSize:11,
 fontWeight:600,
-color:"#fff",
+color:"#111",
 marginBottom:5
 }}
 >
