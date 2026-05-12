@@ -200,17 +200,16 @@ setTimeout(()=>{
 
   el.scrollTop =
     el.scrollHeight;
-    const isNearBottom =
+    const distanceFromBottom =
 
   el.scrollHeight
   -
   el.scrollTop
   -
-  el.clientHeight
-  < 150;
+  el.clientHeight;
 
 setShowScrollBottom(
-  !isNearBottom
+  el.scrollTop > 120
 );
 
 },0);
