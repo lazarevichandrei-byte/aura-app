@@ -93,12 +93,8 @@ const distanceFromBottom =
   -
   el.clientHeight;
 
-const shouldShow =
-
-  distanceFromBottom > 140;
-
 setShowScrollBottom(
-  shouldShow
+  distanceFromBottom > 120
 );
 
     const messageElements =
@@ -130,11 +126,7 @@ setShowScrollBottom(
 
   };
 
-  setTimeout(()=>{
-
   handleScroll();
-
-},120);
 
   el.addEventListener(
     "scroll",
@@ -811,7 +803,7 @@ if(!otherUser){
     <div
       style={{
         height:"100vh",
-        background:"#2E7BFF",
+        background:"#fff",
         display:"flex",
         flexDirection:"column"
       }}
@@ -1120,20 +1112,25 @@ animation:
 <span
 style={{
 
-fontSize:22,
+fontSize:34,
 
-fontWeight:700,
+lineHeight:"20px",
+
+fontWeight:300,
+
+fontFamily:
+"-apple-system, SF Pro Display, sans-serif",
+
+marginTop:-8,
 
 color:"#fff",
 
-lineHeight:"22px",
-
-marginTop:-2,
-
 display:"block",
+
+transform:"rotate(-90deg)",
 }}
 >
-⌄
+‹
 </span>
 
 </button>
