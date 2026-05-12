@@ -192,27 +192,20 @@ const reversed = data.reverse();
 
 setMessages(reversed);
 
-setTimeout(()=>{
+requestAnimationFrame(()=>{
 
-  const el = chatRef.current;
+  requestAnimationFrame(()=>{
 
-  if(!el) return;
+    const el = chatRef.current;
 
-  el.scrollTop =
-    el.scrollHeight;
-    const distanceFromBottom =
+    if(!el) return;
 
-  el.scrollHeight
-  -
-  el.scrollTop
-  -
-  el.clientHeight;
+    el.scrollTop =
+      el.scrollHeight;
 
-setShowScrollBottom(
-  el.scrollTop > 120
-);
+  });
 
-},0);
+});
 
 const firstUnread =
 
@@ -1161,8 +1154,7 @@ ref={chatRef}
 style={{
 flex:1,
 minHeight:0,
-overflowY:"scroll",
-scrollBehavior:"smooth",
+overflowY:"auto",
 padding:"12px 10px 6px",
 paddingBottom:"30px",
 overscrollBehavior:"contain",
