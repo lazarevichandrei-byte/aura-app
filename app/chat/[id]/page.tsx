@@ -1161,7 +1161,8 @@ ref={chatRef}
 style={{
 flex:1,
 minHeight:0,
-overflowY:"auto",
+overflowY:"scroll",
+scrollBehavior:"smooth",
 padding:"12px 10px 6px",
 paddingBottom:"30px",
 overscrollBehavior:"contain",
