@@ -142,7 +142,7 @@ useEffect(()=>{
 
   };
 
-},[]);
+},[messages]);
 
 function scrollToBottom(){
 
@@ -1628,9 +1628,7 @@ style={{
 
 padding:"8px 10px calc(env(safe-area-inset-bottom) + 8px)",
 
-borderTop:"1px solid #eef1f5",
-
-background:"#fff",
+background:"transparent",
 
 position:"relative",
 
