@@ -77,11 +77,11 @@ useRef(true);
 
 useEffect(()=>{
 
+  const el = chatRef.current;
+
+  if(!el) return;
+
   const handleScroll = ()=>{
-
-    const el = chatRef.current;
-
-    if(!el) return;
 
     const distanceFromBottom =
 
@@ -92,8 +92,8 @@ useEffect(()=>{
       el.clientHeight;
 
     setShowScrollBottom(
-      distanceFromBottom > 220
-    );
+  el.scrollTop > 80
+);
 
     const messageElements =
       document.querySelectorAll(
@@ -124,9 +124,7 @@ useEffect(()=>{
 
   };
 
-  const el = chatRef.current;
-
-  if(!el) return;
+  handleScroll();
 
   el.addEventListener(
     "scroll",
@@ -142,7 +140,7 @@ useEffect(()=>{
 
   };
 
-},[messages]);
+},[messages.length]);
 
 function scrollToBottom(){
 
