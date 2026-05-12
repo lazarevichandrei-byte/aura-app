@@ -93,7 +93,7 @@ useEffect(()=>{
 
 const isScrollingDown =
 
-  currentScroll <
+  currentScroll >
   lastScrollTopRef.current;
 
 setShowScrollBottom(
@@ -1134,12 +1134,12 @@ color:"#7A8699",
 cursor:"pointer",
 
 transition:
-"all .22s cubic-bezier(.22,.61,.36,1)",
+"transform .28s cubic-bezier(.22,.61,.36,1), opacity .22s ease",
 
 transform:
 showScrollBottom
-? "translateY(0px) scale(1)"
-: "translateY(18px) scale(.86)",
+? "translateY(0px)"
+: "translateY(85px)",
 
 opacity:
 showScrollBottom
