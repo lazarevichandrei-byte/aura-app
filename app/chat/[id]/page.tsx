@@ -1111,23 +1111,28 @@ animation:
 
 <span
 style={{
-
-fontSize:34,
-
-lineHeight:"20px",
+fontSize:54,
+lineHeight:"54px",
 
 fontWeight:300,
+
+color:"#7A8699",
 
 fontFamily:
 "-apple-system, SF Pro Display, sans-serif",
 
-marginTop:-8,
+display:"flex",
 
-color:"#7A8699",
+alignItems:"center",
+justifyContent:"center",
 
-display:"block",
+width:"100%",
+height:"100%",
 
-transform:"rotate(-90deg)",
+transform:"rotate(90deg)",
+
+marginLeft:1,
+marginTop:1,
 }}
 >
 ‹
