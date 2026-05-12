@@ -1108,7 +1108,31 @@ animation:
 "scrollBtnIn .18s ease"
 }}
 >
-↓
+
+<span
+style={{
+
+fontSize:34,
+
+lineHeight:"20px",
+
+fontWeight:300,
+
+fontFamily:
+"-apple-system, SF Pro Display, sans-serif",
+
+marginTop:-8,
+
+color:"#fff",
+
+display:"block",
+
+transform:"rotate(-90deg)",
+}}
+>
+‹
+</span>
+
 </button>
 
 )}
