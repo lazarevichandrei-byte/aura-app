@@ -610,11 +610,30 @@ setMessages(prev => {
 
   },100);
 
-  requestAnimationFrame(()=>{
+  const el = chatRef.current;
 
-    scrollToBottom();
+  if(el){
 
-  });
+    const isNearBottom =
+
+      el.scrollHeight
+      -
+      el.scrollTop
+      -
+      el.clientHeight
+      < 150;
+
+    if(isNearBottom){
+
+      requestAnimationFrame(()=>{
+
+        scrollToBottom();
+
+      });
+
+    }
+
+  }
 
   return updated;
 
@@ -1124,36 +1143,7 @@ animation:
 "scrollBtnIn .18s ease"
 }}
 >
-
-<span
-style={{
-
-position:"absolute",
-
-top:"50%",
-left:"50%",
-
-transform:
-"translate(-50%,-50%) rotate(-90deg)",
-
-fontSize:42,
-
-lineHeight:"42px",
-
-fontWeight:300,
-
-fontFamily:
-"-apple-system, SF Pro Display, sans-serif",
-
-color:"#7A8699",
-
-pointerEvents:"none",
-
-}}
->
 ↓
-</span>
-
 </button>
 
 )}
