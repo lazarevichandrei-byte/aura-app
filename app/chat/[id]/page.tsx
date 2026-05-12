@@ -127,15 +127,80 @@ setShowScrollBottom(
 
   };
 
- setTimeout(()=>{
+ useEffect(()=>{
 
-  handleScroll();
+  const el = chatRef.current;
 
-},150);
-el.addEventListener(
-  "scroll",
-  handleScroll
-);
+  if(!el || !messages.length){
+    return;
+  }
+
+  const handleScroll = ()=>{
+
+    const isNearBottom =
+
+      el.scrollHeight
+      -
+      el.scrollTop
+      -
+      el.clientHeight
+      < 150;
+
+    setShowScrollBottom(
+      !isNearBottom
+    );
+
+    const messageElements =
+      document.querySelectorAll(
+        "[data-msg-date]"
+      );
+
+    let currentDate = "";
+
+    messageElements.forEach((node:any)=>{
+
+      const rect =
+        node.getBoundingClientRect();
+
+      if(rect.top <= 120){
+
+        currentDate =
+          node.dataset.msgDate || "";
+
+      }
+
+    });
+
+    if(currentDate){
+
+      setFloatingDate(currentDate);
+
+    }
+
+  };
+
+  el.addEventListener(
+    "scroll",
+    handleScroll,
+    { passive:true }
+  );
+
+  requestAnimationFrame(()=>{
+
+    handleScroll();
+
+  });
+
+  return ()=>{
+
+    el.removeEventListener(
+      "scroll",
+      handleScroll
+    );
+
+  };
+
+},[messages]);
 
   return ()=>{
 
