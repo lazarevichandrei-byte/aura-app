@@ -77,26 +77,15 @@ useRef(true);
 
 useEffect(()=>{
 
-  const el = chatRef.current;
-
-  if(!el || !messages.length){
-    return;
-  }
-
   const handleScroll = ()=>{
 
-const isNearBottom =
+    const el = chatRef.current;
 
-  el.scrollHeight
-  -
-  el.scrollTop
-  -
-  el.clientHeight
-  < 150;
+    if(!el) return;
 
-setShowScrollBottom(
-  !isNearBottom
-);
+    setShowScrollBottom(
+      el.scrollTop > 120
+    );
 
     const messageElements =
       document.querySelectorAll(
@@ -127,32 +116,29 @@ setShowScrollBottom(
 
   };
 
- setTimeout(()=>{
+  window.addEventListener(
+    "scroll",
+    handleScroll,
+    true
+  );
 
-  handleScroll();
-
-  setTimeout(()=>{
+  requestAnimationFrame(()=>{
 
     handleScroll();
 
-  },300);
-
-},150);
-el.addEventListener(
-  "scroll",
-  handleScroll
-);
+  });
 
   return ()=>{
 
-    el.removeEventListener(
+    window.removeEventListener(
       "scroll",
-      handleScroll
+      handleScroll,
+      true
     );
 
   };
 
-},[messages]);
+},[]);
 
 function scrollToBottom(){
 
