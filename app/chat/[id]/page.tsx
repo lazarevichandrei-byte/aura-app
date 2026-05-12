@@ -194,6 +194,18 @@ setTimeout(()=>{
 
   el.scrollTop =
     el.scrollHeight;
+    const isNearBottom =
+
+  el.scrollHeight
+  -
+  el.scrollTop
+  -
+  el.clientHeight
+  < 150;
+
+setShowScrollBottom(
+  !isNearBottom
+);
 
 },0);
 
@@ -1104,7 +1116,7 @@ justifyContent:"center",
 fontSize:24,
 fontWeight:700,
 
-color:"#2E7BFF",
+color:"#7A8699",
 
 cursor:"pointer",
 
@@ -1139,7 +1151,7 @@ pointerEvents:"none",
 
 }}
 >
-‹
+↓
 </span>
 
 </button>
