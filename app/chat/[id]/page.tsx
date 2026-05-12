@@ -1592,12 +1592,20 @@ fontSize:9
 
 <div
 style={{
-padding:"4px 10px 0px",
+
+padding:"8px 10px calc(env(safe-area-inset-bottom) + 8px)",
+
 borderTop:"1px solid #eef1f5",
-background:
-"linear-gradient(135deg,#59A8FF,#2E7BFF)",
+
+background:"#fff",
+
 position:"relative",
-bottom:"20px",
+
+bottom:0,
+
+zIndex:40,
+
+flexShrink:0,
 }}
 >
 
@@ -1653,13 +1661,25 @@ paddingRight:20
 
 )}
 
-<div className="chat-input"
+<div
+className="chat-input"
 style={{
+
 display:"flex",
 alignItems:"center",
+
 position:"relative",
-paddingLeft:14,
-paddingRight:4
+
+paddingLeft:16,
+paddingRight:6,
+
+height:52,
+
+background:"#F4F6F8",
+
+borderRadius:999,
+
+border:"1px solid #E7ECF2",
 }}
 >
 
@@ -1739,8 +1759,8 @@ onTouchStart={(e)=>{
 
 onClick={sendMessage}
 style={{
-width:34,
-height:34,
+width:40,
+height:40,
 borderRadius:"50%",
 background:"#2E7BFF",
 display:"flex",
