@@ -131,6 +131,12 @@ setShowScrollBottom(
 
   handleScroll();
 
+  setTimeout(()=>{
+
+    handleScroll();
+
+  },300);
+
 },150);
 el.addEventListener(
   "scroll",
@@ -146,7 +152,7 @@ el.addEventListener(
 
   };
 
-},[]);
+},[messages]);
 
 function scrollToBottom(){
 
