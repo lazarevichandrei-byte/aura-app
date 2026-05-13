@@ -7,6 +7,13 @@ useParams
 } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
+import {
+  Send2,
+  ArrowDown2,
+  CloseCircle,
+  BackSquare
+} from "iconsax-react";
+
 export default function ChatPage(){
 
 const router = useRouter();
@@ -1118,7 +1125,7 @@ position:"absolute",
 right:18,
 bottom:78,
 
-zIndex:20,
+zIndex:30,
 
 width:48,
 height:48,
@@ -1157,7 +1164,13 @@ showScrollBottom
 : 0,
 }}
 >
-⌄
+
+<ArrowDown2
+  size="22"
+  color="#7A8699"
+  variant="Outline"
+/>
+
 </button>
 
 
@@ -1446,7 +1459,13 @@ Math.abs(swipeOffset) / 40,
 transition:"opacity .12s ease"
 }}
 >
-↩
+
+<BackSquare
+  size="16"
+  color="#2E7BFF"
+  variant="Outline"
+/>
+
 </div>
 
 )}
@@ -1679,7 +1698,13 @@ cursor:"pointer",
 color:"#7A8699"
 }}
 >
-✕
+
+<CloseCircle
+  size="18"
+  color="#7A8699"
+  variant="Outline"
+/>
+
 </div>
 
 <div
@@ -1716,7 +1741,7 @@ display:"flex",
 alignItems:"center",
 
 position:"relative",
-
+background:"#F4F6F8",
 paddingLeft:16,
 paddingRight:6,
 
@@ -1819,7 +1844,13 @@ flexShrink:0,
 WebkitTapHighlightColor:"transparent"
 }}
 >
-➤
+
+<Send2
+  size="20"
+  color="#fff"
+  variant="Bulk"
+/>
+
 </button>
 
 </div>
