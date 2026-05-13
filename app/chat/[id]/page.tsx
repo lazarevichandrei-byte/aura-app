@@ -8,7 +8,7 @@ useParams
 import { supabase } from "../../../lib/supabase";
 
 import {
-  Send,
+  Send2,
   ArrowDown2,
   CloseCircle,
   BackSquare,
@@ -115,9 +115,20 @@ const isScrollingDown =
   currentScroll >
   lastScrollTopRef.current;
 
+const distanceFromBottom =
+
+  el.scrollHeight
+  -
+  currentScroll
+  -
+  el.clientHeight;
+
+const isFarFromBottom =
+  distanceFromBottom > 500;
+
 setShowScrollBottom(
-  isScrollingDown &&
-  currentScroll > 120
+  isFarFromBottom &&
+  isScrollingDown
 );
 
 lastScrollTopRef.current =
@@ -1852,8 +1863,8 @@ WebkitTapHighlightColor:"transparent"
 }}
 >
 
-<Send
-  size="18"
+<Send2
+  size="19"
   color="#fff"
   variant="Bulk"
 />
