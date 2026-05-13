@@ -91,6 +91,11 @@ useRef(true);
 const lastScrollTopRef =
 useRef(0);
 
+const scrollFrame =
+useRef<number | null>(null);
+
+
+
 useEffect(()=>{
 
   const timeout = setTimeout(()=>{
@@ -101,42 +106,51 @@ useEffect(()=>{
 
     const handleScroll = ()=>{
 
+  if(scrollFrame.current){
+    return;
+  }
+
+  scrollFrame.current =
+    requestAnimationFrame(()=>{
+
       const currentScroll =
-  el.scrollTop;
+        el.scrollTop;
 
-  if(
-  lastScrollTopRef.current === 0
-){
+      if(
+        lastScrollTopRef.current === 0
+      ){
 
-  lastScrollTopRef.current =
-    currentScroll;
+        lastScrollTopRef.current =
+          currentScroll;
 
-  return;
-}
+        scrollFrame.current = null;
 
-const isScrollingDown =
+        return;
+      }
 
-  currentScroll >
-  lastScrollTopRef.current;
+      const isScrollingDown =
 
-const distanceFromBottom =
+        currentScroll >
+        lastScrollTopRef.current;
 
-  el.scrollHeight
-  -
-  currentScroll
-  -
-  el.clientHeight;
+      const distanceFromBottom =
 
-const isFarFromBottom =
-  distanceFromBottom > 500;
+        el.scrollHeight
+        -
+        currentScroll
+        -
+        el.clientHeight;
 
-setShowScrollBottom(
-  isFarFromBottom &&
-  isScrollingDown
-);
+      const isFarFromBottom =
+        distanceFromBottom > 500;
 
-lastScrollTopRef.current =
-  currentScroll;
+      setShowScrollBottom(
+        isFarFromBottom &&
+        isScrollingDown
+      );
+
+      lastScrollTopRef.current =
+        currentScroll;
 
       const messageElements =
         document.querySelectorAll(
@@ -165,22 +179,30 @@ lastScrollTopRef.current =
 
       }
 
-    };
+      scrollFrame.current = null;
+
+    });
+
+};
 
     handleScroll();
 
     el.addEventListener(
-      "scroll",
-      handleScroll
-    );
+  "scroll",
+  handleScroll,
+  { passive:true }
+);
 
   },200);
 
   return ()=>{
 
     clearTimeout(timeout);
+    
+    
 
   };
+  
 
 },[messages.length]);
 
