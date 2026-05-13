@@ -1830,40 +1830,35 @@ onFocus={()=>{
 
 onChange={(e:any)=>{
 
- const value = e.target.value;
+  const value =
+    e.target.value;
 
- setNewMessage(value);
+  setNewMessage(value);
 
- clearTimeout(typingTimeout.current);
+  clearTimeout(
+    typingTimeout.current
+  );
 
- if(!pressed){
+  if(!localTypingRef.current){
 
-  setPressed(true);
+    localTypingRef.current = true;
 
-  updateTyping(true);
+    setPressed(true);
 
- }
+    updateTyping(true);
 
- if(!localTypingRef.current){
+  }
 
-  localTypingRef.current = true;
+  typingTimeout.current =
+    setTimeout(async ()=>{
 
-  setPressed(true);
+      localTypingRef.current = false;
 
-  updateTyping(true);
+      setPressed(false);
 
-}
+      await updateTyping(false);
 
- typingTimeout.current =
-  setTimeout(async ()=>{
-
-   localTypingRef.current = false;
-
-setPressed(false);
-
-await updateTyping(false);
-
-  },1500);
+    },1500);
 
 }}
 
