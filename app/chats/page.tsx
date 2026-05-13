@@ -615,13 +615,17 @@ fontSize:15
   )
 );
 
-          await supabase
+          const { data, error } = await supabase
   .from("chats")
   .update({
     is_new_match: false,
     unread_count: 0
   })
-  .eq("id", chat.id);
+  .eq("id", chat.id)
+  .select();
+
+console.log("UPDATE RESULT:", data);
+console.log("UPDATE ERROR:", error);
 
           router.push(`/chat/${chat.id}`);
         }}
