@@ -173,12 +173,14 @@ useEffect(()=>{
 
       });
 
-      if(currentDate){
+      if(
+  currentDate &&
+  currentDate !== floatingDate
+){
 
-        setFloatingDate(currentDate);
+  setFloatingDate(currentDate);
 
-      }
-
+}
       scrollFrame.current = null;
 
     });
