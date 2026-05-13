@@ -102,6 +102,12 @@ useRef<NodeListOf<Element> | null>(
 const scrollBottomFrame =
 useRef<number | null>(null);
 
+const pendingReadMessages =
+useRef<string[]>([]);
+
+const readTimeout =
+useRef<any>(null);
+
 
 useEffect(()=>{
 
@@ -175,19 +181,30 @@ const messageElements =
 
       let currentDate = "";
 
-      messageElements.forEach((node:any)=>{
+for(
+  let i = 0;
+  i < messageElements.length;
+  i++
+){
 
-        const rect =
-          node.getBoundingClientRect();
+  const node:any =
+    messageElements[i];
 
-        if(rect.top <= 120){
+  const rect =
+    node.getBoundingClientRect();
 
-          currentDate =
-            node.dataset.msgDate || "";
+  if(rect.top <= 120){
 
-        }
+    currentDate =
+      node.dataset.msgDate || "";
 
-      });
+  }else{
+
+    break;
+
+  }
+
+}
 
       if(
   currentDate &&
@@ -686,20 +703,42 @@ setMessages(prev => {
 
   const updated = [...prev, newMsg];
 
+  if(newMsg.sender_id !== userId){
+
+  pendingReadMessages.current.push(
+    newMsg.id
+  );
+
+  if(readTimeout.current){
+
+    clearTimeout(
+      readTimeout.current
+    );
+
+  }
+
+  readTimeout.current =
   setTimeout(async ()=>{
 
-    if(newMsg.sender_id !== userId){
+    const ids = [
+      ...pendingReadMessages.current
+    ];
 
-      await supabase
-        .from("messages")
-        .update({
-          is_read:true
-        })
-        .eq("id",newMsg.id);
+    pendingReadMessages.current = [];
 
-    }
+    await supabase
+      .from("messages")
+      .update({
+        is_read:true
+      })
+      .in("id",ids);
 
-  },100);
+  },250);
+
+}
+
+
+
 
   const el = chatRef.current;
 
@@ -1531,7 +1570,7 @@ backdropFilter:"blur(10px)"
 
 
 <MessageBubble
-  key={`${msg.id}-${msg.created_at}`}
+  key={msg.id}
 
   msg={msg}
 
