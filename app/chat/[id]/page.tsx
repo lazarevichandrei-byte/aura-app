@@ -1594,7 +1594,7 @@ marginTop:5,
 fontSize:10,
 fontWeight:600,
 
-opacity:.90,
+opacity:.100,
 
 letterSpacing:0.2,
 display:"flex",
