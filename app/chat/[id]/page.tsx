@@ -6,6 +6,7 @@ import React,
   useState,
   useRef
 } from "react";
+
 import {
 useRouter,
 useParams
@@ -585,11 +586,13 @@ useEffect(()=>{
 
   return ()=>{
 
-    supabase.removeChannel(
-      onlineChannel
-    );
+  onlineChannel.unsubscribe();
 
-  };
+  supabase.removeChannel(
+    onlineChannel
+  );
+
+};
 
 },[otherUser?.id]);
 
@@ -641,7 +644,11 @@ if(typingRef.current !== data.typing){
 
 return ()=>{
 
-supabase.removeChannel(typingChannel);
+  typingChannel.unsubscribe();
+
+  supabase.removeChannel(
+    typingChannel
+  );
 
 };
 
@@ -790,7 +797,11 @@ setMessages(prev => {
 
 return ()=>{
 
-supabase.removeChannel(channel);
+  channel.unsubscribe();
+
+  supabase.removeChannel(
+    channel
+  );
 
 };
 
