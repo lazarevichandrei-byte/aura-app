@@ -168,8 +168,7 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-        lastScrollTopRef.current =
-  currentScroll;
+        
 
       
 
