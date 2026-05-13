@@ -1594,7 +1594,7 @@ marginTop:5,
 fontSize:10,
 fontWeight:600,
 
-opacity:.20,
+opacity:.90,
 
 letterSpacing:0.2,
 display:"flex",
@@ -1611,11 +1611,7 @@ flex:1
 />
 )}
 
-<span
-style={{
-opacity:.7
-}}
->
+<span>
 {new Date(
 msg.created_at || Date.now()
 ).toLocaleTimeString(
