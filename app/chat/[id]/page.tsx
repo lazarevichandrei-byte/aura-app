@@ -13,7 +13,8 @@ import {
   CloseCircle,
   BackSquare,
   ArrowLeft2,
-  TickCircle
+  TickCircle,
+TickSquare
 } from "iconsax-react";
 
 export default function ChatPage(){
@@ -1644,31 +1645,46 @@ fontSize:9
 style={{
 display:"flex",
 alignItems:"center",
-marginLeft:1,
-position:"relative",
-top:.5
+marginLeft:2
 }}
 >
 
-<span
+{msg.is_read ? (
+
+<div
 style={{
-fontSize:11,
-fontWeight:800,
-letterSpacing:-3,
-
-color:
-msg.is_read
-? "#7DFFB3"
-: "rgba(255,255,255,.55)",
-
-textShadow:
-msg.is_read
-? "0 0 8px rgba(125,255,179,.45)"
-: "none",
+display:"flex",
+alignItems:"center",
+marginLeft:-2
 }}
 >
-✓✓
-</span>
+
+<TickSquare
+  size="11"
+  color="#64FFAE"
+  variant="Bold"
+/>
+
+<TickSquare
+  size="11"
+  color="#64FFAE"
+  variant="Bold"
+  style={{
+    marginLeft:-5
+  }}
+/>
+
+</div>
+
+) : (
+
+<TickCircle
+  size="10"
+  color="rgba(255,255,255,.58)"
+  variant="Bold"
+/>
+
+)}
 
 </div>
 </span>
