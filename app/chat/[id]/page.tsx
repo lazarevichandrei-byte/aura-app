@@ -158,86 +158,68 @@ useEffect(()=>{
 
     const handleScroll = ()=>{
 
-  if(scrollFrame.current){
-    return;
-  }
+  const currentScroll =
+    el.scrollTop;
 
-  scrollFrame.current =
-    requestAnimationFrame(()=>{
+  const distanceFromBottom =
 
-      const currentScroll =
-        el.scrollTop;
+    el.scrollHeight
+    -
+    currentScroll
+    -
+    el.clientHeight;
 
-        
+  setShowScrollBottom(
+    distanceFromBottom > 120
+  );
 
-      
+  if(!dateElementsRef.current){
 
-      const distanceFromBottom =
-
-  el.scrollHeight
-  -
-  currentScroll
-  -
-  el.clientHeight;
-
-setShowScrollBottom(
-  distanceFromBottom > 350
-);
-
- 
-
-      if(!dateElementsRef.current){
-
-  dateElementsRef.current =
-    document.querySelectorAll(
-      "[data-msg-date]"
-    );
-
-}
-
-
-
-const messageElements =
-  dateElementsRef.current;
-
-      let currentDate = "";
-
-for(
-  let i = 0;
-  i < messageElements.length;
-  i++
-){
-
-  const node:any =
-    messageElements[i];
-
-  const rect =
-    node.getBoundingClientRect();
-
-  if(rect.top <= 120){
-
-    currentDate =
-      node.dataset.msgDate || "";
-
-  }else{
-
-    break;
+    dateElementsRef.current =
+      document.querySelectorAll(
+        "[data-msg-date]"
+      );
 
   }
 
-}
+  const messageElements =
+    dateElementsRef.current;
 
-      if(
-  currentDate &&
-  currentDate !== floatingDate
-){
+  let currentDate = "";
 
-  setFloatingDate(currentDate);
+  for(
+    let i = 0;
+    i < messageElements.length;
+    i++
+  ){
 
-}
-      scrollFrame.current = null;
+    const node:any =
+      messageElements[i];
 
-    });
+    const rect =
+      node.getBoundingClientRect();
+
+    if(rect.top <= 120){
+
+      currentDate =
+        node.dataset.msgDate || "";
+
+    }else{
+
+      break;
+
+    }
+
+  }
+
+  if(
+    currentDate &&
+    currentDate !== floatingDate
+  ){
+
+    setFloatingDate(currentDate);
+
+  }
 
 };
 
@@ -284,25 +266,7 @@ for(
 const scrollToBottom =
 useCallback(()=>{
 
-  useEffect(()=>{
-
-  const el = chatRef.current;
-
-  if(!el) return;
-
-  const distanceFromBottom =
-
-    el.scrollHeight
-    -
-    el.scrollTop
-    -
-    el.clientHeight;
-
-  setShowScrollBottom(
-    distanceFromBottom > 120
-  );
-
-},[messages]);
+ 
 
   const el = chatRef.current;
 
@@ -324,6 +288,27 @@ useCallback(()=>{
     });
 
 },[]);
+
+useEffect(()=>{
+
+  const el = chatRef.current;
+
+  if(!el) return;
+
+  const distanceFromBottom =
+
+    el.scrollHeight
+    -
+    el.scrollTop
+    -
+    el.clientHeight;
+
+  setShowScrollBottom(
+    distanceFromBottom > 120
+  );
+
+},[messages]);
+
 
 async function fetchMessages(){
 
