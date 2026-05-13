@@ -299,7 +299,7 @@ useCallback(()=>{
     el.clientHeight;
 
   setShowScrollBottom(
-    distanceFromBottom > 350
+    distanceFromBottom > 120
   );
 
 },[messages]);
