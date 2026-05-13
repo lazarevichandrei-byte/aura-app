@@ -118,6 +118,30 @@ useRef<string[]>([]);
 const readTimeout =
 useRef<any>(null);
 
+useEffect(()=>{
+
+  return ()=>{
+
+    if(typingTimeout.current){
+
+      clearTimeout(
+        typingTimeout.current
+      );
+
+    }
+
+    if(readTimeout.current){
+
+      clearTimeout(
+        readTimeout.current
+      );
+
+    }
+
+  };
+
+},[]);
+
 
 useEffect(()=>{
 
