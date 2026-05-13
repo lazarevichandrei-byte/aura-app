@@ -17,6 +17,9 @@ import {
 TickSquare
 } from "iconsax-react";
 
+import { MessageBubble }
+from "./MessageBubble";
+
 export default function ChatPage(){
 
 const router = useRouter();
@@ -1357,325 +1360,114 @@ backdropFilter:"blur(10px)"
 )}
 
 
-<div
-key={`${msg.id}-${msg.created_at}`}
-id={`msg-${msg.id}`}
+<MessageBubble
+  key={`${msg.id}-${msg.created_at}`}
 
-onTouchStart={(e)=>{
+  msg={msg}
 
-  swipeStartX.current =
-    e.touches[0].clientX;
+  mine={mine}
 
-}}
+  sameAsPrev={sameAsPrev}
+  sameAsNext={sameAsNext}
 
-onTouchMove={(e)=>{
+  swipedMsg={swipedMsg}
+  swipeOffset={swipeOffset}
+  showReplyIcon={showReplyIcon}
 
-  const delta =
+  highlightedMsg={highlightedMsg}
 
-    e.touches[0].clientX
-    -
-    swipeStartX.current;
-
-  if(delta < 0){
-
-  const limited =
-    Math.max(delta,-85);
-
-  setSwipedMsg(String(msg.id));
-
-  setSwipeOffset(limited);
-
-  setShowReplyIcon(
-    Math.abs(limited) > 28
-  );
-
-}
-
-}}
-
-onTouchEnd={(e)=>{
-
-  const delta =
-
-    e.changedTouches[0].clientX
-    -
-    swipeStartX.current;
-
-  if(delta < -45){
-
+  onReplyClick={()=>{
     setReplyTo(msg);
+  }}
 
-  }
+  onReplyPreviewClick={()=>{
 
-  setSwipedMsg(null);
+    if(!msg.reply_to_id){
+      return;
+    }
 
-setSwipeOffset(0);
+    const el =
+      document.getElementById(
+        `msg-${msg.reply_to_id}`
+      );
 
-setShowReplyIcon(false);
-}}
+    if(!el){
+      return;
+    }
 
-style={{
-position:"relative",
-display:"flex",
-justifyContent:
-mine ? "flex-end" : "flex-start",
+    el.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
 
-paddingLeft: mine ? 60 : 0,
-paddingRight: mine ? 0 : 60,
+    setHighlightedMsg(
+      String(msg.reply_to_id)
+    );
 
-marginBottom:
-sameAsNext
-? 2
-: 10,
+    setTimeout(()=>{
 
-animation:
-mine
-? "msgInMine .18s ease"
-: "msgInOther .22s ease",
-}}
->
+      setHighlightedMsg(null);
 
+    },1400);
 
+  }}
 
+  onTouchStart={(e)=>{
 
-{showReplyIcon &&
-swipedMsg === String(msg.id) && (
+    swipeStartX.current =
+      e.touches[0].clientX;
 
-<div
-style={{
-position:"absolute",
-left: mine ? "auto" : 16,
-right: mine ? 16 : "auto",
-top:"50%",
-transform:"translateY(-50%)",
-width:28,
-height:28,
-borderRadius:"50%",
-background:"#E8F1FF",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:13,
-color:"#2E7BFF",
-fontWeight:700,
-opacity:
-Math.min(
-Math.abs(swipeOffset) / 40,
-1
-),
-transition:"opacity .12s ease"
-}}
->
+  }}
 
-<BackSquare
-  size="16"
-  color="#2E7BFF"
-  variant="Outline"
-/>
+  onTouchMove={(e)=>{
 
-</div>
+    const delta =
+      e.touches[0].clientX
+      -
+      swipeStartX.current;
 
-)}
+    if(delta < 0){
 
+      const limited =
+        Math.max(delta,-85);
 
-<div
+      setSwipedMsg(
+        String(msg.id)
+      );
 
-style={{
-background: mine
+      setSwipeOffset(limited);
 
-? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
-:"#F2F4F7",
+      setShowReplyIcon(
+        Math.abs(limited) > 28
+      );
 
-color: mine ? "#fff" : "#111",
+    }
 
-padding:"8px 13px",
+  }}
 
-fontSize:13,
-fontWeight:500,
-lineHeight:"17px",
+  onTouchEnd={(e)=>{
 
-borderTopLeftRadius:
+    const delta =
+      e.changedTouches[0].clientX
+      -
+      swipeStartX.current;
 
-!mine && sameAsPrev
-? 8
-: 18,
+    if(delta < -45){
 
-borderTopRightRadius:
+      setReplyTo(msg);
 
-mine && sameAsPrev
-? 8
-: 18,
+    }
 
-borderBottomLeftRadius:
+    setSwipedMsg(null);
 
-!mine && sameAsNext
-? 8
-: 18,
+    setSwipeOffset(0);
 
-borderBottomRightRadius:
+    setShowReplyIcon(false);
 
-mine && sameAsNext
-? 8
-: 18,
+  }}
+  />
 
-width:"fit-content",
-maxWidth:"80%",
 
-
-wordBreak:"break-word",
-overflowWrap:"break-word",
-boxShadow:
-
-highlightedMsg === String(msg.id)
-
-? "0 0 0 2px rgba(46,123,255,.35)"
-
-: "none",
-
-transform:
-swipedMsg === String(msg.id)
-? `translateX(${swipeOffset}px)`
-: "translateX(0px)",
-
-transition:"transform .12s ease",
-
-}}
->
-
-{msg.reply_preview && (
-
-<div
-
-onClick={()=>{
-
-  if(!msg.reply_to_id){
-    return;
-  }
-
-  const el = document.getElementById(
-    `msg-${msg.reply_to_id}`
-  );
-
-  if(!el){
-    return;
-  }
-
-  el.scrollIntoView({
-    behavior:"smooth",
-    block:"center"
-  });
-
-  setHighlightedMsg(
-    String(msg.reply_to_id)
-  );
-
-  setTimeout(()=>{
-
-    setHighlightedMsg(null);
-
-  },1400);
-
-}}
-
-style={{
-background:
-mine
-? "rgba(255,255,255,.16)"
-: "#E8F0FF",
-
-padding:"6px 8px",
-borderRadius:10,
-marginBottom:6,
-fontSize:11
-}}
->
-{msg.reply_preview}
-</div>
-
-)}
-
-
-{msg.body}
-
-{!sameAsNext && (
-
-<div
-style={{
-marginTop:5,
-
-fontSize:10,
-fontWeight:600,
-
-opacity:.55,
-
-letterSpacing:0.2,
-display:"flex",
-alignItems:"center",
-justifyContent:"flex-end",
-gap:3
-}}
->
-    {mine && (
-<div
-style={{
-flex:1
-}}
-/>
-)}
-
-<span>
-{new Date(
-msg.created_at || Date.now()
-).toLocaleTimeString(
-"ru-RU",
-{
-hour:"2-digit",
-minute:"2-digit"
-}
-)}
-</span>
-
-{mine && (
-<span
-style={{
-fontSize:9
-}}
->
-<div
-style={{
-display:"flex",
-alignItems:"center",
-marginLeft:2,
-
-filter:
-msg.is_read
-? "drop-shadow(0 0 8px rgba(141,255,97,.85))"
-: "none"
-}}
->
-
-<TickCircle
-  size="17"
-  color={
-    msg.is_read
-    ? "#8DFF61"
-    : "rgba(255,255,255,.72)"
-  }
-  variant="Bulk"
-/>
-
-</div>
-</span>
-
-)}
-
-</div>
-
-)}
-
-</div>
-
-</div>
 </>
 
 );
