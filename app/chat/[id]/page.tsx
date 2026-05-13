@@ -284,6 +284,26 @@ for(
 const scrollToBottom =
 useCallback(()=>{
 
+  useEffect(()=>{
+
+  const el = chatRef.current;
+
+  if(!el) return;
+
+  const distanceFromBottom =
+
+    el.scrollHeight
+    -
+    el.scrollTop
+    -
+    el.clientHeight;
+
+  setShowScrollBottom(
+    distanceFromBottom > 350
+  );
+
+},[messages]);
+
   const el = chatRef.current;
 
   if(!el) return;
