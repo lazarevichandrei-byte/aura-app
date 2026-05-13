@@ -180,29 +180,19 @@ useEffect(()=>{
         return;
       }
 
-      const isScrollingDown =
-
-        currentScroll >
-        lastScrollTopRef.current;
-
       const distanceFromBottom =
 
-        el.scrollHeight
-        -
-        currentScroll
-        -
-        el.clientHeight;
+  el.scrollHeight
+  -
+  currentScroll
+  -
+  el.clientHeight;
 
-      const isFarFromBottom =
-        distanceFromBottom > 500;
+setShowScrollBottom(
+  distanceFromBottom > 350
+);
 
-      setShowScrollBottom(
-        isFarFromBottom &&
-        isScrollingDown
-      );
-
-      lastScrollTopRef.current =
-        currentScroll;
+ 
 
       if(!dateElementsRef.current){
 
