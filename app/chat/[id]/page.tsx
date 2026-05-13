@@ -8,7 +8,7 @@ useParams
 import { supabase } from "../../../lib/supabase";
 
 import {
-  Send2,
+  Send,
   ArrowDown2,
   CloseCircle,
   BackSquare,
@@ -1633,7 +1633,7 @@ fontSize:9
   size="14"
   color={
     msg.is_read
-    ? "#7ED6A7"
+    ? "#34C759"
     : "rgba(255,255,255,.72)"
   }
   variant={
@@ -1852,8 +1852,8 @@ WebkitTapHighlightColor:"transparent"
 }}
 >
 
-<Send2
-  size="20"
+<Send
+  size="18"
   color="#fff"
   variant="Bulk"
 />
