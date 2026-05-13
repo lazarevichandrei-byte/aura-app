@@ -1864,14 +1864,13 @@ WebkitTapHighlightColor:"transparent"
 >
 
 <Send2
-  size="19"
-  color="#fff"
+  size="20"
+  color="#FFFFFF"
   variant="Bulk"
 />
-
 </button>
 
-</div>
+</div> 
 </div>
 
 <style jsx global>{`
