@@ -758,7 +758,29 @@ messageIdsRef.current.add(
   msgId
 );
 
-  const updated = [...prev, newMsg];
+  const optimisticIndex =
+  prev.findIndex(
+    (m:any)=>
+
+      m.client_id &&
+      m.client_id ===
+      newMsg.client_id
+  );
+
+if(optimisticIndex !== -1){
+
+  const cloned = [...prev];
+
+  cloned[optimisticIndex] = {
+    ...newMsg,
+    status:"sent"
+  };
+
+  return cloned;
+
+}
+
+const updated = [...prev, newMsg];
 
   if(newMsg.sender_id !== userId){
 
@@ -925,6 +947,8 @@ const optimisticMessage = {
 
   id: optimisticId,
 
+  client_id: optimisticId,
+
   chat_id: chatId,
 
   sender_id: userId,
@@ -981,6 +1005,7 @@ await supabase
 chat_id:chatId,
 sender_id:userId,
 body:text,
+client_id: optimisticId,
 message_type:"text",
 
 reply_to_id:
