@@ -68,6 +68,8 @@ useState<string | null>(null);
 
 const [swipeOffset,setSwipeOffset] =
 useState(0);
+const lastSwipeOffset =
+useRef(0);
 const [showReplyIcon,setShowReplyIcon] =
 useState(false);
 
@@ -93,6 +95,11 @@ useRef(0);
 
 const scrollFrame =
 useRef<number | null>(null);
+
+const dateElementsRef =
+useRef<NodeListOf<Element> | null>(
+  null
+);
 
 
 
@@ -152,10 +159,17 @@ useEffect(()=>{
       lastScrollTopRef.current =
         currentScroll;
 
-      const messageElements =
-        document.querySelectorAll(
-          "[data-msg-date]"
-        );
+      if(!dateElementsRef.current){
+
+  dateElementsRef.current =
+    document.querySelectorAll(
+      "[data-msg-date]"
+    );
+
+}
+
+const messageElements =
+  dateElementsRef.current;
 
       let currentDate = "";
 
@@ -205,7 +219,7 @@ useEffect(()=>{
 
   };
   
-
+dateElementsRef.current = null;
 },[messages.length]);
 
 function scrollToBottom(){
@@ -1345,7 +1359,19 @@ function handleSwipeMove(
 
     setSwipedMsg(msgId);
 
-    setSwipeOffset(limited);
+    if(
+  Math.abs(
+    limited -
+    lastSwipeOffset.current
+  ) > 4
+){
+
+  lastSwipeOffset.current =
+    limited;
+
+  setSwipeOffset(limited);
+
+}
 
     setShowReplyIcon(
       Math.abs(limited) > 28
@@ -1373,6 +1399,7 @@ function handleSwipeEnd(
 
   setSwipedMsg(null);
 
+  lastSwipeOffset.current = 0;
   setSwipeOffset(0);
 
   setShowReplyIcon(false);
