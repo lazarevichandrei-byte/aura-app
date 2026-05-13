@@ -382,7 +382,8 @@ const sortedChats = [...filteredChats].sort((a, b) => {
 
 async function createChatIfNotExists(userA: string, userB: string){
 
-  const { data: existing } = await supabase
+  const { data: existing } = 
+  await supabase
   .from("chats")
   .select("id")
   .or(`and(user1_id.eq.${userA},user2_id.eq.${userB}),and(user1_id.eq.${userB},user2_id.eq.${userA})`)
@@ -390,7 +391,8 @@ async function createChatIfNotExists(userA: string, userB: string){
 
   if (existing) return existing.id;
 
-  const { data, error } = await supabase
+  const { data, error } = 
+  await supabase
   .from("chats")
   .insert({
     user1_id: userA,
@@ -602,17 +604,24 @@ fontSize:15
           if (!myId) return;
 
           setChats((prev) =>
-            prev.map((c) =>
-              c.id === chat.id
-                ? { ...c, is_new_match: false }
-                : c
-            )
-          );
+  prev.map((c) =>
+    c.id === chat.id
+      ? {
+          ...c,
+          is_new_match: false,
+          unread_count: 0
+        }
+      : c
+  )
+);
 
           await supabase
-            .from("chats")
-            .update({ is_new_match: false })
-            .eq("id", chat.id);
+  .from("chats")
+  .update({
+    is_new_match: false,
+    unread_count: 0
+  })
+  .eq("id", chat.id);
 
           router.push(`/chat/${chat.id}`);
         }}
