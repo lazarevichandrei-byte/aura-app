@@ -335,32 +335,7 @@ messageIdsRef.current =
     )
   );
 
-rrequestAnimationFrame(()=>{
 
-  requestAnimationFrame(()=>{
-
-    const el = chatRef.current;
-
-    if(!el) return;
-
-    el.scrollTop =
-      el.scrollHeight;
-
-    const distanceFromBottom =
-
-      el.scrollHeight
-      -
-      el.scrollTop
-      -
-      el.clientHeight;
-
-    setShowScrollBottom(
-      distanceFromBottom > 350
-    );
-
-  });
-
-});
 
 const firstUnread =
 
