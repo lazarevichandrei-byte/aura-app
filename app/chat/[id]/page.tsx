@@ -1605,7 +1605,7 @@ marginTop:5,
 fontSize:10,
 fontWeight:600,
 
-opacity:.90,
+opacity:.55,
 
 letterSpacing:0.2,
 display:"flex",
@@ -1640,19 +1640,37 @@ style={{
 fontSize:9
 }}
 >
-<TickCircle
-  size="14"
-  color={
-    msg.is_read
-    ? "#34C759"
-    : "rgba(255,255,255,.72)"
-  }
-  variant={
-    msg.is_read
-    ? "Bulk"
-    : "Outline"
-  }
-/>
+<div
+style={{
+display:"flex",
+alignItems:"center",
+marginLeft:1,
+position:"relative",
+top:.5
+}}
+>
+
+<span
+style={{
+fontSize:11,
+fontWeight:800,
+letterSpacing:-3,
+
+color:
+msg.is_read
+? "#7DFFB3"
+: "rgba(255,255,255,.55)",
+
+textShadow:
+msg.is_read
+? "0 0 8px rgba(125,255,179,.45)"
+: "none",
+}}
+>
+✓✓
+</span>
+
+</div>
 </span>
 
 )}
