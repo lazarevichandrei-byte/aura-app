@@ -11,10 +11,7 @@ import {
   Send,
   ArrowDown2,
   CloseCircle,
-  BackSquare,
-  ArrowLeft2,
-  TickCircle,
-TickSquare
+  ArrowLeft2
 } from "iconsax-react";
 
 import { MessageBubble }
@@ -102,6 +99,9 @@ useRef<NodeListOf<Element> | null>(
 );
 
 
+const scrollBottomFrame =
+useRef<number | null>(null);
+
 
 useEffect(()=>{
 
@@ -168,6 +168,8 @@ useEffect(()=>{
 
 }
 
+
+
 const messageElements =
   dateElementsRef.current;
 
@@ -213,13 +215,27 @@ const messageElements =
 
   return ()=>{
 
-    clearTimeout(timeout);
-    
-    
+  clearTimeout(timeout);
 
-  };
-  
-dateElementsRef.current = null;
+  if(scrollFrame.current){
+
+    cancelAnimationFrame(
+      scrollFrame.current
+    );
+
+  }
+
+  if(scrollBottomFrame.current){
+
+    cancelAnimationFrame(
+      scrollBottomFrame.current
+    );
+
+  }
+
+  dateElementsRef.current = null;
+
+};
 },[messages.length]);
 
 function scrollToBottom(){
@@ -228,11 +244,20 @@ function scrollToBottom(){
 
   if(!el) return;
 
-  requestAnimationFrame(()=>{
+  if(scrollBottomFrame.current){
+    return;
+  }
 
-    el.scrollTop = el.scrollHeight + 9999;
+  scrollBottomFrame.current =
+    requestAnimationFrame(()=>{
 
-  });
+      el.scrollTop =
+        el.scrollHeight + 9999;
+
+      scrollBottomFrame.current =
+        null;
+
+    });
 
 }
 
@@ -888,12 +913,152 @@ window.dispatchEvent(
         chatId,
         message:text
       }
+      
+      
     }
+    
   )
+  
 
 );
- 
 
+
+
+
+}
+
+
+function scrollToReplyMessage(
+  replyId:string
+){
+
+  const el =
+    document.getElementById(
+      `msg-${replyId}`
+    );
+
+  if(!el){
+    return;
+  }
+
+  el.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+  setHighlightedMsg(replyId);
+
+  setTimeout(()=>{
+
+    setHighlightedMsg(null);
+
+  },1400);
+
+}
+
+function handleSwipeMove(
+  e:any,
+  msgId:string
+){
+
+  const delta =
+    e.touches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < 0){
+
+    const limited =
+      Math.max(delta,-85);
+
+    setSwipedMsg(msgId);
+
+    if(
+      Math.abs(
+        limited -
+        lastSwipeOffset.current
+      ) > 4
+    ){
+
+      lastSwipeOffset.current =
+        limited;
+
+      setSwipeOffset(limited);
+
+    }
+
+    setShowReplyIcon(
+      Math.abs(limited) > 28
+    );
+
+  }
+
+}
+
+function handleSwipeEnd(
+  e:any,
+  msg:any
+){
+
+  const delta =
+    e.changedTouches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < -45){
+
+    setReplyTo(msg);
+
+  }
+
+  setSwipedMsg(null);
+
+  lastSwipeOffset.current = 0;
+
+  setSwipeOffset(0);
+
+  setShowReplyIcon(false);
+
+}
+
+function getMessageDateLabel(
+  createdAt:string
+){
+
+  const msgDate =
+    new Date(createdAt);
+
+  const today =
+    new Date();
+
+  const yesterday =
+    new Date();
+
+  yesterday.setDate(
+    yesterday.getDate() - 1
+  );
+
+  if(
+    msgDate.toDateString() ===
+    today.toDateString()
+  ){
+    return "Сегодня";
+  }
+
+  if(
+    msgDate.toDateString() ===
+    yesterday.toDateString()
+  ){
+    return "Вчера";
+  }
+
+  return msgDate.toLocaleDateString(
+    "ru-RU",
+    {
+      day:"numeric",
+      month:"long"
+    }
+  );
 
 }
 
@@ -1275,136 +1440,12 @@ const showUnreadDivider =
   firstUnreadId ===
   String(msg.id);
 
-const dateLabel = (()=>{
-
-  const msgDate =
-    new Date(msg.created_at);
-
-  const today =
-    new Date();
-
-  const yesterday =
-    new Date();
-
-  yesterday.setDate(
-    yesterday.getDate() - 1
+const dateLabel =
+  getMessageDateLabel(
+    msg.created_at
   );
 
-  if(
-    msgDate.toDateString() ===
-    today.toDateString()
-  ){
-    return "Сегодня";
-  }
 
-  if(
-    msgDate.toDateString() ===
-    yesterday.toDateString()
-  ){
-    return "Вчера";
-  }
-
-  return msgDate.toLocaleDateString(
-    "ru-RU",
-    {
-      day:"numeric",
-      month:"long"
-    }
-  );
-
-})();
-
-function scrollToReplyMessage(
-  replyId:string
-){
-
-  const el =
-    document.getElementById(
-      `msg-${replyId}`
-    );
-
-  if(!el){
-    return;
-  }
-
-  el.scrollIntoView({
-    behavior:"smooth",
-    block:"center"
-  });
-
-  setHighlightedMsg(replyId);
-
-  setTimeout(()=>{
-
-    setHighlightedMsg(null);
-
-  },1400);
-
-}
-
-function handleSwipeMove(
-  e:any,
-  msgId:string
-){
-
-  const delta =
-    e.touches[0].clientX
-    -
-    swipeStartX.current;
-
-  if(delta < 0){
-
-    const limited =
-      Math.max(delta,-85);
-
-    setSwipedMsg(msgId);
-
-    if(
-  Math.abs(
-    limited -
-    lastSwipeOffset.current
-  ) > 4
-){
-
-  lastSwipeOffset.current =
-    limited;
-
-  setSwipeOffset(limited);
-
-}
-
-    setShowReplyIcon(
-      Math.abs(limited) > 28
-    );
-
-  }
-
-}
-
-function handleSwipeEnd(
-  e:any,
-  msg:any
-){
-
-  const delta =
-    e.changedTouches[0].clientX
-    -
-    swipeStartX.current;
-
-  if(delta < -45){
-
-    setReplyTo(msg);
-
-  }
-
-  setSwipedMsg(null);
-
-  lastSwipeOffset.current = 0;
-  setSwipeOffset(0);
-
-  setShowReplyIcon(false);
-
-}
 
 return(
 
