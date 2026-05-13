@@ -115,6 +115,11 @@ useRef<number | null>(null);
 const pendingReadMessages =
 useRef<string[]>([]);
 
+const messageIdsRef =
+useRef<Set<string>>(
+  new Set()
+);
+
 const readTimeout =
 useRef<any>(null);
 
@@ -336,6 +341,12 @@ if(!error && data){
 const reversed = data.reverse();
 
 setMessages(reversed);
+messageIdsRef.current =
+  new Set(
+    reversed.map(
+      (m:any)=>String(m.id)
+    )
+  );
 
 requestAnimationFrame(()=>{
 
@@ -732,15 +743,20 @@ if(payload.eventType !== "INSERT"){
 
 
 setMessages(prev => {
+const msgId =
+  String(newMsg.id);
 
-  const exists = prev.some(
-    (m:any)=>
-    String(m.id) === String(newMsg.id)
-  );
+if(
+  messageIdsRef.current.has(
+    msgId
+  )
+){
+  return prev;
+}
 
-  if(exists){
-    return prev;
-  }
+messageIdsRef.current.add(
+  msgId
+);
 
   const updated = [...prev, newMsg];
 
@@ -943,14 +959,20 @@ if(data){
 
  setMessages(prev => {
 
-  const exists = prev.some(
-   (m:any)=>
-   String(m.id) === String(data.id)
-  );
+  const msgId =
+  String(data.id);
 
-  if(exists){
-   return prev;
-  }
+if(
+  messageIdsRef.current.has(
+    msgId
+  )
+){
+  return prev;
+}
+
+messageIdsRef.current.add(
+  msgId
+);
 
   return [...prev,data];
 
