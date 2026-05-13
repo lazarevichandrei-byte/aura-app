@@ -1649,7 +1649,7 @@ marginLeft:2,
 
 filter:
 msg.is_read
-? "drop-shadow(0 0 7px rgba(123,255,178,.7))"
+? "drop-shadow(0 0 8px rgba(141,255,97,.85))"
 : "none"
 }}
 >
@@ -1658,7 +1658,7 @@ msg.is_read
   size="17"
   color={
     msg.is_read
-    ? "#7BFFB2"
+    ? "#8DFF61"
     : "rgba(255,255,255,.72)"
   }
   variant="Bulk"
