@@ -1651,11 +1651,11 @@ marginLeft:2
 
 <TickCircle
   size="17"
-  color={
-    msg.is_read
-    ? "#64FFAE"
-    : "rgba(255,255,255,.60)"
-  }
+ color={
+  msg.is_read
+  ? "#7BFFB2"
+  : "rgba(255,255,255,.68)"
+}
   variant="Bulk"
 />
 
