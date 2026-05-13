@@ -1649,14 +1649,14 @@ marginLeft:2
 }}
 >
 
-<TickSquare
-  size="15"
+<TickCircle
+  size="17"
   color={
     msg.is_read
     ? "#64FFAE"
     : "rgba(255,255,255,.60)"
   }
-  variant="Bold"
+  variant="Bulk"
 />
 
 </div>
