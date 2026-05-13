@@ -4,7 +4,8 @@ import React,
 {
   useEffect,
   useState,
-  useRef
+  useRef,
+  useCallback
 } from "react";
 
 import {
@@ -264,7 +265,8 @@ for(
 };
 },[messages.length]);
 
-function scrollToBottom(){
+const scrollToBottom =
+useCallback(()=>{
 
   const el = chatRef.current;
 
@@ -285,7 +287,7 @@ function scrollToBottom(){
 
     });
 
-}
+},[]);
 
 async function fetchMessages(){
 
@@ -986,9 +988,10 @@ window.dispatchEvent(
 }
 
 
-function scrollToReplyMessage(
+const scrollToReplyMessage =
+useCallback((
   replyId:string
-){
+)=>{
 
   const el =
     document.getElementById(
@@ -1012,12 +1015,13 @@ function scrollToReplyMessage(
 
   },1400);
 
-}
+},[]);
 
-function handleSwipeMove(
+const handleSwipeMove =
+useCallback((
   e:any,
   msgId:string
-){
+)=>{
 
   const delta =
     e.touches[0].clientX
@@ -1051,12 +1055,13 @@ function handleSwipeMove(
 
   }
 
-}
+},[]);
 
-function handleSwipeEnd(
+const handleSwipeEnd =
+useCallback((
   e:any,
   msg:any
-){
+)=>{
 
   const delta =
     e.changedTouches[0].clientX
@@ -1077,7 +1082,7 @@ function handleSwipeEnd(
 
   setShowReplyIcon(false);
 
-}
+},[]);
 
 function getMessageDateLabel(
   createdAt:string
