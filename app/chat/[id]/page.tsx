@@ -8,7 +8,7 @@ useParams
 import { supabase } from "../../../lib/supabase";
 
 import {
-  DirectSend,
+  Send,
   ArrowDown2,
   CloseCircle,
   BackSquare,
@@ -1863,10 +1863,10 @@ WebkitTapHighlightColor:"transparent"
 }}
 >
 
-<DirectSend
-  size="20"
+<Send
+  size="18"
   color="#FFFFFF"
-  variant="Bulk"
+  variant="Bold"
 />
 
 </button>
