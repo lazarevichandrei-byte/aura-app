@@ -11,7 +11,9 @@ import {
   Send2,
   ArrowDown2,
   CloseCircle,
-  BackSquare
+  BackSquare,
+  ArrowLeft2,
+  TickCircle
 } from "iconsax-react";
 
 export default function ChatPage(){
@@ -968,18 +970,11 @@ paddingRight:10,
 cursor:"pointer"
 }}
 >
-<span
-style={{
-fontSize:56,
-lineHeight:"38px",
-fontWeight:300,
-color:"#2E7BFF",
-fontFamily:"-apple-system, SF Pro Display, sans-serif",
-marginTop:-6
-}}
->
-‹
-</span>
+<ArrowLeft2
+  size="28"
+  color="#2E7BFF"
+  variant="Outline"
+/>
 </div>
 
 <div
@@ -1634,7 +1629,19 @@ style={{
 fontSize:9
 }}
 >
-{msg.is_read ? "✓✓" : "✓"}
+<TickCircle
+  size="14"
+  color={
+    msg.is_read
+    ? "#7ED6A7"
+    : "rgba(255,255,255,.72)"
+  }
+  variant={
+    msg.is_read
+    ? "Bulk"
+    : "Outline"
+  }
+/>
 </span>
 
 )}
