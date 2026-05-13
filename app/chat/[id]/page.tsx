@@ -168,6 +168,9 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
+        lastScrollTopRef.current =
+  currentScroll;
+
       
 
       const distanceFromBottom =
@@ -277,7 +280,7 @@ for(
   dateElementsRef.current = null;
 
 };
-},[messages.length]);
+},[]);
 
 const scrollToBottom =
 useCallback(()=>{
@@ -293,41 +296,8 @@ useCallback(()=>{
   scrollBottomFrame.current =
     requestAnimationFrame(()=>{
 
-      const scrollToBottom =
-useCallback(()=>{
-
-  const el = chatRef.current;
-
-  if(!el) return;
-
-  if(scrollBottomFrame.current){
-    return;
-  }
-
-  scrollBottomFrame.current =
-    requestAnimationFrame(()=>{
-
       el.scrollTop =
         el.scrollHeight + 9999;
-
-      const distanceFromBottom =
-
-        el.scrollHeight
-        -
-        el.scrollTop
-        -
-        el.clientHeight;
-
-      setShowScrollBottom(
-        distanceFromBottom > 350
-      );
-
-      scrollBottomFrame.current =
-        null;
-
-    });
-
-},[]);
 
       scrollBottomFrame.current =
         null;
