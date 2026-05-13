@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React,
+{
+  useEffect,
+  useState,
+  useRef
+} from "react";
 import {
 useRouter,
 useParams
@@ -45,6 +50,9 @@ useState(false);
 const typingRef =
 useRef(false);
 
+
+const localTypingRef =
+useRef(false);
 
 const typingTimeout =
 useRef<any>(null);
@@ -1488,7 +1496,7 @@ const dateLabel =
 
 return(
 
-<>
+<React.Fragment key={msg.id}>
 {showUnreadDivider && (
 
 <div
@@ -1570,7 +1578,6 @@ backdropFilter:"blur(10px)"
 
 
 <MessageBubble
-  key={msg.id}
 
   msg={msg}
 
@@ -1628,7 +1635,7 @@ onTouchEnd={(e)=>{
   />
 
 
-</>
+</React.Fragment>
 
 );
 
@@ -1775,12 +1782,24 @@ onChange={(e:any)=>{
 
  }
 
+ if(!localTypingRef.current){
+
+  localTypingRef.current = true;
+
+  setPressed(true);
+
+  updateTyping(true);
+
+}
+
  typingTimeout.current =
   setTimeout(async ()=>{
 
-   setPressed(false);
+   localTypingRef.current = false;
 
-   await updateTyping(false);
+setPressed(false);
+
+await updateTyping(false);
 
   },1500);
 
