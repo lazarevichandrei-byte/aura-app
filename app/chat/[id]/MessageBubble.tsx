@@ -51,7 +51,11 @@ function MessageBubbleComponent({
 
 }:Props){
 
+
+    
   return(
+
+    
 
     <div
       id={`msg-${msg.id}`}
@@ -295,4 +299,23 @@ function MessageBubbleComponent({
 }
 
 export const MessageBubble =
-React.memo(MessageBubbleComponent);
+React.memo(
+  MessageBubbleComponent,
+  (prev,next)=>{
+
+    return(
+
+      prev.msg.id === next.msg.id &&
+      prev.msg.body === next.msg.body &&
+      prev.msg.is_read === next.msg.is_read &&
+      prev.highlightedMsg === next.highlightedMsg &&
+      prev.swipedMsg === next.swipedMsg &&
+      prev.swipeOffset === next.swipeOffset &&
+      prev.showReplyIcon === next.showReplyIcon &&
+      prev.sameAsNext === next.sameAsNext &&
+      prev.sameAsPrev === next.sameAsPrev
+
+    );
+
+  }
+);
