@@ -1649,44 +1649,15 @@ marginLeft:2
 }}
 >
 
-{msg.is_read ? (
-
-<div
-style={{
-display:"flex",
-alignItems:"center",
-marginLeft:-1
-}}
->
-
 <TickSquare
-  size="14"
-  color="#64FFAE"
+  size="15"
+  color={
+    msg.is_read
+    ? "#64FFAE"
+    : "rgba(255,255,255,.60)"
+  }
   variant="Bold"
 />
-
-<TickSquare
-  size="14"
-  color="#64FFAE"
-  variant="Bold"
-  style={{
-    marginLeft:-6
-  }}
-/>
-
-</div>
-
-
-
-) : (
-
-<TickCircle
-  size="10"
-  color="rgba(255,255,255,.58)"
-  variant="Bold"
-/>
-
-)}
 
 </div>
 </span>
