@@ -1655,26 +1655,28 @@ marginLeft:2
 style={{
 display:"flex",
 alignItems:"center",
-marginLeft:-2
+marginLeft:-1
 }}
 >
 
 <TickSquare
-  size="11"
+  size="14"
   color="#64FFAE"
   variant="Bold"
 />
 
 <TickSquare
-  size="11"
+  size="14"
   color="#64FFAE"
   variant="Bold"
   style={{
-    marginLeft:-5
+    marginLeft:-6
   }}
 />
 
 </div>
+
+
 
 ) : (
 
