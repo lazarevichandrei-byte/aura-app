@@ -1645,17 +1645,22 @@ fontSize:9
 style={{
 display:"flex",
 alignItems:"center",
-marginLeft:2
+marginLeft:2,
+
+filter:
+msg.is_read
+? "drop-shadow(0 0 7px rgba(123,255,178,.7))"
+: "none"
 }}
 >
 
 <TickCircle
   size="17"
- color={
-  msg.is_read
-  ? "#7BFFB2"
-  : "rgba(255,255,255,.68)"
-}
+  color={
+    msg.is_read
+    ? "#7BFFB2"
+    : "rgba(255,255,255,.72)"
+  }
   variant="Bulk"
 />
 
