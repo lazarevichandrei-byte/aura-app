@@ -150,7 +150,7 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  const timeout = setTimeout(()=>{
+  
 
     const el = chatRef.current;
 
@@ -168,17 +168,7 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-      if(
-        lastScrollTopRef.current === 0
-      ){
-
-        lastScrollTopRef.current =
-          currentScroll;
-
-        scrollFrame.current = null;
-
-        return;
-      }
+      
 
       const distanceFromBottom =
 
@@ -257,11 +247,16 @@ for(
   { passive:true }
 );
 
-  },200);
+  
 
  return ()=>{
 
-  clearTimeout(timeout);
+
+  el.removeEventListener(
+  "scroll",
+  handleScroll
+);
+  
 
   if(scrollFrame.current){
 
