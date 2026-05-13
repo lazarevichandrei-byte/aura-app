@@ -1276,6 +1276,84 @@ const dateLabel = (()=>{
 
 })();
 
+function scrollToReplyMessage(
+  replyId:string
+){
+
+  const el =
+    document.getElementById(
+      `msg-${replyId}`
+    );
+
+  if(!el){
+    return;
+  }
+
+  el.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+  setHighlightedMsg(replyId);
+
+  setTimeout(()=>{
+
+    setHighlightedMsg(null);
+
+  },1400);
+
+}
+
+function handleSwipeMove(
+  e:any,
+  msgId:string
+){
+
+  const delta =
+    e.touches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < 0){
+
+    const limited =
+      Math.max(delta,-85);
+
+    setSwipedMsg(msgId);
+
+    setSwipeOffset(limited);
+
+    setShowReplyIcon(
+      Math.abs(limited) > 28
+    );
+
+  }
+
+}
+
+function handleSwipeEnd(
+  e:any,
+  msg:any
+){
+
+  const delta =
+    e.changedTouches[0].clientX
+    -
+    swipeStartX.current;
+
+  if(delta < -45){
+
+    setReplyTo(msg);
+
+  }
+
+  setSwipedMsg(null);
+
+  setSwipeOffset(0);
+
+  setShowReplyIcon(false);
+
+}
 
 return(
 
@@ -1382,89 +1460,40 @@ backdropFilter:"blur(10px)"
 
   onReplyPreviewClick={()=>{
 
-    if(!msg.reply_to_id){
-      return;
-    }
+  if(!msg.reply_to_id){
+    return;
+  }
 
-    const el =
-      document.getElementById(
-        `msg-${msg.reply_to_id}`
-      );
+  scrollToReplyMessage(
+    String(msg.reply_to_id)
+  );
 
-    if(!el){
-      return;
-    }
+}}
 
-    el.scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
+onTouchStart={(e)=>{
 
-    setHighlightedMsg(
-      String(msg.reply_to_id)
-    );
+  swipeStartX.current =
+    e.touches[0].clientX;
 
-    setTimeout(()=>{
+}}
 
-      setHighlightedMsg(null);
+onTouchMove={(e)=>{
 
-    },1400);
+  handleSwipeMove(
+    e,
+    String(msg.id)
+  );
 
-  }}
+}}
 
-  onTouchStart={(e)=>{
+onTouchEnd={(e)=>{
 
-    swipeStartX.current =
-      e.touches[0].clientX;
+  handleSwipeEnd(
+    e,
+    msg
+  );
 
-  }}
-
-  onTouchMove={(e)=>{
-
-    const delta =
-      e.touches[0].clientX
-      -
-      swipeStartX.current;
-
-    if(delta < 0){
-
-      const limited =
-        Math.max(delta,-85);
-
-      setSwipedMsg(
-        String(msg.id)
-      );
-
-      setSwipeOffset(limited);
-
-      setShowReplyIcon(
-        Math.abs(limited) > 28
-      );
-
-    }
-
-  }}
-
-  onTouchEnd={(e)=>{
-
-    const delta =
-      e.changedTouches[0].clientX
-      -
-      swipeStartX.current;
-
-    if(delta < -45){
-
-      setReplyTo(msg);
-
-    }
-
-    setSwipedMsg(null);
-
-    setSwipeOffset(0);
-
-    setShowReplyIcon(false);
-
-  }}
+}}
   />
 
 
