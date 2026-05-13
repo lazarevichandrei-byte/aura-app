@@ -336,7 +336,7 @@ messageIdsRef.current =
     )
   );
 
-requestAnimationFrame(()=>{
+rrequestAnimationFrame(()=>{
 
   requestAnimationFrame(()=>{
 
@@ -346,6 +346,18 @@ requestAnimationFrame(()=>{
 
     el.scrollTop =
       el.scrollHeight;
+
+    const distanceFromBottom =
+
+      el.scrollHeight
+      -
+      el.scrollTop
+      -
+      el.clientHeight;
+
+    setShowScrollBottom(
+      distanceFromBottom > 350
+    );
 
   });
 
