@@ -269,7 +269,7 @@ for(
 
   },200);
 
-  return ()=>{
+ return ()=>{
 
   clearTimeout(timeout);
 
@@ -590,7 +590,7 @@ useEffect(()=>{
 
  };
 
-},[]);
+},[scrollToBottom]);
 
 
 useEffect(()=>{
@@ -1105,6 +1105,9 @@ useCallback((
 
 const handleSwipeEnd =
 useCallback((
+
+  
+
   e:any,
   msg:any
 )=>{
@@ -1129,6 +1132,18 @@ useCallback((
   setShowReplyIcon(false);
 
 },[]);
+
+const handleTouchStart =
+useCallback((
+  e:any
+)=>{
+
+  swipeStartX.current =
+    e.touches[0].clientX;
+
+},[]);
+
+
 
 function getMessageDateLabel(
   createdAt:string
@@ -1654,9 +1669,7 @@ backdropFilter:"blur(10px)"
 
   highlightedMsg={highlightedMsg}
 
-  onReplyClick={()=>{
-    setReplyTo(msg);
-  }}
+
 
   onReplyPreviewClick={()=>{
 
@@ -1670,12 +1683,7 @@ backdropFilter:"blur(10px)"
 
 }}
 
-onTouchStart={(e)=>{
-
-  swipeStartX.current =
-    e.touches[0].clientX;
-
-}}
+onTouchStart={handleTouchStart}
 
 onTouchMove={(e)=>{
 

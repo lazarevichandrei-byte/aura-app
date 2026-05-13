@@ -19,7 +19,7 @@ type Props = {
 
   highlightedMsg:string | null;
 
-  onReplyClick:()=>void;
+  
 
   onReplyPreviewClick:()=>void;
 
@@ -42,7 +42,7 @@ function MessageBubbleComponent({
 
   highlightedMsg,
 
-  onReplyClick,
+  
   onReplyPreviewClick,
 
   onTouchStart,
@@ -51,6 +51,16 @@ function MessageBubbleComponent({
 
 }:Props){
 
+const messageTime =
+  new Date(
+    msg.created_at || Date.now()
+  ).toLocaleTimeString(
+    "ru-RU",
+    {
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
 
     
   return(
@@ -245,16 +255,8 @@ function MessageBubbleComponent({
             )}
 
             <span>
-              {new Date(
-                msg.created_at || Date.now()
-              ).toLocaleTimeString(
-                "ru-RU",
-                {
-                  hour:"2-digit",
-                  minute:"2-digit"
-                }
-              )}
-            </span>
+  {messageTime}
+</span>
 
             {mine && (
 
@@ -303,19 +305,57 @@ React.memo(
   MessageBubbleComponent,
   (prev,next)=>{
 
-    return(
+  const prevHighlighted =
 
-      prev.msg.id === next.msg.id &&
-      prev.msg.body === next.msg.body &&
-      prev.msg.is_read === next.msg.is_read &&
-      prev.highlightedMsg === next.highlightedMsg &&
-      prev.swipedMsg === next.swipedMsg &&
-      prev.swipeOffset === next.swipeOffset &&
-      prev.showReplyIcon === next.showReplyIcon &&
-      prev.sameAsNext === next.sameAsNext &&
-      prev.sameAsPrev === next.sameAsPrev
+    prev.highlightedMsg ===
+    String(prev.msg.id);
 
-    );
+  const nextHighlighted =
 
-  }
+    next.highlightedMsg ===
+    String(next.msg.id);
+
+  const prevSwiped =
+
+    prev.swipedMsg ===
+    String(prev.msg.id);
+
+  const nextSwiped =
+
+    next.swipedMsg ===
+    String(next.msg.id);
+
+  return(
+
+  prev.msg.id === next.msg.id &&
+  prev.msg.body === next.msg.body &&
+  prev.msg.is_read === next.msg.is_read &&
+
+  prev.msg.reply_preview ===
+  next.msg.reply_preview &&
+
+  prev.msg.reply_to_id ===
+  next.msg.reply_to_id &&
+
+  prevHighlighted ===
+  nextHighlighted &&
+
+  prevSwiped ===
+  nextSwiped &&
+
+  prev.swipeOffset ===
+  next.swipeOffset &&
+
+  prev.showReplyIcon ===
+  next.showReplyIcon &&
+
+  prev.sameAsNext ===
+  next.sameAsNext &&
+
+  prev.sameAsPrev ===
+  next.sameAsPrev
+
+);
+
+}
 );
