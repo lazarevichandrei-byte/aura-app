@@ -918,16 +918,59 @@ if(!newMessage.trim()) return;
 
 const text = newMessage;
 
+const optimisticId =
+  `temp-${Date.now()}`;
+
+const optimisticMessage = {
+
+  id: optimisticId,
+
+  chat_id: chatId,
+
+  sender_id: userId,
+
+  body: text,
+
+  message_type:"text",
+
+  created_at:
+    new Date().toISOString(),
+
+  is_read:false,
+
+  status:"sending",
+
+  reply_to_id:
+    replyTo?.id || null,
+
+  reply_preview:
+    replyTo?.body || null
+
+};
 setNewMessage("");
 setPressed(false);
 setReplyTo(null);
 
 await updateTyping(false);
 
+messageIdsRef.current.add(
+  optimisticId
+);
 
+setMessages(prev => [
+  ...prev,
+  optimisticMessage
+]);
 
+requestAnimationFrame(()=>{
 
+  requestAnimationFrame(()=>{
 
+    scrollToBottom();
+
+  });
+
+});
 
 
 
@@ -952,41 +995,46 @@ replyTo?.body || null
 
 if(error){
 
-return;
+  setMessages(prev =>
+
+    prev.filter(
+      (m:any)=>
+      m.id !== optimisticId
+    )
+
+  );
+
+  messageIdsRef.current.delete(
+    optimisticId
+  );
+
+  return;
 }
 
 if(data){
 
- setMessages(prev => {
+  messageIdsRef.current.delete(
+    optimisticId
+  );
 
-  const msgId =
-  String(data.id);
+  messageIdsRef.current.add(
+    String(data.id)
+  );
 
-if(
-  messageIdsRef.current.has(
-    msgId
-  )
-){
-  return prev;
-}
+  setMessages(prev =>
 
-messageIdsRef.current.add(
-  msgId
-);
+    prev.map((m:any)=>
 
-  return [...prev,data];
+      m.id === optimisticId
+      ? {
+          ...data,
+          status:"sent"
+        }
+      : m
 
- });
+    )
 
- requestAnimationFrame(()=>{
-
-  requestAnimationFrame(()=>{
-
-   scrollToBottom();
-
-  });
-
- });
+  );
 
 }
 
