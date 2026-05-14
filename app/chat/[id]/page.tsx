@@ -432,6 +432,26 @@ useEffect(()=>{
 
 useEffect(()=>{
 
+  const el = chatRef.current;
+
+  if(!el) return;
+
+  const distanceFromBottom =
+
+    el.scrollHeight
+    -
+    el.scrollTop
+    -
+    el.clientHeight;
+
+  setShowScrollBottom(
+    distanceFromBottom > 120
+  );
+
+},[messages]);
+
+useEffect(()=>{
+
   async function setOnline(){
 
     if(userId === null) return;
