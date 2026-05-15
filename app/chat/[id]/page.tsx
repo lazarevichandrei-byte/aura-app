@@ -150,7 +150,7 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  
+  const timeout = setTimeout(()=>{
 
     const el = chatRef.current;
 
@@ -158,68 +158,104 @@ useEffect(()=>{
 
     const handleScroll = ()=>{
 
-  const currentScroll =
-    el.scrollTop;
+  if(scrollFrame.current){
+    return;
+  }
 
-  const distanceFromBottom =
+  scrollFrame.current =
+    requestAnimationFrame(()=>{
 
-    el.scrollHeight
-    -
-    currentScroll
-    -
-    el.clientHeight;
+      const currentScroll =
+        el.scrollTop;
 
-  setShowScrollBottom(
-    distanceFromBottom > 120
-  );
+      if(
+        lastScrollTopRef.current === 0
+      ){
 
-  if(!dateElementsRef.current){
+        lastScrollTopRef.current =
+          currentScroll;
 
-    dateElementsRef.current =
-      document.querySelectorAll(
-        "[data-msg-date]"
+        scrollFrame.current = null;
+
+        return;
+      }
+
+      const isScrollingDown =
+
+        currentScroll >
+        lastScrollTopRef.current;
+
+      const distanceFromBottom =
+
+        el.scrollHeight
+        -
+        currentScroll
+        -
+        el.clientHeight;
+
+      const isFarFromBottom =
+        distanceFromBottom > 500;
+
+      setShowScrollBottom(
+        isFarFromBottom &&
+        isScrollingDown
       );
 
+      lastScrollTopRef.current =
+        currentScroll;
+
+      if(!dateElementsRef.current){
+
+  dateElementsRef.current =
+    document.querySelectorAll(
+      "[data-msg-date]"
+    );
+
+}
+
+
+
+const messageElements =
+  dateElementsRef.current;
+
+      let currentDate = "";
+
+for(
+  let i = 0;
+  i < messageElements.length;
+  i++
+){
+
+  const node:any =
+    messageElements[i];
+
+  const rect =
+    node.getBoundingClientRect();
+
+  if(rect.top <= 120){
+
+    currentDate =
+      node.dataset.msgDate || "";
+
+  }else{
+
+    break;
+
   }
 
-  const messageElements =
-    dateElementsRef.current;
+}
 
-  let currentDate = "";
+      if(
+  currentDate &&
+  currentDate !== floatingDate
+){
 
-  for(
-    let i = 0;
-    i < messageElements.length;
-    i++
-  ){
+  setFloatingDate(currentDate);
 
-    const node:any =
-      messageElements[i];
+}
+      scrollFrame.current = null;
 
-    const rect =
-      node.getBoundingClientRect();
-
-    if(rect.top <= 120){
-
-      currentDate =
-        node.dataset.msgDate || "";
-
-    }else{
-
-      break;
-
-    }
-
-  }
-
-  if(
-    currentDate &&
-    currentDate !== floatingDate
-  ){
-
-    setFloatingDate(currentDate);
-
-  }
+    });
 
 };
 
@@ -231,16 +267,11 @@ useEffect(()=>{
   { passive:true }
 );
 
-  
+  },200);
 
- return ()=>{
+  return ()=>{
 
-
-  el.removeEventListener(
-  "scroll",
-  handleScroll
-);
-  
+  clearTimeout(timeout);
 
   if(scrollFrame.current){
 
@@ -261,7 +292,7 @@ useEffect(()=>{
   dateElementsRef.current = null;
 
 };
-},[]);
+},[messages.length]);
 
 const scrollToBottom =
 useCallback(()=>{
@@ -286,9 +317,6 @@ useCallback(()=>{
     });
 
 },[]);
-
-
-
 
 async function fetchMessages(){
 
@@ -320,7 +348,20 @@ messageIdsRef.current =
     )
   );
 
+requestAnimationFrame(()=>{
 
+  requestAnimationFrame(()=>{
+
+    const el = chatRef.current;
+
+    if(!el) return;
+
+    el.scrollTop =
+      el.scrollHeight;
+
+  });
+
+});
 
 const firstUnread =
 
@@ -409,26 +450,6 @@ useEffect(()=>{
   }
 
 },[]);
-
-useEffect(()=>{
-
-  const el = chatRef.current;
-
-  if(!el) return;
-
-  const distanceFromBottom =
-
-    el.scrollHeight
-    -
-    el.scrollTop
-    -
-    el.clientHeight;
-
-  setShowScrollBottom(
-    distanceFromBottom > 120
-  );
-
-},[messages]);
 
 useEffect(()=>{
 
@@ -737,29 +758,7 @@ messageIdsRef.current.add(
   msgId
 );
 
-  const optimisticIndex =
-  prev.findIndex(
-    (m:any)=>
-
-      m.client_id &&
-      m.client_id ===
-      newMsg.client_id
-  );
-
-if(optimisticIndex !== -1){
-
-  const cloned = [...prev];
-
-  cloned[optimisticIndex] = {
-    ...newMsg,
-    status:"sent"
-  };
-
-  return cloned;
-
-}
-
-const updated = [...prev, newMsg];
+  const updated = [...prev, newMsg];
 
   if(newMsg.sender_id !== userId){
 
@@ -919,61 +918,16 @@ if(!newMessage.trim()) return;
 
 const text = newMessage;
 
-const optimisticId =
-  `temp-${Date.now()}`;
-
-const optimisticMessage = {
-
-  id: optimisticId,
-
-  client_id: optimisticId,
-
-  chat_id: chatId,
-
-  sender_id: userId,
-
-  body: text,
-
-  message_type:"text",
-
-  created_at:
-    new Date().toISOString(),
-
-  is_read:false,
-
-  status:"sending",
-
-  reply_to_id:
-    replyTo?.id || null,
-
-  reply_preview:
-    replyTo?.body || null
-
-};
 setNewMessage("");
 setPressed(false);
 setReplyTo(null);
 
 await updateTyping(false);
 
-messageIdsRef.current.add(
-  optimisticId
-);
 
-setMessages(prev => [
-  ...prev,
-  optimisticMessage
-]);
 
-requestAnimationFrame(()=>{
 
-  requestAnimationFrame(()=>{
 
-    scrollToBottom();
-
-  });
-
-});
 
 
 
@@ -984,7 +938,6 @@ await supabase
 chat_id:chatId,
 sender_id:userId,
 body:text,
-client_id: optimisticId,
 message_type:"text",
 
 reply_to_id:
@@ -999,46 +952,41 @@ replyTo?.body || null
 
 if(error){
 
-  setMessages(prev =>
-
-    prev.filter(
-      (m:any)=>
-      m.id !== optimisticId
-    )
-
-  );
-
-  messageIdsRef.current.delete(
-    optimisticId
-  );
-
-  return;
+return;
 }
 
 if(data){
 
-  messageIdsRef.current.delete(
-    optimisticId
-  );
+ setMessages(prev => {
 
-  messageIdsRef.current.add(
-    String(data.id)
-  );
+  const msgId =
+  String(data.id);
 
-  setMessages(prev =>
+if(
+  messageIdsRef.current.has(
+    msgId
+  )
+){
+  return prev;
+}
 
-    prev.map((m:any)=>
+messageIdsRef.current.add(
+  msgId
+);
 
-      m.id === optimisticId
-      ? {
-          ...data,
-          status:"sent"
-        }
-      : m
+  return [...prev,data];
 
-    )
+ });
 
-  );
+ requestAnimationFrame(()=>{
+
+  requestAnimationFrame(()=>{
+
+   scrollToBottom();
+
+  });
+
+ });
 
 }
 
@@ -2036,3 +1984,6 @@ WebkitTapHighlightColor:"transparent"
 )
 
 }   
+
+
+
