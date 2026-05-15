@@ -266,8 +266,6 @@ useEffect(()=>{
 const scrollToBottom =
 useCallback(()=>{
 
- 
-
   const el = chatRef.current;
 
   if(!el) return;
@@ -289,25 +287,7 @@ useCallback(()=>{
 
 },[]);
 
-useEffect(()=>{
 
-  const el = chatRef.current;
-
-  if(!el) return;
-
-  const distanceFromBottom =
-
-    el.scrollHeight
-    -
-    el.scrollTop
-    -
-    el.clientHeight;
-
-  setShowScrollBottom(
-    distanceFromBottom > 120
-  );
-
-},[messages]);
 
 
 async function fetchMessages(){
