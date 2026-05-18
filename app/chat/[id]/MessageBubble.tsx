@@ -26,6 +26,7 @@ type Props = {
   onTouchStart:(e:any)=>void;
   onTouchMove:(e:any)=>void;
   onTouchEnd:(e:any)=>void;
+  onRetry:()=>void;
 };
 
 function MessageBubbleComponent({
@@ -47,7 +48,8 @@ function MessageBubbleComponent({
 
   onTouchStart,
   onTouchMove,
-  onTouchEnd
+ onTouchEnd,
+onRetry
 
 }:Props){
 
@@ -138,9 +140,20 @@ const messageTime =
       )}
 
       <div
-        style={{
 
-          background: mine
+  onClick={()=>{
+
+    if(msg.status === "failed"){
+
+      onRetry();
+
+    }
+
+  }}
+
+  style={{
+
+    background: mine
           ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
           : "#F2F4F7",
 
