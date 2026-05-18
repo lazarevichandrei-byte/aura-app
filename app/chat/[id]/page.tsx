@@ -50,6 +50,8 @@ useState(false);
 
 const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
+const [sending,setSending] =
+useState(false);
 const [replyTo,setReplyTo] =
 useState<any>(null);
 
@@ -745,7 +747,7 @@ const typingChannel = supabase
 .on(
 "postgres_changes",
 {
-event:"INSERT",
+event:"*",
 schema:"public",
 table:"typing_status",
 filter:`chat_id=eq.${chatId}`
@@ -772,11 +774,7 @@ if(typingRef.current !== data.typing){
 }
 )
 
-.subscribe((status)=>{
-
-
-
-});
+.subscribe();
 
 return ()=>{
 
@@ -901,11 +899,7 @@ messageIdsRef.current.add(
 }
 )
 
-.subscribe((status)=>{
-
-
-
-});
+.subscribe();
 
 return ()=>{
 
@@ -976,12 +970,17 @@ async function updateTyping(status:boolean){
 
 async function sendMessage(){
 
+  if(userId === null){
+    return;
+  }
 
+  if(sending){
+    return;
+  }
 
-if(userId === null){
-  
-  return;
-}
+  if(!newMessage.trim()){
+    return;
+  }
     
 
 if(!newMessage.trim()) return;
@@ -1000,7 +999,7 @@ await updateTyping(false);
 
 
 
-
+setSending(true);
 const { data, error } =
 await supabase
 .from("messages")
@@ -1022,7 +1021,9 @@ replyTo?.body || null
 
 if(error){
 
-return;
+  setSending(false);
+
+  return;
 }
 
 
@@ -1062,7 +1063,7 @@ window.dispatchEvent(
 
 );
 
-
+setSending(false);
 
 
 }
@@ -1919,6 +1920,7 @@ fontSize:16
 
 <button
 type="button"
+disabled={sending}
 
 onMouseDown={(e)=>{
   e.preventDefault();
@@ -1941,6 +1943,10 @@ color:"#fff",
 border:"none",
 outline:"none",
 flexShrink:0,
+
+opacity:
+  sending ? .6 : 1,
+
 WebkitTapHighlightColor:"transparent"
 }}
 >
