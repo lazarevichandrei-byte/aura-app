@@ -414,6 +414,8 @@ React.memo(
   prev.msg.id === next.msg.id &&
   prev.msg.body === next.msg.body &&
   prev.msg.is_read === next.msg.is_read &&
+  prev.msg.status ===
+next.msg.status &&
 
   prev.msg.reply_preview ===
   next.msg.reply_preview &&
