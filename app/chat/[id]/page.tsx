@@ -809,13 +809,13 @@ filter:`chat_id=eq.${chatId}`
 },
 (payload)=>{
 
-
-    
 const newMsg:any = payload.new;
 
 if(newMsg.sender_id === userId){
   return;
 }
+
+
 
 
 
