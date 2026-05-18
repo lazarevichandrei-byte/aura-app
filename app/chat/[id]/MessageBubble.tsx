@@ -2,8 +2,7 @@
 
 import React from "react";
 import {
-  BackSquare,
-  TickSquare
+  BackSquare
 } from "iconsax-react";
 
 type Props = {
@@ -285,63 +284,85 @@ const messageTime =
 
                 <div
 style={{
-  display:"flex",
-  alignItems:"center",
-  marginLeft:2,
   position:"relative",
-width:22,
-height:15
+  width:
+    msg.status === "delivered" ||
+    msg.is_read
+    ? 18
+    : 10,
+
+  height:10,
+  marginLeft:4
 }}
 >
 
-<TickSquare
-  size="15"
+<svg
+width="11"
+height="9"
+viewBox="0 0 11 9"
+fill="none"
+style={{
+  position:"absolute",
+  left:0,
+  top:1
+}}
+>
 
-  style={{
-    position:"absolute",
-    left:0
-  }}
+<path
+d="M1 4.5L4 7.5L10 1.5"
+stroke={
 
-  color={
+  msg.status === "sending"
+  ? "rgba(255,255,255,.45)"
 
-    msg.status === "sending"
-    ? "rgba(255,255,255,.4)"
+  : msg.status === "failed"
+  ? "#FF6B6B"
 
-    : msg.status === "failed"
-    ? "#FF6B6B"
+  : msg.is_read
+  ? "#8DFF61"
 
-    : msg.is_read
-    ? "#8DFF61"
+  : msg.status === "delivered"
+  ? "#7ED6FF"
 
-    : msg.status === "delivered"
-    ? "#7ED6FF"
-
-    : "rgba(255,255,255,.72)"
-  }
-  variant="Bulk"
-  
+  : "rgba(255,255,255,.72)"
+}
+strokeWidth="1.8"
+strokeLinecap="round"
+strokeLinejoin="round"
 />
+
+</svg>
 
 {(
   msg.status === "delivered" ||
   msg.is_read
 ) && (
 
-<TickSquare
-  size="15"
+<svg
+width="11"
+height="9"
+viewBox="0 0 11 9"
+fill="none"
+style={{
+  position:"absolute",
+  left:5,
+  top:1
+}}
+>
 
-  style={{
-    position:"absolute",
-    left:7
-  }}
-
-  color={
-    msg.is_read
-    ? "#8DFF61"
-    : "#7ED6FF"
-  }
-  variant="Bulk"
+<path
+d="M1 4.5L4 7.5L10 1.5"
+stroke={
+  msg.is_read
+  ? "#8DFF61"
+  : "#7ED6FF"
+}
+strokeWidth="1.8"
+strokeLinecap="round"
+strokeLinejoin="round"
 />
+
+</svg>
 
 )}
 
