@@ -927,42 +927,6 @@ if(error){
 return;
 }
 
-if(data){
-
- setMessages(prev => {
-
-  const msgId =
-  String(data.id);
-
-if(
-  messageIdsRef.current.has(
-    msgId
-  )
-){
-  return prev;
-}
-
-messageIdsRef.current.add(
-  msgId
-);
-
-  return [...prev,data];
-
- });
-
- requestAnimationFrame(()=>{
-
-  requestAnimationFrame(()=>{
-
-   scrollToBottom();
-
-  });
-
- });
-
-}
-
-
 
 
 const { data: chatData } = await supabase
