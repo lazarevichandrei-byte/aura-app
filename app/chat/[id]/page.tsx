@@ -153,15 +153,13 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  
+  const timeout = setTimeout(()=>{
 
     const el = chatRef.current;
 
     if(!el) return;
 
     const handleScroll = ()=>{
-      
-      
 
   if(scrollFrame.current){
     return;
@@ -173,11 +171,9 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-        
-
       
 
-     const distanceFromBottom =
+      const distanceFromBottom =
 
   el.scrollHeight
   -
@@ -185,14 +181,14 @@ useEffect(()=>{
   -
   el.clientHeight;
 
-const isNearBottom =
+  const isNearBottom =
   distanceFromBottom < 120;
 
 isNearBottomRef.current =
   isNearBottom;
 
 setShowScrollBottom(
-  distanceFromBottom > 80
+  !isNearBottom
 );
 
       lastScrollTopRef.current =
@@ -261,15 +257,11 @@ for(
   { passive:true }
 );
 
-  
+  },200);
 
   return ()=>{
 
-    el.removeEventListener(
-    "scroll",
-    handleScroll
-  );
-
+  clearTimeout(timeout);
 
   if(scrollFrame.current){
 
@@ -290,7 +282,7 @@ for(
   dateElementsRef.current = null;
 
 };
-},[]);
+},[messages.length]);
 
 const scrollToBottom =
 useCallback(()=>{
