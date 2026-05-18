@@ -1233,6 +1233,12 @@ const optimisticMessage = {
 };
 
 setNewMessage("");
+if(inputRef.current){
+
+  inputRef.current.style.height =
+    "34px";
+
+}
 setMessages(prev => [
   ...prev,
   optimisticMessage
