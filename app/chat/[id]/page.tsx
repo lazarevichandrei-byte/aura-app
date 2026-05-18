@@ -2281,10 +2281,20 @@ onTouchStart={(e)=>{
 
 onClick={sendMessage}
 style={{
-width:40,
-height:40,
+width:
+  newMessage.trim()
+  ? 44
+  : 38,
+
+height:
+  newMessage.trim()
+  ? 44
+  : 38,
 borderRadius:"50%",
-background:"#2E7BFF",
+background:
+  newMessage.trim()
+  ? "#2E7BFF"
+  : "#AEBFD8",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
@@ -2294,7 +2304,23 @@ outline:"none",
 flexShrink:0,
 
 opacity:
-  sending ? .6 : 1,
+  sending
+  ? .6
+  : newMessage.trim()
+  ? 1
+  : .82,
+  transform:
+  newMessage.trim()
+  ? "scale(1)"
+  : "scale(.92)",
+
+transition:
+  "all .18s ease",
+
+boxShadow:
+  newMessage.trim()
+  ? "0 4px 14px rgba(46,123,255,.28)"
+  : "none",
 
 WebkitTapHighlightColor:"transparent"
 }}
