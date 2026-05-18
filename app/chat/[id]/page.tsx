@@ -1443,37 +1443,28 @@ showReplyIcon={showReplyIcon}
 
 highlightedMsg={highlightedMsg}
 
-onReplyPreviewClick={()=>{
-
-if(!msg.reply_to_id){
-return;
+onReplyPreviewClick={()=>
+  msg.reply_to_id &&
+  scrollToReplyMessage(
+    String(msg.reply_to_id)
+  )
 }
-
-scrollToReplyMessage(
-String(msg.reply_to_id)
-);
-
-}}
 
 onTouchStart={handleTouchStart}
 
-onTouchMove={(e)=>{
+onTouchMove={(e)=>
+  handleSwipeMove(
+    e,
+    String(msg.id)
+  )
+}
 
-handleSwipeMove(
-e,
-String(msg.id)
-);
-
-}}
-
-onTouchEnd={(e)=>{
-
-handleSwipeEnd(
-e,
-msg
-);
-
-}}
+onTouchEnd={(e)=>
+  handleSwipeEnd(
+    e,
+    msg
+  )
+}
 />
 
 </React.Fragment>
