@@ -288,12 +288,20 @@ style={{
   display:"flex",
   alignItems:"center",
   marginLeft:2,
-  gap:-3
+  position:"relative",
+width:22,
+height:15
 }}
 >
 
 <TickCircle
   size="15"
+
+  style={{
+    position:"absolute",
+    left:0
+  }}
+
   color={
 
     msg.status === "sending"
@@ -320,6 +328,12 @@ style={{
 
 <TickCircle
   size="15"
+
+  style={{
+    position:"absolute",
+    left:7
+  }}
+
   color={
     msg.is_read
     ? "#8DFF61"
