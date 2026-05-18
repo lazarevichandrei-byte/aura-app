@@ -134,6 +134,8 @@ useRef<Set<string>>(
 const readTimeout =
 useRef<any>(null);
 const PAGE_SIZE = 40;
+const oldestMessageRef =
+useRef<string | null>(null);
 
 useEffect(()=>{
 
@@ -180,7 +182,11 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-      
+      if(currentScroll < 120){
+
+  loadOlderMessages();
+
+}
 
  const distanceFromBottom =
 
@@ -302,6 +308,79 @@ for(
 };
 },[messages.length]);
 
+async function loadOlderMessages(){
+
+  if(
+    loadingMore ||
+    !hasMore ||
+    !oldestMessageRef.current
+  ){
+    return;
+  }
+
+  setLoadingMore(true);
+
+  const el = chatRef.current;
+
+  const previousHeight =
+    el?.scrollHeight || 0;
+
+  const { data,error } =
+  await supabase
+    .from("messages")
+    .select("*")
+    .eq("chat_id",chatId)
+    .lt(
+      "created_at",
+      oldestMessageRef.current
+    )
+    .order(
+      "created_at",
+      { ascending:false }
+    )
+    .limit(PAGE_SIZE);
+
+  if(!error && data){
+
+    const reversed =
+      data.reverse();
+
+    if(reversed.length){
+
+      oldestMessageRef.current =
+        reversed[0].created_at;
+
+      setMessages(prev => [
+
+        ...reversed,
+        ...prev
+
+      ]);
+
+      requestAnimationFrame(()=>{
+
+        if(!el) return;
+
+        const newHeight =
+          el.scrollHeight;
+
+        el.scrollTop =
+          newHeight - previousHeight;
+
+      });
+
+    }
+
+    setHasMore(
+      data.length === PAGE_SIZE
+    );
+
+  }
+
+  setLoadingMore(false);
+
+}
+
 const scrollToBottom =
 useCallback(()=>{
 
@@ -347,6 +426,12 @@ const { data,error } = await supabase
 if(!error && data){
 
 const reversed = data.reverse();
+if(reversed.length){
+
+  oldestMessageRef.current =
+    reversed[0].created_at;
+
+}
 
 setHasMore(
   data.length === PAGE_SIZE
