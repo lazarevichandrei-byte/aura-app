@@ -1054,7 +1054,6 @@ await supabase
 chat_id:chatId,
 sender_id:userId,
 body:text,
-client_id: optimisticId,
 message_type:"text",
 
 reply_to_id:
