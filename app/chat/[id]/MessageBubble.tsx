@@ -283,27 +283,54 @@ const messageTime =
                 }}
               >
 
-                <TickCircle
-                  size="17"
-                  color={
+                <div
+style={{
+  display:"flex",
+  alignItems:"center",
+  marginLeft:2,
+  gap:-3
+}}
+>
 
-  msg.status === "sending"
-  ? "rgba(255,255,255,.4)"
+<TickCircle
+  size="15"
+  color={
 
-  : msg.status === "failed"
-  ? "#FF6B6B"
+    msg.status === "sending"
+    ? "rgba(255,255,255,.4)"
 
-  : msg.is_read
-  ? "#8DFF61"
+    : msg.status === "failed"
+    ? "#FF6B6B"
 
-  : msg.status === "delivered"
-  ? "#7ED6FF"
+    : msg.is_read
+    ? "#8DFF61"
 
-  : "rgba(255,255,255,.72)"
-}
+    : msg.status === "delivered"
+    ? "#7ED6FF"
 
-                  variant="Bulk"
-                />
+    : "rgba(255,255,255,.72)"
+  }
+  variant="Bulk"
+/>
+
+{(
+  msg.status === "delivered" ||
+  msg.is_read
+) && (
+
+<TickCircle
+  size="15"
+  color={
+    msg.is_read
+    ? "#8DFF61"
+    : "#7ED6FF"
+  }
+  variant="Bulk"
+/>
+
+)}
+
+</div>
 
               </div>
 

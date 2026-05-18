@@ -896,6 +896,9 @@ if(newMsg.sender_id === userId){
 
 
 
+
+
+
 setMessages(prev => {
 const msgId =
   String(newMsg.id);
@@ -983,7 +986,44 @@ messageIdsRef.current.add(
 }
 )
 
+.on(
+  "postgres_changes",
+  {
+    event:"UPDATE",
+    schema:"public",
+    table:"messages",
+    filter:`chat_id=eq.${chatId}`
+  },
+  (payload)=>{
+
+    const updatedMsg:any =
+      payload.new;
+
+    setMessages(prev =>
+
+      prev.map((m:any)=>
+
+        String(m.id) ===
+        String(updatedMsg.id)
+
+        ? {
+            ...m,
+            is_read:
+              updatedMsg.is_read
+          }
+
+        : m
+
+      )
+
+    );
+
+  }
+)
+
 .subscribe();
+
+
 
 return ()=>{
 
