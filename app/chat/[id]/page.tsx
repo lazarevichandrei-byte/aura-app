@@ -1540,6 +1540,36 @@ useCallback((replyId:string)=>{
   scrollToReplyMessage
 ]);
 
+const handleSwipeMoveMessage =
+useCallback((
+  e:any,
+  msgId:string
+)=>{
+
+  handleSwipeMove(
+    e,
+    msgId
+  );
+
+},[
+  handleSwipeMove
+]);
+
+const handleSwipeEndMessage =
+useCallback((
+  e:any,
+  msg:any
+)=>{
+
+  handleSwipeEnd(
+    e,
+    msg
+  );
+
+},[
+  handleSwipeEnd
+]);
+
 const renderedMessages =
 useMemo(()=>{
 
@@ -1695,14 +1725,14 @@ onReplyPreviewClick={()=>{
 onTouchStart={handleTouchStart}
 
 onTouchMove={(e)=>
-  handleSwipeMove(
+  handleSwipeMoveMessage(
     e,
     String(msg.id)
   )
 }
 
 onTouchEnd={(e)=>
-  handleSwipeEnd(
+  handleSwipeEndMessage(
     e,
     msg
   )
