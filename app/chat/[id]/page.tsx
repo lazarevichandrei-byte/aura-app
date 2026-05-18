@@ -789,28 +789,18 @@ messageIdsRef.current.add(
 
   const el = chatRef.current;
 
-  if(el){
+  if(
+  el &&
+  isNearBottomRef.current
+){
 
-    const isNearBottom =
+  requestAnimationFrame(()=>{
 
-      el.scrollHeight
-      -
-      el.scrollTop
-      -
-      el.clientHeight
-      < 150;
+    scrollToBottom();
 
-    if(isNearBottom){
+  });
 
-      requestAnimationFrame(()=>{
-
-        scrollToBottom();
-
-      });
-
-    }
-
-  }
+}
 
   return updated;
 
