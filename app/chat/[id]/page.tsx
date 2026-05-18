@@ -1524,6 +1524,13 @@ function getMessageDateLabel(
 
 }
 
+const handleRetryMessage =
+useCallback((msg:any)=>{
+
+  resendMessage(msg);
+
+},[]);
+
 const renderedMessages =
 useMemo(()=>{
 
@@ -1687,7 +1694,7 @@ onTouchEnd={(e)=>
   )
 }
 onRetry={()=>
-  resendMessage(msg)
+  handleRetryMessage(msg)
 }
 />
 
