@@ -137,6 +137,8 @@ useRef<Set<string>>(
 
 const readTimeout =
 useRef<any>(null);
+const loadingMoreRef =
+useRef(false);
 const PAGE_SIZE = 40;
 const oldestMessageRef =
 useRef<string | null>(null);
@@ -186,7 +188,13 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-      if(currentScroll < 120){
+      if(
+  currentScroll < 600 &&
+  !loadingMoreRef.current &&
+  hasMore
+){
+
+  loadingMoreRef.current = true;
 
   loadOlderMessages();
 
@@ -385,6 +393,7 @@ async function loadOlderMessages(){
   }
 
   setLoadingMore(false);
+  loadingMoreRef.current = false;
 
 }
 
