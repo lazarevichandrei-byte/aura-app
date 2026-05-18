@@ -999,6 +999,8 @@ const optimisticMessage = {
 
   id: optimisticId,
 
+  client_id: optimisticId,
+
   chat_id: chatId,
 
   sender_id: userId,
@@ -1052,6 +1054,7 @@ await supabase
 chat_id:chatId,
 sender_id:userId,
 body:text,
+client_id: optimisticId,
 message_type:"text",
 
 reply_to_id:
@@ -1335,7 +1338,11 @@ msg.created_at
 
 return(
 
-<React.Fragment key={msg.id}>
+<React.Fragment
+  key={
+    msg.client_id || msg.id
+  }
+>
 
 {showUnreadDivider && (
 
