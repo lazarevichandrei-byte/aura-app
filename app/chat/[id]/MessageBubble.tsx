@@ -3,7 +3,7 @@
 import React from "react";
 import {
   BackSquare,
-  TickCircle
+  TickSquare
 } from "iconsax-react";
 
 type Props = {
@@ -294,7 +294,7 @@ height:15
 }}
 >
 
-<TickCircle
+<TickSquare
   size="15"
 
   style={{
@@ -319,6 +319,7 @@ height:15
     : "rgba(255,255,255,.72)"
   }
   variant="Bulk"
+  
 />
 
 {(
@@ -326,7 +327,7 @@ height:15
   msg.is_read
 ) && (
 
-<TickCircle
+<TickSquare
   size="15"
 
   style={{
