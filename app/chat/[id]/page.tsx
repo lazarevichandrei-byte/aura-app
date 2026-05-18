@@ -5,7 +5,8 @@ import React,
   useEffect,
   useState,
   useRef,
-  useCallback
+  useCallback,
+  useMemo
 } from "react";
 
 import {
@@ -102,6 +103,7 @@ useState(false);
 
 
 
+
 const firstLoadRef =
 useRef(true);
 
@@ -166,13 +168,18 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  const timeout = setTimeout(()=>{
+  let handleScroll:any = null;
+  let el:any = null;
 
-    const el = chatRef.current;
+  const timeout = setTimeout(()=>{
+    
+    let handleScroll:any = null;
+
+    el = chatRef.current;
 
     if(!el) return;
 
-    const handleScroll = ()=>{
+    handleScroll = ()=>{
 
   if(scrollFrame.current){
     return;
@@ -286,8 +293,14 @@ for(
   },200);
 
   return ()=>{
+    
 
   clearTimeout(timeout);
+
+  el.removeEventListener(
+  "scroll",
+  handleScroll
+);
 
   if(scrollFrame.current){
 
@@ -308,7 +321,7 @@ for(
   dateElementsRef.current = null;
 
 };
-},[messages.length]);
+},[]);
 
 async function loadOlderMessages(){
 
@@ -1217,6 +1230,191 @@ function getMessageDateLabel(
 
 }
 
+const renderedMessages =
+useMemo(()=>{
+
+return messages.map((msg,index)=>{
+
+const mine =
+msg.sender_id===userId;
+
+const prevMsg =
+messages[index - 1];
+
+const nextMsg =
+messages[index + 1];
+
+const sameAsPrev =
+prevMsg?.sender_id === msg.sender_id;
+
+const sameAsNext =
+nextMsg?.sender_id === msg.sender_id;
+
+const currentDate =
+new Date(msg.created_at)
+.toDateString();
+
+const prevDate =
+prevMsg
+? new Date(prevMsg.created_at)
+.toDateString()
+: null;
+
+const showDateDivider =
+currentDate !== prevDate;
+
+const showUnreadDivider =
+firstUnreadId ===
+String(msg.id);
+
+const dateLabel =
+getMessageDateLabel(
+msg.created_at
+);
+
+return(
+
+<React.Fragment key={msg.id}>
+
+{showUnreadDivider && (
+
+<div
+style={{
+display:"flex",
+alignItems:"center",
+gap:10,
+margin:"14px 0 18px"
+}}
+>
+
+<div
+style={{
+flex:1,
+height:1,
+background:
+"linear-gradient(to right,transparent,#D8E5FF,transparent)"
+}}
+/>
+
+<div
+style={{
+fontSize:12,
+fontWeight:700,
+color:"#2E7BFF",
+background:"#EEF4FF",
+padding:"5px 12px",
+borderRadius:999,
+whiteSpace:"nowrap"
+}}
+>
+Новые сообщения
+</div>
+
+<div
+style={{
+flex:1,
+height:1,
+background:"#E4E9F1"
+}}
+/>
+
+</div>
+
+)}
+
+{showDateDivider && (
+
+<div
+data-msg-date={dateLabel}
+style={{
+display:"flex",
+justifyContent:"center",
+margin:"14px 0 12px"
+}}
+>
+
+<div
+style={{
+background:"#F2F4F7",
+color:"#7B8794",
+fontSize:12,
+fontWeight:600,
+padding:"6px 12px",
+borderRadius:999,
+backdropFilter:"blur(10px)"
+}}
+>
+{dateLabel}
+</div>
+
+</div>
+
+)}
+
+<MessageBubble
+
+msg={msg}
+
+mine={mine}
+
+sameAsPrev={sameAsPrev}
+sameAsNext={sameAsNext}
+
+swipedMsg={swipedMsg}
+swipeOffset={swipeOffset}
+showReplyIcon={showReplyIcon}
+
+highlightedMsg={highlightedMsg}
+
+onReplyPreviewClick={()=>{
+
+if(!msg.reply_to_id){
+return;
+}
+
+scrollToReplyMessage(
+String(msg.reply_to_id)
+);
+
+}}
+
+onTouchStart={handleTouchStart}
+
+onTouchMove={(e)=>{
+
+handleSwipeMove(
+e,
+String(msg.id)
+);
+
+}}
+
+onTouchEnd={(e)=>{
+
+handleSwipeEnd(
+e,
+msg
+);
+
+}}
+/>
+
+</React.Fragment>
+
+);
+
+});
+
+},[
+messages,
+userId,
+firstUnreadId,
+swipedMsg,
+swipeOffset,
+showReplyIcon,
+highlightedMsg
+]);
+
 if(!otherUser){
 
   return (
@@ -1559,188 +1757,7 @@ WebkitOverflowScrolling:"touch",
 }}
 >
 
-{messages.map((msg,index)=>{
-    
-const mine =
-msg.sender_id===userId;
-
-
-const prevMsg =
-messages[index - 1];
-
-const nextMsg =
-messages[index + 1];
-
-const sameAsPrev =
-prevMsg?.sender_id === msg.sender_id;
-
-const sameAsNext =
-nextMsg?.sender_id === msg.sender_id;
-
-const currentDate =
-new Date(msg.created_at)
-.toDateString();
-
-const prevDate =
-prevMsg
-? new Date(prevMsg.created_at)
-  .toDateString()
-: null;
-
-const showDateDivider =
-currentDate !== prevDate;
-
-const showUnreadDivider =
-
-  firstUnreadId ===
-  String(msg.id);
-
-const dateLabel =
-  getMessageDateLabel(
-    msg.created_at
-  );
-
-
-
-return(
-
-<React.Fragment key={msg.id}>
-{showUnreadDivider && (
-
-<div
-style={{
-display:"flex",
-alignItems:"center",
-gap:10,
-margin:"14px 0 18px"
-}}
->
-
-<div
-style={{
-flex:1,
-height:1,
-background:
-"linear-gradient(to right,transparent,#D8E5FF,transparent)"
-}}
-/>
-
-<div
-style={{
-fontSize:12,
-fontWeight:700,
-
-color:"#2E7BFF",
-
-background:"#EEF4FF",
-
-padding:"5px 12px",
-
-borderRadius:999,
-whiteSpace:"nowrap"
-}}
->
-Новые сообщения
-</div>
-
-<div
-style={{
-flex:1,
-height:1,
-background:"#E4E9F1"
-}}
-/>
-
-</div>
-
-)}
-
-{showDateDivider && (
-
-<div
-data-msg-date={dateLabel}
-style={{
-display:"flex",
-justifyContent:"center",
-margin:"14px 0 12px"
-}}
->
-
-<div
-style={{
-background:"#F2F4F7",
-color:"#7B8794",
-fontSize:12,
-fontWeight:600,
-padding:"6px 12px",
-borderRadius:999,
-backdropFilter:"blur(10px)"
-}}
->
-{dateLabel}
-</div>
-
-</div>
-
-)}
-
-
-<MessageBubble
-
-  msg={msg}
-
-  mine={mine}
-
-  sameAsPrev={sameAsPrev}
-  sameAsNext={sameAsNext}
-
-  swipedMsg={swipedMsg}
-  swipeOffset={swipeOffset}
-  showReplyIcon={showReplyIcon}
-
-  highlightedMsg={highlightedMsg}
-
-
-
-  onReplyPreviewClick={()=>{
-
-  if(!msg.reply_to_id){
-    return;
-  }
-
-  scrollToReplyMessage(
-    String(msg.reply_to_id)
-  );
-
-}}
-
-onTouchStart={handleTouchStart}
-
-onTouchMove={(e)=>{
-
-  handleSwipeMove(
-    e,
-    String(msg.id)
-  );
-
-}}
-
-onTouchEnd={(e)=>{
-
-  handleSwipeEnd(
-    e,
-    msg
-  );
-
-}}
-  />
-
-
-</React.Fragment>
-
-);
-
-})}
+{renderedMessages}
 
 </div>
 
