@@ -636,7 +636,7 @@ const typingChannel = supabase
 .on(
 "postgres_changes",
 {
-event:"*",
+event:"INSERT",
 schema:"public",
 table:"typing_status",
 filter:`chat_id=eq.${chatId}`
@@ -694,7 +694,7 @@ const channel = supabase
 .on(
 "postgres_changes",
 {
-event:"*",
+event:"INSERT",
 schema:"public",
 table:"messages",
 filter:`chat_id=eq.${chatId}`
@@ -707,27 +707,8 @@ const newMsg:any = payload.new;
 
 
 
-if(payload.eventType === "UPDATE"){
 
-  setMessages(prev =>
 
-    prev.map((m:any)=>
-
-      String(m.id) === String(newMsg.id)
-      ? newMsg
-      : m
-
-    )
-
-  );
-
-  return;
-
-}
-
-if(payload.eventType !== "INSERT"){
-  return;
-}
 
 
 
