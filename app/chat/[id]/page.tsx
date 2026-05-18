@@ -395,8 +395,10 @@ useCallback(()=>{
   scrollBottomFrame.current =
     requestAnimationFrame(()=>{
 
-      el.scrollTop =
-        el.scrollHeight + 9999;
+     el.scrollTo({
+  top: el.scrollHeight,
+  behavior:"smooth"
+});
 
       scrollBottomFrame.current =
         null;
