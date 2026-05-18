@@ -103,6 +103,9 @@ useRef(0);
 const scrollFrame =
 useRef<number | null>(null);
 
+const isNearBottomRef =
+useRef(true);
+
 const dateElementsRef =
 useRef<NodeListOf<Element> | null>(
   null
@@ -178,8 +181,14 @@ useEffect(()=>{
   -
   el.clientHeight;
 
+  const isNearBottom =
+  distanceFromBottom < 120;
+
+isNearBottomRef.current =
+  isNearBottom;
+
 setShowScrollBottom(
-  distanceFromBottom > 120
+  !isNearBottom
 );
 
       lastScrollTopRef.current =
