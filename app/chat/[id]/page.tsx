@@ -839,6 +839,8 @@ messageIdsRef.current.add(
   msgId
 );
 
+
+
   const updated = [...prev, newMsg];
 
   if(newMsg.sender_id !== userId){
