@@ -273,10 +273,18 @@ const messageTime =
                 <TickCircle
                   size="17"
                   color={
-                    msg.is_read
-                    ? "#8DFF61"
-                    : "rgba(255,255,255,.72)"
-                  }
+
+  msg.status === "sending"
+  ? "rgba(255,255,255,.4)"
+
+  : msg.status === "failed"
+  ? "#FF6B6B"
+
+  : msg.is_read
+  ? "#8DFF61"
+
+  : "rgba(255,255,255,.72)"
+}
                   variant="Bulk"
                 />
 
