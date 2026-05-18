@@ -100,6 +100,8 @@ useRef(true);
 const lastScrollTopRef =
 useRef(0);
 
+
+
 const scrollFrame =
 useRef<number | null>(null);
 
@@ -188,11 +190,16 @@ const isScrollingDown =
 const isFarFromBottom =
   distanceFromBottom > 120;
 
+const isNearBottom =
+  distanceFromBottom < 120;
+
+isNearBottomRef.current =
+  isNearBottom;
+
 setShowScrollBottom(
   isFarFromBottom &&
   isScrollingDown
 );
-
 
 
       lastScrollTopRef.current =
