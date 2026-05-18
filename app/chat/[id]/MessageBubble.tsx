@@ -90,9 +90,12 @@ const messageTime =
           : 10,
 
         animation:
-          mine
-          ? "msgInMine .18s ease"
-          : "msgInOther .22s ease",
+
+  String(msg.id).startsWith("temp-")
+  ? "none"
+  : mine
+    ? "msgInMine .18s ease"
+    : "msgInOther .22s ease",
       }}
     >
 
