@@ -1030,11 +1030,18 @@ setMessages(prev => [
   optimisticMessage
 ]);
 
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 
-  scrollToBottom();
+  const el = chatRef.current;
 
-});
+  if(!el) return;
+
+  el.scrollTo({
+    top: el.scrollHeight,
+    behavior:"auto"
+  });
+
+},0);
 setPressed(false);
 setReplyTo(null);
 
