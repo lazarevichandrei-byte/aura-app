@@ -153,13 +153,15 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  const timeout = setTimeout(()=>{
+  
 
     const el = chatRef.current;
 
     if(!el) return;
 
     const handleScroll = ()=>{
+      
+      
 
   if(scrollFrame.current){
     return;
@@ -257,11 +259,15 @@ for(
   { passive:true }
 );
 
-  },200);
+  
 
   return ()=>{
 
-  clearTimeout(timeout);
+    el.removeEventListener(
+    "scroll",
+    handleScroll
+  );
+
 
   if(scrollFrame.current){
 
@@ -282,7 +288,7 @@ for(
   dateElementsRef.current = null;
 
 };
-},[messages.length]);
+},[]);
 
 const scrollToBottom =
 useCallback(()=>{
