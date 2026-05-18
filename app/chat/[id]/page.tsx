@@ -902,15 +902,7 @@ messageIdsRef.current.add(
 }
 )
 
-.subscribe((status)=>{
-
-  if(status === "SUBSCRIBED"){
-
-    fetchMessages();
-
-  }
-
-});
+.subscribe();
 
 return ()=>{
 
