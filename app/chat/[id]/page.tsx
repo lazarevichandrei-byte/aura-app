@@ -390,22 +390,18 @@ useCallback(()=>{
 
   if(!el) return;
 
-  if(scrollBottomFrame.current){
-    return;
-  }
+  requestAnimationFrame(()=>{
 
-  scrollBottomFrame.current =
     requestAnimationFrame(()=>{
 
-     el.scrollTo({
-  top: el.scrollHeight,
-  behavior:"smooth"
-});
-
-      scrollBottomFrame.current =
-        null;
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior:"smooth"
+      });
 
     });
+
+  });
 
 },[]);
 
@@ -1557,7 +1553,7 @@ flex:1,
 minHeight:0,
 overflowY:"auto",
 padding:"12px 10px 6px",
-paddingBottom:"120px",
+paddingBottom:"30px",
 overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
