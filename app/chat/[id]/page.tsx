@@ -186,11 +186,14 @@ useEffect(()=>{
   const isNearBottom =
   distanceFromBottom < 120;
 
+const isFarEnough =
+  distanceFromBottom > 250;
+
 isNearBottomRef.current =
   isNearBottom;
 
 setShowScrollBottom(
-  !isNearBottom
+  isFarEnough
 );
 
       lastScrollTopRef.current =
