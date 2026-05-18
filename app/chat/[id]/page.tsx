@@ -981,6 +981,93 @@ async function updateTyping(status:boolean){
 
 }
 
+async function resendMessage(
+  failedMsg:any
+){
+
+  if(userId === null){
+    return;
+  }
+
+  setMessages(prev =>
+
+    prev.map((m:any)=>
+
+      m.id === failedMsg.id
+      ? {
+          ...m,
+          status:"sending"
+        }
+      : m
+
+    )
+
+  );
+
+  const { data,error } =
+  await supabase
+    .from("messages")
+    .insert({
+
+      chat_id:chatId,
+
+      sender_id:userId,
+
+      body:failedMsg.body,
+
+      message_type:"text",
+
+      reply_to_id:
+        failedMsg.reply_to_id || null,
+
+      reply_preview:
+        failedMsg.reply_preview || null
+
+    })
+    .select()
+    .single();
+
+  if(error){
+
+    setMessages(prev =>
+
+      prev.map((m:any)=>
+
+        m.id === failedMsg.id
+        ? {
+            ...m,
+            status:"failed"
+          }
+        : m
+
+      )
+
+    );
+
+    return;
+  }
+
+  if(data){
+
+    setMessages(prev =>
+
+      prev.map((m:any)=>
+
+        m.id === failedMsg.id
+        ? {
+            ...data,
+            client_id:
+              failedMsg.client_id
+          }
+        : m
+
+      )
+
+    );
+
+  }
+
+}
 
 async function sendMessage(){
 
@@ -1086,9 +1173,15 @@ if(error){
 
   setMessages(prev =>
 
-    prev.filter(
-      (m:any)=>
-      m.id !== optimisticId
+    prev.map((m:any)=>
+
+      m.id === optimisticId
+      ? {
+          ...m,
+          status:"failed"
+        }
+      : m
+
     )
 
   );
@@ -1473,6 +1566,9 @@ onTouchEnd={(e)=>
     e,
     msg
   )
+}
+onRetry={()=>
+  resendMessage(msg)
 }
 />
 
