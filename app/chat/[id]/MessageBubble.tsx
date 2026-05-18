@@ -426,14 +426,7 @@ next.msg.status &&
   prevHighlighted ===
   nextHighlighted &&
 
-  prevSwiped ===
-  nextSwiped &&
-
-  prev.swipeOffset ===
-  next.swipeOffset &&
-
-  prev.showReplyIcon ===
-  next.showReplyIcon &&
+  
 
   prev.sameAsNext ===
   next.sameAsNext &&
