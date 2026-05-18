@@ -116,6 +116,9 @@ useRef(true);
 const lastScrollTopRef =
 useRef(0);
 
+const lastScrollHeightRef =
+useRef(0);
+
 
 
 const scrollFrame =
@@ -258,6 +261,9 @@ setShowScrollBottom(
 
       lastScrollTopRef.current =
         currentScroll;
+
+        lastScrollHeightRef.current =
+  el.scrollHeight;
 
       if(!dateElementsRef.current){
 
