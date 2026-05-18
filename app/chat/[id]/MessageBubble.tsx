@@ -296,8 +296,12 @@ const messageTime =
   : msg.is_read
   ? "#8DFF61"
 
+  : msg.status === "delivered"
+  ? "#7ED6FF"
+
   : "rgba(255,255,255,.72)"
 }
+
                   variant="Bulk"
                 />
 

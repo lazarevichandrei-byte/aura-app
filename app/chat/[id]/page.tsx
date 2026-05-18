@@ -58,6 +58,10 @@ useState<any>(null);
 
 const [typingUser,setTypingUser] =
 useState(false);
+const [isOffline,setIsOffline] =
+useState(
+  !navigator.onLine
+);
 const typingRef =
 useRef(false);
 
@@ -628,6 +632,22 @@ useEffect(()=>{
 
   let offlineTimer:any = null;
 
+async function handleReconnect(){
+  
+
+  await setOnline();
+  setIsOffline(false);
+
+  resendFailedMessages();
+
+}
+
+function handleOffline(){
+
+  setIsOffline(true);
+
+}
+
 function handleVisibility(){
 
   if(document.hidden){
@@ -656,12 +676,32 @@ resendFailedMessages();
     handleVisibility
   );
 
+  window.addEventListener(
+  "online",
+  handleReconnect
+);
+
+window.addEventListener(
+  "offline",
+  handleOffline
+);
+
   return ()=>{
 
     document.removeEventListener(
       "visibilitychange",
       handleVisibility
     );
+
+    window.removeEventListener(
+  "online",
+  handleReconnect
+);
+
+window.removeEventListener(
+  "offline",
+  handleOffline
+);
 
   };
 
@@ -874,7 +914,13 @@ messageIdsRef.current.add(
 
 
 
-  const updated = [...prev, newMsg];
+  const updated = [
+  ...prev,
+  {
+    ...newMsg,
+    status:"delivered"
+  }
+];
 
   if(newMsg.sender_id !== userId){
 
@@ -1223,9 +1269,10 @@ if(data){
 
       m.id === optimisticId
      ? {
-    ...data,
-    client_id: optimisticId
-  }
+  ...data,
+  client_id: optimisticId,
+  status:"sent"
+}
       : m
 
     )
@@ -1785,7 +1832,6 @@ style={{
 {otherUser?.name || "Пользователь"}
 </div>
 
-
 <div
 style={{
   fontSize:12,
@@ -1793,14 +1839,23 @@ style={{
   marginTop:2
 }}
 >
+
 {
-  otherUser?.last_seen &&
-  (
-    Date.now() -
-    new Date(otherUser.last_seen).getTime()
-  ) < 30000
-    ? "online"
+isOffline
+? "нет соединения"
+
+: otherUser?.last_seen &&
+(
+  Date.now() -
+  new Date(
+    otherUser.last_seen
+  ).getTime()
+) < 30000
+
+? "online"
+
 : otherUser?.last_seen
+
 ? `был ${new Date(
 otherUser.last_seen
 ).toLocaleTimeString(
@@ -1810,9 +1865,15 @@ hour:"2-digit",
 minute:"2-digit"
 }
 )}`
+
 : "offline"
 }
+
 </div>
+
+
+
+
 
 
 {typingUser && (
