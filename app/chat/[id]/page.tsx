@@ -1320,26 +1320,31 @@ return messages.map((msg,index)=>{
 const mine =
 msg.sender_id===userId;
 
-const prevMsg =
-messages[index - 1];
+const prevSenderId =
+  messages[index - 1]
+  ?.sender_id;
 
-const nextMsg =
-messages[index + 1];
+const nextSenderId =
+  messages[index + 1]
+  ?.sender_id;
 
 const sameAsPrev =
-prevMsg?.sender_id === msg.sender_id;
+  prevSenderId ===
+  msg.sender_id;
 
 const sameAsNext =
-nextMsg?.sender_id === msg.sender_id;
+  nextSenderId ===
+  msg.sender_id;
 
 const currentDate =
 new Date(msg.created_at)
 .toDateString();
 
 const prevDate =
-prevMsg
-? new Date(prevMsg.created_at)
-.toDateString()
+messages[index - 1]
+? new Date(
+    messages[index - 1].created_at
+  ).toDateString()
 : null;
 
 const showDateDivider =
