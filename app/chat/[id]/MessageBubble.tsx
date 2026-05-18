@@ -89,13 +89,6 @@ const messageTime =
           ? 2
           : 10,
 
-        animation:
-
-  String(msg.id).startsWith("temp-")
-  ? "none"
-  : mine
-    ? "msgInMine .18s ease"
-    : "msgInOther .22s ease",
       }}
     >
 
