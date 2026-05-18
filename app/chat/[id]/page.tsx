@@ -1531,6 +1531,15 @@ useCallback((msg:any)=>{
 
 },[]);
 
+const handleReplyPreview =
+useCallback((replyId:string)=>{
+
+  scrollToReplyMessage(replyId);
+
+},[
+  scrollToReplyMessage
+]);
+
 const renderedMessages =
 useMemo(()=>{
 
@@ -1671,12 +1680,17 @@ showReplyIcon={showReplyIcon}
 
 highlightedMsg={highlightedMsg}
 
-onReplyPreviewClick={()=>
-  msg.reply_to_id &&
-  scrollToReplyMessage(
-    String(msg.reply_to_id)
-  )
-}
+onReplyPreviewClick={()=>{
+
+  if(msg.reply_to_id){
+
+    handleReplyPreview(
+      String(msg.reply_to_id)
+    );
+
+  }
+
+}}
 
 onTouchStart={handleTouchStart}
 
