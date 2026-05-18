@@ -1928,12 +1928,18 @@ minute:"2-digit"
 
 <div
 style={{
-fontSize:12,
-color:"#7A8699",
-marginTop:2
+  display:"flex",
+  alignItems:"center",
+  gap:4,
+  marginTop:4,
+  height:10
 }}
 >
-печатает...
+
+<div className="typing-dot" />
+<div className="typing-dot" />
+<div className="typing-dot" />
+
 </div>
 
 )}
@@ -2371,6 +2377,41 @@ WebkitTapHighlightColor:"transparent"
     transform:
       translateY(0px)
       scale(1);
+  }
+
+}
+
+.typing-dot{
+
+  width:6px;
+  height:6px;
+
+  border-radius:50%;
+
+  background:#7A8699;
+
+  animation:
+    typingBounce 1s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2){
+  animation-delay:.15s;
+}
+
+.typing-dot:nth-child(3){
+  animation-delay:.3s;
+}
+
+@keyframes typingBounce{
+
+  0%,80%,100%{
+    transform:scale(.7);
+    opacity:.45;
+  }
+
+  40%{
+    transform:scale(1);
+    opacity:1;
   }
 
 }
