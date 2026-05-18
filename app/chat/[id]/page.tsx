@@ -76,7 +76,9 @@ useRef<any>(null);
 const chatRef =
 useRef<HTMLDivElement | null>(null);
 const inputRef =
-useRef<HTMLInputElement | null>(null);
+useRef<HTMLTextAreaElement | null>(
+  null
+);
 
 
 const touchStartX =
@@ -2162,7 +2164,7 @@ border:"1px solid #E7ECF2",
 
    
 
-<input
+<textarea
 ref={inputRef}
 autoComplete="off"
 autoCorrect="off"
@@ -2188,6 +2190,20 @@ onChange={(e:any)=>{
     e.target.value;
 
   setNewMessage(value);
+  const textarea =
+  inputRef.current;
+
+if(textarea){
+
+  textarea.style.height = "0px";
+
+  textarea.style.height =
+    Math.min(
+      textarea.scrollHeight,
+      140
+    ) + "px";
+
+}
 
   clearTimeout(
     typingTimeout.current
@@ -2218,16 +2234,32 @@ onChange={(e:any)=>{
 
 
 placeholder="Сообщение..."
+rows={1}
 
 style={{
-flex:1,
-border:"none",
-outline:"none",
-background:"transparent",
-height:34,
-fontSize:16
+  flex:1,
+
+  border:"none",
+  outline:"none",
+
+  background:"transparent",
+
+  minHeight:34,
+  maxHeight:140,
+
+  height:34,
+
+  resize:"none",
+
+  overflowY:"auto",
+
+  fontSize:16,
+  lineHeight:"20px",
+
+  paddingTop:7,
+  paddingBottom:7
 }}
-/>
+></textarea>
 
 <button
 type="button"
