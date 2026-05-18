@@ -813,7 +813,9 @@ filter:`chat_id=eq.${chatId}`
     
 const newMsg:any = payload.new;
 
-
+if(newMsg.sender_id === userId){
+  return;
+}
 
 
 
@@ -900,7 +902,15 @@ messageIdsRef.current.add(
 }
 )
 
-.subscribe();
+.subscribe((status)=>{
+
+  if(status === "SUBSCRIBED"){
+
+    fetchMessages();
+
+  }
+
+});
 
 return ()=>{
 
@@ -988,7 +998,47 @@ if(!newMessage.trim()) return;
 
 const text = newMessage;
 
+const optimisticId =
+  `temp-${Date.now()}`;
+
+const optimisticMessage = {
+
+  id: optimisticId,
+
+  chat_id: chatId,
+
+  sender_id: userId,
+
+  body: text,
+
+  message_type:"text",
+
+  created_at:
+    new Date().toISOString(),
+
+  is_read:false,
+
+  status:"sending",
+
+  reply_to_id:
+    replyTo?.id || null,
+
+  reply_preview:
+    replyTo?.body || null
+
+};
+
 setNewMessage("");
+setMessages(prev => [
+  ...prev,
+  optimisticMessage
+]);
+
+requestAnimationFrame(()=>{
+
+  scrollToBottom();
+
+});
 setPressed(false);
 setReplyTo(null);
 
@@ -1022,9 +1072,34 @@ replyTo?.body || null
 
 if(error){
 
+  setMessages(prev =>
+
+    prev.filter(
+      (m:any)=>
+      m.id !== optimisticId
+    )
+
+  );
+
   setSending(false);
 
   return;
+}
+
+if(data){
+
+  setMessages(prev =>
+
+    prev.map((m:any)=>
+
+      m.id === optimisticId
+      ? data
+      : m
+
+    )
+
+  );
+
 }
 
 
