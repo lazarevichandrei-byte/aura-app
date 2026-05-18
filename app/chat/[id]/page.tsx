@@ -139,7 +139,30 @@ const readTimeout =
 useRef<any>(null);
 const loadingMoreRef =
 useRef(false);
+const resendFailedMessages =
+useCallback(async ()=>{
+
+  const failedMessages =
+    messages.filter(
+      (m:any)=>
+        m.status === "failed"
+    );
+
+  for(
+    const failedMsg of failedMessages
+  ){
+
+    await resendMessage(
+      failedMsg
+    );
+
+  }
+
+},[
+  messages
+]);
 const PAGE_SIZE = 40;
+
 const oldestMessageRef =
 useRef<string | null>(null);
 
@@ -620,6 +643,7 @@ function handleVisibility(){
     clearTimeout(offlineTimer);
 
     setOnline();
+resendFailedMessages();
 
   }
 
