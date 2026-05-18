@@ -41,6 +41,12 @@ const [messages,setMessages] = useState<any[]>([]);
 const [otherUser,setOtherUser] =
 useState<any>(null);
 
+const [hasMore,setHasMore] =
+useState(true);
+
+const [loadingMore,setLoadingMore] =
+useState(false);
+
 
 const [newMessage,setNewMessage] = useState("");
 const [pressed,setPressed] = useState(false);
@@ -127,6 +133,7 @@ useRef<Set<string>>(
 
 const readTimeout =
 useRef<any>(null);
+const PAGE_SIZE = 40;
 
 useEffect(()=>{
 
@@ -335,11 +342,15 @@ const { data,error } = await supabase
 "created_at",
 {ascending:false}
 )
-.limit(200);
+.limit(PAGE_SIZE);
 
 if(!error && data){
 
 const reversed = data.reverse();
+
+setHasMore(
+  data.length === PAGE_SIZE
+);
 
 setMessages(reversed);
 messageIdsRef.current =
