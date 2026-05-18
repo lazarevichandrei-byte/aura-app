@@ -168,38 +168,19 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-      if(
-        lastScrollTopRef.current === 0
-      ){
-
-        lastScrollTopRef.current =
-          currentScroll;
-
-        scrollFrame.current = null;
-
-        return;
-      }
-
-      const isScrollingDown =
-
-        currentScroll >
-        lastScrollTopRef.current;
+      
 
       const distanceFromBottom =
 
-        el.scrollHeight
-        -
-        currentScroll
-        -
-        el.clientHeight;
+  el.scrollHeight
+  -
+  currentScroll
+  -
+  el.clientHeight;
 
-      const isFarFromBottom =
-        distanceFromBottom > 500;
-
-      setShowScrollBottom(
-        isFarFromBottom &&
-        isScrollingDown
-      );
+setShowScrollBottom(
+  distanceFromBottom > 120
+);
 
       lastScrollTopRef.current =
         currentScroll;
