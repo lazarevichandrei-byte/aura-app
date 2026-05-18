@@ -1312,20 +1312,23 @@ function getMessageDateLabel(
 
 }
 
+const visibleMessages =
+  messages.slice(-120);
+
 const renderedMessages =
 useMemo(()=>{
 
-return messages.map((msg,index)=>{
+return visibleMessages.map((msg,index)=>{
 
 const mine =
 msg.sender_id===userId;
 
 const prevSenderId =
-  messages[index - 1]
+  visibleMessages[index - 1]
   ?.sender_id;
 
 const nextSenderId =
-  messages[index + 1]
+visibleMessages[index + 1]
   ?.sender_id;
 
 const sameAsPrev =
@@ -1341,9 +1344,9 @@ new Date(msg.created_at)
 .toDateString();
 
 const prevDate =
-messages[index - 1]
+visibleMessages[index - 1]
 ? new Date(
-    messages[index - 1].created_at
+    visibleMessages[index - 1].created_at
   ).toDateString()
 : null;
 
