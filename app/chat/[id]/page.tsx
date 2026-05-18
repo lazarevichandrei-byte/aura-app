@@ -173,6 +173,8 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
+        
+
       
 
      const distanceFromBottom =
@@ -185,13 +187,6 @@ useEffect(()=>{
 
 const isNearBottom =
   distanceFromBottom < 120;
-
-isNearBottomRef.current =
-  isNearBottom;
-
-setShowScrollBottom(
-  distanceFromBottom > 80
-);
 
 isNearBottomRef.current =
   isNearBottom;
