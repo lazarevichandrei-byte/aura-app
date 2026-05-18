@@ -168,18 +168,13 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  let handleScroll:any = null;
-  let el:any = null;
-
   const timeout = setTimeout(()=>{
-    
-    let handleScroll:any = null;
 
-    el = chatRef.current;
+    const el = chatRef.current;
 
     if(!el) return;
 
-    handleScroll = ()=>{
+    const handleScroll = ()=>{
 
   if(scrollFrame.current){
     return;
@@ -297,10 +292,7 @@ for(
 
   clearTimeout(timeout);
 
-  el.removeEventListener(
-  "scroll",
-  handleScroll
-);
+  
 
   if(scrollFrame.current){
 
@@ -321,7 +313,7 @@ for(
   dateElementsRef.current = null;
 
 };
-},[]);
+},[messages.length]);
 
 async function loadOlderMessages(){
 
