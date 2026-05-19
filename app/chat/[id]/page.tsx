@@ -253,9 +253,17 @@ const isNearBottom =
 isNearBottomRef.current =
   isNearBottom;
 
-setShowScrollBottom(
+const shouldShowScrollBottom =
+
   isFarFromBottom &&
-  isScrollingDown
+  isScrollingDown;
+
+setShowScrollBottom(prev =>
+
+  prev === shouldShowScrollBottom
+  ? prev
+  : shouldShowScrollBottom
+
 );
 
 
@@ -306,12 +314,15 @@ for(
 
 }
 
-      if(
-  currentDate &&
-  currentDate !== floatingDate
-){
+  if(currentDate){
 
-  setFloatingDate(currentDate);
+  setFloatingDate(prev =>
+
+    prev === currentDate
+    ? prev
+    : currentDate
+
+  );
 
 }
       scrollFrame.current = null;
@@ -1786,9 +1797,6 @@ onRetry={()=>
 messages,
 userId,
 firstUnreadId,
-swipedMsg,
-swipeOffset,
-showReplyIcon,
 highlightedMsg
 ]);
 
