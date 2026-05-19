@@ -204,7 +204,7 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  
+  const timeout = setTimeout(()=>{
 
     const el = chatRef.current;
 
@@ -352,12 +352,12 @@ for(
   { passive:true }
 );
 
-  
+  },200);
 
   return ()=>{
     
 
-  
+  clearTimeout(timeout);
 
   
 
@@ -1134,6 +1134,28 @@ useEffect(()=>{
 
 isNearBottomRef.current =
   true;
+
+  if(
+  el &&
+  el.scrollHeight >
+    el.clientHeight
+){
+
+  const distanceFromTop =
+
+    el.scrollHeight
+    -
+    el.clientHeight
+    -
+    el.scrollTop;
+
+  if(distanceFromTop < 1400){
+
+    loadOlderMessages();
+
+  }
+
+}
 
   el.dispatchEvent(
   new Event("scroll")
