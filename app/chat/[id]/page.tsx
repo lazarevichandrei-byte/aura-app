@@ -298,10 +298,17 @@ for(
   const node:any =
     messageElements[i];
 
+    if(!node.isConnected){
+  continue;
+}
+
   const rect =
     node.getBoundingClientRect();
 
-  if(rect.top <= 120){
+  if(
+  rect.top >= -200 &&
+  rect.top <= 120
+){
 
     currentDate =
       node.dataset.msgDate || "";
