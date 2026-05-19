@@ -240,7 +240,9 @@ useEffect(()=>{
   -
   el.clientHeight;
 
-
+const isScrollingDown =
+  currentScroll >
+  lastScrollTopRef.current;
 
 const isFarFromBottom =
   distanceFromBottom > 120;
@@ -252,7 +254,8 @@ isNearBottomRef.current =
   isNearBottom;
 
 setShowScrollBottom(
-  isFarFromBottom
+  isFarFromBottom &&
+  isScrollingDown
 );
 
 
@@ -317,7 +320,7 @@ for(
 
 };
 
-    handleScroll();
+    
 
     el.addEventListener(
   "scroll",
@@ -407,6 +410,8 @@ async function loadOlderMessages(){
       ]);
 
       requestAnimationFrame(()=>{
+
+        
 
         if(!el) return;
 
@@ -1080,6 +1085,16 @@ useEffect(()=>{
 
     el.scrollTop =
       el.scrollHeight;
+
+      lastScrollTopRef.current =
+  el.scrollTop;
+
+isNearBottomRef.current =
+  true;
+
+  el.dispatchEvent(
+  new Event("scroll")
+);
 
   });
 
