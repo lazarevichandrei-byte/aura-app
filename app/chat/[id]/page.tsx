@@ -261,6 +261,12 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
+        if(menuMessage){
+
+  setMenuMessage(null);
+
+}
+
       if(
  currentScroll <= 1200 &&
   !loadingMoreRef.current &&
@@ -2735,6 +2741,8 @@ if(textarea){
       localTypingRef.current = false;
 
       setPressed(false);
+
+      setMenuMessage(null);
 
       await updateTyping(false);
 

@@ -188,6 +188,7 @@ onTouchEnd={(e)=>{
       <div
 
   onClick={()=>{
+    clearLongPress();
 
     if(msg.status === "failed"){
 
