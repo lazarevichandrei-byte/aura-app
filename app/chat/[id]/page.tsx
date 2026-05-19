@@ -58,6 +58,7 @@ useState<any>(null);
 const [menuMessage,setMenuMessage] =
 useState<any>(null);
 
+
 const [typingUser,setTypingUser] =
 useState(false);
 const [isOffline,setIsOffline] =
@@ -183,6 +184,27 @@ useCallback(async ()=>{
   messages
 ]);
 const PAGE_SIZE = 80;
+
+const menuButtonStyle = {
+
+  width:"100%",
+
+  border:"none",
+
+  background:"transparent",
+
+  padding:"14px 16px",
+
+  borderRadius:16,
+
+  fontSize:15,
+
+  fontWeight:600,
+
+  textAlign:"left" as const,
+
+  cursor:"pointer"
+};
 
 const oldestMessageRef =
 useRef<string | null>(null);
@@ -2673,7 +2695,164 @@ WebkitTapHighlightColor:"transparent"
 </div> 
 </div>
 
+{menuMessage && (
+
+<div
+
+  onClick={()=>
+    setMenuMessage(null)
+  }
+
+  style={{
+    position:"fixed",
+    inset:0,
+
+    background:"rgba(0,0,0,.26)",
+
+    backdropFilter:"blur(8px)",
+
+    zIndex:9999,
+
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+
+    animation:"fadeIn .18s ease"
+  }}
+>
+
+  <div
+
+    onClick={(e)=>
+      e.stopPropagation()
+    }
+
+    style={{
+      width:230,
+
+      background:"#fff",
+
+      borderRadius:24,
+
+      padding:8,
+
+      boxShadow:
+        "0 20px 60px rgba(0,0,0,.22)",
+
+      animation:
+        "menuPop .18s ease"
+    }}
+  >
+
+    <button
+
+      onClick={()=>{
+
+        setReplyTo(menuMessage);
+
+        setMenuMessage(null);
+
+      }}
+
+      style={menuButtonStyle}
+    >
+      Ответить
+    </button>
+
+    <button
+
+      onClick={async()=>{
+
+        await navigator
+          .clipboard
+          .writeText(
+            menuMessage.body || ""
+          );
+
+        setMenuMessage(null);
+
+      }}
+
+      style={menuButtonStyle}
+    >
+      Копировать
+    </button>
+
+    {String(menuMessage.sender_id) ===
+      String(userId) && (
+
+      <button
+
+        onClick={async()=>{
+
+          await supabase
+
+            .from("messages")
+
+            .delete()
+
+            .eq(
+              "id",
+              menuMessage.id
+            );
+
+          setMessages(prev =>
+
+            prev.filter(
+              m =>
+              String(m.id) !==
+              String(menuMessage.id)
+            )
+
+          );
+
+          setMenuMessage(null);
+
+        }}
+
+        style={{
+          ...menuButtonStyle,
+          color:"#FF453A"
+        }}
+      >
+        Удалить
+      </button>
+
+    )}
+
+  </div>
+
+</div>
+
+)}
+
 <style jsx global>{`
+
+@keyframes fadeIn{
+
+  from{
+    opacity:0;
+  }
+
+  to{
+    opacity:1;
+  }
+
+}
+
+@keyframes menuPop{
+
+  from{
+    opacity:0;
+    transform:scale(.92);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+
+}
 
 @keyframes scrollBtnIn{
 
