@@ -307,18 +307,10 @@ for(
   const rect =
     node.getBoundingClientRect();
 
-  if(
-  rect.top >= -200 &&
-  rect.top <= 120
-){
+  if(rect.top <= 120){
 
     currentDate =
       node.dataset.msgDate || "";
-
-  }else{
-
-    break;
-
   }
 
 }
