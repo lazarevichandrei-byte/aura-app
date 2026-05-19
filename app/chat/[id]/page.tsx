@@ -374,6 +374,8 @@ async function loadOlderMessages(){
 
   const previousHeight =
     el?.scrollHeight || 0;
+    const previousTop =
+  el?.scrollTop || 0;
 
   const { data,error } =
   await supabase
@@ -415,7 +417,13 @@ async function loadOlderMessages(){
           el.scrollHeight;
 
         el.scrollTop =
-          newHeight - previousHeight;
+
+  previousTop +
+
+  (
+    newHeight -
+    previousHeight
+  );
 
       });
 
@@ -737,12 +745,15 @@ useEffect(()=>{
 
   if(keyboardHeight > 120){
 
- requestAnimationFrame(()=>{
+if(isNearBottomRef.current){
 
-  scrollToBottom();
+  requestAnimationFrame(()=>{
 
- });
+    scrollToBottom();
 
+  });
+
+}
  setTimeout(()=>{
 
   scrollToBottom();
