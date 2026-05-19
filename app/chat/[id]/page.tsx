@@ -2202,7 +2202,8 @@ clearLongPress={
 messages,
 userId,
 firstUnreadId,
-highlightedMsg
+highlightedMsg,
+menuMessage
 ]);
 
 if(!otherUser){
