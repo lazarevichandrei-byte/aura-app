@@ -204,7 +204,7 @@ useEffect(()=>{
 
 useEffect(()=>{
 
-  const timeout = setTimeout(()=>{
+  
 
     const el = chatRef.current;
 
@@ -352,12 +352,12 @@ for(
   { passive:true }
 );
 
-  },200);
+  
 
   return ()=>{
     
 
-  clearTimeout(timeout);
+  
 
   
 
