@@ -141,6 +141,9 @@ useRef<number | null>(null);
 const pendingReadMessages =
 useRef<string[]>([]);
 
+const offlineQueueRef =
+useRef<any[]>([]);
+
 const messageIdsRef =
 useRef<Set<string>>(
   new Set()
@@ -711,6 +714,8 @@ setIsOffline(false);
 
 await recoverMissedMessages();
 
+await processOfflineQueue();
+
 resendFailedMessages();
 
 }
@@ -1273,6 +1278,55 @@ async function recoverMissedMessages(){
 
 }
 
+async function processOfflineQueue(){
+
+  if(
+    !offlineQueueRef.current.length
+  ){
+    return;
+  }
+
+  const queued = [
+    ...offlineQueueRef.current
+  ];
+
+  offlineQueueRef.current = [];
+
+  for(const item of queued){
+
+    const { error } =
+    await supabase
+      .from("messages")
+      .insert({
+
+        chat_id:chatId,
+
+        sender_id:userId,
+
+        body:item.body,
+
+        message_type:"text",
+
+        reply_to_id:
+          item.replyTo?.id || null,
+
+        reply_preview:
+          item.replyTo?.body || null
+
+      });
+
+    if(error){
+
+      offlineQueueRef.current.push(
+        item
+      );
+
+    }
+
+  }
+
+}
+
 async function resendMessage(
   failedMsg:any
 ){
@@ -1377,6 +1431,15 @@ async function sendMessage(){
     
 
 if(!newMessage.trim()) return;
+
+if(!navigator.onLine){
+
+  offlineQueueRef.current.push({
+    body:newMessage,
+    replyTo
+  });
+
+}
 
 const text = newMessage;
 
