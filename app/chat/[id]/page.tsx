@@ -102,6 +102,8 @@ const [firstUnreadId,setFirstUnreadId] =
 useState<string | null>(null);
 const [floatingDate,setFloatingDate] =
 useState("");
+const floatingDateRef =
+useRef("");
 const [showScrollBottom,
 setShowScrollBottom] =
 useState(false);
@@ -323,13 +325,17 @@ for(
 
   if(currentDate){
 
-  setFloatingDate(prev =>
+  if(
+  floatingDateRef.current !==
+  currentDate
+){
 
-    prev === currentDate
-    ? prev
-    : currentDate
+  floatingDateRef.current =
+    currentDate;
 
-  );
+  setFloatingDate(currentDate);
+
+}
 
 }
       scrollFrame.current = null;
