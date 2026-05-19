@@ -26,9 +26,13 @@ type Props = {
   onTouchMove:(e:any)=>void;
   onTouchEnd:(e:any)=>void;
   onRetry:()=>void;
+  onLongPressStart:()=>void;
+onLongPressEnd:()=>void;
+clearLongPress:()=>void;
 };
 
 function MessageBubbleComponent({
+
 
   msg,
   mine,
@@ -48,7 +52,11 @@ function MessageBubbleComponent({
   onTouchStart,
   onTouchMove,
  onTouchEnd,
-onRetry
+onRetry,
+
+onLongPressStart,
+onLongPressEnd,
+clearLongPress
 
 }:Props){
 
@@ -71,9 +79,31 @@ const messageTime =
     <div
       id={`msg-${msg.id}`}
 
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
+     onTouchStart={(e)=>{
+
+  onTouchStart(e);
+
+  onLongPressStart();
+
+}}
+
+onTouchMove={(e)=>{
+
+  clearLongPress();
+
+  onTouchMove(e);
+
+}}
+
+onTouchEnd={(e)=>{
+
+  clearLongPress();
+
+  onLongPressEnd();
+
+  onTouchEnd(e);
+
+}}
 
       style={{
         position:"relative",
