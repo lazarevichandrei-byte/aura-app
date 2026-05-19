@@ -146,6 +146,9 @@ useRef<Set<string>>(
   new Set()
 );
 
+const latestMessageDateRef =
+useRef<string | null>(null);
+
 const readTimeout =
 useRef<any>(null);
 const loadingMoreRef =
@@ -528,6 +531,15 @@ setHasMore(
 );
 
 setMessages(reversed);
+if(reversed.length){
+
+  latestMessageDateRef.current =
+
+    reversed[
+      reversed.length - 1
+    ].created_at;
+
+}
 requestAnimationFrame(()=>{
 
   dateElementsRef.current =
@@ -975,6 +987,9 @@ if(
 messageIdsRef.current.add(
   msgId
 );
+
+latestMessageDateRef.current =
+  newMsg.created_at;
 
 
 
