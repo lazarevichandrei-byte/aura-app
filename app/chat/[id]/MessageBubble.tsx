@@ -1,6 +1,9 @@
 "use client";
 
-import React from "react";
+import React,
+{
+  useRef
+} from "react";
 import {
   BackSquare
 } from "iconsax-react";
@@ -71,8 +74,10 @@ const messageTime =
     }
   );
 
-    
-  return(
+const touchMoved =
+  useRef(false);
+
+return(
 
     
 
@@ -80,6 +85,8 @@ const messageTime =
       id={`msg-${msg.id}`}
 
      onTouchStart={(e)=>{
+
+  touchMoved.current = false;
 
   onTouchStart(e);
 
@@ -89,17 +96,25 @@ const messageTime =
 
 onTouchMove={(e)=>{
 
+  touchMoved.current = true;
+
   clearLongPress();
 
   onTouchMove(e);
 
 }}
 
+
+
 onTouchEnd={(e)=>{
 
   clearLongPress();
 
-  onLongPressEnd();
+  if(!touchMoved.current){
+
+    onLongPressEnd();
+
+  }
 
   onTouchEnd(e);
 
