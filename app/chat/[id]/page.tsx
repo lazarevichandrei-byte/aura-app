@@ -2131,6 +2131,7 @@ style={{
 
 <MessageBubble
 
+
 msg={msg}
 
 mine={mine}
@@ -2143,6 +2144,9 @@ swipeOffset={swipeOffset}
 showReplyIcon={showReplyIcon}
 
 highlightedMsg={highlightedMsg}
+menuMessageId={
+  menuMessage?.id || null
+}
 
 onReplyPreviewClick={()=>{
 
