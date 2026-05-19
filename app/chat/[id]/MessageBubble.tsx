@@ -368,6 +368,11 @@ onTouchEnd={(e)=>{
                 <div
 style={{
   position:"relative",
+  WebkitTouchCallout:"none",
+
+WebkitUserSelect:"none",
+
+userSelect:"none",
   width:
     msg.status === "delivered" ||
     msg.is_read
