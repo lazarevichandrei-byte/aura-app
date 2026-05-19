@@ -55,6 +55,8 @@ const [sending,setSending] =
 useState(false);
 const [replyTo,setReplyTo] =
 useState<any>(null);
+const [menuMessage,setMenuMessage] =
+useState<any>(null);
 
 const [typingUser,setTypingUser] =
 useState(false);
@@ -83,6 +85,8 @@ useRef<HTMLTextAreaElement | null>(
 
 const touchStartX =
 useRef(0);
+const longPressTimeout =
+useRef<any>(null);
 const swipeStartX =
 useRef(0);
 const [swipedMsg,setSwipedMsg] =
@@ -1724,7 +1728,30 @@ useCallback((
 
 },[]);
 
+const handleMessageLongPress =
+useCallback((msg:any)=>{
 
+  longPressTimeout.current =
+    setTimeout(()=>{
+
+      setMenuMessage(msg);
+
+    },420);
+
+},[]);
+
+const clearLongPress =
+useCallback(()=>{
+
+  if(longPressTimeout.current){
+
+    clearTimeout(
+      longPressTimeout.current
+    );
+
+  }
+
+},[]);
 
 function getMessageDateLabel(
   createdAt:string
@@ -1982,6 +2009,18 @@ onTouchEnd={(e)=>
 }
 onRetry={()=>
   handleRetryMessage(msg)
+}
+
+onLongPressStart={()=>
+  handleMessageLongPress(msg)
+}
+
+onLongPressEnd={
+  clearLongPress
+}
+
+clearLongPress={
+  clearLongPress
 }
 />
 
