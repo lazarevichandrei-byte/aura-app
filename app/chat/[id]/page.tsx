@@ -261,11 +261,7 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-        if(menuMessage){
-
-  setMenuMessage(null);
-
-}
+        
 
       if(
  currentScroll <= 1200 &&
@@ -2558,7 +2554,18 @@ showScrollBottom
 
     
 <div
+
 ref={chatRef}
+
+onClick={()=>{
+
+  if(menuMessage){
+
+    setMenuMessage(null);
+
+  }
+
+}}
 
 
 
