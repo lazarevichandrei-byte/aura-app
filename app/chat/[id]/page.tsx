@@ -221,7 +221,7 @@ useEffect(()=>{
         el.scrollTop;
 
       if(
-  currentScroll < 600 &&
+ currentScroll <= 1200 &&
   !loadingMoreRef.current &&
   hasMore
 ){
@@ -435,8 +435,13 @@ async function loadOlderMessages(){
 
   }
 
+  requestAnimationFrame(()=>{
+
   setLoadingMore(false);
+
   loadingMoreRef.current = false;
+
+});
 
 }
 
