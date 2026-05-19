@@ -170,7 +170,7 @@ useCallback(async ()=>{
 },[
   messages
 ]);
-const PAGE_SIZE = 40;
+const PAGE_SIZE = 80;
 
 const oldestMessageRef =
 useRef<string | null>(null);
@@ -240,9 +240,7 @@ useEffect(()=>{
   -
   el.clientHeight;
 
-const isScrollingDown =
-  currentScroll >
-  lastScrollTopRef.current;
+
 
 const isFarFromBottom =
   distanceFromBottom > 120;
@@ -254,8 +252,7 @@ isNearBottomRef.current =
   isNearBottom;
 
 setShowScrollBottom(
-  isFarFromBottom &&
-  isScrollingDown
+  isFarFromBottom
 );
 
 
