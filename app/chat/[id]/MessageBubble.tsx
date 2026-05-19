@@ -79,6 +79,12 @@ const messageTime =
 const touchMoved =
   useRef(false);
 
+  const startTouchX =
+  useRef(0);
+
+const startTouchY =
+  useRef(0);
+
 return(
 
     
@@ -90,6 +96,12 @@ return(
 
   touchMoved.current = false;
 
+  startTouchX.current =
+    e.touches[0].clientX;
+
+  startTouchY.current =
+    e.touches[0].clientY;
+
   onTouchStart(e);
 
   onLongPressStart();
@@ -98,9 +110,32 @@ return(
 
 onTouchMove={(e)=>{
 
-  touchMoved.current = true;
+  const deltaX = Math.abs(
 
-  clearLongPress();
+    e.touches[0].clientX
+    -
+    startTouchX.current
+
+  );
+
+  const deltaY = Math.abs(
+
+    e.touches[0].clientY
+    -
+    startTouchY.current
+
+  );
+
+  if(
+    deltaX > 12 ||
+    deltaY > 12
+  ){
+
+    touchMoved.current = true;
+
+    clearLongPress();
+
+  }
 
   onTouchMove(e);
 
