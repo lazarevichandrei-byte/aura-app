@@ -2185,9 +2185,7 @@ onLongPressStart={()=>
   handleMessageLongPress(msg)
 }
 
-onLongPressEnd={
-  clearLongPress
-}
+onLongPressEnd={()=>{}}
 
 clearLongPress={
   clearLongPress
