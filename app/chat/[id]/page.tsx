@@ -19,7 +19,12 @@ import {
   Send,
   ArrowDown2,
   CloseCircle,
-  ArrowLeft2
+  ArrowLeft2,
+
+  Copy,
+  Trash,
+  BackSquare
+
 } from "iconsax-react";
 
 import { MessageBubble }
@@ -185,25 +190,27 @@ useCallback(async ()=>{
 ]);
 const PAGE_SIZE = 80;
 
-const menuButtonStyle = {
+const quickActionStyle = {
 
-  width:"100%",
+  width:34,
+  height:34,
 
   border:"none",
 
+  borderRadius:"50%",
+
   background:"transparent",
 
-  padding:"14px 16px",
+  display:"flex",
 
-  borderRadius:16,
+  alignItems:"center",
+  justifyContent:"center",
 
-  fontSize:15,
+  fontSize:18,
 
-  fontWeight:600,
+  cursor:"pointer",
 
-  textAlign:"left" as const,
-
-  cursor:"pointer"
+  transition:"all .14s ease"
 };
 
 const oldestMessageRef =
@@ -1987,6 +1994,141 @@ backdropFilter:"blur(10px)"
 
 )}
 
+{menuMessage?.id === msg.id && (
+
+<div
+style={{
+  display:"flex",
+
+  justifyContent:
+    mine
+    ? "flex-end"
+    : "flex-start",
+
+  marginBottom:6,
+
+  paddingLeft:
+    mine ? 0 : 14,
+
+  paddingRight:
+    mine ? 14 : 0,
+
+  animation:
+    "quickMenuIn .18s ease"
+}}
+>
+
+<div
+style={{
+  display:"flex",
+  alignItems:"center",
+  gap:8,
+
+  padding:"8px 10px",
+
+  borderRadius:999,
+
+  background:
+    "rgba(255,255,255,.72)",
+
+  backdropFilter:
+    "blur(18px)",
+
+  boxShadow:
+    "0 10px 30px rgba(0,0,0,.12)"
+}}
+>
+
+<button
+
+  onClick={()=>{
+
+    setReplyTo(msg);
+
+    setMenuMessage(null);
+
+  }}
+
+  style={quickActionStyle}
+>
+
+<BackSquare
+  size="18"
+  color="#2E7BFF"
+  variant="Bulk"
+/>
+
+</button>
+
+<button
+
+  onClick={async()=>{
+
+    await navigator
+      .clipboard
+      .writeText(
+        msg.body || ""
+      );
+
+    setMenuMessage(null);
+
+  }}
+
+  style={quickActionStyle}
+>
+
+<Copy
+  size="18"
+  color="#111827"
+  variant="Bulk"
+/>
+
+</button>
+
+{mine && (
+
+<button
+
+  onClick={async()=>{
+
+    await supabase
+      .from("messages")
+      .delete()
+      .eq("id",msg.id);
+
+    setMessages(prev =>
+
+      prev.filter(
+        m =>
+        String(m.id) !==
+        String(msg.id)
+      )
+
+    );
+
+    setMenuMessage(null);
+
+  }}
+
+  style={quickActionStyle}
+>
+
+<Trash
+  size="18"
+  color="#FF453A"
+  variant="Bulk"
+/>
+
+</button>
+
+)}
+
+</div>
+
+</div>
+
+)}
+
 <MessageBubble
 
 msg={msg}
@@ -2695,136 +2837,7 @@ WebkitTapHighlightColor:"transparent"
 </div> 
 </div>
 
-{menuMessage && (
 
-<div
-
-  onClick={()=>
-    setMenuMessage(null)
-  }
-
-  style={{
-    position:"fixed",
-    inset:0,
-
-    background:"rgba(0,0,0,.26)",
-
-    backdropFilter:"blur(8px)",
-
-    zIndex:9999,
-
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-
-    animation:"fadeIn .18s ease"
-  }}
->
-
-  <div
-
-    onClick={(e)=>
-      e.stopPropagation()
-    }
-
-    style={{
-      width:230,
-
-      background:"#fff",
-
-      borderRadius:24,
-
-      padding:8,
-
-      boxShadow:
-        "0 20px 60px rgba(0,0,0,.22)",
-
-      animation:
-        "menuPop .18s ease"
-    }}
-  >
-
-    <button
-
-      onClick={()=>{
-
-        setReplyTo(menuMessage);
-
-        setMenuMessage(null);
-
-      }}
-
-      style={menuButtonStyle}
-    >
-      Ответить
-    </button>
-
-    <button
-
-      onClick={async()=>{
-
-        await navigator
-          .clipboard
-          .writeText(
-            menuMessage.body || ""
-          );
-
-        setMenuMessage(null);
-
-      }}
-
-      style={menuButtonStyle}
-    >
-      Копировать
-    </button>
-
-    {String(menuMessage.sender_id) ===
-      String(userId) && (
-
-      <button
-
-        onClick={async()=>{
-
-          await supabase
-
-            .from("messages")
-
-            .delete()
-
-            .eq(
-              "id",
-              menuMessage.id
-            );
-
-          setMessages(prev =>
-
-            prev.filter(
-              m =>
-              String(m.id) !==
-              String(menuMessage.id)
-            )
-
-          );
-
-          setMenuMessage(null);
-
-        }}
-
-        style={{
-          ...menuButtonStyle,
-          color:"#FF453A"
-        }}
-      >
-        Удалить
-      </button>
-
-    )}
-
-  </div>
-
-</div>
-
-)}
 
 <style jsx global>{`
 
@@ -2850,6 +2863,26 @@ WebkitTapHighlightColor:"transparent"
   to{
     opacity:1;
     transform:scale(1);
+  }
+
+}
+
+@keyframes quickMenuIn{
+
+  from{
+    opacity:0;
+
+    transform:
+      translateY(6px)
+      scale(.92);
+  }
+
+  to{
+    opacity:1;
+
+    transform:
+      translateY(0px)
+      scale(1);
   }
 
 }
