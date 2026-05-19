@@ -705,10 +705,13 @@ useEffect(()=>{
 async function handleReconnect(){
   
 
-  await setOnline();
-  setIsOffline(false);
+ await setOnline();
 
-  resendFailedMessages();
+setIsOffline(false);
+
+await recoverMissedMessages();
+
+resendFailedMessages();
 
 }
 
@@ -1196,6 +1199,77 @@ async function updateTyping(status:boolean){
  if(error){
   console.log(error);
  }
+
+}
+
+async function recoverMissedMessages(){
+
+  if(
+    !latestMessageDateRef.current
+  ){
+    return;
+  }
+
+  const { data,error } =
+  await supabase
+
+    .from("messages")
+
+    .select("*")
+
+    .eq("chat_id",chatId)
+
+    .gt(
+      "created_at",
+      latestMessageDateRef.current
+    )
+
+    .order(
+      "created_at",
+      { ascending:true }
+    );
+
+  if(error || !data?.length){
+    return;
+  }
+
+  setMessages(prev => {
+
+    const updated = [...prev];
+
+    for(const msg of data){
+
+      const msgId =
+        String(msg.id);
+
+      if(
+        messageIdsRef.current.has(
+          msgId
+        )
+      ){
+        continue;
+      }
+
+      messageIdsRef.current.add(
+        msgId
+      );
+
+      updated.push({
+        ...msg,
+        status:"delivered"
+      });
+
+    }
+
+    return updated;
+
+  });
+
+  latestMessageDateRef.current =
+
+    data[
+      data.length - 1
+    ].created_at;
 
 }
 
