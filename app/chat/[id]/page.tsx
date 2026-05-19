@@ -364,7 +364,7 @@ for(
 
   }
 
-  dateElementsRef.current = null;
+  
 
 };
 },[messages.length]);
@@ -419,6 +419,16 @@ async function loadOlderMessages(){
         ...prev
 
       ]);
+
+      requestAnimationFrame(()=>{
+
+  dateElementsRef.current =
+
+    document.querySelectorAll(
+      "[data-msg-date]"
+    );
+
+});
 
       requestAnimationFrame(()=>{
 
@@ -513,6 +523,15 @@ setHasMore(
 );
 
 setMessages(reversed);
+requestAnimationFrame(()=>{
+
+  dateElementsRef.current =
+
+    document.querySelectorAll(
+      "[data-msg-date]"
+    );
+
+});
 messageIdsRef.current =
   new Set(
     reversed.map(
