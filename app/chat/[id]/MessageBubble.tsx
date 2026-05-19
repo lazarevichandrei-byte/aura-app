@@ -20,6 +20,7 @@ type Props = {
   showReplyIcon:boolean;
 
   highlightedMsg:string | null;
+  menuMessageId:string | null;
 
   
 
@@ -48,6 +49,7 @@ function MessageBubbleComponent({
   showReplyIcon,
 
   highlightedMsg,
+  menuMessageId,
 
   
   onReplyPreviewClick,
@@ -445,6 +447,8 @@ React.memo(
     String(next.msg.id);
 
   const prevSwiped =
+  
+  
 
     prev.swipedMsg ===
     String(prev.msg.id);
@@ -453,6 +457,18 @@ React.memo(
 
     next.swipedMsg ===
     String(next.msg.id);
+
+    const prevMenuOpen =
+
+  prev.menuMessageId ===
+  String(prev.msg.id);
+
+const nextMenuOpen =
+
+  next.menuMessageId ===
+  String(next.msg.id);
+
+
 
   return(
 
@@ -476,9 +492,11 @@ next.msg.status &&
   prev.sameAsNext ===
   next.sameAsNext &&
 
-  prev.sameAsPrev ===
-  next.sameAsPrev
+ prev.sameAsPrev ===
+next.sameAsPrev &&
 
+prevMenuOpen ===
+nextMenuOpen
 );
 
 }
