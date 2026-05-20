@@ -1228,13 +1228,17 @@ async function updateTyping(status:boolean){
  };
 
  const { error } = await supabase
-  .from("typing_status")
-  .upsert(
-   payload,
-   {
-    onConflict:"chat_id,user_id"
-   }
-  );
+  .from("users")
+  .update({
+    is_online:true,
+    last_seen:new Date().toISOString()
+  })
+  .eq("id",userId);
+
+console.log(
+  "ONLINE ERROR:",
+  error
+);
 
  if(error){
   console.log(error);
