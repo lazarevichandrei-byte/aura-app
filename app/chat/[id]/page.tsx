@@ -2106,6 +2106,9 @@ alert("delete click");
     "DELETE ERROR:",
     error
   );
+  alert(
+  JSON.stringify(error)
+);
 
   if(!error){
 
