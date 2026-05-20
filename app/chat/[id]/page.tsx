@@ -2063,8 +2063,9 @@ style={{
 
 <button
 
-  onClick={async()=>{
 
+  onClick={async()=>{
+alert("delete click");
     await navigator
       .clipboard
       .writeText(
