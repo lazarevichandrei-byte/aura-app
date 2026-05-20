@@ -2091,7 +2091,11 @@ alert("delete click");
 
 <button
 
-  onClick={async()=>{
+  onClick={async(e:any)=>{
+
+    e.stopPropagation();
+
+    alert("delete click");
 
   const { error } = await supabase
     .from("messages")
