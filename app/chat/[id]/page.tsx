@@ -2092,28 +2092,37 @@ style={{
 
   onClick={async()=>{
 
-    await supabase
-  .from("messages")
-  .delete()
-  .eq("id",msg.id);
+  const { error } = await supabase
+    .from("messages")
+    .delete()
+    .eq("id", msg.id);
 
-messageIdsRef.current.delete(
-  String(msg.id)
-);
+  console.log(
+    "DELETE ERROR:",
+    error
+  );
 
-setMessages(prev =>
+  if(!error){
 
-  prev.filter(
-    m =>
-    String(m.id) !==
-    String(msg.id)
-  )
+    messageIdsRef.current.delete(
+      String(msg.id)
+    );
 
-);
+    setMessages(prev =>
 
-    setMenuMessage(null);
+      prev.filter(
+        m =>
+        String(m.id) !==
+        String(msg.id)
+      )
 
-  }}
+    );
+
+  }
+
+  setMenuMessage(null);
+
+}}
 
   style={quickActionStyle}
 >
