@@ -2095,40 +2095,36 @@ alert("delete click");
 
     e.stopPropagation();
 
-    alert("delete click");
 
   const { error } = await supabase
-    .from("messages")
-    .delete()
-    .eq("id", msg.id);
+  .from("messages")
+  .delete()
+  .eq("id", msg.id);
 
-  console.log(
-    "DELETE ERROR:",
-    error
-  );
-  alert(
-  JSON.stringify(error)
+console.log(
+  "DELETE ERROR:",
+  error
 );
 
-  if(!error){
+if(!error){
 
-    messageIdsRef.current.delete(
+  messageIdsRef.current.delete(
+    String(msg.id)
+  );
+
+  setMessages(prev =>
+
+    prev.filter(
+      m =>
+      String(m.id) !==
       String(msg.id)
-    );
+    )
 
-    setMessages(prev =>
+  );
 
-      prev.filter(
-        m =>
-        String(m.id) !==
-        String(msg.id)
-      )
+}
 
-    );
-
-  }
-
-  setMenuMessage(null);
+setMenuMessage(null);
 
 }}
 
