@@ -67,9 +67,7 @@ useState<any>(null);
 const [typingUser,setTypingUser] =
 useState(false);
 const [isOffline,setIsOffline] =
-useState(
-  !navigator.onLine
-);
+useState(false);
 const typingRef =
 useRef(false);
 
@@ -757,7 +755,7 @@ resendFailedMessages();
 
 function handleOffline(){
 
-  setIsOffline(true);
+  console.log("offline event ignored");
 
 }
 
