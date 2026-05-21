@@ -2791,7 +2791,7 @@ minHeight:52,
 
 maxHeight:240,
 
-overflow:"visible",
+overflow:"hidden",
 
 borderRadius:24,
 
@@ -2835,7 +2835,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 220;
+  const maxHeight = 180;
 
   textarea.style.height = "auto";
 
@@ -2901,7 +2901,7 @@ style={{
   background:"transparent",
 
   minHeight:34,
-  maxHeight:220,
+  maxHeight:180,
 
   height:"auto",
 
