@@ -557,6 +557,18 @@ next.msg.status &&
  prev.sameAsPrev ===
 next.sameAsPrev &&
 
+prev.sameAsPrev ===
+next.sameAsPrev &&
+
+prev.swipeOffset ===
+next.swipeOffset &&
+
+prev.swipedMsg ===
+next.swipedMsg &&
+
+prev.showReplyIcon ===
+next.showReplyIcon &&
+
 prevMenuOpen ===
 nextMenuOpen
 );
