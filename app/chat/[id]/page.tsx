@@ -1720,8 +1720,8 @@ useCallback((
     }
 
     setShowReplyIcon(
-      Math.abs(limited) > 28
-    );
+  Math.abs(limited) > 12
+);
 
   }
 
@@ -1741,7 +1741,7 @@ useCallback((
     -
     swipeStartX.current;
 
-  if(delta < -45){
+  if(delta < -30){
 
     setReplyTo(msg);
 

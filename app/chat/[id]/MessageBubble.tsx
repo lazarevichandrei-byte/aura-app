@@ -5,8 +5,8 @@ import React,
   useRef
 } from "react";
 import {
-  BackSquare
-} from "iconsax-react";
+  Reply
+} from "lucide-react";
 
 type Props = {
   msg:any;
@@ -191,14 +191,17 @@ onTouchEnd={(e)=>{
 
             top:"50%",
 
-            transform:"translateY(-50%)",
+            
 
-            width:28,
-            height:28,
+            width:34,
+height:34,
 
-            borderRadius:"50%",
+borderRadius:"50%",
 
-            background:"#E8F1FF",
+background:"#EEF4FF",
+
+boxShadow:
+  "0 4px 14px rgba(46,123,255,.18)",
 
             display:"flex",
             alignItems:"center",
@@ -210,15 +213,23 @@ onTouchEnd={(e)=>{
                 1
               ),
 
-            transition:"opacity .12s ease"
+            transform:
+  `translateY(-50%) scale(${
+    Math.min(
+      Math.abs(swipeOffset) / 40,
+      1
+    )
+  })`,
+
+transition:
+  "opacity .12s ease, transform .12s ease"
           }}
         >
 
-          <BackSquare
-            size="16"
-            color="#2E7BFF"
-            variant="Outline"
-          />
+          <Reply
+  size={16}
+  color="#2E7BFF"
+/>
 
         </div>
 
@@ -293,7 +304,10 @@ onTouchEnd={(e)=>{
             ? `translateX(${swipeOffset}px)`
             : "translateX(0px)",
 
-          transition:"transform .12s ease",
+          transition:
+  swipedMsg === String(msg.id)
+  ? "none"
+  : "transform .22s cubic-bezier(.16,1,.3,1)",
         }}
       >
 
