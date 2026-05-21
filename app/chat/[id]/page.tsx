@@ -52,6 +52,9 @@ useState<any>(null);
 const [hasMore,setHasMore] =
 useState(true);
 
+
+
+
 const [loadingMore,setLoadingMore] =
 useState(false);
 
@@ -197,7 +200,7 @@ useCallback(async ()=>{
 },[
   messages
 ]);
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 80;
 
 const quickActionStyle = {
 
@@ -273,7 +276,7 @@ useEffect(()=>{
         
 
       if(
- currentScroll <= 300 &&
+ currentScroll <= 800 &&
   !loadingMoreRef.current &&
   hasMore
 ){
@@ -2737,6 +2740,23 @@ overscrollBehavior:"contain",
 WebkitOverflowScrolling:"touch",
 }}
 >
+
+{loadingMore && (
+
+  <div
+    style={{
+      display:"flex",
+      justifyContent:"center",
+      padding:"12px 0",
+      color:"#7A8699",
+      fontSize:13,
+      fontWeight:500
+    }}
+  >
+    Загрузка сообщений...
+  </div>
+
+)}
 
 {renderedMessages}
 
