@@ -2796,7 +2796,7 @@ height:"auto",
 
 overflow:"hidden",
 
-transition:"all .12s ease",
+transition:"none",
 
 borderRadius:18,
 
@@ -2846,16 +2846,16 @@ if(textarea){
 
   textarea.style.height = "auto";
 
-  const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-        textarea.scrollHeight,
-        140
-      )
-    );
+const nextHeight =
+  Math.max(
+    36,
+    Math.min(
+      textarea.scrollHeight,
+      140
+    )
+  );
 
-  setInputHeight(nextHeight);
+setInputHeight(nextHeight);
 
 }
 
@@ -2992,8 +2992,7 @@ opacity:
   ? "scale(1)"
   : "scale(.92)",
 
-transition:
-  "all .18s ease",
+transition:"none",
 
 boxShadow:
   newMessage.trim()
