@@ -2785,19 +2785,23 @@ position:"relative",
 
 background:"#F4F6F8",
 
-paddingLeft:16,
-paddingRight:6,
-paddingTop:4,
-paddingBottom:4,
+paddingLeft:12,
+paddingRight:4,
+paddingTop:2,
+paddingBottom:2,
 
-minHeight:52,
+minHeight:
+  Math.max(
+    inputHeight + 8,
+    48
+  ),
 
 overflow:"hidden",
 
 transition:
   "all .18s ease",
 
-borderRadius:20,
+borderRadius:18,
 
 border:"1px solid #E7ECF2",
 
@@ -2906,7 +2910,7 @@ style={{
 
   background:"transparent",
 
-  minHeight:40,
+  minHeight:36,
 maxHeight:180,
 
 height:inputHeight,
@@ -2943,8 +2947,8 @@ lineHeight:"20px",
 
 
 
-paddingTop:10,
-paddingBottom:10
+paddingTop:8,
+paddingBottom:8,
 }}
 ></textarea>
 
