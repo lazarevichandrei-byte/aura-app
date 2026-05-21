@@ -445,7 +445,6 @@ async function loadOlderMessages(){
 
   const { data,error } =
   await supabase
-  
     .from("messages")
     .select("*")
     .eq("chat_id",chatId)
@@ -2718,21 +2717,6 @@ WebkitOverflowScrolling:"touch",
 }}
 >
 
-{loadingMore && (
-
-  <div
-    style={{
-      textAlign:"center",
-      padding:"12px",
-      color:"#7A8699",
-      fontSize:13
-    }}
-  >
-    Загрузка сообщений...
-  </div>
-
-)}
-
 {renderedMessages}
 
 </div>
@@ -2838,7 +2822,7 @@ height:"auto",
 
 overflow:"hidden",
 
-transition:"height .15s ease",
+transition:"none",
 
 borderRadius:18,
 
@@ -2947,10 +2931,9 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:88,
+maxHeight:110,
 
 height:inputHeight,
-transition:"height .15s ease",
 
   resize:"none",
 
