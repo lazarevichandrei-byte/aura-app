@@ -2823,10 +2823,10 @@ height:inputHeight + 12,
 
 maxHeight:140,
 
-overflow:"hidden",
+overflow:"visible",
 
 transition:
-  "min-height .18s ease",
+  "height .18s ease",
 
 border:"1px solid #E7ECF2",
 
@@ -2868,7 +2868,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  textarea.style.height = "auto";
+  if(textarea){
 
   const nextHeight =
     Math.max(
@@ -2879,9 +2879,9 @@ if(textarea){
       )
     );
 
-  textarea.style.height = "";
-
   setInputHeight(nextHeight);
+
+}
 
 }
 
@@ -2931,9 +2931,12 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:110,
+maxHeight:96,
 
 height:inputHeight,
+
+paddingTop:8,
+paddingBottom:8,
 
 
   resize:"none",
@@ -2968,8 +2971,6 @@ lineHeight:"20px",
 
 
 
-paddingTop:4,
-paddingBottom:4,
 }}
 ></textarea>
 
