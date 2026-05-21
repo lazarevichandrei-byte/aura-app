@@ -57,6 +57,8 @@ useState(false);
 
 
 const [newMessage,setNewMessage] = useState("");
+const [inputHeight,setInputHeight] =
+  useState(40);
 const [pressed,setPressed] = useState(false);
 const [sending,setSending] =
 useState(false);
@@ -2787,7 +2789,11 @@ paddingRight:6,
 paddingTop:8,
 paddingBottom:8,
 
-minHeight:52,
+minHeight:
+  Math.max(
+    inputHeight + 16,
+    52
+  ),
 
 overflow:"hidden",
 
@@ -2846,13 +2852,7 @@ if(textarea){
       maxHeight
     );
 
-  textarea.style.height =
-    nextHeight + "px";
-
-  textarea.style.overflowY =
-    textarea.scrollHeight >= maxHeight
-      ? "auto"
-      : "hidden";
+  setInputHeight(nextHeight);
 
 }
 
@@ -2904,7 +2904,7 @@ style={{
   minHeight:40,
 maxHeight:180,
 
-height:"auto",
+height:inputHeight,
 
   resize:"none",
 
