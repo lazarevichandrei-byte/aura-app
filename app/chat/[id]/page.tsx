@@ -2866,22 +2866,18 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 140;
-
-  if(textarea){
+  textarea.style.height = "36px";
 
   const nextHeight =
-  Math.max(
-    36,
-    Math.min(
-      textarea.scrollHeight,
-      88
-    )
-  );
+    Math.max(
+      36,
+      Math.min(
+        textarea.scrollHeight,
+        88
+      )
+    );
 
   setInputHeight(nextHeight);
-
-}
 
 }
 
@@ -2933,7 +2929,8 @@ style={{
   minHeight:36,
 maxHeight:110,
 
-height:inputHeight,
+height:`${inputHeight}px`,
+transition:"height .18s ease",
 
   resize:"none",
 
