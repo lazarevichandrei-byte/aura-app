@@ -2789,9 +2789,9 @@ paddingBottom:6,
 
 minHeight:52,
 
-maxHeight:160,
+maxHeight:240,
 
-overflow:"hidden",
+overflow:"visible",
 
 borderRadius:24,
 
@@ -2835,13 +2835,23 @@ onChange={(e:any)=>{
 
 if(textarea){
 
+  const maxHeight = 220;
+
   textarea.style.height = "auto";
 
-textarea.style.height =
-  Math.min(
-    textarea.scrollHeight,
-    180
-  ) + "px";
+  const nextHeight =
+    Math.min(
+      textarea.scrollHeight,
+      maxHeight
+    );
+
+  textarea.style.height =
+    nextHeight + "px";
+
+  textarea.style.overflowY =
+    textarea.scrollHeight > maxHeight
+      ? "auto"
+      : "hidden";
 
 }
 
@@ -2891,7 +2901,7 @@ style={{
   background:"transparent",
 
   minHeight:34,
-  maxHeight:180,
+  maxHeight:220,
 
   height:"auto",
 
