@@ -2779,7 +2779,7 @@ className="chat-input"
 style={{
 
 display:"flex",
-alignItems:"flex-end",
+alignItems:"center",
 
 position:"relative",
 
@@ -2796,8 +2796,7 @@ height:"auto",
 
 overflow:"hidden",
 
-transition:
-  "height .22s cubic-bezier(.16,1,.3,1)",
+transition:"all .12s ease",
 
 borderRadius:18,
 
@@ -2843,6 +2842,8 @@ if(textarea){
 
   const maxHeight = 140;
 
+  if(textarea){
+
   textarea.style.height = "auto";
 
   const nextHeight =
@@ -2850,11 +2851,13 @@ if(textarea){
       36,
       Math.min(
         textarea.scrollHeight,
-        maxHeight
+        140
       )
     );
 
   setInputHeight(nextHeight);
+
+}
 
 }
 
