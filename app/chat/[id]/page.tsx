@@ -1701,7 +1701,7 @@ useCallback((
   if(delta < 0){
 
     const limited =
-      Math.max(delta,-85);
+  Math.max(delta,-120);
 
     setSwipedMsg(msgId);
 
@@ -1789,9 +1789,8 @@ useCallback((e:any)=>{
     );
 
   if(
-    moveY > 10 ||
-    moveX > 10
-  ){
+  moveY > 10
+){
 
     touchMovedRef.current =
       true;
