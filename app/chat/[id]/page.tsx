@@ -2851,12 +2851,12 @@ if(textarea){
     textarea.scrollHeight;
 
   const nextHeight =
-    Math.min(
-      scrollHeight,
-      maxHeight
-    );
+  Math.min(
+    scrollHeight + 4,
+    maxHeight
+  );
 
-  setInputHeight(nextHeight);
+setInputHeight(nextHeight);
 
   textarea.style.overflowY =
     scrollHeight > maxHeight
@@ -2913,11 +2913,18 @@ style={{
   minHeight:40,
 maxHeight:180,
 
-height:inputHeight,
+height:
+  Math.max(
+    inputHeight,
+    40
+  ),
 
   resize:"none",
 
-  overflowY:"scroll",
+  overflowY:
+  inputHeight >= 180
+    ? "auto"
+    : "hidden",
 
   WebkitOverflowScrolling:"touch",
 
@@ -2942,8 +2949,7 @@ maxWidth:"100%",
   fontSize:16,
 lineHeight:"20px",
 
-transition:
-  "height .15s ease",
+
 
 paddingTop:10,
 paddingBottom:10
