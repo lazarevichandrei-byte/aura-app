@@ -2840,7 +2840,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 108;
+  const maxHeight = 96;
 
   textarea.style.height = "auto";
 
@@ -2849,9 +2849,9 @@ if(textarea){
 
   const nextHeight =
   Math.max(
-    44,
+    36,
     Math.min(
-      scrollHeight + 2,
+      scrollHeight,
       maxHeight
     )
   );
@@ -2915,18 +2915,14 @@ style={{
   background:"transparent",
 
   minHeight:44,
-maxHeight:108,
+maxHeight:96,
 
-height:
-  Math.max(
-    inputHeight,
-    44
-  ),
+height:"auto",
 
   resize:"none",
 
   overflowY:
-  inputHeight >= 108
+  inputHeight >= 96
     ? "auto"
     : "hidden",
 
