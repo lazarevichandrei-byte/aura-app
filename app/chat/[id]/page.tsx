@@ -2801,7 +2801,7 @@ height:
 overflow:"hidden",
 
 transition:
-  "height .22s cubic-bezier(.16,1,.3,1)",
+  "all .15s ease",
 
 borderRadius:18,
 
@@ -2849,25 +2849,20 @@ if(textarea){
 
   textarea.style.height = "auto";
 
-  const scrollHeight =
-    textarea.scrollHeight;
-
   const nextHeight =
   Math.max(
     36,
     Math.min(
-      scrollHeight + 8,
+      textarea.scrollHeight,
       maxHeight
     )
   );
 
-requestAnimationFrame(()=>{
+if(nextHeight !== inputHeight){
 
   setInputHeight(nextHeight);
 
-});
-
-  textarea.style.overflowY = "hidden";
+}
 
 }
 
@@ -2919,7 +2914,7 @@ style={{
   minHeight:36,
 maxHeight:140,
 
-height:inputHeight,
+height:"auto",
 
   resize:"none",
 
