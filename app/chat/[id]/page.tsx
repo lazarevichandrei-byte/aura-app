@@ -19,13 +19,15 @@ import {
   Send,
   ArrowDown2,
   CloseCircle,
-  ArrowLeft2,
-
-  Copy,
-  Trash,
-  BackSquare
-
+  ArrowLeft2
 } from "iconsax-react";
+
+import {
+  Copy,
+  Trash2,
+  Reply
+} from "lucide-react";
+
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -2053,10 +2055,9 @@ style={{
   style={quickActionStyle}
 >
 
-<BackSquare
-  size="18"
-  color="#2E7BFF"
-  variant="Bulk"
+<Reply
+  size={18}
+  strokeWidth={2.2}
 />
 
 </button>
@@ -2065,7 +2066,7 @@ style={{
 
 
   onClick={async()=>{
-alert("delete click");
+
     await navigator
       .clipboard
       .writeText(
@@ -2080,9 +2081,9 @@ alert("delete click");
 >
 
 <Copy
-  size="18"
+  size={18}
+  strokeWidth={2.2}
   color="#111827"
-  variant="Bulk"
 />
 
 </button>
@@ -2131,10 +2132,10 @@ setMenuMessage(null);
   style={quickActionStyle}
 >
 
-<Trash
-  size="18"
+<Trash2
+  size={18}
+  strokeWidth={2.2}
   color="#FF453A"
-  variant="Bulk"
 />
 
 </button>
