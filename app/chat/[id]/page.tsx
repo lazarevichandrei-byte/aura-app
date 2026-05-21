@@ -2844,18 +2844,16 @@ if(textarea){
 
   if(textarea){
 
-  textarea.style.height = "auto";
+  const nextHeight =
+    Math.max(
+      36,
+      Math.min(
+        textarea.scrollHeight,
+        140
+      )
+    );
 
-const nextHeight =
-  Math.max(
-    36,
-    Math.min(
-      textarea.scrollHeight,
-      140
-    )
-  );
-
-setInputHeight(nextHeight);
+  setInputHeight(nextHeight);
 
 }
 
@@ -2909,7 +2907,7 @@ style={{
   minHeight:36,
 maxHeight:140,
 
-height:`${inputHeight}px`,
+height:inputHeight,
 
   resize:"none",
 
