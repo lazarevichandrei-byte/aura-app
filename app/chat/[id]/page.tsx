@@ -2865,6 +2865,8 @@ onChange={(e:any)=>{
 
 if(textarea){
 
+  textarea.style.height = "36px";
+
   const nextHeight =
     Math.max(
       36,
@@ -2874,7 +2876,11 @@ if(textarea){
       )
     );
 
-  setInputHeight(nextHeight);
+  requestAnimationFrame(()=>{
+
+    setInputHeight(nextHeight);
+
+  });
 
 }
 
