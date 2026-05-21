@@ -2784,15 +2784,15 @@ background:"#F4F6F8",
 
 paddingLeft:16,
 paddingRight:6,
-paddingTop:6,
-paddingBottom:6,
+paddingTop:8,
+paddingBottom:8,
 
 minHeight:52,
 
 overflow:"hidden",
 
 transition:
-  "min-height .18s ease",
+  "all .18s ease",
 
 borderRadius:24,
 
@@ -2838,7 +2838,7 @@ if(textarea){
 
   const maxHeight = 180;
 
-  textarea.style.height = "40px";
+  textarea.style.height = "auto";
 
   const nextHeight =
     Math.min(
@@ -2850,7 +2850,7 @@ if(textarea){
     nextHeight + "px";
 
   textarea.style.overflowY =
-    textarea.scrollHeight > maxHeight
+    textarea.scrollHeight >= maxHeight
       ? "auto"
       : "hidden";
 
@@ -2904,7 +2904,7 @@ style={{
   minHeight:40,
 maxHeight:180,
 
-height:40,
+height:"auto",
 
   resize:"none",
 
