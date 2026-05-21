@@ -273,6 +273,15 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
+        console.log(
+  "SCROLL TOP:",
+  currentScroll,
+  "HAS MORE:",
+  hasMore,
+  "LOADING:",
+  loadingMoreRef.current
+);
+
         
 
       if(
@@ -535,13 +544,13 @@ console.log(
 
   }
 
-  requestAnimationFrame(()=>{
-
   setLoadingMore(false);
 
-  loadingMoreRef.current = false;
+loadingMoreRef.current = false;
 
-});
+console.log(
+  "LOAD FINISHED"
+);
 
 }
 
