@@ -273,7 +273,7 @@ useEffect(()=>{
         
 
       if(
- currentScroll <= 1200 &&
+ currentScroll <= 300 &&
   !loadingMoreRef.current &&
   hasMore
 ){
@@ -491,6 +491,7 @@ console.log(
         ...prev
 
       ]);
+      dateElementsRef.current = null;
       console.log(
   "MESSAGES AFTER LOAD:",
   reversed.length
