@@ -426,6 +426,18 @@ for(
 
 async function loadOlderMessages(){
 
+  console.log(
+  "LOAD OLDER START",
+  {
+    hasMore,
+    loadingMore,
+    loadingMoreRef:
+      loadingMoreRef.current,
+    oldest:
+      oldestMessageRef.current
+  }
+);
+
   if(
     loadingMore ||
     !hasMore ||
@@ -444,19 +456,24 @@ async function loadOlderMessages(){
   el?.scrollTop || 0;
 
   const { data,error } =
-  await supabase
-    .from("messages")
-    .select("*")
-    .eq("chat_id",chatId)
-    .lt(
-      "created_at",
-      oldestMessageRef.current
-    )
-    .order(
-      "created_at",
-      { ascending:false }
-    )
-    .limit(PAGE_SIZE);
+await supabase
+  .from("messages")
+  .select("*")
+  .eq("chat_id",chatId)
+  .lt(
+    "created_at",
+    oldestMessageRef.current
+  )
+  .order(
+    "created_at",
+    { ascending:false }
+  )
+  .limit(PAGE_SIZE);
+
+console.log(
+  "LOADED COUNT:",
+  data?.length
+);
 
   if(!error && data){
 
