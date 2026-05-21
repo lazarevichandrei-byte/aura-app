@@ -2838,7 +2838,7 @@ height:"auto",
 
 overflow:"hidden",
 
-transition:"none",
+transition:"height .15s ease",
 
 borderRadius:18,
 
@@ -2950,6 +2950,7 @@ style={{
 maxHeight:88,
 
 height:inputHeight,
+transition:"height .15s ease",
 
   resize:"none",
 
