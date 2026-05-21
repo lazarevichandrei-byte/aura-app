@@ -2779,6 +2779,7 @@ display:"flex",
 alignItems:"flex-end",
 
 position:"relative",
+
 background:"#F4F6F8",
 
 paddingLeft:16,
@@ -2788,9 +2789,15 @@ paddingBottom:6,
 
 minHeight:52,
 
+maxHeight:160,
+
+overflow:"hidden",
+
 borderRadius:24,
 
 border:"1px solid #E7ECF2",
+
+boxSizing:"border-box"
 }}
 >
 
@@ -2884,13 +2891,21 @@ style={{
   background:"transparent",
 
   minHeight:34,
-  maxHeight:140,
+  maxHeight:120,
 
   height:"auto",
 
   resize:"none",
 
   overflowY:"auto",
+
+display:"block",
+
+
+
+maxWidth:"100%",
+
+  
 
   overflowX:"hidden",
 
