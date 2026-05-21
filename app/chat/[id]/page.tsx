@@ -2776,17 +2776,19 @@ className="chat-input"
 style={{
 
 display:"flex",
-alignItems:"center",
+alignItems:"flex-end",
 
 position:"relative",
 background:"#F4F6F8",
+
 paddingLeft:16,
 paddingRight:6,
+paddingTop:6,
+paddingBottom:6,
 
-height:52,
+minHeight:52,
 
-
-borderRadius:999,
+borderRadius:24,
 
 border:"1px solid #E7ECF2",
 }}
@@ -2878,9 +2880,9 @@ style={{
   background:"transparent",
 
   minHeight:34,
-  maxHeight:140,
+maxHeight:140,
 
-  height:34,
+height:"auto",
 
   resize:"none",
 
