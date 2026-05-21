@@ -2932,9 +2932,10 @@ style={{
 
   background:"transparent",
 
-  minHeight:inputHeight,
+  minHeight:36,
+maxHeight:120,
 
-maxHeight:96,
+
 
 lineHeight:"20px",
 
