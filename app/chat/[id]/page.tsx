@@ -2863,18 +2863,30 @@ onChange={(e:any)=>{
     e.target.value;
 
   setNewMessage(value);
+  
   const textarea =
   inputRef.current;
 
 if(textarea){
 
-  
+  textarea.style.height = "auto";
+
+  const nextHeight =
+    Math.max(
+      36,
+      Math.min(
+        textarea.scrollHeight,
+        96
+      )
+    );
+
+  setInputHeight(nextHeight);
 
 }
 
-  clearTimeout(
-    typingTimeout.current
-  );
+clearTimeout(
+  typingTimeout.current
+);
 
   if(!localTypingRef.current){
 
