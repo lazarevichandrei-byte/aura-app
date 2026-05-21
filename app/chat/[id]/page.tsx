@@ -2868,7 +2868,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  textarea.style.height = "0px";
+  textarea.style.height = "auto";
 
   const nextHeight =
     Math.max(
