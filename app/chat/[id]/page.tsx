@@ -95,6 +95,13 @@ const longPressTimeout =
 useRef<any>(null);
 const swipeStartX =
 useRef(0);
+
+const touchMovedRef =
+useRef(false);
+
+const touchStartYRef =
+useRef(0);
+
 const [swipedMsg,setSwipedMsg] =
 useState<string | null>(null);
 
@@ -1758,19 +1765,62 @@ useCallback((
   swipeStartX.current =
     e.touches[0].clientX;
 
+  touchStartYRef.current =
+    e.touches[0].clientY;
+
+  touchMovedRef.current =
+    false;
+
+},[]);
+
+const handleTouchMoveTap =
+useCallback((e:any)=>{
+
+  const moveY =
+    Math.abs(
+      e.touches[0].clientY -
+      touchStartYRef.current
+    );
+
+  const moveX =
+    Math.abs(
+      e.touches[0].clientX -
+      swipeStartX.current
+    );
+
+  if(
+    moveY > 10 ||
+    moveX > 10
+  ){
+
+    touchMovedRef.current =
+      true;
+
+  }
+
+},[]);
+
+const handleMessageTap =
+useCallback((msg:any)=>{
+
+  if(
+    touchMovedRef.current
+  ){
+    return;
+  }
+
+  setMenuMessage(prev =>
+
+    prev?.id === msg.id
+      ? null
+      : msg
+
+  );
+
 },[]);
 
 const handleMessageLongPress =
-useCallback((msg:any)=>{
-
-  longPressTimeout.current =
-    setTimeout(()=>{
-
-      setMenuMessage(msg);
-
-    },420);
-
-},[]);
+useCallback(()=>{},[]);
 
 const clearLongPress =
 useCallback(()=>{
@@ -2193,12 +2243,16 @@ onReplyPreviewClick={()=>{
 
 onTouchStart={handleTouchStart}
 
-onTouchMove={(e)=>
+onTouchMove={(e)=>{
+
+  handleTouchMoveTap(e);
+
   handleSwipeMoveMessage(
     e,
     String(msg.id)
-  )
-}
+  );
+
+}}
 
 onTouchEnd={(e)=>
   handleSwipeEndMessage(
@@ -2206,12 +2260,17 @@ onTouchEnd={(e)=>
     msg
   )
 }
+
+onClick={()=>
+  handleMessageTap(msg)
+}
+
 onRetry={()=>
   handleRetryMessage(msg)
 }
 
 onLongPressStart={()=>
-  handleMessageLongPress(msg)
+  handleMessageLongPress()
 }
 
 onLongPressEnd={()=>{}}
