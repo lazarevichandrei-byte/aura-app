@@ -1710,77 +1710,31 @@ useCallback(async(
       `msg-${replyId}`
     );
 
-  if(!el){
+  let attempts = 0;
 
-    const { data } =
-      await supabase
-        .from("messages")
-        .select("*")
-        .eq("id",replyId)
-        .single();
+  while(
+    !el &&
+    hasMore &&
+    attempts < 20
+  ){
 
-    if(!data){
-      return;
-    }
+    await loadOlderMessages();
 
-    setMessages(prev=>{
+    await new Promise(
+      resolve =>
+        setTimeout(resolve,250)
+    );
 
-      const exists =
-        prev.some(
-          m =>
-          String(m.id) ===
-          String(replyId)
-        );
-
-      if(exists){
-        return prev;
-      }
-
-      return [
-        data,
-        ...prev
-      ].sort(
-        (a,b)=>
-
-          new Date(
-            a.created_at
-          ).getTime()
-
-          -
-
-          new Date(
-            b.created_at
-          ).getTime()
+    el =
+      document.getElementById(
+        `msg-${replyId}`
       );
 
-    });
+    attempts++;
 
-    setTimeout(()=>{
+  }
 
-      const loadedEl =
-        document.getElementById(
-          `msg-${replyId}`
-        );
-
-      if(!loadedEl){
-        return;
-      }
-
-      loadedEl.scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-      });
-
-      setHighlightedMsg(replyId);
-
-      setTimeout(()=>{
-
-        setHighlightedMsg(null);
-
-      },1400);
-
-    },300);
-
+  if(!el){
     return;
   }
 
@@ -1797,7 +1751,9 @@ useCallback(async(
 
   },1400);
 
-},[]);
+},[
+  hasMore
+]);
 
 const handleSwipeMove =
 useCallback((
