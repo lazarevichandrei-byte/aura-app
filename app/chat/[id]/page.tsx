@@ -2868,18 +2868,24 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  textarea.style.height = "auto";
+  requestAnimationFrame(()=>{
 
-  const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-        textarea.scrollHeight,
-        88
-      )
-    );
+    textarea.style.height = "auto";
 
-  setInputHeight(nextHeight);
+    const nextHeight =
+      Math.max(
+        36,
+        Math.min(
+          textarea.scrollHeight,
+          88
+        )
+      );
+
+    textarea.style.height = "";
+
+    setInputHeight(nextHeight);
+
+  });
 
 }
 
