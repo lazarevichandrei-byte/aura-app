@@ -2868,20 +2868,18 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  setTimeout(()=>{
+  textarea.style.height = "auto";
 
-    const nextHeight =
-      Math.max(
-        36,
-        Math.min(
-          textarea.scrollHeight,
-          88
-        )
-      );
+  const nextHeight =
+    Math.max(
+      36,
+      Math.min(
+        textarea.scrollHeight,
+        88
+      )
+    );
 
-    setInputHeight(nextHeight);
-
-  },0);
+  setInputHeight(nextHeight);
 
 }
 
