@@ -2823,7 +2823,7 @@ height:inputHeight + 12,
 
 maxHeight:140,
 
-overflow:"visible",
+overflow:"hidden",
 
 transition:
   "height .18s ease",
@@ -2868,20 +2868,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  if(textarea){
-
-  const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-        textarea.scrollHeight,
-        96
-      )
-    );
-
-  setInputHeight(nextHeight);
-
-}
+  
 
 }
 
@@ -2931,12 +2918,15 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:96,
 
 height:inputHeight,
 
-paddingTop:8,
-paddingBottom:8,
+maxHeight:96,
+
+lineHeight:"20px",
+
+paddingTop:6,
+paddingBottom:6,
 
 
   resize:"none",
@@ -2967,7 +2957,7 @@ maxWidth:"100%",
   paddingRight:10,
 
   fontSize:16,
-lineHeight:"20px",
+
 
 
 
