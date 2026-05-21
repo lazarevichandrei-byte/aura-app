@@ -2108,7 +2108,7 @@ style={{
 <Reply
   size={18}
   strokeWidth={2.2}
-  color="#111"
+  color="currentColor"
 />
 
 <span>
@@ -2137,7 +2137,7 @@ style={{
 <Copy
   size={18}
   strokeWidth={2.2}
-  color="#111"
+  color="currentColor"
 />
 
 <span>
@@ -2193,7 +2193,7 @@ setMenuMessage(null);
 <Trash2
   size={18}
   strokeWidth={2.2}
-  color="#111"
+  color="currentColor"
 />
 
 <span>
@@ -3063,7 +3063,11 @@ WebkitTapHighlightColor:"transparent"
 
   cursor:pointer;
 
-  transition:all .18s ease;
+  color:#111;
+
+  transition:
+    color .18s ease,
+    transform .18s ease;
 
 }
 
@@ -3077,21 +3081,12 @@ WebkitTapHighlightColor:"transparent"
 
 }
 
+.quick-action:hover,
 .quick-action:active{
 
+  color:#2E7BFF;
+
   transform:scale(.92);
-
-}
-
-.quick-action:active svg{
-
-  color:#2E7BFF;
-
-}
-
-.quick-action:active span{
-
-  color:#2E7BFF;
 
 }
 
