@@ -273,14 +273,7 @@ useEffect(()=>{
       const currentScroll =
         el.scrollTop;
 
-        console.log(
-  "SCROLL TOP:",
-  currentScroll,
-  "HAS MORE:",
-  hasMore,
-  "LOADING:",
-  loadingMoreRef.current
-);
+        
 
         
 
@@ -438,17 +431,7 @@ for(
 
 async function loadOlderMessages(){
 
-  console.log(
-  "LOAD OLDER START",
-  {
-    hasMore,
-    loadingMore,
-    loadingMoreRef:
-      loadingMoreRef.current,
-    oldest:
-      oldestMessageRef.current
-  }
-);
+  
 
   if(
     loadingMore ||
@@ -482,10 +465,7 @@ await supabase
   )
   .limit(PAGE_SIZE);
 
-console.log(
-  "LOADED COUNT:",
-  data?.length
-);
+
 
   if(!error && data){
 
@@ -504,10 +484,7 @@ console.log(
 
       ]);
       dateElementsRef.current = null;
-      console.log(
-  "MESSAGES AFTER LOAD:",
-  reversed.length
-);
+      
 
       requestAnimationFrame(()=>{
 
@@ -548,9 +525,7 @@ console.log(
 
 loadingMoreRef.current = false;
 
-console.log(
-  "LOAD FINISHED"
-);
+
 
 }
 
@@ -2239,10 +2214,7 @@ style={{
   .delete()
   .eq("id", msg.id);
 
-console.log(
-  "DELETE ERROR:",
-  error
-);
+
 
 if(!error){
 
@@ -2756,13 +2728,16 @@ WebkitOverflowScrolling:"touch",
     style={{
       display:"flex",
       justifyContent:"center",
-      padding:"12px 0",
-      color:"#7A8699",
-      fontSize:13,
-      fontWeight:500
+      alignItems:"center",
+      gap:4,
+      padding:"12px 0"
     }}
   >
-    Загрузка сообщений...
+
+    <div className="load-dot" />
+    <div className="load-dot" />
+    <div className="load-dot" />
+
   </div>
 
 )}
@@ -3272,6 +3247,52 @@ WebkitTapHighlightColor:"transparent"
   40%{
     transform:scale(1);
     opacity:1;
+  }
+
+}
+
+.load-dot{
+
+  width:6px;
+  height:6px;
+
+  border-radius:50%;
+
+  background:#7A8699;
+
+  animation:
+    loadBounce 1s infinite ease-in-out;
+
+}
+
+.load-dot:nth-child(2){
+
+  animation-delay:.15s;
+
+}
+
+.load-dot:nth-child(3){
+
+  animation-delay:.3s;
+
+}
+
+@keyframes loadBounce{
+
+  0%,80%,100%{
+
+    transform:scale(.7);
+
+    opacity:.35;
+
+  }
+
+  40%{
+
+    transform:scale(1);
+
+    opacity:1;
+
   }
 
 }
