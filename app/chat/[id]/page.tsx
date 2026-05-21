@@ -2840,7 +2840,7 @@ if(textarea){
 textarea.style.height =
   Math.min(
     textarea.scrollHeight,
-    140
+    180
   ) + "px";
 
 }
@@ -2891,13 +2891,15 @@ style={{
   background:"transparent",
 
   minHeight:34,
-  maxHeight:120,
+  maxHeight:180,
 
   height:"auto",
 
   resize:"none",
 
   overflowY:"auto",
+
+  WebkitOverflowScrolling:"touch",
 
 display:"block",
 
