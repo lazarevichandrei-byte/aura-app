@@ -2752,7 +2752,10 @@ background:"#EDF4FF",
 padding:"8px 13px",
 borderRadius:14,
 marginBottom:8,
-position:"relative"
+position:"relative",
+
+maxWidth:"100%",
+overflow:"hidden"
 }}
 >
 
@@ -2789,8 +2792,20 @@ marginBottom:5
 
 <div
 style={{
-fontSize:13,
-paddingRight:20
+  fontSize:13,
+  paddingRight:20,
+
+  overflow:"hidden",
+  textOverflow:"ellipsis",
+
+  display:"-webkit-box",
+  WebkitLineClamp:2,
+  WebkitBoxOrient:"vertical",
+
+  wordBreak:"break-word",
+  whiteSpace:"normal",
+
+  maxWidth:"100%"
 }}
 >
 {replyTo.body}
