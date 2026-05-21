@@ -2789,9 +2789,10 @@ paddingBottom:6,
 
 minHeight:52,
 
-maxHeight:240,
-
 overflow:"hidden",
+
+transition:
+  "min-height .18s ease",
 
 borderRadius:24,
 
@@ -2837,7 +2838,7 @@ if(textarea){
 
   const maxHeight = 180;
 
-  textarea.style.height = "auto";
+  textarea.style.height = "40px";
 
   const nextHeight =
     Math.min(
@@ -2900,10 +2901,10 @@ style={{
 
   background:"transparent",
 
-  minHeight:34,
-  maxHeight:180,
+  minHeight:40,
+maxHeight:180,
 
-  height:"auto",
+height:40,
 
   resize:"none",
 
@@ -2930,10 +2931,13 @@ maxWidth:"100%",
   paddingRight:10,
 
   fontSize:16,
-  lineHeight:"20px",
+lineHeight:"20px",
 
-  paddingTop:7,
-  paddingBottom:7
+transition:
+  "height .15s ease",
+
+paddingTop:10,
+paddingBottom:10
 }}
 ></textarea>
 
