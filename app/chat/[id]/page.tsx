@@ -2787,21 +2787,17 @@ background:"#F4F6F8",
 
 paddingLeft:16,
 paddingRight:6,
-paddingTop:8,
-paddingBottom:8,
+paddingTop:4,
+paddingBottom:4,
 
-minHeight:
-  Math.max(
-    inputHeight + 16,
-    52
-  ),
+minHeight:52,
 
 overflow:"hidden",
 
 transition:
   "all .18s ease",
 
-borderRadius:24,
+borderRadius:20,
 
 border:"1px solid #E7ECF2",
 
@@ -2852,7 +2848,7 @@ if(textarea){
 
   const nextHeight =
   Math.min(
-    scrollHeight + 4,
+    scrollHeight,
     maxHeight
   );
 
@@ -2913,11 +2909,7 @@ style={{
   minHeight:40,
 maxHeight:180,
 
-height:
-  Math.max(
-    inputHeight,
-    40
-  ),
+height:inputHeight,
 
   resize:"none",
 
