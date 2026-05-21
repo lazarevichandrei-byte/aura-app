@@ -1233,6 +1233,26 @@ isNearBottomRef.current =
 },[messages,otherUser]);
 
 
+
+useEffect(()=>{
+
+  if(!newMessage.trim()){
+
+    setInputHeight(36);
+
+    if(inputRef.current){
+
+      inputRef.current.style.height =
+        "36px";
+
+    }
+
+  }
+
+},[newMessage]);
+
+
+
 async function updateTyping(status:boolean){
 
  if(userId === null) return;
@@ -1529,13 +1549,19 @@ const optimisticMessage = {
 };
 
 setNewMessage("");
-setInputHeight(36);
-if(inputRef.current){
 
-  inputRef.current.style.height =
-  "36px";
+requestAnimationFrame(()=>{
 
-}
+  setInputHeight(36);
+
+  if(inputRef.current){
+
+    inputRef.current.style.height =
+      "36px";
+
+  }
+
+});
 setMessages(prev => [
   ...prev,
   optimisticMessage
@@ -2845,13 +2871,13 @@ if(textarea){
   if(textarea){
 
   const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-  textarea.scrollHeight,
-  110
-)
-    );
+  Math.max(
+    36,
+    Math.min(
+      textarea.scrollHeight,
+      88
+    )
+  );
 
   setInputHeight(nextHeight);
 
