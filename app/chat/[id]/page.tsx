@@ -278,15 +278,12 @@ useEffect(()=>{
         
 
       if(
- currentScroll <= 800 &&
-  !loadingMoreRef.current &&
-  hasMore
+ currentScroll <= 1200 &&
+ !loadingMoreRef.current &&
+ hasMore
 ){
-
   loadingMoreRef.current = true;
-
   loadOlderMessages();
-
 }
 
  const distanceFromBottom =
@@ -1704,16 +1701,86 @@ setSending(false);
 
 
 const scrollToReplyMessage =
-useCallback((
+useCallback(async(
   replyId:string
 )=>{
 
-  const el =
+  let el =
     document.getElementById(
       `msg-${replyId}`
     );
 
   if(!el){
+
+    const { data } =
+      await supabase
+        .from("messages")
+        .select("*")
+        .eq("id",replyId)
+        .single();
+
+    if(!data){
+      return;
+    }
+
+    setMessages(prev=>{
+
+      const exists =
+        prev.some(
+          m =>
+          String(m.id) ===
+          String(replyId)
+        );
+
+      if(exists){
+        return prev;
+      }
+
+      return [
+        data,
+        ...prev
+      ].sort(
+        (a,b)=>
+
+          new Date(
+            a.created_at
+          ).getTime()
+
+          -
+
+          new Date(
+            b.created_at
+          ).getTime()
+      );
+
+    });
+
+    setTimeout(()=>{
+
+      const loadedEl =
+        document.getElementById(
+          `msg-${replyId}`
+        );
+
+      if(!loadedEl){
+        return;
+      }
+
+      loadedEl.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+      });
+
+      setHighlightedMsg(replyId);
+
+      setTimeout(()=>{
+
+        setHighlightedMsg(null);
+
+      },1400);
+
+    },300);
+
     return;
   }
 
