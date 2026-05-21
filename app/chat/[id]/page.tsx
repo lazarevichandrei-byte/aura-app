@@ -2791,17 +2791,13 @@ paddingTop:2,
 paddingBottom:2,
 
 minHeight:48,
-
-height:
-  Math.min(
-    inputHeight + 16,
-    140
-  ),
+maxHeight:140,
+height:"auto",
 
 overflow:"hidden",
 
 transition:
-  "all .15s ease",
+  "height .22s cubic-bezier(.16,1,.3,1)",
 
 borderRadius:18,
 
