@@ -1011,6 +1011,14 @@ if(newMsg.sender_id === userId){
   return;
 }
 
+(window as any)
+?.Telegram
+?.WebApp
+?.HapticFeedback
+?.notificationOccurred(
+  "success"
+);
+
 
 
 
@@ -1744,6 +1752,14 @@ useCallback((
     
 
   if(delta < -90){
+
+  (window as any)
+?.Telegram
+?.WebApp
+?.HapticFeedback
+?.impactOccurred(
+  "light"
+);
 
   setReplyTo(msg);
 
