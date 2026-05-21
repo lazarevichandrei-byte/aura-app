@@ -2799,7 +2799,7 @@ height:
 overflow:"hidden",
 
 transition:
-  "height .12s ease",
+  "height .22s cubic-bezier(.16,1,.3,1)",
 
 borderRadius:18,
 
@@ -2843,7 +2843,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 104;
+  const maxHeight = 120;
 
   textarea.style.height = "auto";
 
@@ -2859,11 +2859,11 @@ if(textarea){
     )
   );
 
-if(nextHeight !== inputHeight){
+requestAnimationFrame(()=>{
 
   setInputHeight(nextHeight);
 
-}
+});
 
   textarea.style.overflowY =
     scrollHeight > maxHeight
@@ -2918,7 +2918,7 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:96,
+maxHeight:120,
 
 height:inputHeight,
 
