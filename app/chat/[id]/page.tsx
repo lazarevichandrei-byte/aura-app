@@ -1251,6 +1251,33 @@ useEffect(()=>{
 
 },[newMessage]);
 
+useEffect(()=>{
+
+  const textarea =
+    inputRef.current;
+
+  if(!textarea) return;
+
+  const nextHeight =
+    Math.max(
+      36,
+      Math.min(
+        textarea.scrollHeight,
+        88
+      )
+    );
+
+  if(nextHeight !== inputHeight){
+
+    setInputHeight(nextHeight);
+
+  }
+
+},[
+  newMessage,
+  inputHeight
+]);
+
 
 
 async function updateTyping(status:boolean){
@@ -2865,22 +2892,16 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  textarea.style.height = "36px";
-
   const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-        textarea.scrollHeight,
-        88
-      )
-    );
+  Math.max(
+    36,
+    Math.min(
+      textarea.scrollHeight,
+      88
+    )
+  );
 
-  requestAnimationFrame(()=>{
-
-    setInputHeight(nextHeight);
-
-  });
+setInputHeight(nextHeight);
 
 }
 
