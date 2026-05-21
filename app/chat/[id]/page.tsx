@@ -58,7 +58,7 @@ useState(false);
 
 const [newMessage,setNewMessage] = useState("");
 const [inputHeight,setInputHeight] =
-  useState(40);
+  useState(36);
 const [pressed,setPressed] = useState(false);
 const [sending,setSending] =
 useState(false);
@@ -1533,7 +1533,7 @@ setInputHeight(36);
 if(inputRef.current){
 
   inputRef.current.style.height =
-    "34px";
+  "36px";
 
 }
 setMessages(prev => [
@@ -2790,13 +2790,16 @@ paddingRight:4,
 paddingTop:2,
 paddingBottom:2,
 
-minHeight:48,
-maxHeight:108,
+height:
+  Math.min(
+    inputHeight + 12,
+    108
+  ),
 
 overflow:"hidden",
 
 transition:
-  "all .18s ease",
+  "height .12s ease",
 
 borderRadius:18,
 
@@ -2922,7 +2925,7 @@ height:inputHeight,
   resize:"none",
 
   overflowY:
-  inputHeight >= 180
+  inputHeight >= 96
     ? "auto"
     : "hidden",
 
