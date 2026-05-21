@@ -2866,8 +2866,6 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  textarea.style.height = "36px";
-
   const nextHeight =
     Math.max(
       36,
@@ -2929,7 +2927,7 @@ style={{
   minHeight:36,
 maxHeight:110,
 
-height:`${inputHeight}px`,
+height:inputHeight,
 transition:"height .18s ease",
 
   resize:"none",
