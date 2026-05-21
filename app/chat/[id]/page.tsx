@@ -176,8 +176,13 @@ useRef<string | null>(null);
 
 const readTimeout =
 useRef<any>(null);
+
 const loadingMoreRef =
 useRef(false);
+
+const jumpingToReplyRef =
+useRef(false);
+
 const resendFailedMessages =
 useCallback(async ()=>{
 
@@ -312,13 +317,19 @@ const shouldShowScrollBottom =
   isFarFromBottom &&
   isScrollingDown;
 
-setShowScrollBottom(prev =>
+if(
+  !jumpingToReplyRef.current
+){
 
-  prev === shouldShowScrollBottom
-  ? prev
-  : shouldShowScrollBottom
+  setShowScrollBottom(prev =>
 
-);
+    prev === shouldShowScrollBottom
+    ? prev
+    : shouldShowScrollBottom
+
+  );
+
+}
 
 
       lastScrollTopRef.current =
@@ -1705,10 +1716,12 @@ useCallback(async(
   replyId:string
 )=>{
 
-  let el =
-    document.getElementById(
-      `msg-${replyId}`
-    );
+  jumpingToReplyRef.current = true;
+
+let el =
+document.getElementById(
+  `msg-${replyId}`
+);
 
   let attempts = 0;
 
@@ -1750,6 +1763,12 @@ useCallback(async(
     setHighlightedMsg(null);
 
   },1400);
+
+setTimeout(()=>{
+
+  jumpingToReplyRef.current = false;
+
+},500);
 
 },[
   hasMore
