@@ -2848,9 +2848,9 @@ if(textarea){
     Math.max(
       36,
       Math.min(
-        textarea.scrollHeight,
-        140
-      )
+  textarea.scrollHeight,
+  110
+)
     );
 
   setInputHeight(nextHeight);
@@ -2905,13 +2905,16 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:140,
+maxHeight:110,
 
 height:inputHeight,
 
   resize:"none",
 
-  overflowY:"hidden",
+  overflowY:
+  inputHeight >= 110
+    ? "auto"
+    : "hidden",
 
   WebkitOverflowScrolling:"touch",
 
