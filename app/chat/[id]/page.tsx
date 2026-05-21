@@ -2790,10 +2790,12 @@ paddingRight:4,
 paddingTop:2,
 paddingBottom:2,
 
+minHeight:48,
+
 height:
   Math.min(
-    inputHeight + 12,
-    108
+    inputHeight + 16,
+    120
   ),
 
 overflow:"hidden",
