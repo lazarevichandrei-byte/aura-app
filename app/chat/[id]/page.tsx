@@ -2790,11 +2790,8 @@ paddingRight:4,
 paddingTop:2,
 paddingBottom:2,
 
-height:
-  Math.min(
-    inputHeight + 12,
-    108
-  ),
+minHeight:48,
+maxHeight:108,
 
 overflow:"hidden",
 
@@ -2843,7 +2840,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 96;
+  const maxHeight = 108;
 
   textarea.style.height = "auto";
 
@@ -2852,9 +2849,9 @@ if(textarea){
 
   const nextHeight =
   Math.max(
-    36,
+    44,
     Math.min(
-      scrollHeight,
+      scrollHeight + 2,
       maxHeight
     )
   );
@@ -2917,15 +2914,19 @@ style={{
 
   background:"transparent",
 
-  minHeight:36,
-maxHeight:96,
+  minHeight:44,
+maxHeight:108,
 
-height:"auto",
+height:
+  Math.max(
+    inputHeight,
+    44
+  ),
 
   resize:"none",
 
   overflowY:
-  inputHeight >= 96
+  inputHeight >= 108
     ? "auto"
     : "hidden",
 
@@ -2954,8 +2955,8 @@ lineHeight:"20px",
 
 
 
-paddingTop:8,
-paddingBottom:8,
+paddingTop:4,
+paddingBottom:4,
 }}
 ></textarea>
 
