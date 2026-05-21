@@ -2934,6 +2934,7 @@ style={{
 maxHeight:110,
 
 height:inputHeight,
+transition:"height .18s ease",
 
   resize:"none",
 
@@ -3019,7 +3020,7 @@ opacity:
   ? "scale(1)"
   : "scale(.92)",
 
-transition:"none",
+transition:"height .18s ease",
 
 boxShadow:
   newMessage.trim()
