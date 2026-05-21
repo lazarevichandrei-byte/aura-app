@@ -2052,18 +2052,22 @@ style={{
 
   }}
 
-  style={quickActionStyle}
+  className="quick-action"
 >
 
 <Reply
   size={18}
   strokeWidth={2.2}
+  color="#111"
 />
+
+<span>
+  Ответить
+</span>
 
 </button>
 
 <button
-
 
   onClick={async()=>{
 
@@ -2077,14 +2081,18 @@ style={{
 
   }}
 
-  style={quickActionStyle}
+  className="quick-action"
 >
 
 <Copy
   size={18}
   strokeWidth={2.2}
-  color="#111827"
+  color="#111"
 />
+
+<span>
+  Копировать
+</span>
 
 </button>
 
@@ -2129,14 +2137,18 @@ setMenuMessage(null);
 
 }}
 
-  style={quickActionStyle}
+   className="quick-action"
 >
 
 <Trash2
   size={18}
   strokeWidth={2.2}
-  color="#FF453A"
+  color="#111"
 />
+
+<span>
+  Удалить
+</span>
 
 </button>
 
@@ -2960,6 +2972,7 @@ WebkitTapHighlightColor:"transparent"
 
 .typing-dot{
 
+
   width:6px;
   height:6px;
 
@@ -2969,6 +2982,39 @@ WebkitTapHighlightColor:"transparent"
 
   animation:
     typingBounce 1s infinite ease-in-out;
+
+.quick-action{
+
+  background:transparent;
+
+  border:none;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:4px;
+
+  min-width:64px;
+
+  cursor:pointer;
+
+}
+
+.quick-action span{
+
+  font-size:10px;
+
+  font-weight:600;
+
+  color:#111;
+
+}
+
 }
 
 .typing-dot:nth-child(2){
