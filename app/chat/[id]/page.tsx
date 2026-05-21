@@ -1741,6 +1741,8 @@ useCallback((
     -
     swipeStartX.current;
 
+    
+
   if(delta < -30){
 
     setReplyTo(msg);
@@ -2290,7 +2292,11 @@ messages,
 userId,
 firstUnreadId,
 highlightedMsg,
-menuMessage
+menuMessage,
+
+swipedMsg,
+swipeOffset,
+showReplyIcon
 ]);
 
 if(!otherUser){
