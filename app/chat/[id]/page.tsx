@@ -2929,11 +2929,9 @@ style={{
 
   background:"transparent",
 
-  minHeight:36,
+  minHeight:inputHeight,
 
-height:inputHeight,
-
-maxHeight:120,
+maxHeight:96,
 
 lineHeight:"20px",
 
