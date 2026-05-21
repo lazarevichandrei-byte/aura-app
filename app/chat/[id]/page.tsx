@@ -2442,7 +2442,7 @@ left:0,
 right:0,
 bottom:0,
 height:"100%",
-overflow:"hidden",
+overflow:"visible",
 background:"#fff",
 display:"flex",
 flexDirection:"column",
@@ -2943,10 +2943,7 @@ paddingBottom:6,
 
   resize:"none",
 
-  overflowY:
-  inputHeight >= 88
-    ? "auto"
-    : "hidden",
+  overflowY:"auto",
 
   WebkitOverflowScrolling:"touch",
 
