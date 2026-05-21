@@ -329,7 +329,13 @@ transition:
 
           <div
 
-            onClick={onReplyPreviewClick}
+            onClick={(e)=>{
+
+  e.stopPropagation();
+
+  onReplyPreviewClick();
+
+}}
 
             style={{
               background:
