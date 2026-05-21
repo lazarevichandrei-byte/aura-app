@@ -197,7 +197,7 @@ useCallback(async ()=>{
 },[
   messages
 ]);
-const PAGE_SIZE = 80;
+const PAGE_SIZE = 30;
 
 const quickActionStyle = {
 
@@ -491,6 +491,10 @@ console.log(
         ...prev
 
       ]);
+      console.log(
+  "MESSAGES AFTER LOAD:",
+  reversed.length
+);
 
       requestAnimationFrame(()=>{
 
@@ -504,23 +508,20 @@ console.log(
 
       requestAnimationFrame(()=>{
 
-        
+  if(!el) return;
 
-        if(!el) return;
+  const newHeight =
+    el.scrollHeight;
 
-        const newHeight =
-          el.scrollHeight;
-
-        el.scrollTop =
-
-  previousTop +
-
-  (
+  const heightDiff =
     newHeight -
-    previousHeight
-  );
+    previousHeight;
 
-      });
+  el.scrollTop =
+    previousTop +
+    heightDiff;
+
+});
 
     }
 
