@@ -2972,7 +2972,6 @@ WebkitTapHighlightColor:"transparent"
 
 .typing-dot{
 
-
   width:6px;
   height:6px;
 
@@ -2982,6 +2981,8 @@ WebkitTapHighlightColor:"transparent"
 
   animation:
     typingBounce 1s infinite ease-in-out;
+
+}
 
 .quick-action{
 
@@ -2997,23 +2998,41 @@ WebkitTapHighlightColor:"transparent"
 
   justify-content:center;
 
-  gap:4px;
+  gap:2px;
 
-  min-width:64px;
+  min-width:52px;
 
   cursor:pointer;
+
+  transition:all .18s ease;
 
 }
 
 .quick-action span{
 
-  font-size:10px;
+  font-size:8px;
 
-  font-weight:600;
+  font-weight:500;
 
-  color:#111;
+  color:#7A8699;
 
 }
+
+.quick-action:active{
+
+  transform:scale(.92);
+
+}
+
+.quick-action:active svg{
+
+  color:#2E7BFF;
+
+}
+
+.quick-action:active span{
+
+  color:#2E7BFF;
 
 }
 
