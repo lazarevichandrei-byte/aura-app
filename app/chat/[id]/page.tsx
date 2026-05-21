@@ -2828,13 +2828,13 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  textarea.style.height = "0px";
+  textarea.style.height = "auto";
 
-  textarea.style.height =
-    Math.min(
-      textarea.scrollHeight,
-      140
-    ) + "px";
+textarea.style.height =
+  Math.min(
+    textarea.scrollHeight,
+    140
+  ) + "px";
 
 }
 
@@ -2874,19 +2874,33 @@ rows={1}
 style={{
   flex:1,
 
+  minWidth:0,
+
+  width:"100%",
+
   border:"none",
   outline:"none",
 
   background:"transparent",
 
   minHeight:34,
-maxHeight:140,
+  maxHeight:140,
 
-height:"auto",
+  height:"auto",
 
   resize:"none",
 
   overflowY:"auto",
+
+  overflowX:"hidden",
+
+  wordBreak:"break-word",
+
+  whiteSpace:"pre-wrap",
+
+  boxSizing:"border-box",
+
+  paddingRight:10,
 
   fontSize:16,
   lineHeight:"20px",
