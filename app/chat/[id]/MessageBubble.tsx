@@ -27,10 +27,12 @@ type Props = {
   onReplyPreviewClick:()=>void;
 
   onTouchStart:(e:any)=>void;
-  onTouchMove:(e:any)=>void;
-  onTouchEnd:(e:any)=>void;
-  onClick:()=>void;
-  onRetry:()=>void;
+onTouchMove:(e:any)=>void;
+onTouchEnd:(e:any)=>void;
+
+onClick:()=>void;
+
+onRetry:()=>void;
   onLongPressStart:()=>void;
 onLongPressEnd:()=>void;
 clearLongPress:()=>void;
