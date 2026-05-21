@@ -1251,32 +1251,7 @@ useEffect(()=>{
 
 },[newMessage]);
 
-useEffect(()=>{
 
-  const textarea =
-    inputRef.current;
-
-  if(!textarea) return;
-
-  const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-        textarea.scrollHeight,
-        88
-      )
-    );
-
-  if(nextHeight !== inputHeight){
-
-    setInputHeight(nextHeight);
-
-  }
-
-},[
-  newMessage,
-  inputHeight
-]);
 
 
 
@@ -2844,6 +2819,7 @@ paddingTop:2,
 paddingBottom:2,
 
 minHeight:inputHeight + 12,
+height:inputHeight + 12,
 
 maxHeight:140,
 
@@ -2892,20 +2868,20 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  requestAnimationFrame(()=>{
+  setTimeout(()=>{
 
-  const nextHeight =
-    Math.max(
-      36,
-      Math.min(
-        textarea.scrollHeight,
-        88
-      )
-    );
+    const nextHeight =
+      Math.max(
+        36,
+        Math.min(
+          textarea.scrollHeight,
+          88
+        )
+      );
 
-  setInputHeight(nextHeight);
+    setInputHeight(nextHeight);
 
-});
+  },0);
 
 }
 
