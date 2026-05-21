@@ -1720,7 +1720,7 @@ useCallback((
     }
 
     setShowReplyIcon(
-  Math.abs(limited) > 12
+  Math.abs(limited) > 45
 );
 
   }
@@ -1743,11 +1743,11 @@ useCallback((
 
     
 
-  if(delta < -30){
+  if(delta < -90){
 
-    setReplyTo(msg);
+  setReplyTo(msg);
 
-  }
+}
 
   setSwipedMsg(null);
 
