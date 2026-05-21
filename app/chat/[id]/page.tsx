@@ -2816,15 +2816,14 @@ paddingRight:4,
 paddingTop:2,
 paddingBottom:2,
 
-minHeight:48,
+minHeight:inputHeight + 12,
+
 maxHeight:140,
-height:"auto",
 
 overflow:"hidden",
 
-transition:"none",
-
-borderRadius:18,
+transition:
+  "min-height .18s ease",
 
 border:"1px solid #E7ECF2",
 
@@ -2928,7 +2927,7 @@ style={{
 maxHeight:110,
 
 height:inputHeight,
-transition:"height .18s ease",
+
 
   resize:"none",
 
@@ -3014,7 +3013,7 @@ opacity:
   ? "scale(1)"
   : "scale(.92)",
 
-transition:"none",
+transition:"min-height .18s ease, max-height .18s ease",
 
 boxShadow:
   newMessage.trim()
