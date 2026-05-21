@@ -2875,9 +2875,9 @@ if(textarea){
     Math.max(
       36,
       Math.min(
-        textarea.scrollHeight,
-        96
-      )
+  textarea.scrollHeight,
+  120
+)
     );
 
   setInputHeight(nextHeight);
@@ -2933,7 +2933,7 @@ style={{
 
 height:inputHeight,
 
-maxHeight:96,
+maxHeight:120,
 
 lineHeight:"20px",
 
