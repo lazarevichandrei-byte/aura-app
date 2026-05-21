@@ -292,7 +292,7 @@ transition:
 maxWidth:"80%",
 
 whiteSpace:"pre-wrap",
-wordBreak:"break-all",
+wordBreak:"break-word",
 overflowWrap:"anywhere",
 boxSizing:"border-box",
 
@@ -361,7 +361,17 @@ transition:
 
         )}
 
-        {msg.body}
+        <div
+  style={{
+    maxWidth:"100%",
+    overflow:"hidden",
+    whiteSpace:"pre-wrap",
+    overflowWrap:"anywhere",
+    wordBreak:"break-word"
+  }}
+>
+  {msg.body}
+</div>
 
         {!sameAsNext && (
 
