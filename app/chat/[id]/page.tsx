@@ -2931,14 +2931,14 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:110,
+maxHeight:88,
 
 height:inputHeight,
 
   resize:"none",
 
   overflowY:
-  inputHeight >= 110
+  inputHeight >= 88
     ? "auto"
     : "hidden",
 
