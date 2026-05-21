@@ -288,15 +288,13 @@ transition:
             ? 8
             : 18,
 
-          width:"auto",
-maxWidth:"80%",
+          width:"fit-content",
+          maxWidth:"80%",
 
-whiteSpace:"pre-wrap",
-wordBreak:"break-word",
-overflowWrap:"anywhere",
-boxSizing:"border-box",
+          wordBreak:"break-word",
+          overflowWrap:"break-word",
 
-boxShadow:
+          boxShadow:
   highlightedMsg === String(msg.id)
   ? "0 0 0 2px rgba(46,123,255,.35), 0 8px 24px rgba(46,123,255,.18)"
   : "none",
@@ -361,17 +359,7 @@ transition:
 
         )}
 
-        <div
-  style={{
-    maxWidth:"100%",
-    overflow:"hidden",
-    whiteSpace:"pre-wrap",
-    overflowWrap:"anywhere",
-    wordBreak:"break-word"
-  }}
->
-  {msg.body}
-</div>
+        {msg.body}
 
         {!sameAsNext && (
 
