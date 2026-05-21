@@ -1529,7 +1529,7 @@ const optimisticMessage = {
 };
 
 setNewMessage("");
-setInputHeight(40);
+setInputHeight(36);
 if(inputRef.current){
 
   inputRef.current.style.height =
@@ -2790,11 +2790,8 @@ paddingRight:4,
 paddingTop:2,
 paddingBottom:2,
 
-minHeight:
-  Math.max(
-    inputHeight + 8,
-    48
-  ),
+minHeight:48,
+maxHeight:108,
 
 overflow:"hidden",
 
@@ -2843,7 +2840,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 180;
+  const maxHeight = 96;
 
   textarea.style.height = "auto";
 
@@ -2851,12 +2848,19 @@ if(textarea){
     textarea.scrollHeight;
 
   const nextHeight =
-  Math.min(
-    scrollHeight,
-    maxHeight
+  Math.max(
+    36,
+    Math.min(
+      scrollHeight,
+      maxHeight
+    )
   );
 
-setInputHeight(nextHeight);
+if(nextHeight !== inputHeight){
+
+  setInputHeight(nextHeight);
+
+}
 
   textarea.style.overflowY =
     scrollHeight > maxHeight
@@ -2911,7 +2915,7 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:180,
+maxHeight:96,
 
 height:inputHeight,
 
