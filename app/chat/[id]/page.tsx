@@ -2795,7 +2795,7 @@ minHeight:48,
 height:
   Math.min(
     inputHeight + 16,
-    120
+    140
   ),
 
 overflow:"hidden",
@@ -2845,7 +2845,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 120;
+  const maxHeight = 140;
 
   textarea.style.height = "auto";
 
@@ -2867,10 +2867,7 @@ requestAnimationFrame(()=>{
 
 });
 
-  textarea.style.overflowY =
-    scrollHeight > maxHeight
-      ? "auto"
-      : "hidden";
+  textarea.style.overflowY = "hidden";
 
 }
 
@@ -2920,16 +2917,13 @@ style={{
   background:"transparent",
 
   minHeight:36,
-maxHeight:120,
+maxHeight:140,
 
 height:inputHeight,
 
   resize:"none",
 
-  overflowY:
-  inputHeight >= 96
-    ? "auto"
-    : "hidden",
+  overflowY:"hidden",
 
   WebkitOverflowScrolling:"touch",
 
