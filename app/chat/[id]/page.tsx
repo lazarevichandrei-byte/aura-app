@@ -2790,8 +2790,11 @@ paddingRight:4,
 paddingTop:2,
 paddingBottom:2,
 
-minHeight:48,
-maxHeight:108,
+height:
+  Math.min(
+    inputHeight + 12,
+    108
+  ),
 
 overflow:"hidden",
 
@@ -2914,7 +2917,7 @@ style={{
 
   background:"transparent",
 
-  minHeight:44,
+  minHeight:36,
 maxHeight:96,
 
 height:"auto",
@@ -2951,8 +2954,8 @@ lineHeight:"20px",
 
 
 
-paddingTop:4,
-paddingBottom:4,
+paddingTop:8,
+paddingBottom:8,
 }}
 ></textarea>
 
