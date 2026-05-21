@@ -2920,7 +2920,7 @@ style={{
   minHeight:36,
 maxHeight:96,
 
-height:inputHeight,
+height:"auto",
 
   resize:"none",
 
