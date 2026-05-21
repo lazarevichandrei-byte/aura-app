@@ -228,7 +228,7 @@ transition:
 
           <Reply
   size={16}
-  color="#2E7BFF"
+  color="#111"
 />
 
         </div>
