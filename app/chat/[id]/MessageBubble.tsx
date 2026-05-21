@@ -288,13 +288,15 @@ transition:
             ? 8
             : 18,
 
-          width:"fit-content",
-          maxWidth:"80%",
+          width:"auto",
+maxWidth:"80%",
 
-          wordBreak:"break-word",
-          overflowWrap:"break-word",
+whiteSpace:"pre-wrap",
+wordBreak:"break-all",
+overflowWrap:"anywhere",
+boxSizing:"border-box",
 
-          boxShadow:
+boxShadow:
   highlightedMsg === String(msg.id)
   ? "0 0 0 2px rgba(46,123,255,.35), 0 8px 24px rgba(46,123,255,.18)"
   : "none",
