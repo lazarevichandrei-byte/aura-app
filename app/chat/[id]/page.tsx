@@ -2908,7 +2908,7 @@ height:"auto",
 
   resize:"none",
 
-  overflowY:"auto",
+  overflowY:"scroll",
 
   WebkitOverflowScrolling:"touch",
 
