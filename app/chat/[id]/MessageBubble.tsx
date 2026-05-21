@@ -29,6 +29,7 @@ type Props = {
   onTouchStart:(e:any)=>void;
   onTouchMove:(e:any)=>void;
   onTouchEnd:(e:any)=>void;
+  onClick:()=>void;
   onRetry:()=>void;
   onLongPressStart:()=>void;
 onLongPressEnd:()=>void;
@@ -57,6 +58,7 @@ function MessageBubbleComponent({
   onTouchStart,
   onTouchMove,
  onTouchEnd,
+ onClick,
 onRetry,
 
 onLongPressStart,
@@ -223,7 +225,10 @@ onTouchEnd={(e)=>{
       <div
 
   onClick={()=>{
+
     clearLongPress();
+
+    onClick();
 
     if(msg.status === "failed"){
 
