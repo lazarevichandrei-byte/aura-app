@@ -295,19 +295,33 @@ transition:
           overflowWrap:"break-word",
 
           boxShadow:
-            highlightedMsg === String(msg.id)
-            ? "0 0 0 2px rgba(46,123,255,.35)"
-            : "none",
+  highlightedMsg === String(msg.id)
+  ? "0 0 0 2px rgba(46,123,255,.35), 0 8px 24px rgba(46,123,255,.18)"
+  : "none",
 
-          transform:
-            swipedMsg === String(msg.id)
-            ? `translateX(${swipeOffset}px)`
-            : "translateX(0px)",
+transform:
 
-          transition:
-  swipedMsg === String(msg.id)
-  ? "none"
-  : "transform .22s cubic-bezier(.16,1,.3,1)",
+  highlightedMsg === String(msg.id)
+
+  ? "scale(1.05)"
+
+  : (
+      swipedMsg === String(msg.id)
+      ? `translateX(${swipeOffset}px)`
+      : "translateX(0px)"
+    ),
+
+transition:
+
+  highlightedMsg === String(msg.id)
+
+  ? "all .25s ease"
+
+  : (
+      swipedMsg === String(msg.id)
+      ? "none"
+      : "transform .22s cubic-bezier(.16,1,.3,1)"
+    ),
         }}
       >
 
