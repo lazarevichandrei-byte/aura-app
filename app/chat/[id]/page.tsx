@@ -2843,7 +2843,7 @@ onChange={(e:any)=>{
 
 if(textarea){
 
-  const maxHeight = 96;
+  const maxHeight = 104;
 
   textarea.style.height = "auto";
 
@@ -2854,7 +2854,7 @@ if(textarea){
   Math.max(
     36,
     Math.min(
-      scrollHeight,
+      scrollHeight + 8,
       maxHeight
     )
   );
@@ -2920,7 +2920,7 @@ style={{
   minHeight:36,
 maxHeight:96,
 
-height:"auto",
+height:inputHeight,
 
   resize:"none",
 
@@ -2954,8 +2954,8 @@ lineHeight:"20px",
 
 
 
-paddingTop:8,
-paddingBottom:8,
+paddingTop:4,
+paddingBottom:4,
 }}
 ></textarea>
 
