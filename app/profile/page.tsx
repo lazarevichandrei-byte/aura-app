@@ -356,8 +356,8 @@ const likedIds = (likedYou || []).map(l => l.from_user_id);
 
 // 🔥 сортируем: сначала те кто лайкнул
 data = (data || []).sort((a, b) => {
-  const aLiked = likedIds.includes(a.telegram_id);
-  const bLiked = likedIds.includes(b.telegram_id);
+const aLiked = likedIds.includes(a.telegram_id);
+const bLiked = likedIds.includes(b.telegram_id);
 
   if (aLiked === bLiked) return 0;
   return aLiked ? -1 : 1;
