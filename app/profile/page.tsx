@@ -539,8 +539,21 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
-      
-    if (!telegramId || savingProfile || loading) return;
+
+  console.log("HANDLE SUBMIT START");
+
+  if (!telegramId || savingProfile || loading) {
+    console.log(
+      "BLOCKED",
+      {
+        telegramId,
+        savingProfile,
+        loading
+      }
+    );
+    return;
+  }
+
 
 setSavingProfile(true);
     setUploading(true);
@@ -551,6 +564,8 @@ if (!name.trim() || !city.trim()) {
  alert("Заполни имя и город");
  return;
 }
+
+console.log("BEFORE UPDATE");
 
     const { error } = await supabase
 .from("users")
@@ -580,8 +595,15 @@ if (error) {
  return;
 }
 
+console.log(
+  "UPDATE RESULT",
+  error
+);
+
 setSavingProfile(false);
 setUploading(false);
+
+console.log("BEFORE REDIRECT");
 
 window.location.href="/home";
   };
