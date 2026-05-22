@@ -506,7 +506,8 @@ await supabase
         ...prev
 
       ]);
-      dateElementsRef.current = null;
+     dateElementsRef.current = null;
+floatingDateRef.current = "";
       
 
       requestAnimationFrame(()=>{
@@ -1768,6 +1769,11 @@ document.getElementById(
   if(!el){
     return;
   }
+
+  dateElementsRef.current =
+  document.querySelectorAll(
+    "[data-msg-date]"
+  );
 
   el.scrollIntoView({
     behavior:"smooth",
