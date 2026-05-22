@@ -326,20 +326,22 @@ if(
 ){
 
   if(
+    loadingMoreRef.current ||
+    currentScroll < 1400
+  ){
+    setShowScrollBottom(false);
+  }
+  else if(
     distanceFromBottom > 300 &&
     isScrollingDown
   ){
-
     setShowScrollBottom(true);
-
   }
   else if(
     distanceFromBottom < 150 ||
     isScrollingUp
   ){
-
     setShowScrollBottom(false);
-
   }
 
 }
