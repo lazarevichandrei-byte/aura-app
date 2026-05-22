@@ -1187,6 +1187,38 @@ latestMessageDateRef.current =
   }
 )
 
+.on(
+  "postgres_changes",
+  {
+    event:"DELETE",
+    schema:"public",
+    table:"messages",
+    filter:`chat_id=eq.${chatId}`
+  },
+  (payload)=>{
+
+    const deletedMsg:any =
+      payload.old;
+
+    messageIdsRef.current.delete(
+      String(deletedMsg.id)
+    );
+
+    setMessages(prev =>
+
+      prev.filter(
+        (m:any)=>
+
+          String(m.id) !==
+          String(deletedMsg.id)
+
+      )
+
+    );
+
+  }
+)
+
 .subscribe();
 
 
