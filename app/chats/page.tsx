@@ -624,8 +624,7 @@ fontSize:15
   .eq("id", chat.id)
   .select();
 
-console.log("UPDATE RESULT:", data);
-console.log("UPDATE ERROR:", error);
+
 
           router.push(`/chat/${chat.id}`);
         }}
