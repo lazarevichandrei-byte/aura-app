@@ -724,19 +724,12 @@ setOtherUser(user);
 useEffect(()=>{
 
   const savedUserId =
-  localStorage.getItem(
-    "my_id"
-  );
+    localStorage.getItem("my_id");
 
-console.log(
-  "CHAT USER ID:",
-  savedUserId
-);
+  
 
   if(savedUserId){
-
     setUserId(savedUserId);
-
   }
 
 },[]);
@@ -1559,8 +1552,7 @@ async function resendMessage(
 
 async function sendMessage(){
 
-  alert("SEND FUNCTION START");
-console.log("SEND FUNCTION START");
+  
 
   if(userId === null){
     return;
@@ -1680,6 +1672,9 @@ replyTo?.body || null
 })
 .select()
 .single();
+
+
+
 
 
 if(error){
@@ -2324,29 +2319,27 @@ style={{
     e.stopPropagation();
 
 
-  const { error } = await supabase
+  messageIdsRef.current.delete(
+  String(msg.id)
+);
+
+setMessages(prev =>
+  prev.filter(
+    m =>
+    String(m.id) !== String(msg.id)
+  )
+);
+
+const { error } = await supabase
   .from("messages")
   .delete()
   .eq("id", msg.id);
 
+if(error){
 
+  alert("Не удалось удалить сообщение");
 
-if(!error){
-
-  messageIdsRef.current.delete(
-    String(msg.id)
-  );
-
-  setMessages(prev =>
-
-    prev.filter(
-      m =>
-      String(m.id) !==
-      String(msg.id)
-    )
-
-  );
-
+  fetchMessages();
 }
 
 setMenuMessage(null);
