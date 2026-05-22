@@ -1676,6 +1676,15 @@ replyTo?.body || null
 
 if(error){
 
+  console.log(
+    "MESSAGE INSERT ERROR",
+    error
+  );
+
+  alert(
+    JSON.stringify(error)
+  );
+
   setMessages(prev =>
 
     prev.map((m:any)=>
