@@ -539,20 +539,19 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
+      console.log("SUBMIT CLICK");
 
   console.log("HANDLE SUBMIT START");
 
-  if (!telegramId || savingProfile || loading) {
-    console.log(
-      "BLOCKED",
-      {
-        telegramId,
-        savingProfile,
-        loading
-      }
-    );
-    return;
-  }
+if (!telegramId || savingProfile || loading) {
+  console.log(
+    "BLOCKED",
+    telegramId,
+    savingProfile,
+    loading
+  );
+  return;
+}
 
 
 setSavingProfile(true);
@@ -568,6 +567,7 @@ if (!name.trim() || !city.trim()) {
 console.log("BEFORE UPDATE");
 
     const { error } = await supabase
+    
 .from("users")
 .update({
  name,
