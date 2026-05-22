@@ -1554,6 +1554,9 @@ async function resendMessage(
 
 async function sendMessage(){
 
+  alert("SEND FUNCTION START");
+console.log("SEND FUNCTION START");
+
   if(userId === null){
     return;
   }
