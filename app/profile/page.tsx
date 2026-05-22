@@ -340,10 +340,16 @@ let { data, error } = await query.limit(20);
 
 
 // 🔥 получаем кто лайкнул тебя
+const { data: currentUser } = await supabase
+  .from("users")
+  .select("id")
+  .eq("telegram_id", telegramId)
+  .single();
+
 const { data: likedYou } = await supabase
   .from("likes")
   .select("from_user_id")
-.eq("to_user_id", telegramId);
+  .eq("to_user_id", currentUser?.id);
 
 // список id
 const likedIds = (likedYou || []).map(l => l.from_user_id);
