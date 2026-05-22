@@ -71,31 +71,19 @@ export async function POST(req: Request) {
       .digest();
 
     const hmac = crypto
-      .createHmac(
-        "sha256",
-        secretKey
-      )
-      .update(dataCheckString)
-      .digest("hex");
+  .createHmac(
+    "sha256",
+    secretKey
+  )
+  .update(dataCheckString)
+  .digest("hex");
 
-    console.log(
-  "HASH CHECK:",
-  hmac === hash
-);
-
-if (hmac !== hash) {
-  console.log("HASH MISMATCH");
-}
-
+const hashValid =
+  hmac === hash;
 
 console.log(
-  "CALCULATED:",
-  hmac
-);
-
-console.log(
-  "RECEIVED:",
-  hash
+  "TELEGRAM HASH VALID:",
+  hashValid
 );
 
     const telegramUser =
