@@ -78,20 +78,15 @@ export async function POST(req: Request) {
       .update(dataCheckString)
       .digest("hex");
 
-    // if (hmac !== hash) {
-//
-//   return NextResponse.json(
-//     { ok:false, error:"INVALID_HASH" },
-//     { status:403 }
-//   );
-//
-// }
-
-
-console.log(
+    console.log(
   "HASH CHECK:",
   hmac === hash
 );
+
+if (hmac !== hash) {
+  console.log("HASH MISMATCH");
+}
+
 
 console.log(
   "CALCULATED:",
