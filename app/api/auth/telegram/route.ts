@@ -11,6 +11,10 @@ export async function POST(req: Request) {
     console.log("START AUTH ROUTE");
 
     console.log(
+  "🚨 AUTH SECURITY TEST 🚨"
+);
+
+    console.log(
       "BOT TOKEN:",
       !!process.env.TELEGRAM_BOT_TOKEN
     );
