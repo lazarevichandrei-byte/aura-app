@@ -76,17 +76,17 @@ async function loadLikes(userId:number){
 
   const ids = likes.map(l => l.from_user_id);
 
-  const { data: users } = await supabase
-    .from("users")
-    .select("*")
-    .in("telegram_id", ids);
+const { data: users } = await supabase
+  .from("users")
+  .select("*")
+  .in("id", ids);
 
-  const formatted = likes.map(like => ({
-    ...like,
-    users: users?.find(
-      u => u.telegram_id === like.from_user_id
-    )
-  }));
+const formatted = likes.map(like => ({
+  ...like,
+  users: users?.find(
+    u => u.id === like.from_user_id
+  )
+}));
 
   setPeople(formatted);
 }
