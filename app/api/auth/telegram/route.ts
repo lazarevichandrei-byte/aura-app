@@ -83,6 +83,22 @@ export async function POST(req: Request) {
 //
 // }
 
+
+console.log(
+  "HASH CHECK:",
+  hmac === hash
+);
+
+console.log(
+  "CALCULATED:",
+  hmac
+);
+
+console.log(
+  "RECEIVED:",
+  hash
+);
+
     const telegramUser =
       JSON.parse(userRaw);
 
