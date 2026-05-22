@@ -310,17 +310,37 @@ const isNearBottom =
 isNearBottomRef.current =
   isNearBottom;
 
-const shouldShowScrollBottom =
-  distanceFromBottom > 300;
+const scrollDelta =
+  currentScroll -
+  lastScrollTopRef.current;
+
+const isScrollingDown =
+  scrollDelta > 15;
+
+const isScrollingUp =
+  scrollDelta < -15;
 
 if(
   Date.now() >
   ignoreScrollButtonUntilRef.current
 ){
 
-  setShowScrollBottom(
-    shouldShowScrollBottom
-  );
+  if(
+    distanceFromBottom > 300 &&
+    isScrollingDown
+  ){
+
+    setShowScrollBottom(true);
+
+  }
+  else if(
+    distanceFromBottom < 150 ||
+    isScrollingUp
+  ){
+
+    setShowScrollBottom(false);
+
+  }
 
 }
 
