@@ -763,10 +763,14 @@ window.location.href="/home";
         </div>
 
         <button
-          disabled={!isValid || uploading}
-          style={{...styles.submit,opacity:isValid?1:0.5}}
-          onClick={handleSubmit}
-        >
+        
+  onClick={() => {
+    alert("BUTTON WORKS");
+    console.log("BUTTON PRESSED");
+    handleSubmit();
+  }}
+  style={styles.submit}
+>
 {
 savingProfile
  ? "Подождите..."
