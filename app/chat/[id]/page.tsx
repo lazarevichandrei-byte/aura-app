@@ -304,13 +304,6 @@ useEffect(()=>{
   -
   el.clientHeight;
 
-const isScrollingDown =
-  currentScroll >
-  lastScrollTopRef.current;
-
-const isFarFromBottom =
-  distanceFromBottom > 120;
-
 const isNearBottom =
   distanceFromBottom < 120;
 
@@ -318,21 +311,15 @@ isNearBottomRef.current =
   isNearBottom;
 
 const shouldShowScrollBottom =
-
-  isFarFromBottom &&
-  isScrollingDown;
+  distanceFromBottom > 300;
 
 if(
   Date.now() >
   ignoreScrollButtonUntilRef.current
 ){
 
-  setShowScrollBottom(prev =>
-
-    prev === shouldShowScrollBottom
-    ? prev
-    : shouldShowScrollBottom
-
+  setShowScrollBottom(
+    shouldShowScrollBottom
   );
 
 }
