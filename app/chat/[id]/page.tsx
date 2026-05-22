@@ -180,8 +180,13 @@ useRef<any>(null);
 const loadingMoreRef =
 useRef(false);
 
+
+
 const jumpingToReplyRef =
 useRef(false);
+
+const ignoreScrollButtonUntilRef =
+useRef(0);
 
 const resendFailedMessages =
 useCallback(async ()=>{
@@ -318,7 +323,8 @@ const shouldShowScrollBottom =
   isScrollingDown;
 
 if(
-  !jumpingToReplyRef.current
+  Date.now() >
+  ignoreScrollButtonUntilRef.current
 ){
 
   setShowScrollBottom(prev =>
@@ -1718,6 +1724,9 @@ useCallback(async(
 
   jumpingToReplyRef.current = true;
 
+  ignoreScrollButtonUntilRef.current =
+  Date.now() + 1500;
+
 let el =
 document.getElementById(
   `msg-${replyId}`
@@ -1768,7 +1777,7 @@ setTimeout(()=>{
 
   jumpingToReplyRef.current = false;
 
-},500);
+},1500);
 
 },[
   hasMore
