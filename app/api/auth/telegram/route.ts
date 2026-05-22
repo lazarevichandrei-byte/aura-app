@@ -63,6 +63,15 @@ export async function POST(req: Request) {
       )
       .join("\n");
 
+
+if (!process.env.TELEGRAM_BOT_TOKEN) {
+  return NextResponse.json(
+    { ok:false, error:"BOT_TOKEN_MISSING" },
+    { status:500 }
+  );
+}
+
+
     const secretKey = crypto
       .createHash("sha256")
       .update(
