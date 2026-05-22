@@ -724,9 +724,14 @@ setOtherUser(user);
 useEffect(()=>{
 
   const savedUserId =
-    localStorage.getItem(
-      "aura_user_id"
-    );
+  localStorage.getItem(
+    "my_id"
+  );
+
+console.log(
+  "CHAT USER ID:",
+  savedUserId
+);
 
   if(savedUserId){
 
