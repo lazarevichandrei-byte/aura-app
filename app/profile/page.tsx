@@ -545,9 +545,11 @@ setTimeout(()=>{
     );
   };
     const handleSubmit = async () => {
-      console.log("SUBMIT CLICK");
+      console.log("HANDLE SUBMIT START");
+alert("HANDLE SUBMIT START");
+      
 
-  console.log("HANDLE SUBMIT START");
+
 
 if (!telegramId || savingProfile || loading) {
   console.log(
