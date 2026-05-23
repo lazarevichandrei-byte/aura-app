@@ -2776,15 +2776,8 @@ cursor:"pointer",
 transition:
 "transform .34s cubic-bezier(.16,1,.3,1), opacity .22s ease",
 
-transform:
-showScrollBottom
-? "translateY(0px)"
-: "translateY(120px)",
-
-opacity:
-showScrollBottom
-? 1
-: 0,
+transform:"translateY(0px)",
+opacity:1,
 }}
 >
 
