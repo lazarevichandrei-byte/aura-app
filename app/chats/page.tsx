@@ -251,9 +251,9 @@ useEffect(()=>{
     );
 
     const result = await res.json();
-    console.log(
-  "CHATS RESULT",
-  result
+   console.log(
+  "CHATS API",
+  result.chats
 );
     console.log(result.chats);
 
