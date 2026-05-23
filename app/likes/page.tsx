@@ -501,7 +501,7 @@ color:"#666"
 </div>
 
 <img
-src={match?.avatar_url || "/avatar-placeholder.png"}
+src={match?.avatar_url || "/file.svg"}
 style={{
 width:90,
 height:90,

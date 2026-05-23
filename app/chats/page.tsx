@@ -567,7 +567,7 @@ fontSize:15
         }}
       >
         <img
-          src="/avatar-placeholder.png"
+          src="/file.svg"
           style={{
             width: "100%",
             height: "100%",
