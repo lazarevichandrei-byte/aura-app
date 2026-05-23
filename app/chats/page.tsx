@@ -251,6 +251,7 @@ useEffect(()=>{
     );
 
     const result = await res.json();
+    console.log(result.chats);
 
     if(!result?.ok || !result?.user){
       return;
@@ -561,7 +562,7 @@ fontSize:15
         }}
       >
         <img
-          src="/girl1.jpg"
+          src="/avatar-placeholder.png"
           style={{
             width: "100%",
             height: "100%",
