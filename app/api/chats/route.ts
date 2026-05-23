@@ -97,25 +97,58 @@ export async function POST(req: Request){
     }
 
     const { data: chats } =
+  await supabaseAdmin
+    .from("chats")
+    .select("*")
+    .or(
+      `user1_id.eq.${user.id},user2_id.eq.${user.id}`
+    )
+    .order(
+      "last_message_at",
+      { ascending:false }
+    );
+
+const chatsWithUsers = await Promise.all(
+
+  (chats || []).map(async (chat)=>{
+
+    const otherUserId =
+
+      chat.user1_id === user.id
+      ? chat.user2_id
+      : chat.user1_id;
+
+    const { data: otherUser } =
       await supabaseAdmin
-        .from("chats")
-        .select("*")
-        .or(
-          `user1_id.eq.${user.id},user2_id.eq.${user.id}`
+        .from("users")
+        .select(
+          "id,name,avatar_url"
         )
-        .order(
-          "last_message_at",
-          { ascending:false }
-        );
+        .eq("id", otherUserId)
+        .single();
 
-        console.log("USER ID:", user.id);
-console.log("CHATS:", chats);
+    return {
 
-    console.log("FINAL CHATS:", chats);
-    return NextResponse.json({
-      ok:true,
-      chats
-    });
+      ...chat,
+
+      name:
+        otherUser?.name || "",
+
+      avatar_url:
+        otherUser?.avatar_url || ""
+
+    };
+
+  })
+
+);
+
+console.log("FINAL CHATS:", chatsWithUsers);
+
+return NextResponse.json({
+  ok:true,
+  chats: chatsWithUsers
+});
 
  }catch(e){
 

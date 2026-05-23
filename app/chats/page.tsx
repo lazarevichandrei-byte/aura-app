@@ -72,7 +72,7 @@ cursor:"pointer"
 <img
 loading="lazy"
 decoding="async"
-src={chat.avatar || "/girl1.jpg"}
+src={chat.avatar || "/avatar-placeholder.png"}
 style={{
 width:60,
 height:60,
