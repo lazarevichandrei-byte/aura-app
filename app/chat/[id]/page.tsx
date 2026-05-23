@@ -317,6 +317,16 @@ const scrollDelta =
 const isScrollingDown =
   scrollDelta > 15;
 
+  console.log(
+  "BTN DEBUG",
+  {
+    currentScroll,
+    distanceFromBottom,
+    isScrollingDown,
+    showScrollBottom
+  }
+);
+
 const isScrollingUp =
   scrollDelta < -15;
 
