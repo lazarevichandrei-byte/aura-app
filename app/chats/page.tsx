@@ -443,6 +443,7 @@ async function loadChats(){
   );
 
   const result = await res.json();
+  console.log("CHATS API", result.chats);
   console.log("CHATS API RESULT", result);
 
   if(!result?.ok){
