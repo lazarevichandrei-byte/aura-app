@@ -331,10 +331,10 @@ if(
     setShowScrollBottom(false);
   }
   else if(
-    distanceFromBottom > 300
-  ){
-    setShowScrollBottom(true);
-  }
+  distanceFromBottom > 120
+){
+  setShowScrollBottom(true);
+}
   else{
     setShowScrollBottom(false);
   }
