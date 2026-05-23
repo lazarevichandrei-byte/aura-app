@@ -20,21 +20,7 @@ const router = useRouter();
 const pathname = usePathname();
 
 const [unread,setUnread] =
-useState(
-()=>{
-if(
-typeof window !==
-"undefined"
-){
-return Number(
-localStorage.getItem(
-"navUnread"
-) || 0
-);
-}
-return 0;
-}
-);
+useState(0);
 
 useEffect(()=>{
 
