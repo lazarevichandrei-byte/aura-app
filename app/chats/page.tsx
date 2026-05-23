@@ -438,6 +438,7 @@ async function loadChats(){
   );
 
   const result = await res.json();
+  console.log("CHATS API RESULT", result);
 
   if(!result?.ok){
     return;
