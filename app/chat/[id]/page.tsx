@@ -1190,6 +1190,8 @@ latestMessageDateRef.current =
   },
   (payload)=>{
 
+    
+
     const deletedMsg:any =
       payload.old;
 

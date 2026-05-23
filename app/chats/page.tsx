@@ -646,7 +646,7 @@ fontSize:15
           }}
         >
           <img
-            src={chat.avatar || "/girl1.jpg"}
+            src={chat.avatar || "/placeholder.jpg"}
             style={{
               width: "100%",
               height: "100%",
