@@ -72,7 +72,7 @@ cursor:"pointer"
 <img
 loading="lazy"
 decoding="async"
-src={chat.avatar || "/avatar-placeholder.png"}
+src={chat.avatar_url || "/file.svg"}
 style={{
 width:60,
 height:60,
@@ -652,7 +652,7 @@ fontSize:15
           }}
         >
           <img
-            src={chat.avatar || "/placeholder.jpg"}
+            src={chat.avatar_url || "/file.svg"}
             style={{
               width: "100%",
               height: "100%",
