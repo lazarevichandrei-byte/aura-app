@@ -331,18 +331,21 @@ if(
   ){
     setShowScrollBottom(false);
   }
-  else if(
-    distanceFromBottom > 300 &&
-    isScrollingDown
-  ){
-    setShowScrollBottom(true);
-  }
-  else if(
-    distanceFromBottom < 150 ||
-    isScrollingUp
-  ){
-    setShowScrollBottom(false);
-  }
+ else if(
+  distanceFromBottom > 300 &&
+  isScrollingDown
+){
+  console.log(
+    "SCROLL BTN",
+    {
+      distanceFromBottom,
+      isScrollingDown,
+      isScrollingUp
+    }
+  );
+
+  setShowScrollBottom(true);
+}
 
 }
 
