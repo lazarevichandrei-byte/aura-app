@@ -317,16 +317,6 @@ const scrollDelta =
 const isScrollingDown =
   scrollDelta > 15;
 
-  console.log(
-  "BTN DEBUG",
-  {
-    currentScroll,
-    distanceFromBottom,
-    isScrollingDown,
-    showScrollBottom
-  }
-);
-
 const isScrollingUp =
   scrollDelta < -15;
 
@@ -336,26 +326,21 @@ if(
 ){
 
   if(
-    loadingMoreRef.current ||
-    currentScroll < 1400
+    loadingMoreRef.current
   ){
     setShowScrollBottom(false);
   }
- else if(
-  distanceFromBottom > 300 &&
-  isScrollingDown
-){
-  console.log(
-    "SCROLL BTN",
-    {
-      distanceFromBottom,
-      isScrollingDown,
-      isScrollingUp
-    }
-  );
-
-  setShowScrollBottom(true);
-}
+  else if(
+    distanceFromBottom > 300 &&
+    isScrollingDown
+  ){
+    setShowScrollBottom(true);
+  }
+  else if(
+    distanceFromBottom < 150
+  ){
+    setShowScrollBottom(false);
+  }
 
 }
 
