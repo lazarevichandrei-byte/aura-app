@@ -251,6 +251,10 @@ useEffect(()=>{
     );
 
     const result = await res.json();
+    console.log(
+  "CHATS RESULT",
+  result
+);
     console.log(result.chats);
 
     if(!result?.ok || !result?.user){
