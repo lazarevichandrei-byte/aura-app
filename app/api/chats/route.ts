@@ -5,6 +5,9 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request){
 
+    console.log("CHATS API HIT");
+
+
   try{
 
     const body = await req.json();
