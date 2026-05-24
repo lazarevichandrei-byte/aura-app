@@ -522,6 +522,11 @@ console.log(
 
   setChats(result.chats || []);
 
+  console.log(
+  "CHATS COUNT:",
+  result.chats?.length
+);
+
 }
 
 return(
