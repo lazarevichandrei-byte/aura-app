@@ -489,6 +489,16 @@ console.log(
     return;
   }
 
+
+  console.log(
+  "CHATS DATA:",
+  JSON.stringify(
+    result.chats,
+    null,
+    2
+  )
+);
+
   setChats(result.chats || []);
 
 }
