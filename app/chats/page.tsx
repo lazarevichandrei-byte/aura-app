@@ -231,27 +231,22 @@ useEffect(()=>{
   async function loadMe(){
 
     const tg =
-      (window as any)?.Telegram?.WebApp;
+  (window as any)?.Telegram?.WebApp;
 
-      console.log(
+console.log(
   "TG INIT DATA:",
   tg?.initData
 );
 
-    if(!tg?.initData){
+if(!tg?.initData){
 
   console.log(
     "NO TELEGRAM INIT DATA"
   );
 
-} else {
-
-  console.log(
-    "INIT DATA OK"
-  );
+  return;
 
 }
-
 
 console.log(
   "INIT DATA OK"
@@ -466,11 +461,14 @@ async function loadChats(){
 
   const result = await res.json();
   console.log(
-  "CHATS API RESULT",
+  "AUTH RESULT:",
   result
 );
-  console.log("CHATS API", result.chats);
-  console.log("CHATS API RESULT", result);
+
+console.log(
+  "AUTH STATUS:",
+  res.status
+);
 
   if(!result?.ok){
     return;
