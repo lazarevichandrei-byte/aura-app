@@ -233,6 +233,11 @@ useEffect(()=>{
     const tg =
       (window as any)?.Telegram?.WebApp;
 
+      console.log(
+  "TG INIT DATA:",
+  tg?.initData
+);
+
     if(!tg?.initData){
       return;
     }
@@ -251,10 +256,7 @@ useEffect(()=>{
     );
 
     const result = await res.json();
-   console.log(
-  "CHATS API",
-  result.chats
-);
+   
     console.log(result.chats);
 
     if(!result?.ok || !result?.user){
