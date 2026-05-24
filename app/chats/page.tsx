@@ -239,8 +239,19 @@ useEffect(()=>{
 );
 
     if(!tg?.initData){
-      return;
-    }
+
+  console.log(
+    "NO TELEGRAM INIT DATA"
+  );
+
+  return;
+}
+
+
+console.log(
+  "INIT DATA OK"
+);
+
 
     const res = await fetch(
       "/api/auth/telegram",
