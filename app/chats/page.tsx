@@ -499,14 +499,7 @@ console.log(
   ); 
 
   const result = await res.json();
-  console.log(
-  "AUTH RESULT:",
-  JSON.stringify(
-    result,
-    null,
-    2
-  )
-);
+  console.log("TG OBJECT:", tg);
 
 console.log(
   "AUTH STATUS:",
