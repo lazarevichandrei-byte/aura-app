@@ -778,9 +778,14 @@ fontSize:15
     </div>
   )}
 
-  <div>
-  TEST CHATS PAGE
-</div>
+  {sortedChats.map((chat) => (
+    <ChatCard
+      key={chat.id}
+      chat={chat}
+      typing={typingChats[chat.id]}
+      router={router}
+    />
+  ))}
 
   {searching && !filteredChats.length && (
     <div
