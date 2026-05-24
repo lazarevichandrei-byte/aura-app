@@ -775,7 +775,7 @@ fontSize:15
   )}
 </div>
 
-<BottomNav />
+{/* <BottomNav /> */}
 
 </div>
 )
