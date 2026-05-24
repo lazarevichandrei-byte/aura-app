@@ -446,14 +446,16 @@ async function loadChats(){
     "NO TELEGRAM INIT DATA"
   );
 
-} else {
-
-  console.log(
-    "INIT DATA OK"
-  );
-
+  return;
 }
-  console.log("FETCH CHATS");
+
+console.log(
+  "INIT DATA OK"
+);
+
+console.log(
+  "FETCH CHATS"
+);
 
   const res = await fetch(
     "/api/chats",
@@ -463,9 +465,7 @@ async function loadChats(){
         "Content-Type":"application/json"
       },
       body: JSON.stringify({
-  body: JSON.stringify({
-  initData: tg?.initData
-})
+  initData: tg.initData
 })
     }
   ); 
