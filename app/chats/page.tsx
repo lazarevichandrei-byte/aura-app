@@ -218,39 +218,51 @@ useEffect(()=>{
 
   async function loadMe(){
 
-    const tg =
-  (window as any)?.Telegram?.WebApp;
-
-  console.log("TG OBJECT:", tg);
-
-console.log(
-  "INIT DATA LENGTH:",
-  tg?.initData?.length
-);
-
-console.log(
-  "INIT DATA UNSAFE:",
-  tg?.initDataUnsafe
-);
-
-console.log(
-  "TG INIT DATA:",
-  tg?.initData
-);
-
-if(!tg?.initData){
+  const tg =
+    (window as any)?.Telegram?.WebApp;
 
   console.log(
-    "NO TELEGRAM INIT DATA"
+    "TG OBJECT FULL:",
+    JSON.stringify(
+      tg,
+      null,
+      2
+    )
   );
 
-  return;
+  console.log(
+    "INIT DATA:",
+    tg?.initData
+  );
 
-}
+  console.log(
+    "INIT DATA LENGTH:",
+    tg?.initData?.length
+  );
 
-console.log(
-  "INIT DATA OK"
-);
+  console.log(
+    "INIT DATA UNSAFE:",
+    tg?.initDataUnsafe
+  );
+
+  console.log(
+    "USER:",
+    tg?.initDataUnsafe?.user
+  );
+
+  if(!tg?.initData){
+
+    console.log(
+      "NO TELEGRAM INIT DATA"
+    );
+
+    return;
+
+  }
+
+  console.log(
+    "INIT DATA OK"
+  );
 
 
     const res = await fetch(
