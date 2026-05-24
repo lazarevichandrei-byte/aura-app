@@ -422,12 +422,16 @@ async function createChatIfNotExists(userA: string, userB: string){
 
 async function loadChats(){
 
+  console.log("LOAD CHATS START");
+
   const tg =
-   (window as any)?.Telegram?.WebApp;
+    (window as any).Telegram?.WebApp;
 
   if(!tg?.initData){
     return;
   }
+
+  console.log("FETCH CHATS");
 
   const res = await fetch(
     "/api/chats",
@@ -443,6 +447,10 @@ async function loadChats(){
   );
 
   const result = await res.json();
+  console.log(
+  "CHATS API RESULT",
+  result
+);
   console.log("CHATS API", result.chats);
   console.log("CHATS API RESULT", result);
 
