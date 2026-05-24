@@ -146,7 +146,14 @@ const chatsWithUsers = await Promise.all(
 
 );
 
-console.log("FINAL CHATS:", chatsWithUsers);
+console.log(
+  "FINAL CHATS:",
+  JSON.stringify(
+    chatsWithUsers,
+    null,
+    2
+  )
+);
 
 return NextResponse.json({
   ok:true,
