@@ -244,7 +244,12 @@ useEffect(()=>{
     "NO TELEGRAM INIT DATA"
   );
 
-  return;
+} else {
+
+  console.log(
+    "INIT DATA OK"
+  );
+
 }
 
 
@@ -453,11 +458,11 @@ async function loadChats(){
       headers:{
         "Content-Type":"application/json"
       },
-      body:JSON.stringify({
-        initData: tg.initData
-      })
+      body: JSON.stringify({
+  initData: tg?.initData || "debug"
+})
     }
-  );
+  ); 
 
   const result = await res.json();
   console.log(
