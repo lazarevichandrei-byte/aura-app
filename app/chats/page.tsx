@@ -450,9 +450,25 @@ async function loadChats(){
   console.log("LOAD CHATS START");
 
   const tg =
-    (window as any).Telegram?.WebApp;
+  (window as any).Telegram?.WebApp;
 
-  if(!tg?.initData){
+tg?.ready?.();
+
+setTimeout(() => {
+
+  console.log(
+    "DELAYED INIT DATA:",
+    tg?.initData
+  );
+
+  console.log(
+    "DELAYED USER:",
+    tg?.initDataUnsafe?.user
+  );
+
+}, 2000);
+
+if(!tg?.initData){
 
   console.log(
     "NO TELEGRAM INIT DATA"
