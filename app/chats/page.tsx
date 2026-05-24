@@ -116,19 +116,7 @@ gap:10
 fontSize:14,
 color:"#A0A5B0"
 }}>
-{
-chat.last_message_at
-? new Date(
-chat.last_message_at
-).toLocaleTimeString(
-"ru-RU",
-{
-hour:"2-digit",
-minute:"2-digit"
-}
-)
-:""
-}
+{chat.last_message_at || ""}
 </div>
 
 {chat.unread_count>0 &&(
@@ -232,6 +220,18 @@ useEffect(()=>{
 
     const tg =
   (window as any)?.Telegram?.WebApp;
+
+  console.log("TG OBJECT:", tg);
+
+console.log(
+  "INIT DATA LENGTH:",
+  tg?.initData?.length
+);
+
+console.log(
+  "INIT DATA UNSAFE:",
+  tg?.initDataUnsafe
+);
 
 console.log(
   "TG INIT DATA:",
