@@ -471,7 +471,11 @@ async function loadChats(){
   const result = await res.json();
   console.log(
   "AUTH RESULT:",
-  result
+  JSON.stringify(
+    result,
+    null,
+    2
+  )
 );
 
 console.log(
