@@ -441,9 +441,18 @@ async function loadChats(){
     (window as any).Telegram?.WebApp;
 
   if(!tg?.initData){
-    return;
-  }
 
+  console.log(
+    "NO TELEGRAM INIT DATA"
+  );
+
+} else {
+
+  console.log(
+    "INIT DATA OK"
+  );
+
+}
   console.log("FETCH CHATS");
 
   const res = await fetch(
