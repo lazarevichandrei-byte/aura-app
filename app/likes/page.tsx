@@ -62,7 +62,8 @@ async function loadLikes(userId:number){
   const { data: likes, error } = await supabase
     .from("likes")
     .select("*")
-    .eq("to_user_id", userId);
+    .eq("to_user_id", userId)
+.eq("status","pending");
 
   if(error){
     console.log("LOAD LIKES ERROR:", error);
@@ -79,12 +80,12 @@ async function loadLikes(userId:number){
   const { data: users } = await supabase
     .from("users")
     .select("*")
-    .in("telegram_id", ids);
+    .in("id", ids);
 
   const formatted = likes.map(like => ({
     ...like,
     users: users?.find(
-      u => u.telegram_id === like.from_user_id
+      u => u.id === like.from_user_id
     )
   }));
 
