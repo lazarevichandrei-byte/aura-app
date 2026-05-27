@@ -147,10 +147,12 @@ const { data } = await supabase
     interests
   `)
   .not(
-    "id",
-    "in",
-    `(${[myId,...likedIds].join(",")})`
-  )
+  "id",
+  "in",
+  `(${[myId,...likedIds]
+    .map(id => `'${id}'`)
+    .join(",")})`
+)
   .limit(30);
 
 if(data){
