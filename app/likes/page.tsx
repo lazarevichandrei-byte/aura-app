@@ -408,12 +408,15 @@ onClick={async (e)=>{
 
   if(!myId) return;
 
-  const { data: chatId } = await supabase.rpc("like_user", {
+  const { data: chatId } = 
+  await supabase.rpc("like_user", {
     from_id: myId,
     to_id: user.from_user_id
   });
 
-  if(chatId){
+
+  
+  if(chatId !== null){
   setMatch(user.users);
   setMatchChatId(chatId);
 

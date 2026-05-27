@@ -212,14 +212,19 @@ async function handleLike(){
 console.log("MY ID:", myId);
 console.log("TARGET ID:", currentUser.id);
 
-const { data: chatId, error } = await supabase
+const response = await supabase
   .rpc("like_user", {
     from_id: myId,
     to_id: currentUser.id
   });
 
-console.log("RPC CHAT ID:", chatId);
-console.log("RPC ERROR:", error);
+console.log("RPC RESPONSE:", response);
+
+const chatId = response?.data;
+const error = response?.error;
+
+console.log("CHAT ID:", chatId);
+console.log("ERROR:", error);
 
 
 
@@ -236,7 +241,7 @@ setDragX(0);
   return;
 }
 
-if(chatId){
+if(chatId !== null && chatId !== undefined){
 
   setUsers(prev =>
     prev.filter(
