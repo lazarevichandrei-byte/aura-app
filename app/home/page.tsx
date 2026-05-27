@@ -146,7 +146,20 @@ const { data } = await supabase
     main_photo_index,
     interests
   `)
-  .neq("id", myId)
+  .not(
+  "id",
+  "in",
+  `(
+    select case
+      when user1_id = '${myId}'
+      then user2_id
+      else user1_id
+    end
+    from chats
+    where user1_id = '${myId}'
+    or user2_id = '${myId}'
+  )`
+)
   .limit(30);
 
 if(data){
@@ -208,9 +221,17 @@ console.log("RPC ERROR:", error);
 }
 
 if(chatId){
+
+  setUsers(prev =>
+    prev.filter(
+      u => u.id !== currentUser.id
+    )
+  );
+
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
   setShowMatch(true);
+
   return;
 }
 
