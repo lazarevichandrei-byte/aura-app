@@ -15,7 +15,8 @@ const ChatCard = React.memo(
 function ChatCard({
 chat,
 typing,
-router
+router,
+setChats
 }:any){
 
 const [pressed,setPressed] =
@@ -40,10 +41,29 @@ onPointerLeave={()=>
 setPressed(false)
 }
 
-onClick={()=>{
-router.push(
-`/chat/${chat.id}`
-);
+onClick={async () => {
+
+  setChats(prev =>
+    prev.map((c:any) =>
+      c.id === chat.id
+        ? {
+            ...c,
+            unread_count: 0
+          }
+        : c
+    )
+  );
+
+  await supabase
+    .from("chats")
+    .update({
+      unread_count: 0
+    })
+    .eq("id", chat.id);
+
+  router.push(
+    `/chat/${chat.id}`
+  );
 }}
 
 style={{
