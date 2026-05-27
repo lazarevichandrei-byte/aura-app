@@ -248,7 +248,17 @@ if(chatId){
   return;
 }
 
-nextUser();
+setUsers(prev =>
+  prev.filter(
+    u => u.id !== currentUser.id
+  )
+);
+
+setIndex(0);
+setPhotoIndex(0);
+setDragX(0);
+
+await loadUsers();
 }
 
 
