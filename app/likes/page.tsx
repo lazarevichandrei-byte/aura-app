@@ -367,14 +367,21 @@ minWidth:42
 >
 
 <div
-onClick={(e)=>{
-e.stopPropagation();
+onClick={async (e)=>{
+  e.stopPropagation();
 
-setPeople(prev=>
-prev.filter(
-p=>p.id!==user.id
-)
-);
+  await supabase
+    .from("likes")
+    .update({
+      status:"dismissed"
+    })
+    .eq("id", user.id);
+
+  setPeople(prev =>
+    prev.filter(
+      p => p.id !== user.id
+    )
+  );
 }}
 
 style={{
