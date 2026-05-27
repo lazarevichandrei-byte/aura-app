@@ -130,7 +130,7 @@ const likedIds =
     .map(
       l => l.to_user_id
     ) || [];
-    
+
 
 const { data } = await supabase
   .from("users")
@@ -794,9 +794,16 @@ fontWeight:600
 
 
 <button
-onClick={()=>{
+onClick={async ()=>{
+
 setShowMatch(false);
-nextUser();
+
+await loadUsers();
+
+setIndex(0);
+setPhotoIndex(0);
+setDragX(0);
+
 }}
 style={{
 marginTop:16,
