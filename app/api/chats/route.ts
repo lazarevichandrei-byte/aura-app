@@ -96,17 +96,51 @@ export async function POST(req: Request){
 
     }
 
-    const { data: chats } =
+    const { data: chatsRaw } =
+  await supabaseAdmin
+    .from("chats")
+    .select("*")
+    .or(
+      `user1_id.eq.${user.id},user2_id.eq.${user.id}`
+    )
+    .order(
+      "last_message_at",
+      { ascending:false }
+    );
+
+const chats = await Promise.all(
+
+  (chatsRaw || []).map(async (chat:any) => {
+
+    const otherUserId =
+      chat.user1_id === user.id
+        ? chat.user2_id
+        : chat.user1_id;
+
+    const { data: otherUser } =
       await supabaseAdmin
-        .from("chats")
-        .select("*")
-        .or(
-          `user1_id.eq.${user.id},user2_id.eq.${user.id}`
-        )
-        .order(
-          "last_message_at",
-          { ascending:false }
-        );
+        .from("users")
+        .select(`
+          id,
+          name,
+          photo_url
+        `)
+        .eq("id", otherUserId)
+        .single();
+
+    return {
+      ...chat,
+
+      name:
+        otherUser?.name || "Без имени",
+
+      avatar:
+        otherUser?.photo_url || "/girl1.jpg"
+    };
+
+  })
+
+);
 
         console.log("USER ID:", user.id);
 console.log("CHATS:", chats);
