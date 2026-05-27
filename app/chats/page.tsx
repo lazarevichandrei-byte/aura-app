@@ -532,6 +532,16 @@ console.log(
   ); 
 
   const result = await res.json();
+
+  console.log(
+  "RESULT CHATS:",
+  JSON.stringify(
+    result,
+    null,
+    2
+  )
+);
+
   console.log("TG OBJECT:", tg);
 
 console.log(
