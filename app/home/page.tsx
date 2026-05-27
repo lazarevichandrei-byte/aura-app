@@ -146,13 +146,7 @@ const { data } = await supabase
     main_photo_index,
     interests
   `)
-  .not(
-  "id",
-  "in",
-  `(${[myId,...likedIds]
-    .map(id => `'${id}'`)
-    .join(",")})`
-)
+  .neq("id", myId)
   .limit(30);
 
 if(data){
