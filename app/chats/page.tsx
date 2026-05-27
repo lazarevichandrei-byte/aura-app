@@ -7,143 +7,11 @@ useRef
 } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-import { joinChatPresence } from "../../lib/presence";
-import BottomNav from "../../components/BottomNav";
+// import { joinChatPresence } from "../../lib/presence";
+// import BottomNav from "../../components/BottomNav";
 
 
-const ChatCard = React.memo(
-function ChatCard({
-chat,
-typing,
-router
-}:any){
 
-const [pressed,setPressed] =
-useState(false);
-
-return(
-
-<div
-onPointerDown={()=>{
-setPressed(true);
-
-router.prefetch(
-`/chat/${chat.id}`
-);
-}}
-
-onPointerUp={()=>
-setPressed(false)
-}
-
-onPointerLeave={()=>
-setPressed(false)
-}
-
-onClick={()=>{
-router.push(
-`/chat/${chat.id}`
-);
-}}
-
-style={{
-display:"flex",
-alignItems:"center",
-padding:"14px 14px",
-marginBottom:8,
-
-borderRadius:22,
-
-background:
-pressed
-? "#F2F4F7"
-: "#fff",
-
-boxShadow:
-"0 1px 4px rgba(0,0,0,.03)",
-
-transition:
-"background .15s ease",
-
-cursor:"pointer"
-}}
->
-
-<img
-loading="lazy"
-decoding="async"
-src={chat.avatar_url || "/file.svg"}
-style={{
-width:60,
-height:60,
-borderRadius:"50%",
-objectFit:"cover"
-}}
-/>
-
-<div style={{
-flex:1,
-marginLeft:14
-}}>
-
-<div style={{
-fontWeight:
-chat.unread_count
-?700
-:600
-}}>
-{chat.name || "Без имени"}
-</div>
-
-<div style={{
-fontSize:13,
-color: typing ? "#2F80FF" : "#8A8F9B",
-marginTop:2
-}}>
-{typing ? "печатает..." : chat.last_message || ""}
-</div>
-
-</div>
-
-<div style={{
-display:"flex",
-flexDirection:"column",
-alignItems:"flex-end",
-gap:10
-}}>
-
-<div style={{
-fontSize:14,
-color:"#A0A5B0"
-}}>
-{chat.last_message_at || ""}
-</div>
-
-{chat.unread_count>0 &&(
-<div style={{
-minWidth:20,
-height:20,
-padding:"0 6px",
-borderRadius:10,
-background:"#2F80FF",
-color:"#fff",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:11,
-fontWeight:700
-}}>
-{chat.unread_count}
-</div>
-)}
-
-</div>
-
-</div>
-
-)
-
-});
 export default function Chats(){
 
 
@@ -170,45 +38,7 @@ const channelsRef = useRef<Record<string, any>>({});
 
 
 
-useEffect(() => {
-  if (!chats?.length) return;
 
-  chats.forEach((chat) => {
-    if (channelsRef.current[chat.id]) return;
-
-    const channel = joinChatPresence(chat.id, "list");
-
-    channel.on("presence", { event: "sync" }, () => {
-      const state = channel.presenceState();
-
-      let isTyping = false;
-
-      Object.values(state).forEach((list: any) => {
-        list.forEach((p: any) => {
-          if (p.typing) {
-            isTyping = true;
-          }
-        });
-      });
-
-      setTypingChats((prev: any) => ({
-        ...prev,
-        [chat.id]: isTyping,
-      }));
-    });
-
-    channel.subscribe();
-
-    channelsRef.current[chat.id] = channel;
-  });
-
-  return () => {
-    Object.values(channelsRef.current).forEach((ch: any) => {
-      ch.unsubscribe();
-    });
-    channelsRef.current = {};
-  };
-}, [chats]);
 
 
 
@@ -372,34 +202,7 @@ useEffect(() => {
 
 }, []);
 
-useEffect(()=>{
 
-  if(!myId) return;
-
-  const channel = supabase
-    .channel(`chats-${myId}`)
-    .on(
-      "postgres_changes",
-      {
-        event:"*",
-        schema:"public",
-        table:"chats"
-      },
-      ()=>{
-
-        loadChats();
-
-      }
-    )
-    .subscribe();
-
-  return ()=>{
-
-    supabase.removeChannel(channel);
-
-  };
-
-},[myId]);
 
 
 
