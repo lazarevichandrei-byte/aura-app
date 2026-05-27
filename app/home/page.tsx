@@ -120,8 +120,10 @@ if(me){
   const { data: liked } = await supabase
   .from("likes")
   .select("from_user_id,to_user_id,status")
-  .eq("status","pending")
-  .or(`from_user_id.eq.${myId},to_user_id.eq.${myId}`);
+  .or(`
+    and(from_user_id.eq.${myId},status.eq.pending),
+    and(to_user_id.eq.${myId},status.eq.pending)
+  `);
  
 
 const likedIds =
