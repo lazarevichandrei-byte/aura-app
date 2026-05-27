@@ -148,6 +148,13 @@ position:"relative"
 
 <Heart size={28}/>
 
+{unread !== null &&
+unread > 0 && (
+<div
+style={{
+position:"absolute",
+top:6,
+right:"22%",
 /*
 
 {unread !== null &&
@@ -181,12 +188,6 @@ fontWeight:700
 )}
 
 */
-<div
-style={{
-position:"absolute",
-top:6,
-right:"22%",
-
 minWidth:20,
 height:20,
 
@@ -207,7 +208,7 @@ fontWeight:700
 >
 {unread > 9 ? "9+" : unread}
 </div>
-
+)}
 
 Чаты
 </div>
