@@ -132,24 +132,6 @@ const likedIds =
     ) || [];
 
 
-const { data: chats } = await supabase
-  .from("chats")
-  .select("user1_id,user2_id")
-  .or(`user1_id.eq.${myId},user2_id.eq.${myId}`);
-
-const matchedIds =
-  chats?.map(chat =>
-    chat.user1_id === myId
-      ? chat.user2_id
-      : chat.user1_id
-  ) || [];
-
-const hiddenIds = [
-  myId,
-  ...likedIds,
-  ...matchedIds
-];
-
 const { data } = await supabase
   .from("users")
   .select(`
@@ -164,11 +146,7 @@ const { data } = await supabase
     main_photo_index,
     interests
   `)
-  .not(
-    "id",
-    "in",
-    `(${hiddenIds.map(id => `'${id}'`).join(",")})`
-  )
+  .neq("id", myId)
   .limit(30);
 
 if(data){
