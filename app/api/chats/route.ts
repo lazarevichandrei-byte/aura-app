@@ -79,51 +79,51 @@ export async function POST(req: Request){
 //
 // }
 
+let user = null;
+
 if(debugUserId){
 
-  const { data:user } =
+  const { data:debugUser } =
     await supabaseAdmin
       .from("users")
       .select("*")
       .eq("id", debugUserId)
       .single();
 
-  if(!user){
+  user = debugUser;
 
-    return NextResponse.json(
-      { ok:false },
-      { status:404 }
-    );
+} else {
 
-  }
+  const telegramUser =
+    JSON.parse(userRaw);
 
-  // дальше сразу загрузка чатов
+  const telegramId =
+    telegramUser.id;
+
+  const { data:telegramDbUser } =
+    await supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq(
+        "telegram_id",
+        telegramId
+      )
+      .single();
+
+  user = telegramDbUser;
+
 }
 
-    const telegramUser =
-      JSON.parse(userRaw);
+if(!user){
 
-    const telegramId =
-      telegramUser.id;
+  return NextResponse.json(
+    { ok:false },
+    { status:404 }
+  );
 
-    const { data:user } =
-      await supabaseAdmin
-        .from("users")
-        .select("*")
-        .eq(
-          "telegram_id",
-          telegramId
-        )
-        .single();
+}
 
-    if(!user){
-
-      return NextResponse.json(
-        { ok:false },
-        { status:404 }
-      );
-
-    }
+    
 
     const { data: chats } =
   await supabaseAdmin
