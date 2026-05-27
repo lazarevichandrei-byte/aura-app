@@ -151,12 +151,21 @@ const { data } = await supabase
 
 if(data){
 
-setUsers(
-data.filter(
-u=>u.id!==myId
-)
-);
+const filtered = data.filter(u => {
 
+  if(u.id === myId){
+    return false;
+  }
+
+  if(likedIds.includes(u.id)){
+    return false;
+  }
+
+  return true;
+
+});
+
+setUsers(filtered);
 
 }
 
