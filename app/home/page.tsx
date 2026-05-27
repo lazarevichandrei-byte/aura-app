@@ -119,12 +119,18 @@ if(me){
 
   const { data: liked } = await supabase
   .from("likes")
-  .select("to_user_id")
-  .eq("from_user_id", myId)
-  .eq("status", "pending");
+  .select(`
+    to_user_id,
+    status
+  `)
+  .eq("from_user_id", myId);
 
 const likedIds =
-  liked?.map(l => l.to_user_id) || [];
+  liked
+    ?.filter(
+      l => l.status === "pending"
+    )
+    .map(l => l.to_user_id) || [];
 
 const { data } = await supabase
   .from("users")
