@@ -119,8 +119,10 @@ if(me){
 
   const { data: liked } = await supabase
   .from("likes")
-  .select("from_user_id,to_user_id")
+  .select("from_user_id,to_user_id,status")
+  .eq("status","pending")
   .or(`from_user_id.eq.${myId},to_user_id.eq.${myId}`);
+ 
 
 const likedIds =
   liked
@@ -157,9 +159,17 @@ const filtered = data.filter(u => {
     return false;
   }
 
-  if(likedIds.includes(u.id)){
-    return false;
-  }
+  const iLikedUser =
+  liked?.some(
+    l =>
+      l.from_user_id === myId &&
+      l.to_user_id === u.id &&
+      l.status === "pending"
+  );
+
+if(iLikedUser){
+  return false;
+}
 
   return true;
 
