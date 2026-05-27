@@ -474,6 +474,39 @@ if(!tg?.initData){
     "NO TELEGRAM INIT DATA"
   );
 
+  const debugUserId =
+    localStorage.getItem(
+      "aura_user_id"
+    );
+
+  if(!debugUserId){
+    return;
+  }
+
+  const res = await fetch(
+    "/api/chats",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        userId: debugUserId
+      })
+    }
+  );
+
+  const result = await res.json();
+
+  console.log(
+    "DEBUG CHATS:",
+    result
+  );
+
+  if(result?.ok){
+    setChats(result.chats || []);
+  }
+
   return;
 }
 

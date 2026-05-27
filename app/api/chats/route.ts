@@ -14,12 +14,17 @@ export async function POST(req: Request){
 
     const initData = body?.initData;
 
-    if(!initData){
-      return NextResponse.json(
-        { ok:false },
-        { status:400 }
-      );
-    }
+    const debugUserId =
+  body?.userId;
+
+    if(!initData && !debugUserId){
+
+  return NextResponse.json(
+    { ok:false },
+    { status:400 }
+  );
+
+}
 
     const params =
       new URLSearchParams(initData);
@@ -73,6 +78,27 @@ export async function POST(req: Request){
 //   );
 //
 // }
+
+if(debugUserId){
+
+  const { data:user } =
+    await supabaseAdmin
+      .from("users")
+      .select("*")
+      .eq("id", debugUserId)
+      .single();
+
+  if(!user){
+
+    return NextResponse.json(
+      { ok:false },
+      { status:404 }
+    );
+
+  }
+
+  // дальше сразу загрузка чатов
+}
 
     const telegramUser =
       JSON.parse(userRaw);
