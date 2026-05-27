@@ -138,32 +138,12 @@ style={itemStyle(pathname==="/discover")}
 
 <div
 onClick={()=>router.push("/chats")}
-style={{
-...itemStyle(
-pathname==="/chats"
-),
-position:"relative"
-}}
+style={itemStyle(pathname==="/chats")}
 >
-
-<Heart size={28}/>
-
-<div
-onClick={()=>router.push("/chats")}
-style={{
-...itemStyle(
-pathname==="/chats"
-),
-position:"relative"
-}}
->
-
-<Heart size={28}/>
-
+  <Heart size={28}/>
+  Чаты
 </div>
 
-Чаты
-</div>
 
 
 <div
