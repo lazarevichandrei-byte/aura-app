@@ -241,7 +241,11 @@ setDragX(0);
   return;
 }
 
-if(chatId !== null && chatId !== undefined){
+if(chatId){
+
+  setMatchedUser(currentUser);
+  setMatchChatId(chatId);
+  setShowMatch(true);
 
   setUsers(prev =>
     prev.filter(
@@ -249,24 +253,18 @@ if(chatId !== null && chatId !== undefined){
     )
   );
 
-  setMatchedUser(currentUser);
-  setMatchChatId(chatId);
-  setShowMatch(true);
-
   return;
 }
 
+/* обычный лайк */
 setUsers(prev =>
   prev.filter(
     u => u.id !== currentUser.id
   )
 );
 
-setIndex(0);
 setPhotoIndex(0);
 setDragX(0);
-
-await loadUsers();
 }
 
 
