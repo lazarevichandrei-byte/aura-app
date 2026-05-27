@@ -167,15 +167,7 @@ useState<any>({});
 const [myId,setMyId] = useState<string | null>(null);
 
 const channelsRef = useRef<Record<string, any>>({});
-useEffect(()=>{
 
-  console.log(
-    "USE EFFECT START"
-  );
-
-  loadChats();
-
-},[]);;
 
 
 useEffect(() => {
@@ -303,10 +295,17 @@ console.log(
     }
 
     setMyId(result.user.id);
-    localStorage.setItem(
+
+localStorage.setItem(
   "aura_user_id",
   result.user.id
 );
+
+console.log(
+  "CALL LOAD CHATS AFTER AUTH"
+);
+
+loadChats(result.user.id);
 
   }
 
@@ -461,7 +460,7 @@ async function createChatIfNotExists(userA: string, userB: string){
 
 
 
-async function loadChats(){
+async function loadChats(forcedUserId?: string){
 
   console.log(
     "LOAD CHATS FUNCTION START"
@@ -491,9 +490,10 @@ if(!tg?.initData){
   );
 
   const debugUserId =
-    localStorage.getItem(
-      "aura_user_id"
-    );
+  forcedUserId ||
+  localStorage.getItem(
+    "aura_user_id"
+  );
 
   if(!debugUserId){
     return;
