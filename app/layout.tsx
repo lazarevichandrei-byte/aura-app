@@ -11,18 +11,16 @@ const sora = Sora({
 export default function RootLayout({ children }: any) {
   return (
     <html lang="ru">
-      <head>
-        <Script
-          src="https://telegram.org/js/telegram-web-app.js"
-          strategy="beforeInteractive"
-        />
-      </head>
+  <body className={sora.className}>
+    <Script
+      src="https://telegram.org/js/telegram-web-app.js"
+      strategy="beforeInteractive"
+    />
 
-      <body className={sora.className}>
-        <Providers>
-          {children}
-        </Providers>
-      </body>
-    </html>
+    <Providers>
+      {children}
+    </Providers>
+  </body>
+</html>
   );
 }
