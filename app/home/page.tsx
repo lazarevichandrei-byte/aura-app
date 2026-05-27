@@ -149,7 +149,9 @@ const { data } = await supabase
   .not(
   "id",
   "in",
-  `('${myId}','${likedIds.join("','")}')`
+  likedIds.length
+    ? `('${[myId,...likedIds].join("','")}')`
+    : `('${myId}')`
 )
   .limit(30);
 
