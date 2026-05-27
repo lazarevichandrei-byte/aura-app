@@ -279,6 +279,16 @@ useEffect(()=>{
     );
 
     const result = await res.json();
+
+    console.log(
+  "RESULT:",
+  result
+);
+
+console.log(
+  "CHATS:",
+  result?.chats
+);
    
     console.log(result.chats);
 

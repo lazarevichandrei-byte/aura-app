@@ -1,7 +1,7 @@
 import { Sora } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-
+import Providers from "./providers";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -19,7 +19,9 @@ export default function RootLayout({ children }: any) {
       </head>
 
       <body className={sora.className}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
