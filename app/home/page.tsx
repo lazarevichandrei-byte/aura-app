@@ -123,13 +123,14 @@ if(me){
   .or(`from_user_id.eq.${myId},to_user_id.eq.${myId}`);
 
 const likedIds =
-  liked?.map(l =>
-
-    l.from_user_id === myId
-      ? l.to_user_id
-      : l.from_user_id
-
-  ) || [];
+  liked
+    ?.filter(
+      l => l.from_user_id === myId
+    )
+    .map(
+      l => l.to_user_id
+    ) || [];
+    
 
 const { data } = await supabase
   .from("users")
