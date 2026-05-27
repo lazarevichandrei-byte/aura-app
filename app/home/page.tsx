@@ -120,16 +120,17 @@ if(me){
   const { data: liked } = await supabase
   .from("likes")
   .select("from_user_id,to_user_id,status")
-  .or(`
-    and(from_user_id.eq.${myId},status.eq.pending),
-    and(to_user_id.eq.${myId},status.eq.pending)
-  `);
+  .or(
+    `from_user_id.eq.${myId},to_user_id.eq.${myId}`
+  );
  
 
 const likedIds =
   liked
     ?.filter(
-      l => l.from_user_id === myId
+      l =>
+        l.from_user_id === myId &&
+        l.status === "pending"
     )
     .map(
       l => l.to_user_id
