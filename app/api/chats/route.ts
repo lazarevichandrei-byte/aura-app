@@ -121,10 +121,10 @@ const chats = await Promise.all(
       await supabaseAdmin
         .from("users")
         .select(`
-          id,
-          name,
-          photo_url
-        `)
+  id,
+  name,
+  avatar_url
+`)
         .eq("id", otherUserId)
         .single();
 
@@ -135,7 +135,7 @@ const chats = await Promise.all(
         otherUser?.name || "Без имени",
 
       avatar:
-        otherUser?.photo_url || "/girl1.jpg"
+  otherUser?.avatar_url || "/girl1.jpg"
     };
 
   })
