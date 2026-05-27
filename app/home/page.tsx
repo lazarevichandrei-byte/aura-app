@@ -132,6 +132,24 @@ const likedIds =
     ) || [];
 
 
+const { data: chats } = await supabase
+  .from("chats")
+  .select("user1_id,user2_id")
+  .or(`user1_id.eq.${myId},user2_id.eq.${myId}`);
+
+const matchedIds =
+  chats?.map(chat =>
+    chat.user1_id === myId
+      ? chat.user2_id
+      : chat.user1_id
+  ) || [];
+
+const hiddenIds = [
+  myId,
+  ...likedIds,
+  ...matchedIds
+];
+
 const { data } = await supabase
   .from("users")
   .select(`
@@ -147,19 +165,10 @@ const { data } = await supabase
     interests
   `)
   .not(
-  "id",
-  "in",
-  `(
-    select case
-      when user1_id = '${myId}'
-      then user2_id
-      else user1_id
-    end
-    from chats
-    where user1_id = '${myId}'
-    or user2_id = '${myId}'
-  )`
-)
+    "id",
+    "in",
+    `(${hiddenIds.map(id => `'${id}'`).join(",")})`
+  )
   .limit(30);
 
 if(data){
