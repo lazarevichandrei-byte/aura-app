@@ -168,8 +168,14 @@ const [myId,setMyId] = useState<string | null>(null);
 
 const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
+
+  console.log(
+    "USE EFFECT START"
+  );
+
   loadChats();
-},[]);
+
+},[]);;
 
 
 useEffect(() => {
@@ -457,12 +463,12 @@ async function createChatIfNotExists(userA: string, userB: string){
 
 async function loadChats(){
 
-  console.log("LOAD CHATS START");
+  console.log(
+    "LOAD CHATS FUNCTION START"
+  );
 
   const tg =
-  (window as any).Telegram?.WebApp;
-
-tg?.ready?.();
+    (window as any).Telegram?.WebApp;
 
 setTimeout(() => {
 
