@@ -160,7 +160,6 @@ position:"relative"
 
 <Heart size={28}/>
 
-Чаты
 </div>
 
 Чаты
