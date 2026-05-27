@@ -21,7 +21,7 @@ const [dragging,setDragging]=useState(false);
 
 const [showMatch,setShowMatch]=useState(false);
 const [matchedUser,setMatchedUser]=useState<any>(null);
-const [matchChatId,setMatchChatId] = useState<number | null>(null);
+const [matchChatId,setMatchChatId] = useState<string | null>(null);
 
 const [skipPressed,setSkipPressed]=useState(false);
 const [likePressed,setLikePressed]=useState(false);
@@ -31,7 +31,7 @@ const startX=useRef(0);
 
 
 
-const [myId,setMyId] = useState<number | null>(null);
+const [myId,setMyId] = useState<string | null>(null);
 
 useEffect(()=>{
   const waitTelegram = () => {
