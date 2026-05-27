@@ -181,6 +181,33 @@ fontWeight:700
 )}
 
 */
+<div
+style={{
+position:"absolute",
+top:6,
+right:"22%",
+
+minWidth:20,
+height:20,
+
+padding:"0 5px",
+
+borderRadius:10,
+
+background:"#2F80FF",
+color:"#fff",
+
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+
+fontSize:11,
+fontWeight:700
+}}
+>
+{unread > 9 ? "9+" : unread}
+</div>
+
 
 Чаты
 </div>
