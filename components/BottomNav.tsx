@@ -148,67 +148,20 @@ position:"relative"
 
 <Heart size={28}/>
 
-{unread !== null &&
-unread > 0 && (
 <div
+onClick={()=>router.push("/chats")}
 style={{
-position:"absolute",
-top:6,
-right:"22%",
-/*
-
-{unread !== null &&
-unread > 0 && (
-<div
-style={{
-position:"absolute",
-top:6,
-right:"22%",
-
-minWidth:20,
-height:20,
-
-padding:"0 5px",
-
-borderRadius:10,
-
-background:"#2F80FF",
-color:"#fff",
-
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-
-fontSize:11,
-fontWeight:700
+...itemStyle(
+pathname==="/chats"
+),
+position:"relative"
 }}
 >
-{unread > 9 ? "9+" : unread}
+
+<Heart size={28}/>
+
+Чаты
 </div>
-)}
-
-*/
-minWidth:20,
-height:20,
-
-padding:"0 5px",
-
-borderRadius:10,
-
-background:"#2F80FF",
-color:"#fff",
-
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-
-fontSize:11,
-fontWeight:700
-}}
->
-{unread > 9 ? "9+" : unread}
-</div>
-)}
 
 Чаты
 </div>
