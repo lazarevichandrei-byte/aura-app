@@ -120,7 +120,8 @@ if(me){
   const { data: liked } = await supabase
   .from("likes")
   .select("to_user_id")
-  .eq("from_user_id", myId);
+  .eq("from_user_id", myId)
+  .eq("status", "pending");
 
 const likedIds =
   liked?.map(l => l.to_user_id) || [];
