@@ -148,6 +148,8 @@ position:"relative"
 
 <Heart size={28}/>
 
+/*
+
 {unread !== null &&
 unread > 0 && (
 <div
@@ -177,6 +179,8 @@ fontWeight:700
 {unread > 9 ? "9+" : unread}
 </div>
 )}
+
+*/
 
 Чаты
 </div>
