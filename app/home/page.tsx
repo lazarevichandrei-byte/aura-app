@@ -198,11 +198,17 @@ async function handleLike(){
 
   
 
+console.log("MY ID:", myId);
+console.log("TARGET ID:", currentUser.id);
+
 const { data: chatId, error } = await supabase
   .rpc("like_user", {
     from_id: myId,
     to_id: currentUser.id
   });
+
+console.log("RPC CHAT ID:", chatId);
+console.log("RPC ERROR:", error);
 
 
 
