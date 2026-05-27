@@ -222,7 +222,14 @@ console.log("RPC ERROR:", error);
 
   if(error){
   console.log("LIKE ERROR:", error);
-  nextUser();
+  setUsers(prev =>
+  prev.filter(
+    u => u.id !== currentUser.id
+  )
+);
+
+setPhotoIndex(0);
+setDragX(0);
   return;
 }
 
