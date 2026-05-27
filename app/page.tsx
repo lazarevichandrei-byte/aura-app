@@ -1,15 +1,177 @@
-export default function Home() {
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabase";
+
+export default function Page() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+  try {
+    console.log("INIT START");
+
+    const tg = (window as any).Telegram?.WebApp;
+
+    console.log("TG:", tg);
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    console.log("INIT DATA:", tg?.initDataUnsafe);
+
+    if (!tg || !tg.initDataUnsafe) {
+      console.log("NO TG");
+      setLoading(false);
+      return;
+    }
+
+    const user = tg.initDataUnsafe.user;
+
+    console.log("TG USER:", user);
+
+    if (!user) {
+      console.log("NO USER");
+      setLoading(false);
+      return;
+    }
+
+    console.log("BEFORE SUPABASE");
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("onboarding_completed")
+      .eq("telegram_id", user.id)
+      .maybeSingle();
+
+    console.log("SUPABASE DONE");
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+
+    if (data?.onboarding_completed) {
+      console.log("GO HOME");
+      window.location.href = "/home";
+      return;
+    }
+
+    if (data && data.onboarding_completed !== true) {
+      console.log("GO PROFILE");
+      window.location.href = "/profile";
+      return;
+    }
+
+    console.log("END LOADING");
+    setLoading(false);
+
+  } catch (e) {
+    console.log("INIT ERROR:", e);
+    setLoading(false);
+  }
+};
+
+    init();
+  }, []);
+
+  const handleLogin = () => {
+    // ✅ ИЗМЕНЕНО: вместо router.push
+    window.location.href = "/profile";
+  };
+
+  if (loading) {
+    return (
+      <div style={styles.wrapper}>
+        <div style={styles.center}>
+          <h1 style={styles.logo}>Aura</h1>
+          <p style={styles.subtitle}>Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        background: "red",
-        color: "white",
-        minHeight: "100vh",
-        fontSize: 80,
-        padding: 40
-      }}
-    >
-      LOCAL TEST
-    </div>
+    <main style={styles.wrapper}>
+      {/* CENTER */}
+      <div style={styles.center}>
+        <h1 style={styles.logo}>Aura</h1>
+
+        <p style={styles.subtitle}>
+          Найди свою энергию 💙
+        </p>
+
+        <button style={styles.button} onClick={handleLogin}>
+          ✈️ Войти через Telegram
+        </button>
+      </div>
+
+      {/* FOOTER */}
+      <div style={styles.footer}>
+        <p>Продолжая, вы принимаете</p>
+        <p style={styles.links}>
+          Условия использования и Политику конфиденциальности
+        </p>
+      </div>
+    </main>
   );
 }
+
+const styles: any = {
+  wrapper: {
+    minHeight: "100vh",
+    background: "#ffffff",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    padding: "24px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+  },
+
+  center: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  logo: {
+    fontSize: "48px",
+    fontWeight: "600",
+    letterSpacing: "-1px",
+    color: "#000",
+  },
+
+  subtitle: {
+    fontSize: "16px",
+    color: "#6B7280",
+    marginTop: "8px",
+    marginBottom: "48px",
+  },
+
+  button: {
+    width: "100%",
+    maxWidth: "320px",
+    height: "56px",
+    borderRadius: "18px",
+    border: "none",
+    fontSize: "17px",
+    fontWeight: "600",
+    color: "#fff",
+    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+    cursor: "pointer",
+  },
+
+  footer: {
+    textAlign: "center",
+    fontSize: "12px",
+    color: "#9CA3AF",
+  },
+
+  links: {
+    marginTop: "4px",
+    color: "#2AABEE",
+  },
+};
