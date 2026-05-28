@@ -224,6 +224,7 @@ const chatId = response?.data;
 const error = response?.error;
 
 console.log("CHAT ID:", chatId);
+alert("CHAT ID: " + chatId);
 console.log("ERROR:", error);
 
 
