@@ -10,7 +10,7 @@ export default function LikesPage(){
 const router = useRouter();
 
 
-const [myId,setMyId] = useState<number | null>(null);
+const [myId,setMyId] = useState<string | null>(null);
 
 useEffect(()=>{
 
@@ -57,7 +57,7 @@ useEffect(()=>{
 
 
 
-async function loadLikes(userId:number){
+async function loadLikes(userId:string){
 
   const { data: likes, error } = await supabase
     .from("likes")
