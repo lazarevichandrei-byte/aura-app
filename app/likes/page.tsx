@@ -375,7 +375,8 @@ onClick={async (e)=>{
     .update({
       status:"dismissed"
     })
-    .eq("id", user.id);
+    .eq("from_user_id", user.id)
+    .eq("to_user_id", myId);
 
   setPeople(prev =>
     prev.filter(
