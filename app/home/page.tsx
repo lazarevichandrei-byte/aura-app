@@ -225,10 +225,6 @@ const error = response?.error;
 
 console.log("CHAT ID:", chatId);
 
-if (chatId) {
-  router.push(`/chat/${chatId}`);
-  return;
-}
 
 console.log("ERROR:", error);
 
@@ -247,20 +243,7 @@ setDragX(0);
   return;
 }
 
-if(chatId){
 
-  setMatchedUser(currentUser);
-  setMatchChatId(chatId);
-  setShowMatch(true);
-
-  setUsers(prev =>
-    prev.filter(
-      u => u.id !== currentUser.id
-    )
-  );
-
-  return;
-}
 
 /* обычный лайк */
 setUsers(prev =>
@@ -826,9 +809,7 @@ marginBottom:38
 
 <button
 onClick={()=>{
-  if(matchChatId){
-    router.push(`/chat/${matchChatId}`);
-  }
+  
 }}
 style={{
 width:"100%",
