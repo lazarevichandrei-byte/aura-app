@@ -243,7 +243,15 @@ setDragX(0);
   return;
 }
 
+if(chatId){
 
+  setMatchedUser(currentUser);
+  setMatchChatId(chatId);
+
+  setShowMatch(true);
+
+  return;
+}
 
 /* обычный лайк */
 setUsers(prev =>
@@ -809,7 +817,9 @@ marginBottom:38
 
 <button
 onClick={()=>{
-  
+  if(matchChatId){
+    router.push(`/chat/${matchChatId}`);
+  }
 }}
 style={{
 width:"100%",
@@ -829,13 +839,13 @@ fontWeight:600
 <button
 onClick={async ()=>{
 
-setShowMatch(false);
+  setShowMatch(false);
 
-await loadUsers();
+  await loadUsers();
 
-setIndex(0);
-setPhotoIndex(0);
-setDragX(0);
+  setIndex(0);
+  setPhotoIndex(0);
+  setDragX(0);
 
 }}
 style={{
