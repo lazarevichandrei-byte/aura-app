@@ -226,22 +226,26 @@ setIndex(prev=>prev+1);
 
 async function handleLike(){
 
+  console.log("LIKE CLICK START", Date.now());
+
   if(!myId || !currentUser?.id){
     return;
   }
 
-  
+  console.log("MY ID:", myId);
+  console.log("TARGET ID:", currentUser.id);
 
-console.log("MY ID:", myId);
-console.log("TARGET ID:", currentUser.id);
+  console.log("RPC CALL");
 
-const response = await supabase
-  .rpc("like_user", {
-    from_id: myId,
-    to_id: currentUser.id
-  });
+  const response = await supabase
+    .rpc("like_user", {
+      from_id: myId,
+      to_id: currentUser.id
+    });
 
-console.log("RPC RESPONSE:", response);
+  console.log("RPC DONE");
+
+  console.log("RPC RESPONSE:", response);
 
 const chatId = response?.data;
 const error = response?.error;
