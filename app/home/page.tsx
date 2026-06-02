@@ -238,23 +238,22 @@ const error = response?.error;
 
 console.log("CHAT ID:", chatId);
 
-
-console.log("ERROR:", error);
-
-
-
-  if(error){
-  console.log("LIKE ERROR:", error);
-  setUsers(prev =>
-  prev.filter(
-    u => u.id !== currentUser.id
-  )
+console.log(
+  "ERROR:",
+  JSON.stringify(error, null, 2)
 );
 
-setIndex(0);
+if(error){
 
-setPhotoIndex(0);
-setDragX(0);
+  alert(
+    JSON.stringify(error, null, 2)
+  );
+
+  console.log(
+    "LIKE ERROR:",
+    JSON.stringify(error, null, 2)
+  );
+
   return;
 }
 
