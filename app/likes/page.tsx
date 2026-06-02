@@ -50,9 +50,7 @@ const touchStartX = useRef(0);
 
 
 useEffect(()=>{
-  if(myId){
-    loadLikes(myId);
-  }
+  // loadLikes(myId);
 },[myId]);
 
 
@@ -434,7 +432,7 @@ if(error){
   return;
 }
 
-await loadLikes(myId);
+// await loadLikes(myId);
 
 if(chatId){
 
