@@ -251,6 +251,8 @@ console.log("ERROR:", error);
   )
 );
 
+setIndex(0);
+
 setPhotoIndex(0);
 setDragX(0);
   return;
@@ -261,7 +263,6 @@ if(chatId){
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
 
-  await loadUsers();
 
   setShowMatch(true);
 
