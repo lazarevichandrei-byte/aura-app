@@ -8,6 +8,7 @@ import { X, Heart, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
+  console.log("HOME RENDER");
 const router = useRouter();  
 
 const [users,setUsers]=useState<any[]>([]);
@@ -20,6 +21,13 @@ const [dragging,setDragging]=useState(false);
 
 
 const [showMatch,setShowMatch]=useState(false);
+useEffect(() => {
+  console.log("HOME MOUNT");
+
+  return () => {
+    console.log("HOME UNMOUNT");
+  };
+}, []);
 const [matchedUser,setMatchedUser]=useState<any>(null);
 const [matchChatId,setMatchChatId] = useState<string | null>(null);
 
