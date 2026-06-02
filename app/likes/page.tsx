@@ -424,8 +424,7 @@ onClick={async (e)=>{
   setMatch(user.users);
   setMatchChatId(chatId);
 
-  await loadLikes(myId);
-
+  return;
 }
 }}
 
