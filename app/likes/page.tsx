@@ -378,11 +378,7 @@ onClick={async (e)=>{
     .eq("from_user_id", user.from_user_id)
     .eq("to_user_id", myId);
 
-  setPeople(prev =>
-  prev.filter(
-    p => p.from_user_id !== user.from_user_id
-  )
-);
+  await loadLikes(myId!);
 }}
 
 style={{
@@ -418,14 +414,12 @@ onClick={async (e)=>{
 
   
   if(chatId !== null){
+
   setMatch(user.users);
   setMatchChatId(chatId);
 
-  setPeople(prev =>
-  prev.filter(
-    p => p.from_user_id !== user.from_user_id
-  )
-);
+  await loadLikes(myId);
+
 }
 }}
 
