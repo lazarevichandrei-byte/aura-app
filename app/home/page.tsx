@@ -99,6 +99,11 @@ useEffect(() => {
 
   if (!myId) return;
 
+  /*
+useEffect(() => {
+
+  if (!myId) return;
+
   const interval = setInterval(() => {
     loadUsers();
   }, 3000);
@@ -106,6 +111,9 @@ useEffect(() => {
   return () => clearInterval(interval);
 
 }, [myId]);
+*/
+
+}, [myId])
 
 
 async function loadUsers(){
