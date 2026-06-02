@@ -375,14 +375,14 @@ onClick={async (e)=>{
     .update({
       status:"dismissed"
     })
-    .eq("from_user_id", user.id)
+    .eq("from_user_id", user.from_user_id)
     .eq("to_user_id", myId);
 
   setPeople(prev =>
-    prev.filter(
-      p => p.id !== user.id
-    )
-  );
+  prev.filter(
+    p => p.from_user_id !== user.from_user_id
+  )
+);
 }}
 
 style={{
@@ -421,7 +421,11 @@ onClick={async (e)=>{
   setMatch(user.users);
   setMatchChatId(chatId);
 
-  setPeople(prev => prev.filter(p => p.id !== user.id));
+  setPeople(prev =>
+  prev.filter(
+    p => p.from_user_id !== user.from_user_id
+  )
+);
 }
 }}
 
