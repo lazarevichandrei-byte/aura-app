@@ -65,6 +65,8 @@ async function loadLikes(userId:string){
     .eq("to_user_id", userId)
 .eq("status","pending");
 
+console.log("LIKES RAW:", likes);
+
   if(error){
     console.log("LOAD LIKES ERROR:", error);
     return;
@@ -432,6 +434,8 @@ if(error){
   return;
 }
 
+await loadLikes(myId);
+
 if(chatId){
 
   setPeople(prev =>
@@ -442,8 +446,6 @@ if(chatId){
 
   setMatch(user.users);
   setMatchChatId(chatId);
-
-  await loadLikes(myId);
 
 }
 }}
