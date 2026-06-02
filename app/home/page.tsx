@@ -95,7 +95,6 @@ useEffect(()=>{
 },[myId]);
 
 
-/*
 useEffect(() => {
 
   if (!myId) return;
@@ -107,7 +106,6 @@ useEffect(() => {
   return () => clearInterval(interval);
 
 }, [myId]);
-*/
 
 
 async function loadUsers(){
@@ -262,9 +260,14 @@ setDragX(0);
 
 if(chatId){
 
+  setUsers(prev =>
+    prev.filter(
+      u => u.id !== currentUser.id
+    )
+  );
+
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
-
 
   setShowMatch(true);
 
@@ -861,9 +864,11 @@ onClick={async ()=>{
 
   await loadUsers();
 
-  setIndex(0);
-  setPhotoIndex(0);
-  setDragX(0);
+setIndex(0);
+setPhotoIndex(0);
+setDragX(0);
+
+window.location.reload();
 
 }}
 style={{
