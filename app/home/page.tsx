@@ -272,16 +272,14 @@ if(error){
 
 if(chatId){
 
-  setUsers(prev =>
-    prev.filter(
-      u => u.id !== currentUser.id
-    )
-  );
+  console.log("SHOW MATCH NOW");
 
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
 
   setShowMatch(true);
+
+  console.log("SHOW MATCH SET");
 
   return;
 }
@@ -639,6 +637,8 @@ strokeWidth={2.3}
 </button>
 
 </div>
+
+{console.log("RENDER SHOWMATCH =", showMatch)}
 
 {showMatch && (
 <div
