@@ -412,7 +412,11 @@ onClick={async (e)=>{
   user.from_user_id
 );
 
-
+console.log(
+  "MATCH CLICKED",
+  myId,
+  user.from_user_id
+);
 
   const { data: chatId, error } =
 await supabase.rpc("like_user", {

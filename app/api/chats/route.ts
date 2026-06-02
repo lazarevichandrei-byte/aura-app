@@ -128,6 +128,10 @@ const chats = await Promise.all(
         .eq("id", otherUserId)
         .single();
 
+        console.log("CHAT:", chat.id);
+console.log("OTHER USER ID:", otherUserId);
+console.log("OTHER USER:", otherUser);
+
     return {
       ...chat,
 
