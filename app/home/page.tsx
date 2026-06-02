@@ -142,7 +142,8 @@ const likedIds =
   liked
     ?.filter(
       l =>
-        l.from_user_id === myId
+        l.from_user_id === myId &&
+        l.status === "pending"
     )
     .map(
       l => l.to_user_id
@@ -178,7 +179,8 @@ const filtered = data.filter(u => {
 liked?.some(
   l =>
     l.from_user_id === myId &&
-    l.to_user_id === u.id
+    l.to_user_id === u.id &&
+    l.status === "pending"
 );
 
 if(iLikedUser){
