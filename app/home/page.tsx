@@ -245,17 +245,16 @@ console.log(
 
 if(error){
 
+  console.log("FULL ERROR", error);
+
   alert(
     JSON.stringify(error, null, 2)
   );
 
-  console.log(
-    "LIKE ERROR:",
-    JSON.stringify(error, null, 2)
-  );
-
   return;
-}
+};
+
+
 
 if(chatId){
 
