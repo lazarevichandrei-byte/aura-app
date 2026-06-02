@@ -7,6 +7,8 @@ import { X, Heart, Sparkles } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
+let savedMatch = false;
+
 export default function Home() {
   console.log("HOME RENDER");
 const router = useRouter();  
@@ -20,7 +22,7 @@ const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
 
 
-const [showMatch,setShowMatch]=useState(false);
+const [showMatch,setShowMatch]=useState(savedMatch);
 useEffect(() => {
   console.log("HOME MOUNT");
 
@@ -40,6 +42,11 @@ const startX=useRef(0);
 
 
 const [myId,setMyId] = useState<string | null>(null);
+
+useEffect(() => {
+  console.log("MYID CHANGED:", myId);
+}, [myId]);
+
 
 useEffect(()=>{
   const waitTelegram = () => {
@@ -72,6 +79,8 @@ async function initUser(tgId:number){
   );
 
   setMyId(user.id);
+  console.log("SET MYID:", user.id);
+  
 
   return;
 }
@@ -93,6 +102,7 @@ async function initUser(tgId:number){
   );
 
   setMyId(newUser.id);
+  console.log("SET MYID:", user.id);
 }
 }
 
@@ -280,14 +290,11 @@ if(error){
 
 if(chatId){
 
-  console.log("SHOW MATCH NOW");
+  savedMatch = true;
 
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
-
   setShowMatch(true);
-
-  console.log("SHOW MATCH SET");
 
   return;
 }
