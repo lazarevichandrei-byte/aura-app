@@ -415,6 +415,12 @@ onClick={async (e)=>{
   
   if(chatId !== null){
 
+  setPeople(prev =>
+    prev.filter(
+      p => p.from_user_id !== user.from_user_id
+    )
+  );
+
   setMatch(user.users);
   setMatchChatId(chatId);
 
