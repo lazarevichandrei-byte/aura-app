@@ -178,8 +178,7 @@ const filtered = data.filter(u => {
 liked?.some(
   l =>
     l.from_user_id === myId &&
-    l.to_user_id === u.id &&
-    l.status === "pending"
+    l.to_user_id === u.id
 );
 
 if(iLikedUser){
