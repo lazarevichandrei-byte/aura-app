@@ -95,6 +95,19 @@ useEffect(()=>{
 },[myId]);
 
 
+useEffect(() => {
+
+  if (!myId) return;
+
+  const interval = setInterval(() => {
+    loadUsers();
+  }, 3000);
+
+  return () => clearInterval(interval);
+
+}, [myId]);
+
+
 async function loadUsers(){
 
   if(!myId) return;
@@ -247,6 +260,8 @@ if(chatId){
 
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
+
+  await loadUsers();
 
   setShowMatch(true);
 
