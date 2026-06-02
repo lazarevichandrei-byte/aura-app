@@ -95,6 +95,7 @@ useEffect(()=>{
 },[myId]);
 
 
+/*
 useEffect(() => {
 
   if (!myId) return;
@@ -106,6 +107,7 @@ useEffect(() => {
   return () => clearInterval(interval);
 
 }, [myId]);
+*/
 
 
 async function loadUsers(){
