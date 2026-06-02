@@ -405,15 +405,30 @@ onClick={async (e)=>{
 
   if(!myId) return;
 
-  const { data: chatId } = 
-  await supabase.rpc("like_user", {
-    from_id: myId,
-    to_id: user.from_user_id
-  });
+
+  console.log(
+  "MATCH LIKE",
+  myId,
+  user.from_user_id
+);
 
 
-  
-  if(chatId !== null){
+
+  const { data: chatId, error } =
+await supabase.rpc("like_user", {
+  from_id: myId,
+  to_id: user.from_user_id
+});
+
+console.log("MATCH RESULT:", chatId);
+console.log("MATCH ERROR:", error);
+
+if(error){
+  console.log(error);
+  return;
+}
+
+if(chatId){
 
   setPeople(prev =>
     prev.filter(
@@ -424,7 +439,8 @@ onClick={async (e)=>{
   setMatch(user.users);
   setMatchChatId(chatId);
 
-  return;
+  await loadLikes(myId);
+
 }
 }}
 
