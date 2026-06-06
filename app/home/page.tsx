@@ -7,7 +7,7 @@ import { X, Heart, Sparkles } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
-let savedMatch = false;
+
 
 export default function Home() {
   console.log("HOME RENDER");
@@ -22,7 +22,7 @@ const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
 
 
-const [showMatch,setShowMatch]=useState(savedMatch);
+const [showMatch,setShowMatch]=useState(false);
 useEffect(() => {
   console.log("HOME MOUNT");
 
@@ -48,22 +48,46 @@ useEffect(() => {
 }, [myId]);
 
 
-useEffect(()=>{
+useEffect(() => {
+
+  const alreadyStarted =
+    sessionStorage.getItem("home_init");
+
+  if(alreadyStarted){
+    console.log("INIT SKIPPED");
+    return;
+  }
+
+  sessionStorage.setItem(
+    "home_init",
+    "1"
+  );
+
   const waitTelegram = () => {
-    const tg = (window as any)?.Telegram?.WebApp;
-    const tgId = tg?.initDataUnsafe?.user?.id;
+
+    const tg =
+      (window as any)?.Telegram?.WebApp;
+
+    const tgId =
+      tg?.initDataUnsafe?.user?.id;
 
     if(tgId){
       initUser(tgId);
     } else {
-      setTimeout(waitTelegram, 300);
+      setTimeout(waitTelegram,300);
     }
   };
 
   waitTelegram();
+
 },[]);
 
 async function initUser(tgId:number){
+
+  console.log(
+    "INIT USER RUN",
+    Date.now()
+  );
 
   const { data: user } = await supabase
     .from("users")
@@ -102,7 +126,7 @@ async function initUser(tgId:number){
   );
 
   setMyId(newUser.id);
-  console.log("SET MYID:", user.id);
+  console.log("SET MYID NEW:", newUser.id);
 }
 }
 
@@ -289,8 +313,6 @@ if(error){
 
 
 if(chatId){
-
-  savedMatch = true;
 
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
@@ -895,7 +917,7 @@ setIndex(0);
 setPhotoIndex(0);
 setDragX(0);
 
-window.location.reload();
+// window.location.reload();
 
 }}
 style={{
@@ -920,7 +942,7 @@ fontWeight:500
 </>
 )}
 
-<BottomNav/>
+{/* <BottomNav/> */}
 
 </div>
 );
