@@ -50,7 +50,7 @@ useEffect(() => {
 
 useEffect(() => {
 
-  useEffect(()=>{
+ useEffect(() => {
 
   const waitTelegram = () => {
 
