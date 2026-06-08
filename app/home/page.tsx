@@ -309,6 +309,7 @@ if(chatId){
 
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
+  console.log("MATCH USER", currentUser);
   setShowMatch(true);
 
   return;
@@ -794,13 +795,9 @@ zIndex:2
 }}
 >
 <img
-src={
-  myProfile?.photos?.length
-    ? myProfile.photos[
-        myProfile.main_photo_index || 0
-      ]
-    : myProfile?.avatar_url || "/me.jpg"
-}
+src="https://placehold.co/300x300"
+
+
 style={{
 width:145,
 height:145,
@@ -843,13 +840,9 @@ zIndex:2
 }}
 >
 <img
-src={
-  matchedUser?.photos?.length
-    ? matchedUser.photos[
-        matchedUser.main_photo_index || 0
-      ]
-    : matchedUser?.avatar_url || "/noavatar.jpg"
-}
+src="https://placehold.co/300x300"
+
+
 style={{
 width:145,
 height:145,
