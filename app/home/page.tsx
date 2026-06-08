@@ -50,18 +50,26 @@ useEffect(() => {
 
 useEffect(() => {
 
-  const alreadyStarted =
-    sessionStorage.getItem("home_init");
+  useEffect(()=>{
 
-  if(alreadyStarted){
-    console.log("INIT SKIPPED");
-    return;
-  }
+  const waitTelegram = () => {
 
-  sessionStorage.setItem(
-    "home_init",
-    "1"
-  );
+    const tg =
+      (window as any)?.Telegram?.WebApp;
+
+    const tgId =
+      tg?.initDataUnsafe?.user?.id;
+
+    if(tgId){
+      initUser(tgId);
+    } else {
+      setTimeout(waitTelegram,300);
+    }
+  };
+
+  waitTelegram();
+
+},[]);
 
   const waitTelegram = () => {
 
@@ -942,7 +950,7 @@ fontWeight:500
 </>
 )}
 
-{/* <BottomNav/> */}
+<BottomNav />
 
 </div>
 );
