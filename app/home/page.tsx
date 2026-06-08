@@ -224,7 +224,7 @@ liked?.some(
     l.status === "pending"
 );
 
-if(iLikedUser){
+if(false && iLikedUser){
   return false;
 }
 
