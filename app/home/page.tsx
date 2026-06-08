@@ -50,8 +50,6 @@ useEffect(() => {
 
 useEffect(() => {
 
- useEffect(() => {
-
   const waitTelegram = () => {
 
     const tg =
@@ -88,7 +86,6 @@ useEffect(() => {
 
   waitTelegram();
 
-},[]);
 
 async function initUser(tgId:number){
 
