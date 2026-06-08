@@ -163,6 +163,20 @@ if(me){
     `from_user_id.eq.${myId},to_user_id.eq.${myId}`
   );
  
+const { data: chats } = await supabase
+  .from("chats")
+  .select("user1_id,user2_id")
+  .or(
+    `user1_id.eq.${myId},user2_id.eq.${myId}`
+  );
+
+const matchedIds =
+  chats?.map(c =>
+    c.user1_id === myId
+      ? c.user2_id
+      : c.user1_id
+  ) || [];
+
 
 const likedIds =
   liked
@@ -202,19 +216,22 @@ const filtered = data.filter(u => {
   }
 
   const iLikedUser =
-liked?.some(
-  l =>
-    l.from_user_id === myId &&
-    l.to_user_id === u.id &&
-    l.status === "pending"
-);
+    liked?.some(
+      l =>
+        l.from_user_id === myId &&
+        l.to_user_id === u.id &&
+        l.status === "pending"
+    );
 
-if(iLikedUser){
-  return false;
-}
+  if(iLikedUser){
+    return false;
+  }
+
+  if(matchedIds.includes(u.id)){
+    return false;
+  }
 
   return true;
-
 });
 
 
