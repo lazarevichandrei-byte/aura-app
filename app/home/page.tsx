@@ -215,17 +215,19 @@ const filtered = data.filter(u => {
     return false;
   }
 
-  const iLikedUser =
-    liked?.some(
-      l =>
-        l.from_user_id === myId &&
-        l.to_user_id === u.id &&
-        l.status === "pending"
-    );
+  /*
+const iLikedUser =
+liked?.some(
+  l =>
+    l.from_user_id === myId &&
+    l.to_user_id === u.id &&
+    l.status === "pending"
+);
 
-  if(iLikedUser){
-    return false;
-  }
+if(iLikedUser){
+  return false;
+}
+*/
 
   
 
@@ -792,8 +794,15 @@ marginRight:-30,
 zIndex:2
 }}
 >
+  
 <img
-src="https://placehold.co/300x300"
+src={
+  myProfile?.photos?.length
+    ? myProfile.photos[
+        myProfile.main_photo_index || 0
+      ]
+    : myProfile?.avatar_url || "/me.jpg"
+}
 
 
 style={{
@@ -838,7 +847,13 @@ zIndex:2
 }}
 >
 <img
-src="https://placehold.co/300x300"
+src={
+  matchedUser?.photos?.length
+    ? matchedUser.photos[
+        matchedUser.main_photo_index || 0
+      ]
+    : matchedUser?.avatar_url || "/noavatar.jpg"
+}
 
 
 style={{
