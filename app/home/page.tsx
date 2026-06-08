@@ -69,22 +69,7 @@ useEffect(() => {
 
 },[]);
 
-  const waitTelegram = () => {
-
-    const tg =
-      (window as any)?.Telegram?.WebApp;
-
-    const tgId =
-      tg?.initDataUnsafe?.user?.id;
-
-    if(tgId){
-      initUser(tgId);
-    } else {
-      setTimeout(waitTelegram,300);
-    }
-  };
-
-  waitTelegram();
+  
 
 
 async function initUser(tgId:number){
