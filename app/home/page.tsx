@@ -79,7 +79,8 @@ async function initUser(tgId:number){
     Date.now()
   );
 
-  const { data: user } = await supabase
+  const { data: user } = 
+  await supabase
     .from("users")
     .select("*")
     .eq("telegram_id", tgId)
@@ -305,10 +306,24 @@ if(error){
 
 if(chatId){
 
-  setMatchedUser(currentUser);
-  setMatchChatId(chatId);
-  console.log("MATCH USER", currentUser);
-  setShowMatch(true);
+  const { data: existingChat } =
+    await supabase
+      .from("chats")
+      .select("is_new_match")
+      .eq("id", chatId)
+      .single();
+
+  if(existingChat?.is_new_match){
+
+    setMatchedUser(currentUser);
+    setMatchChatId(chatId);
+    setShowMatch(true);
+
+  } else {
+
+    router.push(`/chat/${chatId}`);
+
+  }
 
   return;
 }
@@ -883,10 +898,20 @@ marginBottom:38
 
 
 <button
-onClick={()=>{
+onClick={async ()=>{
+
   if(matchChatId){
+
+    await supabase
+      .from("chats")
+      .update({
+        is_new_match:false
+      })
+      .eq("id", matchChatId);
+
     router.push(`/chat/${matchChatId}`);
   }
+
 }}
 style={{
 width:"100%",
@@ -906,17 +931,28 @@ fontWeight:600
 <button
 onClick={async ()=>{
 
+  if(matchChatId){
+
+    await supabase
+      .from("chats")
+      .update({
+        is_new_match:false
+      })
+      .eq("id", matchChatId);
+
+  }
+
   setShowMatch(false);
 
   await loadUsers();
 
-setIndex(0);
-setPhotoIndex(0);
-setDragX(0);
-
-// window.location.reload();
+  setIndex(0);
+  setPhotoIndex(0);
+  setDragX(0);
 
 }}
+
+
 style={{
 marginTop:16,
 width:"78%",
