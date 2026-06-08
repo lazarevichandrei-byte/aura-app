@@ -215,8 +215,7 @@ const filtered = data.filter(u => {
     return false;
   }
 
-  /*
-const iLikedUser =
+ const iLikedUser =
 liked?.some(
   l =>
     l.from_user_id === myId &&
@@ -227,7 +226,6 @@ liked?.some(
 if(iLikedUser){
   return false;
 }
-*/
 
   
 
