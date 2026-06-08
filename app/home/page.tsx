@@ -227,9 +227,7 @@ const filtered = data.filter(u => {
     return false;
   }
 
-  if(matchedIds.includes(u.id)){
-    return false;
-  }
+  
 
   return true;
 });
