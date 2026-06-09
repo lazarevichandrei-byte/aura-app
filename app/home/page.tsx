@@ -199,6 +199,8 @@ const { data } = await supabase
 if(data){
 
 const filtered = data.filter(u => {
+  console.log("ALL USERS:", data);
+console.log("LIKES:", liked);
 
   if(u.id === myId){
     return false;
@@ -221,9 +223,12 @@ if(iLikedUser){
   return true;
 });
 
-
+console.log("FILTERED USERS:", filtered);
+console.log("COUNT:", filtered.length);
 
 setUsers(filtered);
+setIndex(0);
+
 
 }
 
