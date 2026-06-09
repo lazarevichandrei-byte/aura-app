@@ -164,19 +164,7 @@ if(me){
     `from_user_id.eq.${myId},to_user_id.eq.${myId}`
   );
  
-const { data: chats } = await supabase
-  .from("chats")
-  .select("user1_id,user2_id")
-  .or(
-    `user1_id.eq.${myId},user2_id.eq.${myId}`
-  );
 
-const matchedIds =
-  chats?.map(c =>
-    c.user1_id === myId
-      ? c.user2_id
-      : c.user1_id
-  ) || [];
 
 
 const likedIds =
@@ -306,24 +294,9 @@ if(error){
 
 if(chatId){
 
-  const { data: existingChat } =
-    await supabase
-      .from("chats")
-      .select("is_new_match")
-      .eq("id", chatId)
-      .single();
-
-  if(existingChat?.is_new_match){
-
-    setMatchedUser(currentUser);
-    setMatchChatId(chatId);
-    setShowMatch(true);
-
-  } else {
-
-    router.push(`/chat/${chatId}`);
-
-  }
+  setMatchedUser(currentUser);
+  setMatchChatId(chatId);
+  setShowMatch(true);
 
   return;
 }
