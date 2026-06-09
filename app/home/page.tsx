@@ -181,6 +181,7 @@ const likedIds =
 
 const { data } = await supabase
   .from("users")
+
   .select(`
     id,
     telegram_id,
@@ -246,9 +247,20 @@ currentUser?.photos?.length
 
 
 function nextUser(){
-setPhotoIndex(0);
-setDragX(0);
-setIndex(prev=>prev+1);
+
+  setPhotoIndex(0);
+  setDragX(0);
+
+  setIndex(prev => {
+
+    if(prev + 1 >= users.length){
+      return 0;
+    }
+
+    return prev + 1;
+
+  });
+
 }
 
 async function handleLike(){
@@ -307,11 +319,7 @@ if(chatId){
 }
 
 /* обычный лайк */
-setUsers(prev =>
-  prev.filter(
-    u => u.id !== currentUser.id
-  )
-);
+nextUser();
 
 setPhotoIndex(0);
 setDragX(0);
@@ -332,11 +340,7 @@ async function handleSkip(){
       `and(from_user_id.eq.${myId},to_user_id.eq.${currentUser.id}),and(from_user_id.eq.${currentUser.id},to_user_id.eq.${myId})`
     );
 
-  setUsers(prev =>
-    prev.filter(
-      u => u.id !== currentUser.id
-    )
-  );
+  
 
   nextUser();
 }
