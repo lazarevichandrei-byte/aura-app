@@ -224,7 +224,7 @@ liked?.some(
     l.status === "pending"
 );
 
-if(false && iLikedUser){
+if(iLikedUser){
   return false;
 }
 
@@ -340,8 +340,27 @@ setDragX(0);
 }
 
 
-function handleSkip(){
-nextUser();
+async function handleSkip(){
+
+  if(!myId || !currentUser?.id){
+    nextUser();
+    return;
+  }
+
+  await supabase
+    .from("likes")
+    .delete()
+    .or(
+      `and(from_user_id.eq.${myId},to_user_id.eq.${currentUser.id}),and(from_user_id.eq.${currentUser.id},to_user_id.eq.${myId})`
+    );
+
+  setUsers(prev =>
+    prev.filter(
+      u => u.id !== currentUser.id
+    )
+  );
+
+  nextUser();
 }
 
 /* SWIPE */
