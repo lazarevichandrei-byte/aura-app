@@ -321,8 +321,7 @@ if(chatId){
 /* обычный лайк */
 nextUser();
 
-setPhotoIndex(0);
-setDragX(0);
+nextUser();
 }
 
 
