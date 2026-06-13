@@ -320,8 +320,6 @@ if(chatId){
 
 /* обычный лайк */
 nextUser();
-
-nextUser();
 }
 
 
