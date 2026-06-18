@@ -4,10 +4,12 @@ import { ReactNode, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export default function PageWrapper({
-  children
+  children,
+  enabled = true
 }:{
   children: ReactNode;
-}) {
+  enabled?: boolean;
+}){
 
   const router = useRouter();
 
@@ -15,14 +17,14 @@ export default function PageWrapper({
 
   function touchStart(
     e: React.TouchEvent
-  ) {
+  ){
     startX.current =
       e.touches[0].clientX;
   }
 
   function touchEnd(
     e: React.TouchEvent
-  ) {
+  ){
 
     const endX =
       e.changedTouches[0].clientX;
@@ -30,13 +32,13 @@ export default function PageWrapper({
     const diff =
       endX - startX.current;
 
-    // свайп вправо
     if(
-  startX.current < 140 &&
-  diff > 15
-){
-  router.back();
-}
+      enabled &&
+      startX.current < 80 &&
+      diff > 20
+    ){
+      router.back();
+    }
   }
 
   return (
@@ -44,7 +46,7 @@ export default function PageWrapper({
       onTouchStart={touchStart}
       onTouchEnd={touchEnd}
       style={{
-        minHeight: "100vh"
+        minHeight:"100vh"
       }}
     >
       {children}

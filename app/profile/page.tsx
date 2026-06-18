@@ -2,6 +2,9 @@
 
 import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import PageWrapper from "../components/PageWrapper";
+import { ArrowLeft2 } from "iconsax-react";
 
 const Cropper:any = dynamic(
  () => import("react-easy-crop"),
@@ -71,6 +74,11 @@ const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
+
+const router = useRouter();
+
+const [editMode,setEditMode] =
+useState(false);
 
 
 const base = BASE_INTERESTS;
@@ -192,6 +200,12 @@ if (!data) {
 
   
   if (data) {
+
+    if(data.onboarding_completed){
+  setEditMode(true);
+}
+
+    
 
  // если анкета уже завершена —
  // просто показываем профиль как страницу редактирования
@@ -607,8 +621,43 @@ window.location.href="/home";
 
   if (loading) {
  return (
+<PageWrapper enabled={editMode}>
   <div style={styles.wrapper}>
    <div style={styles.card}>
+    {editMode && (
+  <div
+    style={{
+      display:"flex",
+      alignItems:"center",
+      marginBottom:20
+    }}
+  >
+    <div
+      onClick={()=>router.back()}
+      style={{
+        display:"flex",
+        alignItems:"center",
+        cursor:"pointer"
+      }}
+    >
+      <ArrowLeft2
+        size="28"
+        color="#2E7BFF"
+        variant="Outline"
+      />
+    </div>
+
+    <div
+      style={{
+        marginLeft:12,
+        fontSize:22,
+        fontWeight:700
+      }}
+    >
+      Редактировать профиль
+    </div>
+  </div>
+)}
 
     <div style={{
       width:92,
@@ -646,8 +695,9 @@ window.location.href="/home";
     }}/>
 
    </div>
-  </div>
- );
+</div>
+</PageWrapper>
+);
 }
 
 
