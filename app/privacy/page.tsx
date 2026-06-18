@@ -1,12 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../components/PageWrapper";
 
 export default function PrivacyPage() {
 
   const router = useRouter();
+
+  const [showOnline,setShowOnline] =
+useState(true);
+
+const [showLastSeen,setShowLastSeen] =
+useState(true);
+
+const [hideProfile,setHideProfile] =
+useState(false);
 
   return (
     <PageWrapper>
@@ -55,17 +65,80 @@ export default function PrivacyPage() {
 
         </div>
 
-        <div style={itemStyle}>
-          Показывать онлайн
-        </div>
+        <p
+style={{
+color:"#7B8595",
+fontSize:14,
+lineHeight:1.5,
+marginBottom:20
+}}
+>
+Управляйте тем, какую информацию
+видят другие пользователи.
+</p>
 
-        <div style={itemStyle}>
-          Показывать "был недавно"
-        </div>
+<div
+style={cardStyle}
+>
+  <div>
+    <div style={titleStyle}>
+      Показывать онлайн
+    </div>
 
-        <div style={itemStyle}>
-          Скрыть профиль
-        </div>
+    <div style={subtitleStyle}>
+      Видно другим пользователям
+    </div>
+  </div>
+
+  <Switch
+    active={showOnline}
+    onClick={() =>
+      setShowOnline(!showOnline)
+    }
+  />
+</div>
+
+<div
+style={cardStyle}
+>
+  <div>
+    <div style={titleStyle}>
+      Показывать "был недавно"
+    </div>
+
+    <div style={subtitleStyle}>
+      Отображать последнюю активность
+    </div>
+  </div>
+
+  <Switch
+    active={showLastSeen}
+    onClick={() =>
+      setShowLastSeen(!showLastSeen)
+    }
+  />
+</div>
+
+<div
+style={cardStyle}
+>
+  <div>
+    <div style={titleStyle}>
+      Скрыть профиль
+    </div>
+
+    <div style={subtitleStyle}>
+      Временно скрыть анкету из поиска
+    </div>
+  </div>
+
+  <Switch
+    active={hideProfile}
+    onClick={() =>
+      setHideProfile(!hideProfile)
+    }
+  />
+</div>
 
       </div>
     </PageWrapper>
@@ -78,3 +151,80 @@ const itemStyle = {
   borderRadius:"16px",
   marginTop:"12px"
 };
+
+const cardStyle = {
+  background:"#fff",
+  borderRadius:"18px",
+  padding:"18px",
+  marginBottom:"14px",
+
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+
+  boxShadow:
+    "0 4px 14px rgba(0,0,0,.04)"
+};
+
+const titleStyle = {
+  fontSize:"15px",
+  fontWeight:600
+};
+
+const subtitleStyle = {
+  marginTop:"4px",
+  fontSize:"12px",
+  color:"#8B95A7"
+};
+
+function Switch({
+  active,
+  onClick
+}:{
+  active:boolean;
+  onClick:()=>void;
+}){
+
+  return(
+    <div
+      onClick={onClick}
+      style={{
+        width:54,
+        height:30,
+        borderRadius:999,
+
+        background:
+          active
+          ? "#2AABEE"
+          : "#D7DCE4",
+
+        position:"relative",
+
+        transition:
+          "all .2s ease",
+
+        cursor:"pointer"
+      }}
+    >
+      <div
+        style={{
+          position:"absolute",
+          top:3,
+          left:active
+            ? 27
+            : 3,
+
+          width:24,
+          height:24,
+
+          borderRadius:"50%",
+
+          background:"#fff",
+
+          transition:
+            "all .2s ease"
+        }}
+      />
+    </div>
+  );
+}
