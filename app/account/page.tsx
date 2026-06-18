@@ -117,9 +117,12 @@ export default function AccountPage() {
         {/* Меню */}
 <div style={{ marginTop: 30 }}>
 
-  <div style={itemStyle}>
-    ⚙️ Настройки
-  </div>
+  <div
+  style={itemStyle}
+  onClick={() => router.push("/settings")}
+>
+  ⚙️ Настройки
+</div>
 
   <div style={itemStyle}>
     🔒 Конфиденциальность
