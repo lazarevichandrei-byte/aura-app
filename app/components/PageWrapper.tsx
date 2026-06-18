@@ -32,8 +32,8 @@ export default function PageWrapper({
 
     // свайп вправо
     if(
-  startX.current < 100 &&
-  diff > 30
+  startX.current < 140 &&
+  diff > 15
 ){
   router.back();
 }
