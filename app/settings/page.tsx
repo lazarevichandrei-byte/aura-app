@@ -2,18 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
+import PageWrapper from "../components/PageWrapper";
 
 export default function SettingsPage() {
   const router = useRouter();
 
   return (
+  <PageWrapper>
     <div
       style={{
-        minHeight: "100vh",
-        background: "#F5F7FB",
-        padding: "20px"
+        minHeight:"100vh",
+        background:"#F5F7FB",
+        padding:"20px"
       }}
     >
+    
       <div
         style={{
           maxWidth: 420,
@@ -72,6 +75,7 @@ export default function SettingsPage() {
 
       </div>
     </div>
+  </PageWrapper>
   );
 }
 
