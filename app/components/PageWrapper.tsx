@@ -7,7 +7,7 @@ export default function PageWrapper({
   children
 }:{
   children: ReactNode;
-}){
+}) {
 
   const router = useRouter();
 
@@ -15,14 +15,14 @@ export default function PageWrapper({
 
   function touchStart(
     e: React.TouchEvent
-  ){
+  ) {
     startX.current =
       e.touches[0].clientX;
   }
 
   function touchEnd(
     e: React.TouchEvent
-  ){
+  ) {
 
     const endX =
       e.changedTouches[0].clientX;
@@ -31,10 +31,10 @@ export default function PageWrapper({
       endX - startX.current;
 
     // свайп вправо
-    if(
-      startX.current < 40 &&
-      diff > 90
-    ){
+    if (
+      startX.current < 70 &&
+      diff > 45
+    ) {
       router.back();
     }
   }
@@ -44,7 +44,7 @@ export default function PageWrapper({
       onTouchStart={touchStart}
       onTouchEnd={touchEnd}
       style={{
-        minHeight:"100vh"
+        minHeight: "100vh"
       }}
     >
       {children}
