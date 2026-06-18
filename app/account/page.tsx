@@ -146,6 +146,9 @@ export default function AccountPage() {
 
 </div>
       </div>
+
+      <BottomNav />
+
     </div>
   );
 }
