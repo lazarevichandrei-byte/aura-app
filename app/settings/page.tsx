@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ArrowLeft2 } from "iconsax-react";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -20,19 +21,42 @@ export default function SettingsPage() {
         }}
       >
 
-        <button
-          onClick={() => router.back()}
-          style={{
-            border: "none",
-            background: "transparent",
-            fontSize: 16,
-            marginBottom: 20
-          }}
-        >
-          ← Назад
-        </button>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 24
+  }}
+>
 
-        <h2>Настройки</h2>
+  <div
+    onClick={() => router.back()}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingRight: 10,
+      cursor: "pointer"
+    }}
+  >
+    <ArrowLeft2
+      size="28"
+      color="#2E7BFF"
+      variant="Outline"
+    />
+  </div>
+
+  <div
+    style={{
+      marginLeft: 14,
+      fontSize: 24,
+      fontWeight: 700
+    }}
+  >
+    Настройки
+  </div>
+
+</div>
 
         <div style={itemStyle}>
           🎨 Тема
