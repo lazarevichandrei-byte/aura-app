@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
+import BottomNav from "../../components/BottomNav";
 
 export default function AccountPage() {
   const router = useRouter();
