@@ -147,8 +147,8 @@ style={itemStyle(pathname==="/chats")}
 
 
 <div
-onClick={()=>router.push("/profile")}
-style={itemStyle(pathname==="/profile")}
+onClick={()=>router.push("/account")}
+style={itemStyle(pathname==="/account")}
 >
 <User size={28}/>
 Профиль
