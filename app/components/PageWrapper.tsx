@@ -31,12 +31,12 @@ export default function PageWrapper({
       endX - startX.current;
 
     // свайп вправо
-    if (
-      startX.current < 70 &&
-      diff > 45
-    ) {
-      router.back();
-    }
+    if(
+  startX.current < 100 &&
+  diff > 30
+){
+  router.back();
+}
   }
 
   return (
