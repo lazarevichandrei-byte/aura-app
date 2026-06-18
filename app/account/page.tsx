@@ -124,13 +124,19 @@ export default function AccountPage() {
   ⚙️ Настройки
 </div>
 
-  <div style={itemStyle}>
-    🔒 Конфиденциальность
-  </div>
+<div
+  style={itemStyle}
+  onClick={() => router.push("/privacy")}
+>
+  🔒 Конфиденциальность
+</div>
 
-  <div style={itemStyle}>
-    🔔 Уведомления
-  </div>
+<div
+  style={itemStyle}
+  onClick={() => router.push("/notifications")}
+>
+  🔔 Уведомления
+</div>
 
 </div>
 
