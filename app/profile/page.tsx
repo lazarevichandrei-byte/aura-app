@@ -726,11 +726,75 @@ window.location.href="/home";
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
               <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
-                {item==="male"?"Парня":item==="female"?"Девушку":"Без разницы"}
+                {
+ item==="male"
+ ? "Парень"
+ : item==="female"
+ ? "Девушка"
+ : "Любой"
+}
               </button>
             ))}
           </div>
         </div>
+
+<div style={styles.block}>
+
+  <p style={styles.label}>
+    Расстояние поиска
+  </p>
+
+  <div
+    style={{
+      fontSize:14,
+      fontWeight:600,
+      marginBottom:8
+    }}
+  >
+    {searchRadius} км
+  </div>
+
+  <p
+    style={{
+      fontSize:12,
+      color:"#8A94A6",
+      marginBottom:10
+    }}
+  >
+    Показывать анкеты в выбранном радиусе
+  </p>
+
+  <input
+    type="range"
+    min="2"
+    max="200"
+    step="1"
+    value={searchRadius}
+    onChange={(e)=>
+      setSearchRadius(
+        Number(e.target.value)
+      )
+    }
+    style={styles.slider}
+  />
+
+  <div
+    style={{
+      display:"flex",
+      justifyContent:"space-between",
+      marginTop:6,
+      fontSize:12,
+      color:"#8A94A6"
+    }}
+  >
+    <span>2 км</span>
+    <span>50</span>
+    <span>100</span>
+    <span>200+</span>
+  </div>
+
+</div>
+
                 <div style={styles.inputBox}>
           <p style={styles.label}>Город</p>
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
@@ -756,37 +820,7 @@ window.location.href="/home";
           </div>
           
         </div>
-        <div style={styles.block}>
-
-  <p style={styles.label}>
-    Расстояние поиска
-  </p>
-
-  <div
-    style={{
-      fontSize:14,
-      fontWeight:600,
-      marginBottom:8
-    }}
-  >
-    {searchRadius} км
-  </div>
-
-  <input
-    type="range"
-    min="10"
-    max="200"
-    step="10"
-    value={searchRadius}
-    onChange={(e)=>
-      setSearchRadius(
-        Number(e.target.value)
-      )
-    }
-    style={styles.slider}
-  />
-
-</div>
+        
 
         <button
           disabled={!isValid || uploading}
@@ -1265,15 +1299,22 @@ deleteBtn:{
  zIndex:30
 },
 
+
 slider:{
  width:"100%",
  marginTop:"10px",
  appearance:"none",
- height:"6px",
+ WebkitAppearance:"none",
+
+ height:"8px",
  borderRadius:"999px",
- background:"#FFFFFF",
+
+ background:"#DCEBFF",
+
  outline:"none"
 },
+
+
 
 editPhotoBtn:{
  position:"absolute",
