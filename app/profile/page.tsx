@@ -37,9 +37,14 @@ export default function Profile() {
   const [gender, setGender] = useState("female");
   const [search, setSearch] = useState("female");
 
+  const [searchRadius,setSearchRadius] =
+useState(50);
+
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
-  const [bio, setBio] = useState("");
+const [bio, setBio] = useState("");
+
+  
 
   const [photos, setPhotos] = useState<string[]>([]);
   const [mainIndex, setMainIndex] = useState(0);
@@ -149,6 +154,7 @@ name,
 age,
 gender,
 looking,
+search_radius,
 city,
 bio,
 interests,
@@ -195,6 +201,11 @@ if (!data) {
   setAge(data.age || 22);
   setGender(data.gender || "female");
   setSearch(data.looking || "female");
+  setSearchRadius(
+
+  data.search_radius || 50
+);
+
   setCity(data.city || "");
   setBio(data.bio || "");
   setSelected(data.interests || []);
@@ -231,6 +242,7 @@ useEffect(()=>{
   age,
   gender,
   looking: search,
+  searchRadius,
   city,
   bio,
   interests: selected,
@@ -263,8 +275,9 @@ await supabase
  age,
  gender,
  looking:search,
- city,
- bio,
+search_radius:searchRadius,
+city,
+bio,
  interests:selected,
 photo_edits:photoEdits,
 main_photo_index:mainIndex,
@@ -290,8 +303,9 @@ avatar_url:
       age,
       gender,
       looking:search,
-      city,
-      bio,
+search_radius:searchRadius,
+city,
+bio,
       interests:selected,
       photos
       
@@ -310,6 +324,7 @@ name,
 age,
 gender,
 search,
+searchRadius,
 city,
 bio,
 selected,
@@ -559,6 +574,7 @@ if (!name.trim() || !city.trim()) {
  age,
  gender,
  looking:search,
+ search_radius:searchRadius,
  city,
  bio,
  interests:selected,
@@ -738,7 +754,39 @@ window.location.href="/home";
             })}
             {!showMore && <span style={styles.tag} onClick={() => setShowMore(true)}>+</span>}
           </div>
+          
         </div>
+        <div style={styles.block}>
+
+  <p style={styles.label}>
+    Расстояние поиска
+  </p>
+
+  <div
+    style={{
+      fontSize:14,
+      fontWeight:600,
+      marginBottom:8
+    }}
+  >
+    {searchRadius} км
+  </div>
+
+  <input
+    type="range"
+    min="10"
+    max="200"
+    step="10"
+    value={searchRadius}
+    onChange={(e)=>
+      setSearchRadius(
+        Number(e.target.value)
+      )
+    }
+    style={styles.slider}
+  />
+
+</div>
 
         <button
           disabled={!isValid || uploading}
@@ -862,9 +910,10 @@ localStorage.setItem(
    name,
    age,
    gender,
-   looking:search,
-   city,
-   bio,
+  looking:search,
+search_radius:searchRadius,
+city,
+bio,
    interests:selected,
    photos,
    photo_edits:{
