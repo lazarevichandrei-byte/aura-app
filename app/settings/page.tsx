@@ -7,6 +7,11 @@ import PageWrapper from "../components/PageWrapper";
 export default function SettingsPage() {
   const router = useRouter();
 
+
+  const theme = "Системная";
+const language = "Русский";
+
+
   return (
   <PageWrapper>
     <div
@@ -61,17 +66,52 @@ export default function SettingsPage() {
 
 </div>
 
-        <div style={itemStyle}>
-          🎨 Тема
-        </div>
+        <p
+  style={{
+    color:"#7B8595",
+    fontSize:14,
+    lineHeight:1.5,
+    marginBottom:20
+  }}
+>
+  Персонализируйте приложение под себя.
+</p>
 
-        <div style={itemStyle}>
-          🌍 Язык
-        </div>
+<div style={cardStyle}>
+  <div>
+    <div style={titleStyle}>
+      🎨 Тема
+    </div>
 
-        <div style={itemStyle}>
-          🚫 Чёрный список
-        </div>
+    <div style={subtitleStyle}>
+      {theme}
+    </div>
+  </div>
+</div>
+
+<div style={cardStyle}>
+  <div>
+    <div style={titleStyle}>
+      🌍 Язык
+    </div>
+
+    <div style={subtitleStyle}>
+      {language}
+    </div>
+  </div>
+</div>
+
+<div style={cardStyle}>
+  <div>
+    <div style={titleStyle}>
+      🚫 Чёрный список
+    </div>
+
+    <div style={subtitleStyle}>
+      Управление заблокированными пользователями
+    </div>
+  </div>
+</div>
 
       </div>
     </div>
@@ -85,4 +125,29 @@ const itemStyle = {
   borderRadius: 16,
   marginTop: 12,
   cursor: "pointer"
+};
+
+const cardStyle = {
+  background:"#fff",
+  borderRadius:"18px",
+  padding:"18px",
+  marginBottom:"14px",
+
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+
+  boxShadow:
+    "0 4px 14px rgba(0,0,0,.04)"
+};
+
+const titleStyle = {
+  fontSize:"15px",
+  fontWeight:600
+};
+
+const subtitleStyle = {
+  marginTop:"4px",
+  fontSize:"12px",
+  color:"#8B95A7"
 };
