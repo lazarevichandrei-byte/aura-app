@@ -74,6 +74,7 @@ const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
+const [isOnboarding, setIsOnboarding] = useState(true);
 
 const router = useRouter();
 
@@ -217,6 +218,7 @@ if (!data) {
   setSelected(data.interests || []);
   setPhotoEdits(data.photo_edits || {});
 setMainIndex(data.main_photo_index || 0);
+setIsOnboarding(!data.onboarding_completed);
   if (data.photos?.length) {
     setPhotos(data.photos);
   } else if (data.avatar_url) {
@@ -617,41 +619,7 @@ window.location.href="/home";
    <div style={styles.card}>
 
 
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    marginBottom: 20
-  }}
->
-  <button
-    onClick={() => router.back()}
-    style={{
-      border: "none",
-      background: "transparent",
-      padding: 0,
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center"
-    }}
-  >
-    <ArrowLeft2
-      size="28"
-      color="#2AABEE"
-      variant="Outline"
-    />
-  </button>
 
-  <div
-    style={{
-      marginLeft: 12,
-      fontSize: 22,
-      fontWeight: 700
-    }}
-  >
-    Профиль
-  </div>
-</div>
 
 
 
@@ -903,18 +871,24 @@ window.location.href="/home";
         </div>
         
 
-        <button
-          disabled={!isValid || uploading}
-          style={{...styles.submit,opacity:isValid?1:0.5}}
-          onClick={handleSubmit}
-        >
-{
-savingProfile
- ? "Подождите..."
- : uploading
- ? `Загрузка ${uploadProgress}%`
- : "Продолжить"
-}        </button>
+        {isOnboarding && (
+  <button
+    disabled={!isValid || uploading}
+    style={{
+      ...styles.submit,
+      opacity:isValid ? 1 : 0.5
+    }}
+    onClick={handleSubmit}
+  >
+    {
+      savingProfile
+      ? "Подождите..."
+      : uploading
+      ? `Загрузка ${uploadProgress}%`
+      : "Продолжить"
+    }
+  </button>
+)}
 <div
 style={{
 marginTop:10,
