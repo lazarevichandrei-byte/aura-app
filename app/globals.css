@@ -12,20 +12,12 @@ padding:0;
 }
 
 html,
-body,
-#__next{
+body{
 width:100%;
-min-height:100%;
-}
-
-html{
-height:-webkit-fill-available;
+height:100%;
 }
 
 body{
-min-height:100%;
-min-height:-webkit-fill-available;
-
 font-family:
 -apple-system,
 BlinkMacSystemFont,
@@ -34,10 +26,11 @@ BlinkMacSystemFont,
 Inter,
 sans-serif;
 
-background:#FCFCFE;
+background:#F5F7FB;
 
 overflow-x:hidden;
 overflow-y:auto;
+-webkit-overflow-scrolling:touch;
 
 -webkit-font-smoothing:antialiased;
 -moz-osx-font-smoothing:grayscale;
@@ -220,11 +213,5 @@ html,
 body{
 margin:0 !important;
 padding:0 !important;
-
-border:none !important;
-outline:none !important;
-
-box-shadow:none !important;
-
-background:#FCFCFE !important;
+background:#F5F7FB !important;
 }
