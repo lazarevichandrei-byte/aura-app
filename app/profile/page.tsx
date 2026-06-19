@@ -610,7 +610,7 @@ setUploading(false);
 if (isOnboarding) {
   router.push("/home");
 } else {
-  router.push("/profile");
+  router.push("/account");
 }
   };
 
