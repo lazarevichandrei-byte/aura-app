@@ -11,6 +11,16 @@ export default function AccountPage() {
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
+  document.body.style.overflowY = "auto";
+  document.documentElement.style.overflowY = "auto";
+
+  return () => {
+    document.body.style.overflowY = "";
+    document.documentElement.style.overflowY = "";
+  };
+}, []);
+
+  useEffect(() => {
     loadProfile();
   }, []);
 
@@ -33,12 +43,14 @@ export default function AccountPage() {
 
   return (
     <div
-      style={{
-        minHeight: "100vh",
-        background: "#F5F7FB",
-        padding: "20px 20px 120px"
-      }}
-    >
+  style={{
+    minHeight: "100vh",
+    background: "#F5F7FB",
+    padding: "20px 20px 120px",
+    overflowY: "auto",
+    WebkitOverflowScrolling: "touch"
+  }}
+>
       <div
         style={{
           maxWidth: 420,
