@@ -138,6 +138,29 @@ export default function AccountPage() {
   🔔 Уведомления
 </div>
 
+
+<div
+  style={itemStyle}
+  onClick={() => router.push("/support")}
+>
+  💬 Поддержка
+</div>
+
+<div
+  style={itemStyle}
+  onClick={() => router.push("/terms")}
+>
+  📄 Условия использования
+</div>
+
+<div
+  style={itemStyle}
+  onClick={() => router.push("/privacy-policy")}
+>
+  🛡️ Политика конфиденциальности
+</div>
+
+
 </div>
 
         {/* Аккаунт */}
