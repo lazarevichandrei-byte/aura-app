@@ -11,12 +11,14 @@ export default function TermsPage() {
   return (
     <PageWrapper>
       <div
-        style={{
-          minHeight:"100vh",
-          background:"#F5F7FB",
-          padding:"20px"
-        }}
-      >
+  style={{
+    minHeight:"100vh",
+    background:"#F5F7FB",
+    padding:"20px",
+    paddingBottom:"120px",
+    overflowY:"auto"
+  }}
+>
 
         <div
           style={{
