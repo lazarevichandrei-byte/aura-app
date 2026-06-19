@@ -702,6 +702,42 @@ window.location.href="/home";
     <div style={styles.wrapper}>
   <div style={styles.card}>
 
+    <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 20
+  }}
+>
+  <button
+    onClick={() => router.back()}
+    style={{
+      border: "none",
+      background: "transparent",
+      padding: 0,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center"
+    }}
+  >
+    <ArrowLeft2
+      size="28"
+      color="#2AABEE"
+      variant="Outline"
+    />
+  </button>
+
+  <div
+    style={{
+      marginLeft: 12,
+      fontSize: 22,
+      fontWeight: 700
+    }}
+  >
+    Профиль
+  </div>
+</div>
+
     <div style={styles.avatarWrapper}>
       {photos.length > 0 ? (
         <div
