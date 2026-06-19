@@ -610,7 +610,7 @@ setUploading(false);
 if (isOnboarding) {
   window.location.href = "/home";
 } else {
-  setSaveStatus("saved");
+  window.location.href = "/settings";
 }
   };
 
