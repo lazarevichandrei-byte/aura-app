@@ -294,7 +294,7 @@ avatar_url:
    photos[mainIndex] ||
    null,
  photos,
- onboarding_completed:false
+ onboarding_completed: !isOnboarding
 },
 {
  onConflict:"telegram_id"
@@ -875,26 +875,24 @@ if (isOnboarding) {
         </div>
         
 
-        {isOnboarding && (
-  <button
-    disabled={!isValid || uploading}
-    style={{
-      ...styles.submit,
-      opacity:isValid ? 1 : 0.5
-    }}
-    onClick={handleSubmit}
-  >
-    {
-      savingProfile
-      ? "Подождите..."
-      : uploading
-      ? `Загрузка ${uploadProgress}%`
-      : isOnboarding
-? "Продолжить"
-: "Сохранить"
-    }
-  </button>
-)}
+        <button
+  disabled={!isValid || uploading}
+  style={{
+    ...styles.submit,
+    opacity:isValid ? 1 : 0.5
+  }}
+  onClick={handleSubmit}
+>
+  {
+    savingProfile
+    ? "Подождите..."
+    : uploading
+    ? `Загрузка ${uploadProgress}%`
+    : isOnboarding
+    ? "Продолжить"
+    : "Сохранить"
+  }
+</button>
 <div
 style={{
 marginTop:10,
