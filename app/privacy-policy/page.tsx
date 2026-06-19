@@ -30,8 +30,6 @@ export default function PrivacyPolicyPage() {
             style={{
               display:"flex",
               alignItems:"center",
-              justifyContent:"center",
-              paddingRight:10,
               cursor:"pointer"
             }}
           >
@@ -61,43 +59,30 @@ export default function PrivacyPolicyPage() {
             marginBottom:20
           }}
         >
-          Мы заботимся о безопасности ваших данных
-          и используем их только для работы сервиса.
+          Информация о хранении и обработке данных.
         </p>
 
         <div style={cardStyle}>
-          <div style={titleStyle}>
-            Какие данные хранятся
+
+          <div style={textStyle}>
+            AURA уважает конфиденциальность пользователей и принимает меры для защиты персональных данных.
+            <br /><br />
+
+            В приложении могут храниться данные профиля пользователя, включая имя, возраст, фотографии, интересы и другую информацию, необходимую для работы сервиса.
+            <br /><br />
+
+            Данные используются исключительно для функционирования приложения, подбора пользователей, отображения профилей и обеспечения работы системы знакомств.
+            <br /><br />
+
+            Мы не продаём и не передаём персональные данные третьим лицам без согласия пользователя, за исключением случаев, предусмотренных законодательством.
+            <br /><br />
+
+            Пользователь имеет право запросить удаление аккаунта и связанных данных через настройки приложения.
+            <br /><br />
+
+            Продолжая пользоваться приложением AURA, вы соглашаетесь с данной политикой конфиденциальности.
           </div>
 
-          <div style={subtitleStyle}>
-            Имя, возраст, фотографии,
-            интересы и другая информация,
-            необходимая для работы приложения.
-          </div>
-        </div>
-
-        <div style={cardStyle}>
-          <div style={titleStyle}>
-            Передача данных
-          </div>
-
-          <div style={subtitleStyle}>
-            Мы не продаём и не передаём ваши данные
-            третьим лицам без вашего согласия.
-          </div>
-        </div>
-
-        <div style={cardStyle}>
-          <div style={titleStyle}>
-            Удаление данных
-          </div>
-
-          <div style={subtitleStyle}>
-            Вы можете удалить аккаунт,
-            после чего связанные данные
-            будут удалены согласно правилам сервиса.
-          </div>
         </div>
 
       </div>
@@ -108,19 +93,12 @@ export default function PrivacyPolicyPage() {
 const cardStyle = {
   background:"#fff",
   borderRadius:"18px",
-  padding:"18px",
-  marginBottom:"14px",
+  padding:"20px",
   boxShadow:"0 4px 14px rgba(0,0,0,.04)"
 };
 
-const titleStyle = {
-  fontSize:"15px",
-  fontWeight:600
-};
-
-const subtitleStyle = {
-  marginTop:"6px",
-  fontSize:"13px",
-  color:"#8B95A7",
-  lineHeight:1.5
+const textStyle = {
+  fontSize:"14px",
+  lineHeight:1.8,
+  color:"#394150"
 };
