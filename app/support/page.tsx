@@ -1,63 +1,84 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ArrowLeft2 } from "iconsax-react";
+import PageWrapper from "../components/PageWrapper";
 
 export default function SupportPage() {
+
   const router = useRouter();
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.card}>
+    <PageWrapper>
+      <div
+        style={{
+          minHeight:"100vh",
+          background:"#F5F7FB",
+          padding:"20px"
+        }}
+      >
 
-        <button
-          onClick={() => router.back()}
-          style={styles.back}
+        <div
+          style={{
+            display:"flex",
+            alignItems:"center",
+            marginBottom:24
+          }}
         >
-          ← Назад
-        </button>
+          <div
+            onClick={()=>router.back()}
+            style={{
+              display:"flex",
+              alignItems:"center",
+              cursor:"pointer"
+            }}
+          >
+            <ArrowLeft2
+              size="28"
+              color="#2E7BFF"
+            />
+          </div>
 
-        <h1>Поддержка</h1>
+          <div
+            style={{
+              marginLeft:14,
+              fontSize:24,
+              fontWeight:700
+            }}
+          >
+            Поддержка
+          </div>
+        </div>
 
-        <p>
-          Если у вас возникли проблемы с приложением,
-          сообщите нам.
+        <p style={descriptionStyle}>
+          Свяжитесь с нами если возникли вопросы
+          или проблемы с приложением.
         </p>
 
-        <div style={styles.block}>
+        <div style={cardStyle}>
           support@aura-app.com
         </div>
 
-        <div style={styles.block}>
+        <div style={cardStyle}>
           Telegram: @AuraSupport
         </div>
 
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
-const styles:any = {
-  wrapper:{
-    minHeight:"100vh",
-    background:"#F5F7FB",
-    padding:"20px"
-  },
-  card:{
-    maxWidth:"420px",
-    margin:"0 auto",
-    background:"#fff",
-    borderRadius:"24px",
-    padding:"20px"
-  },
-  back:{
-    border:"none",
-    background:"transparent",
-    marginBottom:"20px"
-  },
-  block:{
-    background:"#F7F8FA",
-    padding:"16px",
-    borderRadius:"14px",
-    marginTop:"12px"
-  }
+const descriptionStyle = {
+  color:"#7B8595",
+  fontSize:14,
+  lineHeight:1.5,
+  marginBottom:20
+};
+
+const cardStyle = {
+  background:"#fff",
+  borderRadius:"18px",
+  padding:"18px",
+  marginBottom:"14px",
+  boxShadow:"0 4px 14px rgba(0,0,0,.04)"
 };
