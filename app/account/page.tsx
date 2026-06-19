@@ -43,15 +43,14 @@ export default function AccountPage() {
 
   return (
     <div
-  style={{
-    height: "calc(100dvh - 82px)",
-    overflowY: "auto",
-    WebkitOverflowScrolling: "touch",
+ style={{
+  minHeight:"100vh",
 
-    background:"#F5F7FB",
-    padding:"20px",
-    paddingBottom:"120px"
-  }}
+  background:"#F5F7FB",
+
+  padding:"20px",
+  paddingBottom:"120px"
+}}
 >
       <div
         style={{
