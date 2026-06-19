@@ -80,6 +80,8 @@ export default function TermsPage() {
             <br /><br />
 
             Продолжая пользоваться приложением, вы подтверждаете согласие с данными условиями использования.
+
+            
           </div>
 
         </div>
@@ -101,3 +103,4 @@ const textStyle = {
   lineHeight:1.8,
   color:"#394150"
 };
+

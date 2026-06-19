@@ -14,12 +14,16 @@ export default function PageWrapper({
   const router = useRouter();
 
   const startX = useRef(0);
+  const startY = useRef(0);
 
   function touchStart(
     e: React.TouchEvent
   ){
     startX.current =
       e.touches[0].clientX;
+
+    startY.current =
+      e.touches[0].clientY;
   }
 
   function touchEnd(
@@ -29,13 +33,22 @@ export default function PageWrapper({
     const endX =
       e.changedTouches[0].clientX;
 
-    const diff =
+    const endY =
+      e.changedTouches[0].clientY;
+
+    const diffX =
       endX - startX.current;
+
+    const diffY =
+      Math.abs(
+        endY - startY.current
+      );
 
     if(
       enabled &&
-      startX.current < 80 &&
-      diff > 20
+      startX.current < 40 &&
+      diffX > 100 &&
+      diffY < 60
     ){
       router.back();
     }
