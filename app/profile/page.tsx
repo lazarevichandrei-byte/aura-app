@@ -608,9 +608,9 @@ setSavingProfile(false);
 setUploading(false);
 
 if (isOnboarding) {
-  window.location.href = "/home";
+  router.push("/home");
 } else {
-  window.location.href = "/settings";
+  router.push("/profile");
 }
   };
 
