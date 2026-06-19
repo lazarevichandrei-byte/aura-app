@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { ArrowLeft2 } from "iconsax-react";
 
 
 const Cropper:any = dynamic(
@@ -73,6 +75,7 @@ const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 
+const router = useRouter();
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -612,6 +615,45 @@ window.location.href="/home";
  return (
   <div style={styles.wrapper}>
    <div style={styles.card}>
+
+
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 20
+  }}
+>
+  <button
+    onClick={() => router.back()}
+    style={{
+      border: "none",
+      background: "transparent",
+      padding: 0,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center"
+    }}
+  >
+    <ArrowLeft2
+      size="28"
+      color="#2AABEE"
+      variant="Outline"
+    />
+  </button>
+
+  <div
+    style={{
+      marginLeft: 12,
+      fontSize: 22,
+      fontWeight: 700
+    }}
+  >
+    Профиль
+  </div>
+</div>
+
+
 
     <div style={{
       width:92,
