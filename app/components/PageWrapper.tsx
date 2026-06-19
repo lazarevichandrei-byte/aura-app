@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useRef } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function PageWrapper({
@@ -16,6 +16,8 @@ export default function PageWrapper({
   const startX = useRef(0);
   const startY = useRef(0);
 
+  const [translateX, setTranslateX] = useState(0);
+
   function touchStart(
     e: React.TouchEvent
   ){
@@ -26,42 +28,65 @@ export default function PageWrapper({
       e.touches[0].clientY;
   }
 
-  function touchEnd(
-    e: React.TouchEvent
+  function touchMove(
+  e: React.TouchEvent
+){
+
+  const currentX =
+    e.touches[0].clientX;
+
+  const diff =
+    currentX - startX.current;
+
+  if(
+    startX.current < 30 &&
+    diff > 0
   ){
+    setTranslateX(
+      Math.min(diff,120)
+    );
+  }
+}
 
-    const endX =
-      e.changedTouches[0].clientX;
+  function touchEnd(
+  e: React.TouchEvent
+){
 
-    const endY =
-      e.changedTouches[0].clientY;
+  const endX =
+    e.changedTouches[0].clientX;
 
-    const diffX =
-      endX - startX.current;
+  const diff =
+    endX - startX.current;
 
-    const diffY =
-      Math.abs(
-        endY - startY.current
-      );
-
-    if(
-      enabled &&
-      startX.current < 40 &&
-      diffX > 100 &&
-      diffY < 60
-    ){
-      router.back();
-    }
+  if(
+    enabled &&
+    startX.current < 30 &&
+    diff > 90
+  ){
+    router.back();
+    return;
   }
 
+  setTranslateX(0);
+}
+
   return (
-    <div
-      onTouchStart={touchStart}
-      onTouchEnd={touchEnd}
-      style={{
-        minHeight:"100vh"
-      }}
-    >
+  <div
+    onTouchStart={touchStart}
+    onTouchMove={touchMove}
+    onTouchEnd={touchEnd}
+    style={{
+      minHeight:"100vh",
+
+      transform:
+        `translateX(${translateX}px)`,
+
+      transition:
+        translateX === 0
+        ? "transform .22s ease"
+        : "none"
+    }}
+  >
       {children}
     </div>
   );
