@@ -607,7 +607,11 @@ if (error) {
 setSavingProfile(false);
 setUploading(false);
 
-window.location.href="/home";
+if (isOnboarding) {
+  window.location.href = "/home";
+} else {
+  setSaveStatus("saved");
+}
   };
 
   
@@ -885,7 +889,9 @@ window.location.href="/home";
       ? "Подождите..."
       : uploading
       ? `Загрузка ${uploadProgress}%`
-      : "Продолжить"
+      : isOnboarding
+? "Продолжить"
+: "Сохранить"
     }
   </button>
 )}
