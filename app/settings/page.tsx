@@ -1,15 +1,80 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../components/PageWrapper";
 
 export default function SettingsPage() {
   const router = useRouter();
 
+  useEffect(() => {
+  loadSettings();
+}, []);
 
-  const theme = "Системная";
-const language = "Русский";
+async function loadSettings(){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if(!telegramId) return;
+
+  const { data } =
+    await supabase
+      .from("users")
+      .select("theme, language")
+      .eq("telegram_id", telegramId)
+      .single();
+
+  if(data){
+
+    setTheme(
+      data.theme || "system"
+    );
+
+    setLanguage(
+      data.language || "ru"
+    );
+
+  }
+
+}
+
+async function saveSetting(
+  field:string,
+  value:string
+){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if(!telegramId) return;
+
+  await supabase
+    .from("users")
+    .update({
+      [field]: value
+    })
+    .eq(
+      "telegram_id",
+      telegramId
+    );
+
+}
+
+
+  const [theme,setTheme] =
+useState("system");
+
+const [language,setLanguage] =
+useState("ru");
 
 
   return (
@@ -78,15 +143,88 @@ const language = "Русский";
 </p>
 
 <div style={cardStyle}>
-  <div>
+
+  <div style={{width:"100%"}}>
+
     <div style={titleStyle}>
       🎨 Тема
     </div>
 
-    <div style={subtitleStyle}>
-      {theme}
+    <div
+      style={{
+        display:"flex",
+        gap:"8px",
+        marginTop:"12px"
+      }}
+    >
+
+      <button
+        onClick={async()=>{
+
+          setTheme("light");
+
+          await saveSetting(
+            "theme",
+            "light"
+          );
+
+        }}
+        style={{
+          ...themeButton,
+          ...(theme==="light"
+            ? activeThemeButton
+            : {})
+        }}
+      >
+        Светлая
+      </button>
+
+      <button
+        onClick={async()=>{
+
+          setTheme("dark");
+
+          await saveSetting(
+            "theme",
+            "dark"
+          );
+
+        }}
+        style={{
+          ...themeButton,
+          ...(theme==="dark"
+            ? activeThemeButton
+            : {})
+        }}
+      >
+        Тёмная
+      </button>
+
+      <button
+        onClick={async()=>{
+
+          setTheme("system");
+
+          await saveSetting(
+            "theme",
+            "system"
+          );
+
+        }}
+        style={{
+          ...themeButton,
+          ...(theme==="system"
+            ? activeThemeButton
+            : {})
+        }}
+      >
+        Системная
+      </button>
+
     </div>
+
   </div>
+
 </div>
 
 <div style={cardStyle}>
@@ -150,4 +288,17 @@ const subtitleStyle = {
   marginTop:"4px",
   fontSize:"12px",
   color:"#8B95A7"
+};
+const themeButton = {
+  flex:1,
+  height:"38px",
+  border:"none",
+  borderRadius:"12px",
+  background:"#F3F5F8",
+  cursor:"pointer"
+};
+
+const activeThemeButton = {
+  background:"#2AABEE",
+  color:"#fff"
 };
