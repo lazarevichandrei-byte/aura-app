@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../components/PageWrapper";
 
@@ -17,6 +18,69 @@ useState(true);
 
 const [hideProfile,setHideProfile] =
 useState(false);
+
+useEffect(() => {
+  loadSettings();
+}, []);
+
+async function loadSettings() {
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if (!telegramId) return;
+
+  const { data } = await supabase
+    .from("users")
+    .select(`
+      show_online,
+      show_last_seen,
+      hide_profile
+    `)
+    .eq("telegram_id", telegramId)
+    .single();
+
+  if (!data) return;
+
+  setShowOnline(
+    data.show_online ?? true
+  );
+
+  setShowLastSeen(
+    data.show_last_seen ?? true
+  );
+
+  setHideProfile(
+    data.hide_profile ?? false
+  );
+}
+
+async function saveSetting(
+  field:string,
+  value:boolean
+){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if (!telegramId) return;
+
+  await supabase
+    .from("users")
+    .update({
+      [field]: value
+    })
+    .eq(
+      "telegram_id",
+      telegramId
+    );
+}
 
   return (
     <PageWrapper>
@@ -90,12 +154,21 @@ style={cardStyle}
     </div>
   </div>
 
-  <Switch
-    active={showOnline}
-    onClick={() =>
-      setShowOnline(!showOnline)
-    }
-  />
+<Switch
+  active={showOnline}
+  onClick={async () => {
+
+    const value =
+      !showOnline;
+
+    setShowOnline(value);
+
+    await saveSetting(
+      "show_online",
+      value
+    );
+  }}
+/>
 </div>
 
 <div
@@ -112,11 +185,20 @@ style={cardStyle}
   </div>
 
   <Switch
-    active={showLastSeen}
-    onClick={() =>
-      setShowLastSeen(!showLastSeen)
-    }
-  />
+  active={showLastSeen}
+  onClick={async () => {
+
+    const value =
+      !showLastSeen;
+
+    setShowLastSeen(value);
+
+    await saveSetting(
+      "show_last_seen",
+      value
+    );
+  }}
+/>
 </div>
 
 <div
@@ -133,11 +215,20 @@ style={cardStyle}
   </div>
 
   <Switch
-    active={hideProfile}
-    onClick={() =>
-      setHideProfile(!hideProfile)
-    }
-  />
+  active={hideProfile}
+  onClick={async () => {
+
+    const value =
+      !hideProfile;
+
+    setHideProfile(value);
+
+    await saveSetting(
+      "hide_profile",
+      value
+    );
+  }}
+/>
 </div>
 
       </div>
