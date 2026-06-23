@@ -19,6 +19,9 @@ useState(true);
 const [hideProfile,setHideProfile] =
 useState(false);
 
+const [loading,setLoading] =
+useState(true);
+
 useEffect(() => {
   loadSettings();
 }, []);
@@ -43,7 +46,10 @@ async function loadSettings() {
     .eq("telegram_id", telegramId)
     .single();
 
-  if (!data) return;
+  if (!data){
+  setLoading(false);
+  return;
+}
 
   setShowOnline(
     data.show_online ?? true
@@ -57,6 +63,7 @@ async function loadSettings() {
     data.hide_profile ?? false
   );
 }
+setLoading(false);
 
 async function saveSetting(
   field:string,
@@ -81,6 +88,46 @@ async function saveSetting(
       telegramId
     );
 }
+
+
+if (loading) {
+  return (
+    <div
+      style={{
+        minHeight:"100vh",
+        background:"#F5F7FB",
+        padding:"20px"
+      }}
+    >
+      <div
+        style={{
+          height:80,
+          background:"#fff",
+          borderRadius:18,
+          marginBottom:14
+        }}
+      />
+
+      <div
+        style={{
+          height:80,
+          background:"#fff",
+          borderRadius:18,
+          marginBottom:14
+        }}
+      />
+
+      <div
+        style={{
+          height:80,
+          background:"#fff",
+          borderRadius:18
+        }}
+      />
+    </div>
+  );
+}
+
 
   return (
     <PageWrapper>
