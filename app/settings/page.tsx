@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { ArrowLeft2 } from "iconsax-react";
+import {
+  ArrowLeft2,
+  ArrowRight2
+} from "iconsax-react";
 import PageWrapper from "../components/PageWrapper";
 
 export default function SettingsPage() {
@@ -76,6 +79,12 @@ useState("system");
 const [language,setLanguage] =
 useState("ru");
 
+const [showThemeModal,setShowThemeModal] =
+useState(false);
+
+const [showLanguageModal,setShowLanguageModal] =
+useState(false);
+
 
   return (
   <PageWrapper>
@@ -142,152 +151,66 @@ useState("ru");
   Персонализируйте приложение под себя.
 </p>
 
-<div style={cardStyle}>
+<div
+  style={cardStyle}
+  onClick={() =>
+    setShowThemeModal(true)
+  }
+>
 
-  <div style={{width:"100%"}}>
+  <div>
 
     <div style={titleStyle}>
       🎨 Тема
     </div>
 
-    <div
-      style={{
-        display:"flex",
-        gap:"8px",
-        marginTop:"12px"
-      }}
-    >
-
-      <button
-        onClick={async()=>{
-
-          setTheme("light");
-
-          await saveSetting(
-            "theme",
-            "light"
-          );
-
-        }}
-        style={{
-          ...themeButton,
-          ...(theme==="light"
-            ? activeThemeButton
-            : {})
-        }}
-      >
-        Светлая
-      </button>
-
-      <button
-        onClick={async()=>{
-
-          setTheme("dark");
-
-          await saveSetting(
-            "theme",
-            "dark"
-          );
-
-        }}
-        style={{
-          ...themeButton,
-          ...(theme==="dark"
-            ? activeThemeButton
-            : {})
-        }}
-      >
-        Тёмная
-      </button>
-
-      <button
-        onClick={async()=>{
-
-          setTheme("system");
-
-          await saveSetting(
-            "theme",
-            "system"
-          );
-
-        }}
-        style={{
-          ...themeButton,
-          ...(theme==="system"
-            ? activeThemeButton
-            : {})
-        }}
-      >
-        Системная
-      </button>
-
+    <div style={subtitleStyle}>
+      {
+        theme === "light"
+        ? "Светлая"
+        : theme === "dark"
+        ? "Тёмная"
+        : "Системная"
+      }
     </div>
 
   </div>
 
+  <ArrowRight2
+    size="18"
+    color="#A0A8B5"
+  />
+
 </div>
 
-<div style={cardStyle}>
 
-  <div style={{width:"100%"}}>
+<div
+  style={cardStyle}
+  onClick={() =>
+    setShowLanguageModal(true)
+  }
+>
+
+  <div>
 
     <div style={titleStyle}>
       🌍 Язык
     </div>
 
-    <div
-      style={{
-        display:"flex",
-        gap:"8px",
-        marginTop:"12px"
-      }}
-    >
-
-      <button
-        onClick={async()=>{
-
-          setLanguage("ru");
-
-          await saveSetting(
-            "language",
-            "ru"
-          );
-
-        }}
-        style={{
-          ...themeButton,
-          ...(language==="ru"
-            ? activeThemeButton
-            : {})
-        }}
-      >
-        Русский
-      </button>
-
-      <button
-        onClick={async()=>{
-
-          setLanguage("en");
-
-          await saveSetting(
-            "language",
-            "en"
-          );
-
-        }}
-        style={{
-          ...themeButton,
-          ...(language==="en"
-            ? activeThemeButton
-            : {})
-        }}
-      >
-        English
-      </button>
-
+    <div style={subtitleStyle}>
+      {
+        language === "ru"
+        ? "Русский"
+        : "English"
+      }
     </div>
 
   </div>
+
+  <ArrowRight2
+    size="18"
+    color="#A0A8B5"
+  />
 
 </div>
 
@@ -306,13 +229,216 @@ useState("ru");
       Управление заблокированными пользователями
     </div>
   </div>
+
+  <ArrowRight2
+    size="18"
+    color="#A0A8B5"
+  />
 </div>
 
       </div>
     </div>
+
+    {showThemeModal && (
+
+<div
+  onClick={() =>
+    setShowThemeModal(false)
+  }
+  style={{
+    position:"fixed",
+    inset:0,
+
+    background:"rgba(0,0,0,.45)",
+    backdropFilter:"blur(6px)",
+
+    zIndex:99999,
+
+    display:"flex",
+    alignItems:"flex-end"
+  }}
+>
+
+  <div
+    onClick={(e)=>
+      e.stopPropagation()
+    }
+    style={{
+      width:"100%",
+      background:"#fff",
+
+      borderTopLeftRadius:"28px",
+      borderTopRightRadius:"28px",
+
+      padding:"24px"
+    }}
+  >
+
+    <div
+      style={{
+        textAlign:"center",
+        fontSize:"22px",
+        fontWeight:700,
+        marginBottom:"20px"
+      }}
+    >
+      Выбор темы
+    </div>
+
+    <div
+      style={sheetItem}
+      onClick={async()=>{
+
+        setTheme("light");
+
+        await saveSetting(
+          "theme",
+          "light"
+        );
+
+        setShowThemeModal(false);
+
+      }}
+    >
+      ☀️ Светлая
+    </div>
+
+    <div
+      style={sheetItem}
+      onClick={async()=>{
+
+        setTheme("dark");
+
+        await saveSetting(
+          "theme",
+          "dark"
+        );
+
+        setShowThemeModal(false);
+
+      }}
+    >
+      🌙 Тёмная
+    </div>
+
+    <div
+      style={sheetItem}
+      onClick={async()=>{
+
+        setTheme("system");
+
+        await saveSetting(
+          "theme",
+          "system"
+        );
+
+        setShowThemeModal(false);
+
+      }}
+    >
+      ⚙️ Системная
+    </div>
+
+  </div>
+
+</div>
+
+)}
+
+{showLanguageModal && (
+
+<div
+  onClick={() =>
+    setShowLanguageModal(false)
+  }
+  style={{
+    position:"fixed",
+    inset:0,
+
+    background:"rgba(0,0,0,.45)",
+    backdropFilter:"blur(6px)",
+
+    zIndex:99999,
+
+    display:"flex",
+    alignItems:"flex-end"
+  }}
+>
+
+  <div
+    onClick={(e)=>
+      e.stopPropagation()
+    }
+    style={{
+      width:"100%",
+      background:"#fff",
+
+      borderTopLeftRadius:"28px",
+      borderTopRightRadius:"28px",
+
+      padding:"24px"
+    }}
+  >
+
+    <div
+      style={{
+        textAlign:"center",
+        fontSize:"22px",
+        fontWeight:700,
+        marginBottom:"20px"
+      }}
+    >
+      Выбор языка
+    </div>
+
+    <div
+      style={sheetItem}
+      onClick={async()=>{
+
+        setLanguage("ru");
+
+        await saveSetting(
+          "language",
+          "ru"
+        );
+
+        setShowLanguageModal(false);
+
+      }}
+    >
+      🇷🇺 Русский
+    </div>
+
+    <div
+      style={sheetItem}
+      onClick={async()=>{
+
+        setLanguage("en");
+
+        await saveSetting(
+          "language",
+          "en"
+        );
+
+        setShowLanguageModal(false);
+
+      }}
+    >
+      🇺🇸 English
+    </div>
+
+  </div>
+
+</div>
+
+)}
+    
   </PageWrapper>
   );
 }
+
+
+
 
 const itemStyle = {
   background: "#fff",
@@ -358,4 +484,12 @@ const themeButton = {
 const activeThemeButton = {
   background:"#2AABEE",
   color:"#fff"
+};
+const sheetItem = {
+  padding:"16px",
+  borderRadius:"16px",
+  background:"#F5F7FB",
+  marginBottom:"10px",
+  cursor:"pointer",
+  fontWeight:600
 };
