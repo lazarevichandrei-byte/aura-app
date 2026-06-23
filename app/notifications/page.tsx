@@ -11,16 +11,16 @@ export default function NotificationsPage() {
   const router = useRouter();
 
   const [messages,setMessages] =
-useState(true);
+useState<boolean | null>(null);
 
 const [matches,setMatches] =
-useState(true);
+useState<boolean | null>(null);
 
 const [vibration,setVibration] =
-useState(true);
+useState<boolean | null>(null);
 
 const [silentMode,setSilentMode] =
-useState(false);
+useState<boolean | null>(null);
 
 useEffect(() => {
   loadSettings();
@@ -88,6 +88,22 @@ async function saveSetting(
       "telegram_id",
       telegramId
     );
+}
+
+if (
+  messages === null ||
+  matches === null ||
+  vibration === null ||
+  silentMode === null
+){
+  return (
+    <div
+      style={{
+        minHeight:"100vh",
+        background:"#F5F7FB"
+      }}
+    />
+  );
 }
 
   return (
@@ -164,7 +180,7 @@ marginBottom:20
   onClick={async () => {
 
     const value =
-      !messages;
+  !(messages ?? false);
 
     setMessages(value);
 
@@ -191,7 +207,8 @@ marginBottom:20
   active={matches}
   onClick={async () => {
 
-    const value = !matches;
+    const value =
+  !(matches ?? false);
 
     setMatches(value);
 
@@ -218,7 +235,8 @@ marginBottom:20
   active={vibration}
   onClick={async () => {
 
-    const value = !vibration;
+    const value =
+  !(vibration ?? false);
 
     setVibration(value);
 
@@ -297,7 +315,7 @@ function Switch({
   active,
   onClick
 }:{
-  active:boolean;
+  active:boolean | null;
   onClick:()=>void;
 }){
 
