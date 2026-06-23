@@ -9,6 +9,8 @@ export default function AccountPage() {
   const router = useRouter();
 
   const [profile, setProfile] = useState<any>(null);
+  const [showDeleteModal,setShowDeleteModal] =
+useState(false);
 
   useEffect(() => {
   document.body.style.overflowY = "auto";
@@ -180,17 +182,137 @@ export default function AccountPage() {
 <div style={{ marginTop: 30 }}>
 
   <div
-    style={{
-      ...itemStyle,
-      color: "#FF4D4F",
-      fontWeight: 600
-    }}
-  >
-    Удалить аккаунт
-  </div>
+  onClick={() =>
+    setShowDeleteModal(true)
+  }
+  style={{
+    ...itemStyle,
+    color:"#FF4D4F",
+    fontWeight:600,
+    cursor:"pointer"
+  }}
+>
+  Удалить аккаунт
+</div>
 
 </div>
       </div>
+
+      {showDeleteModal && (
+
+<div
+  onClick={() =>
+    setShowDeleteModal(false)
+  }
+  style={{
+    position:"fixed",
+    inset:0,
+
+    background:"rgba(0,0,0,.45)",
+    backdropFilter:"blur(4px)",
+
+    zIndex:99999,
+
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+
+    padding:"20px"
+  }}
+>
+
+  <div
+    onClick={(e)=>
+      e.stopPropagation()
+    }
+    style={{
+      width:"100%",
+      maxWidth:"380px",
+
+      background:"#fff",
+
+      borderRadius:"28px",
+
+      padding:"24px",
+
+      boxShadow:
+        "0 20px 60px rgba(0,0,0,.18)"
+    }}
+  >
+
+    <div
+      style={{
+        fontSize:"22px",
+        fontWeight:700,
+        textAlign:"center",
+        marginBottom:"10px"
+      }}
+    >
+      Удалить аккаунт?
+    </div>
+
+    <div
+      style={{
+        textAlign:"center",
+        color:"#7B8595",
+        fontSize:"14px",
+        lineHeight:1.6,
+        marginBottom:"24px"
+      }}
+    >
+      Вы точно хотите удалить аккаунт?
+      <br />
+      Это действие нельзя отменить.
+    </div>
+
+    <div
+      style={{
+        display:"flex",
+        gap:"12px"
+      }}
+    >
+
+      <button
+        onClick={() =>
+          setShowDeleteModal(false)
+        }
+        style={{
+          flex:1,
+          height:"52px",
+
+          borderRadius:"16px",
+
+          background:"#F3F5F8",
+
+          fontWeight:600
+        }}
+      >
+        Отмена
+      </button>
+
+      <button
+        style={{
+          flex:1,
+          height:"52px",
+
+          borderRadius:"16px",
+
+          background:"#FF4D4F",
+          color:"#fff",
+
+          fontWeight:600
+        }}
+      >
+        Удалить
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+)}
 
       <BottomNav />
 
