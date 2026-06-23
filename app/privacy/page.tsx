@@ -11,16 +11,13 @@ export default function PrivacyPage() {
   const router = useRouter();
 
   const [showOnline,setShowOnline] =
-useState(true);
+useState<boolean | null>(null);
 
 const [showLastSeen,setShowLastSeen] =
-useState(true);
+useState<boolean | null>(null);
 
 const [hideProfile,setHideProfile] =
-useState(false);
-
-const [loading,setLoading] =
-useState(true);
+useState<boolean | null>(null);
 
 useEffect(() => {
   loadSettings();
@@ -47,7 +44,7 @@ async function loadSettings() {
     .single();
 
   if (!data){
-  setLoading(false);
+
   return;
 }
 
@@ -63,7 +60,7 @@ async function loadSettings() {
     data.hide_profile ?? false
   );
 }
-setLoading(false);
+
 
 async function saveSetting(
   field:string,
@@ -90,45 +87,22 @@ async function saveSetting(
 }
 
 
-if (loading) {
+
+
+if (
+  showOnline === null ||
+  showLastSeen === null ||
+  hideProfile === null
+){
   return (
     <div
       style={{
         minHeight:"100vh",
-        background:"#F5F7FB",
-        padding:"20px"
+        background:"#F5F7FB"
       }}
-    >
-      <div
-        style={{
-          height:80,
-          background:"#fff",
-          borderRadius:18,
-          marginBottom:14
-        }}
-      />
-
-      <div
-        style={{
-          height:80,
-          background:"#fff",
-          borderRadius:18,
-          marginBottom:14
-        }}
-      />
-
-      <div
-        style={{
-          height:80,
-          background:"#fff",
-          borderRadius:18
-        }}
-      />
-    </div>
+    />
   );
 }
-
-
   return (
     <PageWrapper>
       <div
