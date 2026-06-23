@@ -286,58 +286,94 @@ useState(false);
     </div>
 
     <div
-      style={sheetItem}
-      onClick={async()=>{
+  style={{
+    ...sheetItem,
+    background:
+      theme === "light"
+        ? "#EAF5FF"
+        : "#F5F7FB",
 
-        setTheme("light");
+    border:
+      theme === "light"
+        ? "1px solid #2AABEE"
+        : "1px solid transparent"
+  }}
+  onClick={async()=>{
 
-        await saveSetting(
-          "theme",
-          "light"
-        );
+    setTheme("light");
 
-        setShowThemeModal(false);
+    await saveSetting(
+      "theme",
+      "light"
+    );
 
-      }}
-    >
-      ☀️ Светлая
-    </div>
+    setShowThemeModal(false);
 
-    <div
-      style={sheetItem}
-      onClick={async()=>{
-
-        setTheme("dark");
-
-        await saveSetting(
-          "theme",
-          "dark"
-        );
-
-        setShowThemeModal(false);
-
-      }}
-    >
-      🌙 Тёмная
-    </div>
+  }}
+>
+  ☀️ Светлая
+  {theme === "light" && " "}
+</div>
 
     <div
-      style={sheetItem}
-      onClick={async()=>{
+  style={{
+    ...sheetItem,
+    background:
+      theme === "dark"
+        ? "#EAF5FF"
+        : "#F5F7FB",
 
-        setTheme("system");
+    border:
+      theme === "dark"
+        ? "1px solid #2AABEE"
+        : "1px solid transparent"
+  }}
+  onClick={async()=>{
 
-        await saveSetting(
-          "theme",
-          "system"
-        );
+    setTheme("dark");
 
-        setShowThemeModal(false);
+    await saveSetting(
+      "theme",
+      "dark"
+    );
 
-      }}
-    >
-      ⚙️ Системная
-    </div>
+    setShowThemeModal(false);
+
+  }}
+>
+  🌙 Тёмная
+  {theme === "dark" && " "}
+</div>
+
+    <div
+  style={{
+    ...sheetItem,
+    background:
+      theme === "system"
+        ? "#EAF5FF"
+        : "#F5F7FB",
+
+    border:
+      theme === "system"
+        ? "1px solid #2AABEE"
+        : "1px solid transparent"
+  }}
+  onClick={async()=>{
+
+    setTheme("system");
+
+    await saveSetting(
+      "theme",
+      "system"
+    );
+
+    setShowThemeModal(false);
+
+  }}
+>
+  ⚙️ Системная
+  {theme === "system" && " "}
+</div>
 
   </div>
 
@@ -392,40 +428,64 @@ useState(false);
     </div>
 
     <div
-      style={sheetItem}
-      onClick={async()=>{
+  style={{
+    ...sheetItem,
+    background:
+      language === "ru"
+        ? "#EAF5FF"
+        : "#F5F7FB",
 
-        setLanguage("ru");
+    border:
+      language === "ru"
+        ? "1px solid #2AABEE"
+        : "1px solid transparent"
+  }}
+  onClick={async()=>{
 
-        await saveSetting(
-          "language",
-          "ru"
-        );
+    setLanguage("ru");
 
-        setShowLanguageModal(false);
+    await saveSetting(
+      "language",
+      "ru"
+    );
 
-      }}
-    >
-      🇷🇺 Русский
-    </div>
+    setShowLanguageModal(false);
+
+  }}
+>
+  🇷🇺 Русский
+  {language === "ru" && " "}
+</div>
 
     <div
-      style={sheetItem}
-      onClick={async()=>{
+  style={{
+    ...sheetItem,
+    background:
+      language === "en"
+        ? "#EAF5FF"
+        : "#F5F7FB",
 
-        setLanguage("en");
+    border:
+      language === "en"
+        ? "1px solid #2AABEE"
+        : "1px solid transparent"
+  }}
+  onClick={async()=>{
 
-        await saveSetting(
-          "language",
-          "en"
-        );
+    setLanguage("en");
 
-        setShowLanguageModal(false);
+    await saveSetting(
+      "language",
+      "en"
+    );
 
-      }}
-    >
-      🇺🇸 English
-    </div>
+    setShowLanguageModal(false);
+
+  }}
+>
+  🇺🇸 English
+  {language === "en" && " "}
+</div>
 
   </div>
 
