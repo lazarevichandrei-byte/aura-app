@@ -228,18 +228,75 @@ useState("ru");
 </div>
 
 <div style={cardStyle}>
-  <div>
+
+  <div style={{width:"100%"}}>
+
     <div style={titleStyle}>
       🌍 Язык
     </div>
 
-    <div style={subtitleStyle}>
-      {language}
+    <div
+      style={{
+        display:"flex",
+        gap:"8px",
+        marginTop:"12px"
+      }}
+    >
+
+      <button
+        onClick={async()=>{
+
+          setLanguage("ru");
+
+          await saveSetting(
+            "language",
+            "ru"
+          );
+
+        }}
+        style={{
+          ...themeButton,
+          ...(language==="ru"
+            ? activeThemeButton
+            : {})
+        }}
+      >
+        Русский
+      </button>
+
+      <button
+        onClick={async()=>{
+
+          setLanguage("en");
+
+          await saveSetting(
+            "language",
+            "en"
+          );
+
+        }}
+        style={{
+          ...themeButton,
+          ...(language==="en"
+            ? activeThemeButton
+            : {})
+        }}
+      >
+        English
+      </button>
+
     </div>
+
   </div>
+
 </div>
 
-<div style={cardStyle}>
+<div
+  style={cardStyle}
+  onClick={() =>
+    router.push("/blacklist")
+  }
+>
   <div>
     <div style={titleStyle}>
       🚫 Чёрный список
