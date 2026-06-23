@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../components/PageWrapper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
 export default function NotificationsPage() {
 
@@ -20,6 +21,74 @@ useState(true);
 
 const [silentMode,setSilentMode] =
 useState(false);
+
+useEffect(() => {
+  loadSettings();
+}, []);
+
+async function loadSettings() {
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if (!telegramId) return;
+
+  const { data } = await supabase
+    .from("users")
+    .select(`
+      notify_messages,
+      notify_matches,
+      notify_vibration,
+      notify_silent
+    `)
+    .eq("telegram_id", telegramId)
+    .single();
+
+  if (!data) return;
+
+  setMessages(
+    data.notify_messages ?? true
+  );
+
+  setMatches(
+    data.notify_matches ?? true
+  );
+
+  setVibration(
+    data.notify_vibration ?? true
+  );
+
+  setSilentMode(
+    data.notify_silent ?? false
+  );
+}
+
+async function saveSetting(
+  field:string,
+  value:boolean
+){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if (!telegramId) return;
+
+  await supabase
+    .from("users")
+    .update({
+      [field]: value
+    })
+    .eq(
+      "telegram_id",
+      telegramId
+    );
+}
 
   return (
     <PageWrapper>
@@ -91,11 +160,20 @@ marginBottom:20
   </div>
 
   <Switch
-    active={messages}
-    onClick={() =>
-      setMessages(!messages)
-    }
-  />
+  active={messages}
+  onClick={async () => {
+
+    const value =
+      !messages;
+
+    setMessages(value);
+
+    await saveSetting(
+      "notify_messages",
+      value
+    );
+  }}
+/>
 </div>
 
 <div style={cardStyle}>
@@ -110,11 +188,19 @@ marginBottom:20
   </div>
 
   <Switch
-    active={matches}
-    onClick={() =>
-      setMatches(!matches)
-    }
-  />
+  active={matches}
+  onClick={async () => {
+
+    const value = !matches;
+
+    setMatches(value);
+
+    await saveSetting(
+      "notify_matches",
+      value
+    );
+  }}
+/>
 </div>
 
 <div style={cardStyle}>
@@ -128,12 +214,20 @@ marginBottom:20
     </div>
   </div>
 
-  <Switch
-    active={vibration}
-    onClick={() =>
-      setVibration(!vibration)
-    }
-  />
+ <Switch
+  active={vibration}
+  onClick={async () => {
+
+    const value = !vibration;
+
+    setVibration(value);
+
+    await saveSetting(
+      "notify_vibration",
+      value
+    );
+  }}
+/>
 </div>
 
 <div style={cardStyle}>
@@ -148,11 +242,19 @@ marginBottom:20
   </div>
 
   <Switch
-    active={silentMode}
-    onClick={() =>
-      setSilentMode(!silentMode)
-    }
-  />
+  active={silentMode}
+  onClick={async () => {
+
+    const value = !silentMode;
+
+    setSilentMode(value);
+
+    await saveSetting(
+      "notify_silent",
+      value
+    );
+  }}
+/>
 </div>
 
       </div>
