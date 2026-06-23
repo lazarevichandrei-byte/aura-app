@@ -43,6 +43,46 @@ useState(false);
     }
   }
 
+  async function deleteAccount(){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if (!telegramId) return;
+
+  const { data:user } =
+    await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .single();
+
+  if (!user){
+    alert("Пользователь не найден");
+    return;
+  }
+
+  const { error } =
+    await supabase.rpc(
+      "delete_my_account",
+      {
+        p_user_id:user.id
+      }
+    );
+
+  if (error){
+    alert(error.message);
+    return;
+  }
+
+  localStorage.clear();
+
+  router.replace("/");
+}
+
   return (
     <div
  style={{
@@ -290,21 +330,28 @@ useState(false);
         Отмена
       </button>
 
-      <button
-        style={{
-          flex:1,
-          height:"52px",
+     <button
+  onClick={async () => {
 
-          borderRadius:"16px",
+  setShowDeleteModal(false);
 
-          background:"#FF4D4F",
-          color:"#fff",
+  await deleteAccount();
 
-          fontWeight:600
-        }}
-      >
-        Удалить
-      </button>
+}}
+  style={{
+    flex:1,
+    height:"52px",
+
+    borderRadius:"16px",
+
+    background:"#FF4D4F",
+    color:"#fff",
+
+    fontWeight:600
+  }}
+>
+  Удалить
+</button>
 
     </div>
 
