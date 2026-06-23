@@ -47,6 +47,8 @@ useState(50);
   const [city, setCity] = useState("");
 const [bio, setBio] = useState("");
 
+const [isEditing,setIsEditing] =
+useState(false);
   
 
   const [photos, setPhotos] = useState<string[]>([]);
@@ -681,6 +683,7 @@ if (isOnboarding) {
     marginBottom: 20
   }}
 >
+  {!isOnboarding && (
   <button
     onClick={() => router.back()}
     style={{
@@ -698,16 +701,17 @@ if (isOnboarding) {
       variant="Outline"
     />
   </button>
+)}
 
   <div
-    style={{
-      marginLeft: 12,
-      fontSize: 22,
-      fontWeight: 700
-    }}
-  >
-    Профиль
-  </div>
+  style={{
+    marginLeft: !isOnboarding ? 12 : 0,
+    fontSize: 22,
+    fontWeight: 700
+  }}
+>
+  Профиль
+</div>
 </div>
 
     <div style={styles.avatarWrapper}>
