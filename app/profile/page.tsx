@@ -857,6 +857,62 @@ if (isOnboarding) {
           <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
         </div>
 
+        <div
+  style={{
+    marginTop:"12px",
+    background:"#F9FAFB",
+    borderRadius:"16px",
+    padding:"14px"
+  }}
+>
+
+  <div
+    style={{
+      fontSize:"12px",
+      color:"#6B7280",
+      marginBottom:"6px"
+    }}
+  >
+    Местоположение
+  </div>
+
+  <div
+    style={{
+      fontSize:"15px",
+      fontWeight:600
+    }}
+  >
+    📍 {city || "Не указано"}
+  </div>
+
+  <div
+    style={{
+      marginTop:"6px",
+      fontSize:"12px",
+      color:"#8A94A6"
+    }}
+  >
+    Используется для поиска людей рядом
+  </div>
+
+  <button
+    style={{
+      marginTop:"12px",
+      width:"100%",
+      height:"42px",
+      border:"none",
+      borderRadius:"12px",
+      background:"#EAF5FF",
+      color:"#2AABEE",
+      fontWeight:600,
+      cursor:"pointer"
+    }}
+  >
+    📍 Обновить местоположение
+  </button>
+
+</div>
+
         <div style={styles.inputBox}>
           <p style={styles.label}>О себе</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
