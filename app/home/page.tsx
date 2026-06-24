@@ -201,13 +201,15 @@ const { data: me } = await supabase
   .select(`
     id,
     age,
+    gender,
+    looking,
+    interests,
     avatar_url,
     photos,
     main_photo_index,
     latitude,
     longitude,
-    search_radius,
-    looking
+    search_radius
 `)
   .eq("id", myId)
   .single();
@@ -215,6 +217,8 @@ const { data: me } = await supabase
 if(me){
   setMyProfile(me);
 }
+
+const myInterests = me?.interests || [];
 
 
 
@@ -253,26 +257,24 @@ const blockedIds =
 
 const { data } = await supabase
   .from("users")
-
   .select(`
-  id,
-  telegram_id,
-  name,
-  age,
-  gender,
-  city,
-  bio,
-  avatar_url,
-  photos,
-  main_photo_index,
-  interests,
-  latitude,
-  longitude,
-  last_seen,
-  is_verified
-`)
-  .neq("id", myId)
-  .limit(30);
+    id,
+    telegram_id,
+    name,
+    age,
+    gender,
+    city,
+    bio,
+    avatar_url,
+    photos,
+    main_photo_index,
+    interests,
+    latitude,
+    longitude,
+    last_seen,
+    is_verified
+  `)
+  .neq("id", myId);
 
 if(data){
 
@@ -311,6 +313,119 @@ if(data){
     return a.distance - b.distance;
 
   });
+
+
+const scoredUsers = sorted
+  .filter(user => {
+
+    if(user.id === myId){
+      return false;
+    }
+
+    if(blockedIds.includes(user.id)){
+      return false;
+    }
+
+    const alreadyLiked =
+      liked?.some(
+        l =>
+          l.from_user_id === myId &&
+          l.to_user_id === user.id &&
+          l.status === "pending"
+      );
+
+    if(alreadyLiked){
+      return false;
+    }
+
+    if(
+      me?.looking === "male" &&
+      user.gender !== "male"
+    ){
+      return false;
+    }
+
+    if(
+      me?.looking === "female" &&
+      user.gender !== "female"
+    ){
+      return false;
+    }
+
+    return true;
+
+  })
+  .map(user=>{
+
+    let score = 0;
+
+    // возраст
+    if(user.age){
+
+      const diff =
+        Math.abs(
+          user.age -
+          (me?.age || 18)
+        );
+
+      if(diff <= 2){
+        score += 60;
+      }
+      else if(diff <=5){
+        score +=45;
+      }
+      else if(diff <=10){
+        score +=30;
+      }
+
+    }
+
+    // интересы
+    const common =
+      (user.interests || [])
+      .filter((i:string)=>
+        myInterests.includes(i)
+      ).length;
+
+    score += common * 25;
+
+    // расстояние
+    if(user.distance !== null){
+
+      if(
+        user.distance <=
+        (me?.search_radius || 50)
+      ){
+        score +=40;
+      }
+
+      else if(
+        user.distance <=
+        (me?.search_radius || 50) * 2
+      ){
+        score +=20;
+      }
+
+    }
+
+    // онлайн
+    if(
+      user.last_seen &&
+      Date.now() -
+      new Date(user.last_seen).getTime()
+      <
+      5*60*1000
+    ){
+      score +=20;
+    }
+
+    return {
+      ...user,
+      score
+    };
+
+  })
+  .sort((a,b)=>b.score-a.score);
 
 const filtered =
   sorted.filter(u => {
@@ -545,7 +660,7 @@ if(finalUsers.length < 5){
   );
 }
 
-setUsers(finalUsers);
+setUsers(scoredUsers);
 
 setIndex(0);
 
@@ -553,6 +668,7 @@ setIndex(0);
 }
 
 }
+
 
 
 const currentUser=users[index];
