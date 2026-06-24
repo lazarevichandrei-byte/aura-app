@@ -344,10 +344,7 @@ setIndex(0);
 
 const currentUser=users[index];
 
-console.log(
-  "USER VERIFIED:",
-  currentUser?.is_verified
-);
+
 
 const photos=
 currentUser?.photos?.length

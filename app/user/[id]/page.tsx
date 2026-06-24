@@ -329,6 +329,7 @@ await supabase
     {user.name}, {user.age}
   </div>
 
+  {user.is_verified && (
   <div
     style={{
       width:"20px",
@@ -347,6 +348,7 @@ await supabase
   >
     ✓
   </div>
+)}
 </div>
 
     <div
