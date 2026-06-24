@@ -18,6 +18,9 @@ useState(false);
 const [showBlockModal,setShowBlockModal] =
 useState(false);
 
+const [showActions,setShowActions] =
+useState(false);
+
 const [showGallery,setShowGallery] =
 useState(false);
 
@@ -120,6 +123,8 @@ useState(0);
   }}
 >
   {photos.map((_:any,i:number)=>(
+
+    
     <div
       key={i}
       style={{
@@ -134,6 +139,36 @@ useState(0);
       }}
     />
   ))}
+</div>
+
+<div
+  onClick={() =>
+    setShowActions(true)
+  }
+  style={{
+    position:"absolute",
+    top:"16px",
+    right:"16px",
+
+    width:"42px",
+    height:"42px",
+
+    borderRadius:"50%",
+
+    background:"rgba(0,0,0,.35)",
+
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+
+    color:"#fff",
+    fontSize:"24px",
+
+    zIndex:30,
+    cursor:"pointer"
+  }}
+>
+  ⋮
 </div>
 
  <img
@@ -350,63 +385,86 @@ fontWeight:600
 
 </div>
 
-{/* КНОПКИ */}
-
-<div
-  style={{
-    marginTop:"18px",
-
-    background:"#fff",
-
-    borderRadius:"24px",
-
-    padding:"22px",
-
-    boxShadow:
-      "0 6px 18px rgba(0,0,0,.04)"
-  }}
->
-
-  <div
-    onClick={() =>
-      setShowReportModal(true)
-    }
-    style={{
-      background:"#FFF8F8",
-      color:"#FF7A7A",
-      padding:"14px 16px",
-      borderRadius:"18px",
-      marginBottom:"12px",
-      cursor:"pointer",
-      fontWeight:600
-    }}
-  >
-    ⚠️ Пожаловаться
-  </div>
-
-  <div
-    onClick={() =>
-      setShowBlockModal(true)
-    }
-    style={{
-      background:"#FFF3F3",
-      color:"#FF4D4F",
-      padding:"16px 18px",
-      borderRadius:"18px",
-      cursor:"pointer",
-      fontWeight:600
-    }}
-  >
-    🚫 Заблокировать
-  </div>
-
-</div>
 
         </div>
 
       </div>
 
     
+
+    {showActions && (
+
+<div
+  onClick={() =>
+    setShowActions(false)
+  }
+  style={{
+    position:"fixed",
+    inset:0,
+
+    background:"rgba(0,0,0,.45)",
+
+    zIndex:999999,
+
+    display:"flex",
+    alignItems:"flex-end"
+  }}
+>
+
+  <div
+    onClick={(e)=>
+      e.stopPropagation()
+    }
+    style={{
+      width:"100%",
+      background:"#fff",
+
+      borderTopLeftRadius:"28px",
+      borderTopRightRadius:"28px",
+
+      padding:"24px"
+    }}
+  >
+
+    <div
+      style={{
+        textAlign:"center",
+        fontSize:"20px",
+        fontWeight:700,
+        marginBottom:"18px"
+      }}
+    >
+      Действия
+    </div>
+
+    <div
+      onClick={()=>{
+        setShowActions(false);
+        setShowReportModal(true);
+      }}
+      style={actionItem}
+    >
+      ⚠️ Пожаловаться
+    </div>
+
+    <div
+      onClick={()=>{
+        setShowActions(false);
+        setShowBlockModal(true);
+      }}
+      style={{
+        ...actionItem,
+        color:"#FF4D4F"
+      }}
+    >
+      🚫 Заблокировать
+    </div>
+
+  </div>
+
+</div>
+
+)}
 
 {showGallery && (
 
@@ -443,3 +501,11 @@ fontWeight:600
 
   );
 }
+const actionItem = {
+  padding:"16px",
+  borderRadius:"16px",
+  background:"#F5F7FB",
+  marginBottom:"10px",
+  cursor:"pointer",
+  fontWeight:600
+};
