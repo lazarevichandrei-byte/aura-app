@@ -624,34 +624,7 @@ if (isOnboarding) {
     return;
   }
 
-  if(navigator.permissions){
-
-    try{
-
-      const permission =
-        await navigator.permissions.query({
-          name:"geolocation" as PermissionName
-        });
-
-      console.log(
-        "Permission:",
-        permission.state
-      );
-
-      if(permission.state === "denied"){
-
-        alert(
-          "У Telegram нет доступа к геолокации.\n\nРазрешите доступ в настройках телефона."
-        );
-
-        return;
-      }
-
-    }catch(e){
-      console.log(e);
-    }
-
-  }
+  
 
   navigator.geolocation.getCurrentPosition(
 
@@ -735,34 +708,50 @@ alert(
 
     },
 
-    (error)=>{
+    async (error)=>{
 
   console.log(error);
 
-  console.log(
-    navigator.userAgent
-  );
+  try{
 
-  console.log(
-    window.location.protocol
-  );
+    const response =
+      await fetch("/api/location");
 
-  console.log(
-    navigator.permissions
-  );
+    const geo =
+      await response.json();
 
-  alert(
-`Код ${error.code}
+    console.log("IP GEO:", geo);
 
-${error.message}`
-  );
+    if(geo.city){
+
+      await supabase
+        .from("users")
+        .update({
+          city: geo.city
+        })
+        .eq("telegram_id", telegramId);
+
+      setCity(geo.city);
+
+      alert(`Город определён: ${geo.city}`);
+
+      return;
+    }
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+  alert("Не удалось определить местоположение.");
 
 },
 
  {
   enableHighAccuracy: false,
-  timeout: 5000,
-  maximumAge: 300000
+  timeout: 3000,
+  maximumAge: 600000
 }
 
   );
