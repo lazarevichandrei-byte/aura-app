@@ -204,7 +204,8 @@ const { data: me } = await supabase
     photos,
     main_photo_index,
     latitude,
-    longitude
+    longitude,
+    search_radius
 `)
   .eq("id", myId)
   .single();
@@ -298,8 +299,18 @@ if(data){
     };
   });
 
+  const sorted =
+  [...withDistance].sort((a,b)=>{
+
+    if(a.distance === null) return 1;
+    if(b.distance === null) return -1;
+
+    return a.distance - b.distance;
+
+  });
+
 const filtered =
-  withDistance.filter(u => {
+  sorted.filter(u => {
   console.log("ALL USERS:", data);
 console.log("LIKES:", liked);
 
@@ -309,6 +320,14 @@ console.log("LIKES:", liked);
 
   if(
   blockedIds.includes(u.id)
+){
+  return false;
+}
+
+if(
+  me?.search_radius &&
+  u.distance &&
+  u.distance > me.search_radius
 ){
   return false;
 }
@@ -333,7 +352,59 @@ if(iLikedUser){
 console.log("FILTERED USERS:", filtered);
 console.log("COUNT:", filtered.length);
 
-setUsers(filtered);
+let finalUsers = filtered;
+
+if(finalUsers.length < 5){
+
+  console.log(
+    "Мало анкет, расширяем радиус"
+  );
+
+  finalUsers =
+    sorted.filter(u => {
+
+      if(u.id === myId){
+        return false;
+      }
+
+      if(
+        blockedIds.includes(u.id)
+      ){
+        return false;
+      }
+
+      const iLikedUser =
+        liked?.some(
+          l =>
+            l.from_user_id === myId &&
+            l.to_user_id === u.id &&
+            l.status === "pending"
+        );
+
+      if(iLikedUser){
+        return false;
+      }
+
+      if(
+        me?.search_radius &&
+        u.distance &&
+        u.distance >
+        me.search_radius * 2
+      ){
+        return false;
+      }
+
+      return true;
+    });
+
+  console.log(
+    "После расширения:",
+    finalUsers.length
+  );
+}
+
+setUsers(finalUsers);
+
 setIndex(0);
 
 
