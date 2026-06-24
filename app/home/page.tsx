@@ -48,6 +48,44 @@ useEffect(() => {
 }, [myId]);
 
 
+async function saveLocation(userId:string){
+
+  if(!navigator.geolocation){
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    async(position)=>{
+
+      await supabase
+        .from("users")
+        .update({
+          latitude:
+            position.coords.latitude,
+
+          longitude:
+            position.coords.longitude
+        })
+        .eq("id", userId);
+
+    },
+
+    (err)=>{
+      console.log(
+        "GPS ERROR",
+        err
+      );
+    },
+
+    {
+      enableHighAccuracy:true
+    }
+
+  );
+
+}
+
 useEffect(() => {
 
   const waitTelegram = () => {
@@ -101,6 +139,7 @@ async function initUser(tgId:number){
   );
 
   setMyId(user.id);
+  saveLocation(user.id);
   console.log("SET MYID:", user.id);
   
 
@@ -131,6 +170,7 @@ async function initUser(tgId:number){
   );
 
   setMyId(newUser.id);
+  saveLocation(newUser.id);
   console.log("SET MYID NEW:", newUser.id);
 }
 }
