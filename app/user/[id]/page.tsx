@@ -15,6 +15,9 @@ export default function UserProfilePage() {
   const [showReportModal,setShowReportModal] =
 useState(false);
 
+const [reportReason,setReportReason] =
+useState("");
+
 const [showBlockModal,setShowBlockModal] =
 useState(false);
 
@@ -32,6 +35,8 @@ useState(0);
   }, []);
 
   async function loadUser(){
+
+    
 
     async function blockUser(){
 
@@ -54,10 +59,7 @@ useState(0);
 
   await supabase
     .from("blocked_users")
-    .insert({
-      blocker_id: me.id,
-      blocked_id: user.id
-    });
+    
 
   router.push("/home");
 }
@@ -76,7 +78,46 @@ useState(0);
 
   }
 
+async function submitReport(){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if(!telegramId) return;
+
+  const { data: me } =
+    await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .single();
+
+  if(!me) return;
+
+  if(!reportReason){
+    alert("Выберите причину");
+    return;
+  }
+
+  await supabase
+    .from("reports")
+    .insert({
+      reporter_id: me.id,
+      reported_user_id: user.id,
+      reason: reportReason
+    });
+
+  setShowReportModal(false);
+  setReportReason("");
+
+  alert("Жалоба отправлена");
+}
+
   if(!user){
+
     return (
       <div
         style={{
@@ -533,6 +574,115 @@ fontWeight:600
 </div>
 
 )}
+
+
+{showReportModal && (
+
+<div
+  onClick={() =>
+    setShowReportModal(false)
+  }
+  style={{
+    position:"fixed",
+    inset:0,
+
+    background:"rgba(0,0,0,.45)",
+
+    zIndex:999999,
+
+    display:"flex",
+    alignItems:"flex-end"
+  }}
+>
+
+  <div
+    onClick={(e)=>
+      e.stopPropagation()
+    }
+    style={{
+      width:"100%",
+      background:"#fff",
+
+      borderTopLeftRadius:"28px",
+      borderTopRightRadius:"28px",
+
+      padding:"24px"
+    }}
+  >
+
+    <div
+      style={{
+        textAlign:"center",
+        fontSize:"20px",
+        fontWeight:700,
+        marginBottom:"18px"
+      }}
+    >
+      Пожаловаться
+    </div>
+
+    {[
+      "Спам",
+      "Фейк аккаунт",
+      "Оскорбления",
+      "Неприемлемый контент",
+      "Другое"
+    ].map(item => (
+
+      <div
+        key={item}
+        onClick={() =>
+          setReportReason(item)
+        }
+        style={{
+          padding:"16px",
+          borderRadius:"16px",
+
+          marginBottom:"10px",
+
+          background:
+            reportReason === item
+            ? "#E8F4FF"
+            : "#F5F7FB",
+
+          border:
+            reportReason === item
+            ? "2px solid #2AABEE"
+            : "2px solid transparent",
+
+          cursor:"pointer"
+        }}
+      >
+        {item}
+      </div>
+
+    ))}
+
+    <button
+      onClick={submitReport}
+      style={{
+        width:"100%",
+        height:"52px",
+
+        border:"none",
+        borderRadius:"16px",
+
+        background:"#2AABEE",
+        color:"#fff",
+
+        fontWeight:600,
+        marginTop:"10px"
+      }}
+    >
+      Отправить жалобу
+    </button>
+
+  </div>
+
+</div>
+
+)}
+
 
 {showGallery && (
 
