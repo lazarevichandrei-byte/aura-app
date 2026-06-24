@@ -93,16 +93,72 @@ useState(false);
 
         </div>
 
-        <img
-          src={photos[0]}
-          alt=""
-          style={{
-            width:"100%",
-            height:"500px",
-            objectFit:"cover",
-            borderRadius:"28px"
-          }}
-        />
+      <div
+  style={{
+    position:"relative"
+  }}
+>
+
+  <img
+    src={photos[0]}
+    alt=""
+    style={{
+      width:"100%",
+      height:"62vh",
+      objectFit:"cover",
+      borderRadius:"32px"
+    }}
+  />
+
+  <div
+    style={{
+      position:"absolute",
+      left:0,
+      right:0,
+      bottom:0,
+      height:"45%",
+
+      borderRadius:"0 0 32px 32px",
+
+      background:`
+      linear-gradient(
+        to top,
+        rgba(0,0,0,.75),
+        rgba(0,0,0,.05)
+      )`
+    }}
+  />
+
+  <div
+    style={{
+      position:"absolute",
+      left:"24px",
+      bottom:"24px",
+      color:"#fff"
+    }}
+  >
+
+    <div
+      style={{
+        fontSize:"30px",
+        fontWeight:700
+      }}
+    >
+      {user.name}, {user.age}
+    </div>
+
+    <div
+      style={{
+        marginTop:"8px",
+        opacity:.95
+      }}
+    >
+      📍 {user.city}
+    </div>
+
+  </div>
+
+</div>
 
         <div
           style={{
@@ -134,46 +190,79 @@ useState(false);
               lineHeight:1.5
             }}
           >
+<div
+  style={{
+    fontSize:"18px",
+    fontWeight:700,
+    marginBottom:"12px"
+  }}
+>
+  О себе
+</div>
+
+
+
             {user.bio}
           </div>
 
           <div
-            style={{
-              marginTop:"20px",
-              display:"flex",
-              flexWrap:"wrap",
-              gap:"8px"
-            }}
-          >
-            {(user.interests || []).map(
-              (item:string) => (
+  style={{
+    marginTop:"28px"
+  }}
+>
 
-                <div
-                  key={item}
-                  style={{
-                    padding:"8px 12px",
-                    borderRadius:"999px",
-                    background:"#EEF5FF",
-                    color:"#2AABEE",
-                    fontSize:"13px"
-                  }}
-                >
-                  {item}
-                </div>
+  <div
+    style={{
+      fontSize:"18px",
+      fontWeight:700,
+      marginBottom:"14px"
+    }}
+  >
+    Интересы
+  </div>
 
-                
+  <div
+    style={{
+      display:"flex",
+      flexWrap:"wrap",
+      gap:"8px"
+    }}
+  >
+    {(user.interests || []).map(
+      (item:string) => (
 
-              )
-            )}
+        <div
+          key={item}
+          style={{
+            padding:"8px 12px",
+            borderRadius:"999px",
+            background:"#EEF5FF",
+            color:"#2AABEE",
+            fontSize:"13px"
+          }}
+        >
+          {item}
+        </div>
 
-            
-          </div>
+      )
+    )}
+  </div>
 
+</div>
           {/* КНОПКИ */}
 
 <div
   style={{
-    marginTop:"32px"
+    marginTop:"18px",
+
+    background:"#fff",
+
+    borderRadius:"24px",
+
+    padding:"22px",
+
+    boxShadow:
+      "0 6px 18px rgba(0,0,0,.04)"
   }}
 >
 
