@@ -200,12 +200,14 @@ const { data: me } = await supabase
   .from("users")
   .select(`
     id,
+    age,
     avatar_url,
     photos,
     main_photo_index,
     latitude,
     longitude,
-    search_radius
+    search_radius,
+    looking
 `)
   .eq("id", myId)
   .single();
@@ -257,6 +259,7 @@ const { data } = await supabase
   telegram_id,
   name,
   age,
+  gender,
   city,
   bio,
   avatar_url,
@@ -325,6 +328,36 @@ console.log("LIKES:", liked);
 }
 
 if(
+  me?.looking === "female" &&
+  u.gender !== "female"
+){
+  return false;
+}
+
+if(
+  me?.looking === "male" &&
+  u.gender !== "male"
+){
+  return false;
+}
+
+const minAge =
+  (me?.age || 18) - 5;
+
+const maxAge =
+  (me?.age || 18) + 5;
+
+if(
+  u.age &&
+  (
+    u.age < minAge ||
+    u.age > maxAge
+  )
+){
+  return false;
+}
+
+if(
   me?.search_radius &&
   u.distance &&
   u.distance > me.search_radius
@@ -353,6 +386,85 @@ console.log("FILTERED USERS:", filtered);
 console.log("COUNT:", filtered.length);
 
 let finalUsers = filtered;
+
+if(finalUsers.length < 5){
+
+  console.log(
+    "Мало анкет, расширяем возраст"
+  );
+
+  finalUsers =
+    sorted.filter(u => {
+
+      if(u.id === myId){
+        return false;
+      }
+
+      if(
+        blockedIds.includes(u.id)
+      ){
+        return false;
+      }
+
+      const iLikedUser =
+        liked?.some(
+          l =>
+            l.from_user_id === myId &&
+            l.to_user_id === u.id &&
+            l.status === "pending"
+        );
+
+      if(iLikedUser){
+        return false;
+      }
+
+      if(
+        me?.looking === "female" &&
+        u.gender !== "female"
+      ){
+        return false;
+      }
+
+      if(
+        me?.looking === "male" &&
+        u.gender !== "male"
+      ){
+        return false;
+      }
+
+      const minAge =
+        (me?.age || 18) - 10;
+
+      const maxAge =
+        (me?.age || 18) + 10;
+
+      if(
+        u.age &&
+        (
+          u.age < minAge ||
+          u.age > maxAge
+        )
+      ){
+        return false;
+      }
+
+      if(
+        me?.search_radius &&
+        u.distance &&
+        u.distance >
+        me.search_radius
+      ){
+        return false;
+      }
+
+      return true;
+    });
+
+  console.log(
+    "После расширения возраста:",
+    finalUsers.length
+  );
+}
 
 if(finalUsers.length < 5){
 
@@ -386,6 +498,36 @@ if(finalUsers.length < 5){
       }
 
       if(
+        me?.looking === "female" &&
+        u.gender !== "female"
+      ){
+        return false;
+      }
+
+      if(
+        me?.looking === "male" &&
+        u.gender !== "male"
+      ){
+        return false;
+      }
+
+      const minAge =
+        (me?.age || 18) - 10;
+
+      const maxAge =
+        (me?.age || 18) + 10;
+
+      if(
+        u.age &&
+        (
+          u.age < minAge ||
+          u.age > maxAge
+        )
+      ){
+        return false;
+      }
+
+      if(
         me?.search_radius &&
         u.distance &&
         u.distance >
@@ -398,7 +540,7 @@ if(finalUsers.length < 5){
     });
 
   console.log(
-    "После расширения:",
+    "После расширения радиуса:",
     finalUsers.length
   );
 }
