@@ -18,6 +18,12 @@ useState(false);
 const [showBlockModal,setShowBlockModal] =
 useState(false);
 
+const [showGallery,setShowGallery] =
+useState(false);
+
+const [photoIndex,setPhotoIndex] =
+useState(0);
+
   useEffect(() => {
     loadUser();
   }, []);
@@ -56,6 +62,7 @@ useState(false);
 
   return (
 
+<>
     <div
       style={{
         minHeight:"100vh",
@@ -99,12 +106,15 @@ useState(false);
   }}
 >
 
-  <img
-    src={photos[0]}
+ <img
+  onClick={() =>
+    setShowGallery(true)
+  }
+  src={photos[photoIndex]}
     alt=""
     style={{
       width:"100%",
-      height:"62vh",
+      height:"420px",
       objectFit:"cover",
       borderRadius:"32px"
     }}
@@ -148,41 +158,45 @@ useState(false);
     </div>
 
     <div
-      style={{
-        marginTop:"8px",
-        opacity:.95
-      }}
-    >
-      📍 {user.city}
-    </div>
+  style={{
+    marginTop:"8px",
+    opacity:.95,
+    fontSize:"15px"
+  }}
+>
+  📍 {user.city} • 2 км от вас
+</div>
+
+<div
+  style={{
+    marginTop:"6px",
+    fontSize:"14px",
+    opacity:.85
+  }}
+>
+  🟢 Онлайн
+</div>
 
   </div>
 
 </div>
 
         <div
-          style={{
-            marginTop:"20px"
-          }}
-        >
+  style={{
+    marginTop:"16px",
 
-          <h2
-            style={{
-              fontSize:"28px",
-              fontWeight:700
-            }}
-          >
-            {user.name}, {user.age}
-          </h2>
+    background:"#fff",
 
-          <div
-            style={{
-              color:"#7B8595",
-              marginTop:"6px"
-            }}
-          >
-            📍 {user.city}
-          </div>
+    borderRadius:"24px",
+
+    padding:"22px",
+
+    boxShadow:
+      "0 6px 18px rgba(0,0,0,.04)"
+  }}
+>
+
+          
 
           <div
             style={{
@@ -210,6 +224,8 @@ useState(false);
     marginTop:"28px"
   }}
 >
+
+
 
   <div
     style={{
@@ -249,7 +265,10 @@ useState(false);
   </div>
 
 </div>
-          {/* КНОПКИ */}
+
+</div>
+
+{/* КНОПКИ */}
 
 <div
   style={{
@@ -305,7 +324,40 @@ useState(false);
 
       </div>
 
-    </div>
+    
+
+{showGallery && (
+
+<div
+  onClick={() =>
+    setShowGallery(false)
+  }
+  style={{
+    position:"fixed",
+    inset:0,
+    background:"#000",
+    zIndex:999999,
+
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center"
+  }}
+>
+
+  <img
+    src={photos[photoIndex]}
+    style={{
+      width:"100%",
+      height:"100%",
+      objectFit:"contain"
+    }}
+  />
+
+</div>
+
+)}
+
+</>
 
   );
 }
