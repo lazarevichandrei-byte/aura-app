@@ -179,6 +179,17 @@ const likedIds =
     ) || [];
 
 
+const { data: blocked } =
+  await supabase
+    .from("blocked_users")
+    .select("blocked_id")
+    .eq("blocker_id", myId);
+
+const blockedIds =
+  blocked?.map(
+    b => b.blocked_id
+  ) || [];
+
 const { data } = await supabase
   .from("users")
 
@@ -206,6 +217,12 @@ console.log("LIKES:", liked);
   if(u.id === myId){
     return false;
   }
+
+  if(
+  blockedIds.includes(u.id)
+){
+  return false;
+}
 
  const iLikedUser =
 liked?.some(
