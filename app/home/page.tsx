@@ -661,6 +661,8 @@ zIndex:8
     {currentUser.name}, {currentUser.age}
   </h2>
 
+  
+
   {currentUser.is_verified && (
     <div
       style={{
@@ -692,13 +694,23 @@ color:"#70717C"
 
 <div
   style={{
-    marginTop:"6px",
+    marginTop:"4px",
     display:"flex",
     alignItems:"center",
-    gap:"8px"
+    gap:"8px",
+    flexWrap:"wrap",
+    fontSize:"13px",
+    color:"#70717C"
   }}
 >
-  <div
+  <span>
+    📍 {currentUser.city}
+    {currentUser.distance
+      ? ` • ${Math.round(currentUser.distance)} км`
+      : ""}
+  </span>
+
+  <span
     style={{
       color:
         currentUser.last_seen &&
@@ -707,17 +719,18 @@ color:"#70717C"
         < 5 * 60 * 1000
           ? "#22C55E"
           : "#9CA3AF",
-      fontSize:"12px",
       fontWeight:600
     }}
   >
-    {currentUser.last_seen &&
-    Date.now() -
+    ● {
+      currentUser.last_seen &&
+      Date.now() -
       new Date(currentUser.last_seen).getTime()
       < 5 * 60 * 1000
-      ? "● Онлайн"
-      : "● Был недавно"}
-  </div>
+        ? "Онлайн"
+        : "Был недавно"
+    }
+  </span>
 </div>
 
 {currentUser.distance
@@ -740,14 +753,7 @@ color:"#70717C"
   </div>
 )}
 
-<div
-style={{
-display:"flex",
-flexWrap:"wrap",
-gap:8
-}}
->
-  <button
+<button
   onClick={() =>
     router.push(
       `/user/${currentUser.id}`
@@ -755,36 +761,47 @@ gap:8
   }
   style={{
     marginTop:"14px",
+    marginBottom:"12px",
+
     height:"42px",
     padding:"0 18px",
+
     border:"none",
     borderRadius:"999px",
+
     background:"#EEF5FF",
     color:"#2AABEE",
+
     fontWeight:600,
     cursor:"pointer"
   }}
 >
   Смотреть профиль
 </button>
-{(
-currentUser.interests || [
-"Путешествия","Музыка","Спорт","Кино","Фото"
-]
-).map((tag:string)=>(
+
 <div
-key={tag}
-style={{
-padding:"6px 11px",
-borderRadius:999,
-background:"#EEF5FF",
-color:"#4D8DFF",
-fontSize:11.5
-}}
+  style={{
+    display:"flex",
+    flexWrap:"wrap",
+    gap:"8px"
+  }}
 >
-{tag}
-</div>
-))}
+  {(currentUser.interests || []).map(
+    (tag:string)=>(
+      <div
+        key={tag}
+        style={{
+          padding:"6px 11px",
+          borderRadius:"999px",
+          background:"#EEF5FF",
+          color:"#4D8DFF",
+          fontSize:"11.5px"
+        }}
+      >
+        {tag}
+      </div>
+    )
+  )}
 </div>
 
 </div>
