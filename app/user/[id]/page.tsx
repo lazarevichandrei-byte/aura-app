@@ -279,7 +279,7 @@ await supabase
     alt=""
     style={{
       width:"100%",
-      height:"320px",
+      height:"260px",
       objectFit:"cover",
       borderRadius:"32px"
     }}
@@ -314,13 +314,40 @@ await supabase
   >
 
     <div
-      style={{
-        fontSize:"24px",
-        fontWeight:700
-      }}
-    >
-      {user.name}, {user.age}
-    </div>
+  style={{
+    display:"flex",
+    alignItems:"center",
+    gap:"8px"
+  }}
+>
+  <div
+    style={{
+      fontSize:"24px",
+      fontWeight:700
+    }}
+  >
+    {user.name}, {user.age}
+  </div>
+
+  <div
+    style={{
+      width:"20px",
+      height:"20px",
+      borderRadius:"50%",
+      background:"#2AABEE",
+
+      display:"flex",
+      alignItems:"center",
+      justifyContent:"center",
+
+      color:"#fff",
+      fontSize:"12px",
+      fontWeight:700
+    }}
+  >
+    ✓
+  </div>
+</div>
 
     <div
   style={{
@@ -329,7 +356,7 @@ await supabase
     fontSize:"15px"
   }}
 >
-  📍 {user.city} • 2 км от вас
+  📍 {user.city}
 </div>
 
 <div
@@ -352,16 +379,7 @@ await supabase
     📸 {photos.length} фото
   </div>
 
-  <div
-    style={{
-      background:"rgba(255,255,255,.18)",
-      padding:"6px 10px",
-      borderRadius:"999px",
-      fontSize:"12px"
-    }}
-  >
-    ⭐ Проверен
-  </div>
+  
 
 </div>
 
@@ -481,16 +499,58 @@ fontWeight:600
 
       )
     )}
+    
   </div>
 
-</div>
+  
 
 </div>
 
 
-        </div>
+</div>
 
-      </div>
+<div
+  style={{
+    marginTop:"24px"
+  }}
+>
+  <div
+    style={{
+      fontSize:"18px",
+      fontWeight:700,
+      marginBottom:"12px"
+    }}
+  >
+    Расположение
+  </div>
+
+  <div
+    style={{
+      background:"#F7F9FC",
+      borderRadius:"16px",
+      padding:"14px"
+    }}
+  >
+    📍 {user.city || "Не указано"}
+
+    <div
+      style={{
+        marginTop:"4px",
+        color:"#8B95A7",
+        fontSize:"13px"
+      }}
+    >
+      2 км от вас
+    </div>
+  </div>
+</div>
+
+</div>
+
+</div>
+        
+
+      
 
     
 
