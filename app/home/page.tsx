@@ -40,6 +40,44 @@ const [boostPressed,setBoostPressed]=useState(false);
 const startX=useRef(0);
 
 
+function getDistanceKm(
+  lat1:number,
+  lon1:number,
+  lat2:number,
+  lon2:number
+){
+
+  const R = 6371;
+
+  const dLat =
+    (lat2 - lat1) * Math.PI / 180;
+
+  const dLon =
+    (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) *
+    Math.sin(dLat / 2)
+    +
+    Math.cos(lat1 * Math.PI / 180)
+    *
+    Math.cos(lat2 * Math.PI / 180)
+    *
+    Math.sin(dLon / 2)
+    *
+    Math.sin(dLon / 2);
+
+  return (
+    R *
+    2 *
+    Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1 - a)
+    )
+  );
+}
+
+
 
 const [myId,setMyId] = useState<string | null>(null);
 
@@ -164,8 +202,10 @@ const { data: me } = await supabase
     id,
     avatar_url,
     photos,
-    main_photo_index
-  `)
+    main_photo_index,
+    latitude,
+    longitude
+`)
   .eq("id", myId)
   .single();
 
@@ -221,14 +261,43 @@ const { data } = await supabase
     avatar_url,
     photos,
     main_photo_index,
-    interests
-  `)
+    interests,
+    latitude,
+    longitude
+`)
   .neq("id", myId)
   .limit(30);
 
 if(data){
 
-const filtered = data.filter(u => {
+  const withDistance =
+  data.map(user => {
+
+    if(
+      !me?.latitude ||
+      !me?.longitude ||
+      !user.latitude ||
+      !user.longitude
+    ){
+      return {
+        ...user,
+        distance:null
+      };
+    }
+
+    return {
+      ...user,
+      distance:getDistanceKm(
+        me.latitude,
+        me.longitude,
+        user.latitude,
+        user.longitude
+      )
+    };
+  });
+
+const filtered =
+  withDistance.filter(u => {
   console.log("ALL USERS:", data);
 console.log("LIKES:", liked);
 
@@ -565,7 +634,12 @@ marginTop:4,
 fontSize:13,
 color:"#70717C"
 }}>
-📍 {currentUser.city}, 2 км от вас
+📍 {currentUser.city}
+
+{currentUser.distance
+  ? ` • ${Math.round(currentUser.distance)} км`
+  : ""
+}
 </div>
 
 <p
