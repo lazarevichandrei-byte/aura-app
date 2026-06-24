@@ -628,6 +628,10 @@ if (isOnboarding) {
 
     async(position)=>{
 
+      console.log("GPS OK");
+console.log(position.coords.latitude);
+console.log(position.coords.longitude);
+
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
 
@@ -652,11 +656,15 @@ const response = await fetch(url,{
   }
 });
 
+console.log("FETCH STATUS", response.status);
+
 if(!response.ok){
   throw new Error("Nominatim error");
 }
 
         const geo = await response.json();
+
+        console.log(geo);
 
         const detectedCity =
           geo.address?.city ||
