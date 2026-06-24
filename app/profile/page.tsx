@@ -866,87 +866,49 @@ alert(
         <div
   style={{
     marginTop:"14px",
-    background:"#fff",
-    border:"1px solid #E8EEF5",
-    borderRadius:"18px",
-    padding:"16px",
-    boxShadow:"0 4px 12px rgba(0,0,0,.03)"
+    padding:"14px 16px",
+    background:"#F9FAFB",
+    borderRadius:"16px",
+
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"space-between"
   }}
 >
-  <div
-    style={{
-      display:"flex",
-      alignItems:"center",
-      justifyContent:"space-between"
-    }}
-  >
-    <div>
-      <div
-        style={{
-          fontSize:"12px",
-          color:"#8A94A6",
-          marginBottom:"4px"
-        }}
-      >
-        Местоположение
-      </div>
-
-      <div
-        style={{
-          fontSize:"16px",
-          fontWeight:700
-        }}
-      >
-        📍 {city || "Не указано"}
-      </div>
+  <div>
+    <div
+      style={{
+        fontSize:"12px",
+        color:"#8A94A6"
+      }}
+    >
+      Местоположение
     </div>
 
     <div
       style={{
-        width:"42px",
-        height:"42px",
-        borderRadius:"12px",
-        background:"#EEF7FF",
-
-        display:"flex",
-        alignItems:"center",
-        justifyContent:"center",
-
-        fontSize:"20px"
+        fontSize:"15px",
+        fontWeight:600,
+        marginTop:"2px"
       }}
     >
-      📍
+      📍 {city || "Не указано"}
     </div>
-  </div>
-
-  <div
-    style={{
-      marginTop:"8px",
-      fontSize:"12px",
-      color:"#8A94A6"
-    }}
-  >
-    Используется для поиска людей рядом
   </div>
 
   <button
     onClick={updateLocation}
     style={{
-      marginTop:"14px",
-      width:"100%",
-      height:"46px",
-
       border:"none",
-      borderRadius:"14px",
-
       background:"#EAF5FF",
       color:"#2AABEE",
-
-      fontWeight:600,
-      cursor:"pointer"
+      padding:"8px 12px",
+      borderRadius:"10px",
+      fontSize:"13px",
+      fontWeight:600
     }}
   >
-    Обновить местоположение
+    Обновить
   </button>
 </div>
 
