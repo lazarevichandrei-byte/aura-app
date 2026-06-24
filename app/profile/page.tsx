@@ -624,6 +624,35 @@ if (isOnboarding) {
     return;
   }
 
+  if(navigator.permissions){
+
+    try{
+
+      const permission =
+        await navigator.permissions.query({
+          name:"geolocation" as PermissionName
+        });
+
+      console.log(
+        "Permission:",
+        permission.state
+      );
+
+      if(permission.state === "denied"){
+
+        alert(
+          "У Telegram нет доступа к геолокации.\n\nРазрешите доступ в настройках телефона."
+        );
+
+        return;
+      }
+
+    }catch(e){
+      console.log(e);
+    }
+
+  }
+
   navigator.geolocation.getCurrentPosition(
 
     async(position)=>{
@@ -688,9 +717,17 @@ if(!response.ok){
           setCity(detectedCity);
         }
 
+        alert(
+  `Город определён: ${detectedCity}`
+);
+
       }catch(e){
 
-        console.log("Не удалось определить город");
+        console.log(e);
+
+alert(
+"Координаты получены, но город определить не удалось."
+);
 
       }
 
@@ -700,23 +737,33 @@ if(!response.ok){
 
     (error)=>{
 
-  console.log("GPS ERROR");
-  console.log(error.code);
-  console.log(error.message);
+  console.log(error);
+
+  console.log(
+    navigator.userAgent
+  );
+
+  console.log(
+    window.location.protocol
+  );
+
+  console.log(
+    navigator.permissions
+  );
 
   alert(
-    `Ошибка GPS\nКод: ${error.code}\n${error.message}`
+`Код ${error.code}
+
+${error.message}`
   );
 
 },
 
    {
 
-  enableHighAccuracy:false,
-
-  timeout:8000,
-
-  maximumAge:300000
+ enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
 
 }
 
