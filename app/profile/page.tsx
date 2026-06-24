@@ -652,8 +652,10 @@ console.log(position.coords.longitude);
 
 const response = await fetch(url,{
   headers:{
-    Accept:"application/json"
-  }
+    Accept:"application/json",
+    "Accept-Language":"ru"
+  },
+  cache:"no-store"
 });
 
 console.log("FETCH STATUS", response.status);
@@ -698,23 +700,25 @@ if(!response.ok){
 
     (error)=>{
 
-      console.log(error);
+  console.log("GPS ERROR");
+  console.log(error.code);
+  console.log(error.message);
 
-      alert(
-        "Разрешите доступ к геолокации в настройках телефона"
-      );
+  alert(
+    `Ошибка GPS\nКод: ${error.code}\n${error.message}`
+  );
 
-    },
+},
 
-    {
+   {
 
-      enableHighAccuracy:true,
+  enableHighAccuracy:false,
 
-      timeout:15000,
+  timeout:8000,
 
-      maximumAge:60000
+  maximumAge:300000
 
-    }
+}
 
   );
 
