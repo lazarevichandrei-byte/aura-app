@@ -616,6 +616,55 @@ if (isOnboarding) {
 }
   };
 
+
+  async function updateLocation(){
+
+  if(!navigator.geolocation){
+    alert("Геолокация не поддерживается");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    async(position)=>{
+
+      const lat =
+        position.coords.latitude;
+
+      const lng =
+        position.coords.longitude;
+
+      await supabase
+        .from("users")
+        .update({
+          latitude: lat,
+          longitude: lng
+        })
+        .eq(
+          "telegram_id",
+          telegramId
+        );
+
+      alert(
+        "Местоположение обновлено"
+      );
+
+    },
+
+    ()=>{
+      alert(
+        "Не удалось получить геолокацию"
+      );
+    },
+
+    {
+      enableHighAccuracy:true
+    }
+
+  );
+
+}
+
   
 
 
@@ -895,8 +944,9 @@ if (isOnboarding) {
     Используется для поиска людей рядом
   </div>
 
-  <button
-    style={{
+ <button
+  onClick={updateLocation}
+  style={{
       marginTop:"12px",
       width:"100%",
       height:"42px",
