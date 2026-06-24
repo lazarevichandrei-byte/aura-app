@@ -916,10 +916,7 @@ alert(
 
 </div>
 
-                <div style={styles.inputBox}>
-          <p style={styles.label}>Город</p>
-          <input value={city} onChange={(e)=>setCity(e.target.value)} style={styles.input}/>
-        </div>
+        
 
         <div
   style={{
