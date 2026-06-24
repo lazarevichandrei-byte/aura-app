@@ -252,18 +252,20 @@ const { data } = await supabase
   .from("users")
 
   .select(`
-    id,
-    telegram_id,
-    name,
-    age,
-    city,
-    bio,
-    avatar_url,
-    photos,
-    main_photo_index,
-    interests,
-    latitude,
-    longitude
+  id,
+  telegram_id,
+  name,
+  age,
+  city,
+  bio,
+  avatar_url,
+  photos,
+  main_photo_index,
+  interests,
+  latitude,
+  longitude,
+  last_seen,
+  is_verified
 `)
   .neq("id", myId)
   .limit(30);
@@ -519,7 +521,7 @@ onTouchMove={touchMove}
 onTouchEnd={touchEnd}
 style={{
 position:"relative",
-height:"62vh",
+height:"68vh",
 
 willChange:"transform",
 transformStyle:"preserve-3d",
@@ -577,18 +579,35 @@ zIndex:4
 />
 
 <div
-style={{
-position:"absolute",
-top:26,
-left:26,
-zIndex:12,
-background:"rgba(0,0,0,.35)",
-padding:"12px 18px",
-borderRadius:18,
-color:"#fff"
-}}
+  style={{
+    position:"absolute",
+    top:"14px",
+    left:"14px",
+    right:"14px",
+
+    display:"flex",
+    gap:"4px",
+
+    zIndex:20
+  }}
 >
-{photoIndex+1} / {photos.length}
+  {photos.map((_:any,i:number)=>(
+    <div
+      key={i}
+      style={{
+        flex:1,
+        height:"4px",
+        borderRadius:"999px",
+
+        background:
+          i === photoIndex
+            ? "#fff"
+            : "rgba(255,255,255,.35)",
+
+        transition:"all .2s ease"
+      }}
+    />
+  ))}
 </div>
 
 
@@ -625,9 +644,44 @@ zIndex:8
 }}
 >
 
-<h2 style={{margin:0,fontSize:18,fontWeight:600}}>
-{currentUser.name}, {currentUser.age}
-</h2>
+<div
+  style={{
+    display:"flex",
+    alignItems:"center",
+    gap:"8px"
+  }}
+>
+  <h2
+    style={{
+      margin:0,
+      fontSize:18,
+      fontWeight:600
+    }}
+  >
+    {currentUser.name}, {currentUser.age}
+  </h2>
+
+  {currentUser.is_verified && (
+    <div
+      style={{
+        width:"18px",
+        height:"18px",
+        borderRadius:"50%",
+        background:"#2AABEE",
+
+        display:"flex",
+        alignItems:"center",
+        justifyContent:"center",
+
+        color:"#fff",
+        fontSize:"11px",
+        fontWeight:700
+      }}
+    >
+      ✓
+    </div>
+  )}
+</div>
 
 <div style={{
 marginTop:4,
@@ -636,23 +690,55 @@ color:"#70717C"
 }}>
 📍 {currentUser.city}
 
+<div
+  style={{
+    marginTop:"6px",
+    display:"flex",
+    alignItems:"center",
+    gap:"8px"
+  }}
+>
+  <div
+    style={{
+      color:
+        currentUser.last_seen &&
+        Date.now() -
+        new Date(currentUser.last_seen).getTime()
+        < 5 * 60 * 1000
+          ? "#22C55E"
+          : "#9CA3AF",
+      fontSize:"12px",
+      fontWeight:600
+    }}
+  >
+    {currentUser.last_seen &&
+    Date.now() -
+      new Date(currentUser.last_seen).getTime()
+      < 5 * 60 * 1000
+      ? "● Онлайн"
+      : "● Был недавно"}
+  </div>
+</div>
+
 {currentUser.distance
   ? ` • ${Math.round(currentUser.distance)} км`
   : ""
 }
 </div>
 
-<p
-style={{
-marginTop:8,
-marginBottom:10,
-fontSize:14,
-lineHeight:1.3,
-maxWidth:"82%"
-}}
->
-{currentUser.bio || "Люблю путешествия и новые впечатления ✈✨"}
-</p>
+{currentUser.bio && (
+  <div
+    style={{
+      marginTop:8,
+      marginBottom:10,
+      fontSize:14,
+      lineHeight:1.4,
+      maxWidth:"82%"
+    }}
+  >
+    {currentUser.bio}
+  </div>
+)}
 
 <div
 style={{
