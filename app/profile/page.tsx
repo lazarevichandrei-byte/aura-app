@@ -759,12 +759,10 @@ ${error.message}`
 
 },
 
-   {
-
- enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-
+ {
+  enableHighAccuracy: false,
+  timeout: 5000,
+  maximumAge: 300000
 }
 
   );
