@@ -628,52 +628,84 @@ if (isOnboarding) {
 
     async(position)=>{
 
-      const lat =
-        position.coords.latitude;
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
 
-      const lng =
-        position.coords.longitude;
-
-        const response = await fetch(
-  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-);
-
-const geo = await response.json();
-
-const detectedCity =
-  geo.address?.city ||
-  geo.address?.town ||
-  geo.address?.village ||
-  "";
-
+      // 1. Сразу сохраняем координаты
       await supabase
-  .from("users")
-  .update({
-    latitude: lat,
-    longitude: lng,
-    city: detectedCity
-  })
-  .eq(
-    "telegram_id",
-    telegramId
-  );
+        .from("users")
+        .update({
+          latitude: lat,
+          longitude: lng
+        })
+        .eq("telegram_id", telegramId);
 
-setCity(detectedCity);
+      // 2. Пытаемся определить город
+      try{
 
-alert(
-  "Местоположение обновлено"
-);
+       const url =
+`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+const response = await fetch(url,{
+  headers:{
+    Accept:"application/json"
+  }
+});
+
+if(!response.ok){
+  throw new Error("Nominatim error");
+}
+
+        const geo = await response.json();
+
+        const detectedCity =
+          geo.address?.city ||
+          geo.address?.town ||
+          geo.address?.village ||
+          geo.address?.municipality ||
+          geo.address?.county ||
+          city;
+
+        if(detectedCity){
+
+          await supabase
+            .from("users")
+            .update({
+              city: detectedCity
+            })
+            .eq("telegram_id", telegramId);
+
+          setCity(detectedCity);
+        }
+
+      }catch(e){
+
+        console.log("Не удалось определить город");
+
+      }
+
+      alert("Местоположение обновлено");
 
     },
 
-    ()=>{
+    (error)=>{
+
+      console.log(error);
+
       alert(
-        "Не удалось получить геолокацию"
+        "Разрешите доступ к геолокации в настройках телефона"
       );
+
     },
 
     {
-      enableHighAccuracy:true
+
+      enableHighAccuracy:true,
+
+      timeout:15000,
+
+      maximumAge:60000
+
     }
 
   );

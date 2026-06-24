@@ -660,7 +660,7 @@ if(finalUsers.length < 5){
   );
 }
 
-setUsers(scoredUsers);
+setUsers(finalUsers);
 
 setIndex(0);
 
