@@ -12,6 +12,12 @@ export default function UserProfilePage() {
 
   const [user,setUser] = useState<any>(null);
 
+  const [showReportModal,setShowReportModal] =
+useState(false);
+
+const [showBlockModal,setShowBlockModal] =
+useState(false);
+
   useEffect(() => {
     loadUser();
   }, []);
@@ -155,9 +161,56 @@ export default function UserProfilePage() {
                   {item}
                 </div>
 
+                
+
               )
             )}
+
+            
           </div>
+
+          {/* КНОПКИ */}
+
+<div
+  style={{
+    marginTop:"32px"
+  }}
+>
+
+  <div
+    onClick={() =>
+      setShowReportModal(true)
+    }
+    style={{
+      background:"#FFF8F8",
+      color:"#FF7A7A",
+      padding:"16px 18px",
+      borderRadius:"18px",
+      marginBottom:"12px",
+      cursor:"pointer",
+      fontWeight:600
+    }}
+  >
+    ⚠️ Пожаловаться
+  </div>
+
+  <div
+    onClick={() =>
+      setShowBlockModal(true)
+    }
+    style={{
+      background:"#FFF3F3",
+      color:"#FF4D4F",
+      padding:"16px 18px",
+      borderRadius:"18px",
+      cursor:"pointer",
+      fontWeight:600
+    }}
+  >
+    🚫 Заблокировать
+  </div>
+
+</div>
 
         </div>
 
