@@ -19,38 +19,62 @@ export default function BlacklistPage(){
 
   async function loadBlocked(){
 
-    const tg =
-      (window as any)?.Telegram?.WebApp;
+  const tg =
+    (window as any)?.Telegram?.WebApp;
 
-    const telegramId =
-      tg?.initDataUnsafe?.user?.id;
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
 
-    if(!telegramId) return;
+  if(!telegramId) return;
 
-    const { data:me } =
-      await supabase
-        .from("users")
-        .select("id")
-        .eq("telegram_id", telegramId)
-        .single();
+  const { data: me } =
+    await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .single();
 
-    if(!me) return;
+  if(!me) return;
 
-    const { data } =
-      await supabase
-        .from("blocked_users")
-        .select(`
-          id,
-          blocked_user:blocked_user_id(
-            id,
-            name,
-            avatar_url
-          )
-        `)
-        .eq("user_id", me.id);
+  const { data: blocked } =
+    await supabase
+      .from("blocked_users")
+      .select("*")
+      .eq("user_id", me.id);
 
-    setUsers(data || []);
+  if(!blocked?.length){
+    setUsers([]);
+    return;
   }
+
+  const ids =
+    blocked.map(
+      (b:any) => b.blocked_user_id
+    );
+
+  const { data: usersData } =
+    await supabase
+      .from("users")
+      .select(`
+        id,
+        name,
+        avatar_url,
+        city
+      `)
+      .in("id", ids);
+
+  const result =
+    blocked.map((block:any) => ({
+      ...block,
+      blocked_user:
+        usersData?.find(
+          (u:any)=>
+            u.id === block.blocked_user_id
+        )
+    }));
+
+  setUsers(result);
+}
 
   async function unblock(
     blockId:string
@@ -168,14 +192,25 @@ export default function BlacklistPage(){
                 />
 
                 <div>
-                  <div
-                    style={{
-                      fontWeight:600
-                    }}
-                  >
-                    {user?.name}
-                  </div>
-                </div>
+  <div
+    style={{
+      fontWeight:600,
+      fontSize:"15px"
+    }}
+  >
+    {user?.name}
+  </div>
+
+  <div
+    style={{
+      fontSize:"12px",
+      color:"#8B95A7",
+      marginTop:"2px"
+    }}
+  >
+    📍 {user?.city || "Город не указан"}
+  </div>
+</div>
 
               </div>
 
