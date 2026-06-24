@@ -634,20 +634,35 @@ if (isOnboarding) {
       const lng =
         position.coords.longitude;
 
-      await supabase
-        .from("users")
-        .update({
-          latitude: lat,
-          longitude: lng
-        })
-        .eq(
-          "telegram_id",
-          telegramId
-        );
+        const response = await fetch(
+  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+);
 
-      alert(
-        "Местоположение обновлено"
-      );
+const geo = await response.json();
+
+const detectedCity =
+  geo.address?.city ||
+  geo.address?.town ||
+  geo.address?.village ||
+  "";
+
+      await supabase
+  .from("users")
+  .update({
+    latitude: lat,
+    longitude: lng,
+    city: detectedCity
+  })
+  .eq(
+    "telegram_id",
+    telegramId
+  );
+
+setCity(detectedCity);
+
+alert(
+  "Местоположение обновлено"
+);
 
     },
 
