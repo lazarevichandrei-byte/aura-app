@@ -376,17 +376,19 @@ await supabase
   }}
 >
 
-  <div>
-    🟢 Онлайн
-  </div>
-
   <div
-    style={{
-      opacity:.8
-    }}
-  >
-    ⚡ Активен сегодня
-  </div>
+  style={{
+    marginTop:"6px",
+    fontSize:"13px"
+  }}
+>
+  {user.last_seen &&
+   Date.now() -
+   new Date(user.last_seen).getTime()
+   < 5 * 60 * 1000
+    ? "🟢 Онлайн"
+    : "⚪ Был недавно"}
+</div>
 
 </div>
 

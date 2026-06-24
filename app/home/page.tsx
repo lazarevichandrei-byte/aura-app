@@ -88,6 +88,13 @@ async function initUser(tgId:number){
 
   if(user){
 
+    await supabase
+  .from("users")
+  .update({
+    last_seen: new Date().toISOString()
+  })
+  .eq("id", user.id);
+
   localStorage.setItem(
     "my_id",
     String(user.id)
@@ -110,6 +117,13 @@ async function initUser(tgId:number){
     .single();
 
  if(newUser){
+
+  await supabase
+  .from("users")
+  .update({
+    last_seen: new Date().toISOString()
+  })
+  .eq("id", newUser.id);
 
   localStorage.setItem(
     "my_id",
