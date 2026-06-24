@@ -344,6 +344,11 @@ setIndex(0);
 
 const currentUser=users[index];
 
+console.log(
+  "USER VERIFIED:",
+  currentUser?.is_verified
+);
+
 const photos=
 currentUser?.photos?.length
 ? currentUser.photos
@@ -685,20 +690,14 @@ zIndex:8
   )}
 </div>
 
-<div style={{
-marginTop:4,
-fontSize:13,
-color:"#70717C"
-}}>
-📍 {currentUser.city}
+
 
 <div
   style={{
     marginTop:"4px",
     display:"flex",
     alignItems:"center",
-    gap:"8px",
-    flexWrap:"wrap",
+    justifyContent:"space-between",
     fontSize:"13px",
     color:"#70717C"
   }}
@@ -805,7 +804,7 @@ color:"#70717C"
 </div>
 
 </div>
-</div>
+
 <div
 style={{
 marginTop:24,
