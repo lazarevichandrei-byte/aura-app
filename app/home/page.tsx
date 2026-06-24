@@ -405,6 +405,11 @@ padding:"18px 18px 118px"
 <>
 
 <div
+onClick={() =>
+  router.push(
+    `/user/${currentUser.id}`
+  )
+}
 onTouchStart={touchStart}
 onTouchMove={touchMove}
 onTouchEnd={touchEnd}
@@ -547,6 +552,26 @@ flexWrap:"wrap",
 gap:8
 }}
 >
+  <button
+  onClick={() =>
+    router.push(
+      `/user/${currentUser.id}`
+    )
+  }
+  style={{
+    marginTop:"14px",
+    height:"42px",
+    padding:"0 18px",
+    border:"none",
+    borderRadius:"999px",
+    background:"#EEF5FF",
+    color:"#2AABEE",
+    fontWeight:600,
+    cursor:"pointer"
+  }}
+>
+  Смотреть профиль
+</button>
 {(
 currentUser.interests || [
 "Путешествия","Музыка","Спорт","Кино","Фото"
