@@ -106,6 +106,36 @@ useState(0);
   }}
 >
 
+    <div
+  style={{
+    position:"absolute",
+    top:"12px",
+    left:"12px",
+    right:"12px",
+
+    display:"flex",
+    gap:"4px",
+
+    zIndex:20
+  }}
+>
+  {photos.map((_:any,i:number)=>(
+    <div
+      key={i}
+      style={{
+        flex:1,
+        height:"4px",
+        borderRadius:"999px",
+
+        background:
+          i === photoIndex
+            ? "#fff"
+            : "rgba(255,255,255,.35)"
+      }}
+    />
+  ))}
+</div>
+
  <img
   onClick={() =>
     setShowGallery(true)
@@ -114,7 +144,7 @@ useState(0);
     alt=""
     style={{
       width:"100%",
-      height:"420px",
+      height:"320px",
       objectFit:"cover",
       borderRadius:"32px"
     }}
@@ -150,7 +180,7 @@ useState(0);
 
     <div
       style={{
-        fontSize:"30px",
+        fontSize:"24px",
         fontWeight:700
       }}
     >
@@ -169,12 +199,60 @@ useState(0);
 
 <div
   style={{
-    marginTop:"6px",
-    fontSize:"14px",
-    opacity:.85
+    marginTop:"10px",
+
+    display:"flex",
+    gap:"8px"
   }}
 >
-  🟢 Онлайн
+
+  <div
+    style={{
+      background:"rgba(255,255,255,.18)",
+      padding:"6px 10px",
+      borderRadius:"999px",
+      fontSize:"12px"
+    }}
+  >
+    📸 {photos.length} фото
+  </div>
+
+  <div
+    style={{
+      background:"rgba(255,255,255,.18)",
+      padding:"6px 10px",
+      borderRadius:"999px",
+      fontSize:"12px"
+    }}
+  >
+    ⭐ Проверен
+  </div>
+
+</div>
+
+<div
+  style={{
+    marginTop:"6px",
+
+    display:"flex",
+    gap:"8px",
+
+    fontSize:"13px"
+  }}
+>
+
+  <div>
+    🟢 Онлайн
+  </div>
+
+  <div
+    style={{
+      opacity:.8
+    }}
+  >
+    ⚡ Активен сегодня
+  </div>
+
 </div>
 
   </div>
@@ -189,7 +267,7 @@ useState(0);
 
     borderRadius:"24px",
 
-    padding:"22px",
+    padding:"18px",
 
     boxShadow:
       "0 6px 18px rgba(0,0,0,.04)"
@@ -250,11 +328,15 @@ useState(0);
         <div
           key={item}
           style={{
-            padding:"8px 12px",
-            borderRadius:"999px",
-            background:"#EEF5FF",
-            color:"#2AABEE",
-            fontSize:"13px"
+            padding:"6px 10px",
+borderRadius:"999px",
+
+background:"#F3F7FF",
+
+color:"#2AABEE",
+
+fontSize:"12px",
+fontWeight:600
           }}
         >
           {item}
@@ -292,7 +374,7 @@ useState(0);
     style={{
       background:"#FFF8F8",
       color:"#FF7A7A",
-      padding:"16px 18px",
+      padding:"14px 16px",
       borderRadius:"18px",
       marginBottom:"12px",
       cursor:"pointer",
