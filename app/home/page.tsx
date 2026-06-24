@@ -182,12 +182,12 @@ const likedIds =
 const { data: blocked } =
   await supabase
     .from("blocked_users")
-    .select("blocked_id")
-    .eq("blocker_id", myId);
+    .select("blocked_user_id")
+    .eq("user_id", myId);
 
 const blockedIds =
   blocked?.map(
-    b => b.blocked_id
+    b => b.blocked_user_id
   ) || [];
 
 const { data } = await supabase

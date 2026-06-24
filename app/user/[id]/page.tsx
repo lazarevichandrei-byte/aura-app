@@ -33,6 +33,37 @@ useState(0);
 
   async function loadUser(){
 
+    async function blockUser(){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if(!telegramId) return;
+
+  const { data: me } =
+    await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .single();
+
+  if(!me) return;
+
+  await supabase
+    .from("blocked_users")
+    .insert({
+      blocker_id: me.id,
+      blocked_id: user.id
+    });
+
+  router.push("/home");
+}
+
+
+
     const { data } = await supabase
       .from("users")
       .select("*")
@@ -55,6 +86,34 @@ useState(0);
       />
     );
   }
+  async function blockUser(){
+
+  const tg =
+    (window as any)?.Telegram?.WebApp;
+
+  const telegramId =
+    tg?.initDataUnsafe?.user?.id;
+
+  if(!telegramId) return;
+
+  const { data: me } =
+    await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .single();
+
+  if(!me) return;
+
+await supabase
+  .from("blocked_users")
+  .insert({
+    user_id: me.id,
+    blocked_user_id: user.id
+  });
+
+  router.push("/home");
+}
 
   const photos =
     user.photos?.length
@@ -448,10 +507,19 @@ fontWeight:600
     </div>
 
     <div
-      onClick={()=>{
-        setShowActions(false);
-        setShowBlockModal(true);
-      }}
+     onClick={async()=>{
+
+  if(
+    confirm(
+      "Заблокировать пользователя?"
+    )
+  ){
+
+    await blockUser();
+
+  }
+
+}}
       style={{
         ...actionItem,
         color:"#FF4D4F"
