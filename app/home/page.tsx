@@ -660,9 +660,13 @@ if(finalUsers.length < 5){
   );
 }
 
+console.log("Найдено пользователей:", finalUsers.length);
+
 setUsers(finalUsers);
 
-setIndex(0);
+if(finalUsers.length > 0){
+  setIndex(0);
+}
 
 
 }
@@ -683,20 +687,22 @@ currentUser?.photos?.length
 : [];
 
 
-function nextUser(){
+async function nextUser(){
 
   setPhotoIndex(0);
   setDragX(0);
 
-  setIndex(prev => {
+  // дошли до конца списка
+  if(index + 1 >= users.length){
 
-    if(prev + 1 >= users.length){
-      return 0;
-    }
+    console.log("Карточки закончились, загружаем новые...");
 
-    return prev + 1;
+    await loadUsers();
 
-  });
+    return;
+  }
+
+  setIndex(prev => prev + 1);
 
 }
 
