@@ -14,7 +14,8 @@ export default function Home() {
 const router = useRouter();  
 
 const [users,setUsers]=useState<any[]>([]);
-const [index,setIndex]=useState(0);
+const [index,setIndex] = useState(0);
+
 const [photoIndex,setPhotoIndex]=useState(0);
 const [myProfile,setMyProfile]=useState<any>(null);
 
@@ -276,6 +277,8 @@ const { data } = await supabase
   `)
   .neq("id", myId);
 
+  console.log("ВСЕГО В БАЗЕ:", data?.length);
+
 if(data){
 
   const withDistance =
@@ -304,19 +307,15 @@ if(data){
     };
   });
 
-  const sorted =
-  [...withDistance].sort((a,b)=>{
+  const sorted = withDistance;
 
-    if(a.distance === null) return 1;
-    if(b.distance === null) return -1;
 
-    return a.distance - b.distance;
-
-  });
+  
 
 
 const scoredUsers = sorted
   .filter(user => {
+    
 
     if(user.id === myId){
       return false;
@@ -359,6 +358,19 @@ const scoredUsers = sorted
 
     let score = 0;
 
+    // Пользователь уже лайкнул меня
+const likedMe =
+  liked?.some(
+    l =>
+      l.from_user_id === user.id &&
+      l.to_user_id === myId &&
+      l.status === "pending"
+  );
+
+if(likedMe){
+  score += 150;
+}
+
     // возраст
     if(user.age){
 
@@ -396,14 +408,14 @@ const scoredUsers = sorted
         user.distance <=
         (me?.search_radius || 50)
       ){
-        score +=40;
+        score +=20;
       }
 
       else if(
         user.distance <=
         (me?.search_radius || 50) * 2
       ){
-        score +=20;
+        score +=8;
       }
 
     }
@@ -419,254 +431,41 @@ const scoredUsers = sorted
       score +=20;
     }
 
-    return {
-      ...user,
-      score
-    };
+   score += Math.random() * 15;
+
+return {
+  ...user,
+  score
+};
 
   })
   .sort((a,b)=>b.score-a.score);
-
-const filtered =
-  sorted.filter(u => {
-  console.log("ALL USERS:", data);
-console.log("LIKES:", liked);
-
-  if(u.id === myId){
-    return false;
-  }
-
-  if(
-  blockedIds.includes(u.id)
-){
-  return false;
-}
-
-if(
-  me?.looking === "female" &&
-  u.gender !== "female"
-){
-  return false;
-}
-
-if(
-  me?.looking === "male" &&
-  u.gender !== "male"
-){
-  return false;
-}
-
-const minAge =
-  (me?.age || 18) - 5;
-
-const maxAge =
-  (me?.age || 18) + 5;
-
-if(
-  u.age &&
-  (
-    u.age < minAge ||
-    u.age > maxAge
-  )
-){
-  return false;
-}
-
-if(
-  me?.search_radius &&
-  u.distance &&
-  u.distance > me.search_radius
-){
-  return false;
-}
-
- const iLikedUser =
-liked?.some(
-  l =>
-    l.from_user_id === myId &&
-    l.to_user_id === u.id &&
-    l.status === "pending"
+  
+  console.log(
+  "После фильтра:",
+  scoredUsers.length
 );
 
-if(iLikedUser){
-  return false;
+  console.table(
+  scoredUsers.map(u=>({
+    name: u.name,
+    score: u.score
+  }))
+);
+
+console.log("Всего пользователей:", data.length);
+console.log("После сортировки:", scoredUsers.length);
+
+setUsers(scoredUsers);
+
+if (scoredUsers.length > 0) {
+    setIndex(0);
 }
 
-  
 
-  return true;
-});
 
-console.log("FILTERED USERS:", filtered);
-console.log("COUNT:", filtered.length);
 
-let finalUsers = filtered;
 
-if(finalUsers.length < 5){
-
-  console.log(
-    "Мало анкет, расширяем возраст"
-  );
-
-  finalUsers =
-    sorted.filter(u => {
-
-      if(u.id === myId){
-        return false;
-      }
-
-      if(
-        blockedIds.includes(u.id)
-      ){
-        return false;
-      }
-
-      const iLikedUser =
-        liked?.some(
-          l =>
-            l.from_user_id === myId &&
-            l.to_user_id === u.id &&
-            l.status === "pending"
-        );
-
-      if(iLikedUser){
-        return false;
-      }
-
-      if(
-        me?.looking === "female" &&
-        u.gender !== "female"
-      ){
-        return false;
-      }
-
-      if(
-        me?.looking === "male" &&
-        u.gender !== "male"
-      ){
-        return false;
-      }
-
-      const minAge =
-        (me?.age || 18) - 10;
-
-      const maxAge =
-        (me?.age || 18) + 10;
-
-      if(
-        u.age &&
-        (
-          u.age < minAge ||
-          u.age > maxAge
-        )
-      ){
-        return false;
-      }
-
-      if(
-        me?.search_radius &&
-        u.distance &&
-        u.distance >
-        me.search_radius
-      ){
-        return false;
-      }
-
-      return true;
-    });
-
-  console.log(
-    "После расширения возраста:",
-    finalUsers.length
-  );
-}
-
-if(finalUsers.length < 5){
-
-  console.log(
-    "Мало анкет, расширяем радиус"
-  );
-
-  finalUsers =
-    sorted.filter(u => {
-
-      if(u.id === myId){
-        return false;
-      }
-
-      if(
-        blockedIds.includes(u.id)
-      ){
-        return false;
-      }
-
-      const iLikedUser =
-        liked?.some(
-          l =>
-            l.from_user_id === myId &&
-            l.to_user_id === u.id &&
-            l.status === "pending"
-        );
-
-      if(iLikedUser){
-        return false;
-      }
-
-      if(
-        me?.looking === "female" &&
-        u.gender !== "female"
-      ){
-        return false;
-      }
-
-      if(
-        me?.looking === "male" &&
-        u.gender !== "male"
-      ){
-        return false;
-      }
-
-      const minAge =
-        (me?.age || 18) - 10;
-
-      const maxAge =
-        (me?.age || 18) + 10;
-
-      if(
-        u.age &&
-        (
-          u.age < minAge ||
-          u.age > maxAge
-        )
-      ){
-        return false;
-      }
-
-      if(
-        me?.search_radius &&
-        u.distance &&
-        u.distance >
-        me.search_radius * 2
-      ){
-        return false;
-      }
-
-      return true;
-    });
-
-  console.log(
-    "После расширения радиуса:",
-    finalUsers.length
-  );
-}
-
-console.log("Найдено пользователей:", finalUsers.length);
-
-setUsers(finalUsers);
-
-if(finalUsers.length > 0){
-  setIndex(0);
-}
 
 
 }
@@ -692,19 +491,30 @@ async function nextUser(){
   setPhotoIndex(0);
   setDragX(0);
 
-  // дошли до конца списка
-  if(index + 1 >= users.length){
+  // убираем текущую карточку
+  const updatedUsers =
+    users.filter(
+      u => u.id !== currentUser.id
+    );
 
-    console.log("Карточки закончились, загружаем новые...");
+  setUsers(updatedUsers);
+
+  // если карточек осталось мало —
+  // загружаем заново всю базу
+  if(updatedUsers.length < 5){
+
+    console.log("Пересчитываем пользователей...");
 
     await loadUsers();
 
     return;
   }
 
-  setIndex(prev => prev + 1);
+  setIndex(0);
 
 }
+
+
 
 async function handleLike(){
 
