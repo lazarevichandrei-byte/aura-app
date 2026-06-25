@@ -458,6 +458,15 @@ console.log("После сортировки:", scoredUsers.length);
 
 setUsers(scoredUsers);
 
+console.table(
+  scoredUsers.map(u => ({
+    name: u.name,
+    age: u.age,
+    city: u.city,
+    id: u.id
+  }))
+);
+
 if (scoredUsers.length > 0) {
     setIndex(0);
 }
