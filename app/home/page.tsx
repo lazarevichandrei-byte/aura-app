@@ -467,9 +467,7 @@ console.table(
   }))
 );
 
-if (scoredUsers.length > 0) {
-    setIndex(0);
-}
+
 
 
 
@@ -483,7 +481,9 @@ if (scoredUsers.length > 0) {
 
 
 
-const currentUser=users[index];
+const currentUser = users.length > 0
+  ? users[0]
+  : null;
 
 
 
@@ -495,31 +495,23 @@ currentUser?.photos?.length
 : [];
 
 
-async function nextUser(){
+async function nextUser() {
+
+  if (!currentUser) return;
 
   setPhotoIndex(0);
   setDragX(0);
 
-  // убираем текущую карточку
-  const updatedUsers =
-    users.filter(
-      u => u.id !== currentUser.id
-    );
+  const updatedUsers = users.slice(1);
 
   setUsers(updatedUsers);
 
-  // если карточек осталось мало —
-  // загружаем заново всю базу
-  if(updatedUsers.length < 5){
+  if (updatedUsers.length < 5) {
 
-    console.log("Пересчитываем пользователей...");
+    console.log("Перезагружаем пользователей...");
 
     await loadUsers();
-
-    return;
   }
-
-  setIndex(0);
 
 }
 
@@ -1326,14 +1318,12 @@ onClick={async ()=>{
       .eq("id", matchChatId);
 
   }
+setShowMatch(false);
 
-  setShowMatch(false);
+await loadUsers();
 
-  await loadUsers();
-
-  setIndex(0);
-  setPhotoIndex(0);
-  setDragX(0);
+setPhotoIndex(0);
+setDragX(0);
 
 }}
 
