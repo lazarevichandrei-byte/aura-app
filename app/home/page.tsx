@@ -89,7 +89,7 @@ function getDistanceKm(
 
 
 
-const [myId,setMyId] = useState<number | null>(null);
+const [myId, setMyId] = useState<string | null>(null);
 
 useEffect(() => {
   console.log("MYID CHANGED:", myId);
@@ -209,105 +209,7 @@ function calculateScore(
 
   let score = 0;
 
-  // ❤️ Пользователь уже лайкнул меня
-  const likedMe = liked?.some(
-    l =>
-      l.from_user_id === user.id &&
-      l.to_user_id === me.id &&
-      l.status === "pending"
-  );
-
-  if (likedMe) {
-    score += 300;
-  }
-
-  // 👤 Возраст
-  if (user.age && me?.age) {
-
-    const diff =
-      Math.abs(user.age - me.age);
-
-    score += Math.max(
-      0,
-      80 - diff * 4
-    );
-
-  }
-
-  // 🎯 Общие интересы
-  const common =
-    (user.interests || [])
-      .filter((i: string) =>
-        myInterests.includes(i)
-      ).length;
-
-  score += common * 20;
-
-  // 📍 Расстояние
-
-  if (user.distance != null) {
-
-    if (user.distance <= 5)
-      score += 120;
-
-    else if (user.distance <= 20)
-      score += 90;
-
-    else if (user.distance <= 50)
-      score += 70;
-
-    else if (user.distance <= 100)
-      score += 50;
-
-    else
-      score += 20;
-
-  }
-
-  // 🟢 Онлайн
-
-  if (
-    user.last_seen &&
-    Date.now() -
-      new Date(user.last_seen).getTime()
-      <
-      5 * 60 * 1000
-  ) {
-
-    score += 20;
-
-  }
-
-  // ⭐ Верификация
-
-  if (user.is_verified) {
-
-    score += 10;
-
-  }
-
-// 🆕 Новый пользователь
-
-if (user.created_at) {
-
-  const hours =
-    (Date.now() -
-      new Date(user.created_at).getTime()) /
-    1000 / 60 / 60;
-
-  if (hours <= 24) {
-
-    score += 60;
-
-  } else if (hours <= 72) {
-
-    score += 30;
-
-  }
-
-}
-
-  return score;
+  
 
 }
 
@@ -341,9 +243,7 @@ function mergeUsers(
 function buildFeed(
   users: any[],
   me: any,
-  liked: any[],
-  blockedIds: number[],
-  myId: number
+  myId: string
 ) {
 
   const feed = users
@@ -354,21 +254,7 @@ function buildFeed(
       if (user.id === myId)
         return false;
 
-      // не показываем заблокированных
-      if (blockedIds.includes(user.id))
-        return false;
-
-      // пока скрываем пользователей,
-      // которым уже поставили pending лайк
-      const pending = liked?.some(
-        l =>
-          l.from_user_id === myId &&
-          l.to_user_id === user.id &&
-          l.status === "pending"
-      );
-
-      if (pending)
-        return false;
+      
 
       return true;
 
@@ -381,7 +267,7 @@ function buildFeed(
       score: calculateScore(
   user,
   me,
-  liked,
+  [],
   me?.interests || []
 )
 
@@ -389,64 +275,7 @@ function buildFeed(
 
     .sort((a,b)=>b.score-a.score);
 
-const likedMe = feed.filter(user =>
-
-  liked?.some(
-    l =>
-      l.from_user_id === user.id &&
-      l.to_user_id === myId &&
-      l.status === "pending"
-  )
-
-);
-
-const normal = feed.filter(user =>
-
-  !liked?.some(
-    l =>
-      l.from_user_id === user.id &&
-      l.to_user_id === myId &&
-      l.status === "pending"
-  )
-
-);
-
-const result:any[] = [];
-
-let likeIndex = 0;
-
-for(let i=0;i<normal.length;i++){
-
-  result.push(normal[i]);
-
-  if(
-    i % 3 === 2 &&
-    likedMe[likeIndex]
-  ){
-
-    result.push(
-      likedMe[likeIndex]
-    );
-
-    likeIndex++;
-
-  }
-
-}
-
-while(
-  likeIndex < likedMe.length
-){
-
-  result.push(
-    likedMe[likeIndex]
-  );
-
-  likeIndex++;
-
-}
-
-return result;
+return feed;
 
 }
 
@@ -482,48 +311,20 @@ const myInterests = me?.interests || [];
 
 
 
-  const { data: liked } = await supabase
-  .from("likes")
-  .select("from_user_id,to_user_id,status")
-  .or(
-    `from_user_id.eq.${myId},to_user_id.eq.${myId}`
-  );
+  
  
 
 
-const { data: blocked } =
-  await supabase
-    .from("blocked_users")
-    .select("blocked_user_id")
-    .eq("user_id", myId);
-
-const blockedIds =
-  blocked?.map(
-    b => b.blocked_user_id
-  ) || [];
 
 
-const { data } = await supabase
-  .from("users")
-  .select(`
-    id,
-    telegram_id,
-    name,
-    age,
-    gender,
-    city,
-    bio,
-    avatar_url,
-    photos,
-    main_photo_index,
-    interests,
-    latitude,
-    longitude,
-    last_seen,
-    is_verified,
-    created_at
-  `)
-  .neq("id", myId);
+
+const { data } = await supabase.rpc(
+  "get_feed",
+  {
+    p_user_id: myId,
+    p_limit: QUEUE_SIZE
+  }
+);
 
   console.log("ВСЕГО В БАЗЕ:", data?.length);
 
@@ -562,8 +363,6 @@ if(data){
 const feed = buildFeed(
   sorted,
   me,
-  liked,
-  blockedIds,
   myId
 );
 
