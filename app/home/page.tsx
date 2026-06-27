@@ -13,10 +13,13 @@ export default function Home() {
   console.log("HOME RENDER");
 const router = useRouter();  
 
-const [users,setUsers]=useState<any[]>([]);
+
 const [feedQueue,setFeedQueue] =
 useState<any[]>([]);
 
+
+const QUEUE_SIZE = 80;
+const LOAD_MORE_AT = 15;
 
 const [isLoadingMore,setIsLoadingMore] =
 useState(false);
@@ -283,9 +286,32 @@ function calculateScore(
 
   }
 
+// 🆕 Новый пользователь
+
+if (user.created_at) {
+
+  const hours =
+    (Date.now() -
+      new Date(user.created_at).getTime()) /
+    1000 / 60 / 60;
+
+  if (hours <= 24) {
+
+    score += 60;
+
+  } else if (hours <= 72) {
+
+    score += 30;
+
+  }
+
+}
+
   return score;
 
 }
+
+
 
 
 
@@ -361,12 +387,66 @@ function buildFeed(
 
     }))
 
-    .sort(
-      (a,b)=>
-        b.score-a.score
+    .sort((a,b)=>b.score-a.score);
+
+const likedMe = feed.filter(user =>
+
+  liked?.some(
+    l =>
+      l.from_user_id === user.id &&
+      l.to_user_id === myId &&
+      l.status === "pending"
+  )
+
+);
+
+const normal = feed.filter(user =>
+
+  !liked?.some(
+    l =>
+      l.from_user_id === user.id &&
+      l.to_user_id === myId &&
+      l.status === "pending"
+  )
+
+);
+
+const result:any[] = [];
+
+let likeIndex = 0;
+
+for(let i=0;i<normal.length;i++){
+
+  result.push(normal[i]);
+
+  if(
+    i % 3 === 2 &&
+    likedMe[likeIndex]
+  ){
+
+    result.push(
+      likedMe[likeIndex]
     );
 
-  return feed;
+    likeIndex++;
+
+  }
+
+}
+
+while(
+  likeIndex < likedMe.length
+){
+
+  result.push(
+    likedMe[likeIndex]
+  );
+
+  likeIndex++;
+
+}
+
+return result;
 
 }
 
@@ -440,7 +520,8 @@ const { data } = await supabase
     latitude,
     longitude,
     last_seen,
-    is_verified
+    is_verified,
+    created_at
   `)
   .neq("id", myId);
 
@@ -549,7 +630,27 @@ async function nextUser(){
   setPhotoIndex(0);
   setDragX(0);
 
-  setFeedQueue(prev => prev.slice(1));
+  setFeedQueue(prev => {
+
+    const queue = prev.slice(1);
+
+    if(
+      queue.length <= LOAD_MORE_AT &&
+      !isLoadingMore
+    ){
+
+      setIsLoadingMore(true);
+
+      loadUsers()
+        .finally(()=>
+          setIsLoadingMore(false)
+        );
+
+    }
+
+    return queue;
+
+  });
 
 }
 
