@@ -14,7 +14,9 @@ export default function Home() {
 const router = useRouter();  
 
 const [users,setUsers]=useState<any[]>([]);
-const loadedUserIds = useRef(new Set<number>());
+const [feedQueue,setFeedQueue] =
+useState<any[]>([]);
+
 
 const [isLoadingMore,setIsLoadingMore] =
 useState(false);
@@ -84,7 +86,7 @@ function getDistanceKm(
 
 
 
-const [myId,setMyId] = useState<string | null>(null);
+const [myId,setMyId] = useState<number | null>(null);
 
 useEffect(() => {
   console.log("MYID CHANGED:", myId);
@@ -288,28 +290,83 @@ function calculateScore(
 
 
 function mergeUsers(
-  current: any[],
-  incoming: any[]
+  current:any[],
+  incoming:any[]
 ){
 
-  const unique = incoming.filter(user => {
+  const ids =
+    new Set(
+      current.map(u => u.id)
+    );
 
-    if(
-      loadedUserIds.current.has(user.id)
-    ){
-      return false;
-    }
-
-    loadedUserIds.current.add(user.id);
-
-    return true;
-
-  });
+  const unique =
+    incoming.filter(
+      u => !ids.has(u.id)
+    );
 
   return [
     ...current,
     ...unique
   ];
+
+}
+
+
+function buildFeed(
+  users: any[],
+  me: any,
+  liked: any[],
+  blockedIds: number[],
+  myId: number
+) {
+
+  const feed = users
+
+    .filter(user => {
+
+      // не показываем себя
+      if (user.id === myId)
+        return false;
+
+      // не показываем заблокированных
+      if (blockedIds.includes(user.id))
+        return false;
+
+      // пока скрываем пользователей,
+      // которым уже поставили pending лайк
+      const pending = liked?.some(
+        l =>
+          l.from_user_id === myId &&
+          l.to_user_id === user.id &&
+          l.status === "pending"
+      );
+
+      if (pending)
+        return false;
+
+      return true;
+
+    })
+
+    .map(user => ({
+
+      ...user,
+
+      score: calculateScore(
+  user,
+  me,
+  liked,
+  me?.interests || []
+)
+
+    }))
+
+    .sort(
+      (a,b)=>
+        b.score-a.score
+    );
+
+  return feed;
 
 }
 
@@ -421,64 +478,35 @@ if(data){
 
 
   
+const feed = buildFeed(
+  sorted,
+  me,
+  liked,
+  blockedIds,
+  myId
+);
+
+console.log(
+  "Feed size:",
+  feed.length
+);
 
 
 
 
-const scoredUsers = sorted
-
-  .filter(user => {
-
-    if (user.id === myId)
-      return false;
-
-    if (blockedIds.includes(user.id))
-      return false;
-
-    const alreadyLiked =
-      liked?.some(
-        l =>
-          l.from_user_id === myId &&
-          l.to_user_id === user.id &&
-          l.status === "pending"
-      );
-
-    if (alreadyLiked)
-      return false;
-
-    return true;
-
-  })
-
-  .map(user => ({
-
-    ...user,
-
-    score: calculateScore(
-      user,
-      me,
-      liked,
-      myInterests
-    )
-
-  }))
-
-  .sort(
-    (a,b)=>
-      b.score-a.score
-  );
 
 console.log(
   "После сортировки:",
-  scoredUsers.length
+  feed.length
 );
 
-setUsers(prev => {
+setFeedQueue(prev => {
 
-  const merged = mergeUsers(
-    prev,
-    scoredUsers
-  );
+  const merged =
+    mergeUsers(
+      prev,
+      feed
+    );
 
   return merged;
 
@@ -499,9 +527,10 @@ setUsers(prev => {
 
 
 
-const currentUser = users.length > 0
-  ? users[0]
-  : null;
+const currentUser =
+feedQueue.length > 0
+? feedQueue[0]
+: null;
 
 
 
@@ -513,37 +542,16 @@ currentUser?.photos?.length
 : [];
 
 
-async function nextUser() {
+async function nextUser(){
 
-  if (!currentUser) return;
+  if(!currentUser) return;
 
   setPhotoIndex(0);
   setDragX(0);
 
-  setUsers(prev => {
-
-    const queue = prev.slice(1);
-
-    return queue;
-
-  });
-
-  if(
-    users.length <= 15 &&
-    !isLoadingMore
-  ){
-
-    setIsLoadingMore(true);
-
-    loadUsers()
-      .finally(()=>
-        setIsLoadingMore(false)
-      );
-
-  }
+  setFeedQueue(prev => prev.slice(1));
 
 }
-
 
 
 async function handleLike(){
