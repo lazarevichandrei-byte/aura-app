@@ -14,7 +14,11 @@ export default function Home() {
 const router = useRouter();  
 
 const [users,setUsers]=useState<any[]>([]);
-const [index,setIndex] = useState(0);
+const loadedUserIds = useRef(new Set<number>());
+
+const [isLoadingMore,setIsLoadingMore] =
+useState(false);
+
 
 const [photoIndex,setPhotoIndex]=useState(0);
 const [myProfile,setMyProfile]=useState<any>(null);
@@ -191,6 +195,124 @@ useEffect(() => {
 
 }, [myId]);
 
+function calculateScore(
+  user: any,
+  me: any,
+  liked: any[],
+  myInterests: string[]
+) {
+
+  let score = 0;
+
+  // ❤️ Пользователь уже лайкнул меня
+  const likedMe = liked?.some(
+    l =>
+      l.from_user_id === user.id &&
+      l.to_user_id === me.id &&
+      l.status === "pending"
+  );
+
+  if (likedMe) {
+    score += 300;
+  }
+
+  // 👤 Возраст
+  if (user.age && me?.age) {
+
+    const diff =
+      Math.abs(user.age - me.age);
+
+    score += Math.max(
+      0,
+      80 - diff * 4
+    );
+
+  }
+
+  // 🎯 Общие интересы
+  const common =
+    (user.interests || [])
+      .filter((i: string) =>
+        myInterests.includes(i)
+      ).length;
+
+  score += common * 20;
+
+  // 📍 Расстояние
+
+  if (user.distance != null) {
+
+    if (user.distance <= 5)
+      score += 120;
+
+    else if (user.distance <= 20)
+      score += 90;
+
+    else if (user.distance <= 50)
+      score += 70;
+
+    else if (user.distance <= 100)
+      score += 50;
+
+    else
+      score += 20;
+
+  }
+
+  // 🟢 Онлайн
+
+  if (
+    user.last_seen &&
+    Date.now() -
+      new Date(user.last_seen).getTime()
+      <
+      5 * 60 * 1000
+  ) {
+
+    score += 20;
+
+  }
+
+  // ⭐ Верификация
+
+  if (user.is_verified) {
+
+    score += 10;
+
+  }
+
+  return score;
+
+}
+
+
+
+function mergeUsers(
+  current: any[],
+  incoming: any[]
+){
+
+  const unique = incoming.filter(user => {
+
+    if(
+      loadedUserIds.current.has(user.id)
+    ){
+      return false;
+    }
+
+    loadedUserIds.current.add(user.id);
+
+    return true;
+
+  });
+
+  return [
+    ...current,
+    ...unique
+  ];
+
+}
+
 
 async function loadUsers(){
 
@@ -232,19 +354,6 @@ const myInterests = me?.interests || [];
  
 
 
-
-const likedIds =
-  liked
-    ?.filter(
-      l =>
-        l.from_user_id === myId &&
-        l.status === "pending"
-    )
-    .map(
-      l => l.to_user_id
-    ) || [];
-
-
 const { data: blocked } =
   await supabase
     .from("blocked_users")
@@ -255,6 +364,7 @@ const blockedIds =
   blocked?.map(
     b => b.blocked_user_id
   ) || [];
+
 
 const { data } = await supabase
   .from("users")
@@ -313,17 +423,17 @@ if(data){
   
 
 
+
+
 const scoredUsers = sorted
+
   .filter(user => {
-    
 
-    if(user.id === myId){
+    if (user.id === myId)
       return false;
-    }
 
-    if(blockedIds.includes(user.id)){
+    if (blockedIds.includes(user.id))
       return false;
-    }
 
     const alreadyLiked =
       liked?.some(
@@ -333,139 +443,47 @@ const scoredUsers = sorted
           l.status === "pending"
       );
 
-    if(alreadyLiked){
+    if (alreadyLiked)
       return false;
-    }
-
-    if(
-      me?.looking === "male" &&
-      user.gender !== "male"
-    ){
-      return false;
-    }
-
-    if(
-      me?.looking === "female" &&
-      user.gender !== "female"
-    ){
-      return false;
-    }
 
     return true;
 
   })
-  .map(user=>{
 
-    let score = 0;
+  .map(user => ({
 
-    // Пользователь уже лайкнул меня
-const likedMe =
-  liked?.some(
-    l =>
-      l.from_user_id === user.id &&
-      l.to_user_id === myId &&
-      l.status === "pending"
+    ...user,
+
+    score: calculateScore(
+      user,
+      me,
+      liked,
+      myInterests
+    )
+
+  }))
+
+  .sort(
+    (a,b)=>
+      b.score-a.score
   );
 
-if(likedMe){
-  score += 150;
-}
-
-    // возраст
-    if(user.age){
-
-      const diff =
-        Math.abs(
-          user.age -
-          (me?.age || 18)
-        );
-
-      if(diff <= 2){
-        score += 60;
-      }
-      else if(diff <=5){
-        score +=45;
-      }
-      else if(diff <=10){
-        score +=30;
-      }
-
-    }
-
-    // интересы
-    const common =
-      (user.interests || [])
-      .filter((i:string)=>
-        myInterests.includes(i)
-      ).length;
-
-    score += common * 25;
-
-    // расстояние
-    if(user.distance !== null){
-
-      if(
-        user.distance <=
-        (me?.search_radius || 50)
-      ){
-        score +=20;
-      }
-
-      else if(
-        user.distance <=
-        (me?.search_radius || 50) * 2
-      ){
-        score +=8;
-      }
-
-    }
-
-    // онлайн
-    if(
-      user.last_seen &&
-      Date.now() -
-      new Date(user.last_seen).getTime()
-      <
-      5*60*1000
-    ){
-      score +=20;
-    }
-
-   score += Math.random() * 15;
-
-return {
-  ...user,
-  score
-};
-
-  })
-  .sort((a,b)=>b.score-a.score);
-  
-  console.log(
-  "После фильтра:",
+console.log(
+  "После сортировки:",
   scoredUsers.length
 );
 
-  console.table(
-  scoredUsers.map(u=>({
-    name: u.name,
-    score: u.score
-  }))
-);
+setUsers(prev => {
 
-console.log("Всего пользователей:", data.length);
-console.log("После сортировки:", scoredUsers.length);
+  const merged = mergeUsers(
+    prev,
+    scoredUsers
+  );
 
-setUsers(scoredUsers);
+  return merged;
 
-console.table(
-  scoredUsers.map(u => ({
-    name: u.name,
-    age: u.age,
-    city: u.city,
-    id: u.id
-  }))
-);
+});
+
 
 
 
@@ -502,15 +520,26 @@ async function nextUser() {
   setPhotoIndex(0);
   setDragX(0);
 
-  const updatedUsers = users.slice(1);
+  setUsers(prev => {
 
-  setUsers(updatedUsers);
+    const queue = prev.slice(1);
 
-  if (updatedUsers.length < 5) {
+    return queue;
 
-    console.log("Перезагружаем пользователей...");
+  });
 
-    await loadUsers();
+  if(
+    users.length <= 15 &&
+    !isLoadingMore
+  ){
+
+    setIsLoadingMore(true);
+
+    loadUsers()
+      .finally(()=>
+        setIsLoadingMore(false)
+      );
+
   }
 
 }
