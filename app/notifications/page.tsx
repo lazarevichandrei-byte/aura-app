@@ -22,6 +22,9 @@ useState<boolean | null>(null);
 const [silentMode,setSilentMode] =
 useState<boolean | null>(null);
 
+const [notificationsEnabled,setNotificationsEnabled] =
+useState<boolean | null>(null);
+
 useEffect(() => {
   loadSettings();
 }, []);
@@ -39,11 +42,12 @@ async function loadSettings() {
   const { data } = await supabase
     .from("users")
     .select(`
+      notifications_enabled,
       notify_messages,
       notify_matches,
       notify_vibration,
       notify_silent
-    `)
+`)
     .eq("telegram_id", telegramId)
     .single();
 
@@ -64,6 +68,10 @@ async function loadSettings() {
   setSilentMode(
     data.notify_silent ?? false
   );
+
+  setNotificationsEnabled(
+    data.notifications_enabled ?? true
+);
 }
 
 async function saveSetting(
@@ -91,6 +99,7 @@ async function saveSetting(
 }
 
 if (
+  notificationsEnabled === null ||
   messages === null ||
   matches === null ||
   vibration === null ||
