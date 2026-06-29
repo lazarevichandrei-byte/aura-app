@@ -50,18 +50,18 @@ notifications_enabled
     );
 
     setShowOnline(
-  data.show_online ?? true
-);
+      data.show_online ?? true
+    );
 
-setShowLastSeen(
-  data.show_last_seen ?? true
-);
+    setShowLastSeen(
+      data.show_last_seen ?? true
+    );
 
-setNotificationsEnabled(
-  data.notifications_enabled ?? true
-);
+    setNotificationsEnabled(
+      data.notifications_enabled ?? false
+    );
 
-  }
+}
 
 }
 
