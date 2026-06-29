@@ -50,42 +50,7 @@ const [boostPressed,setBoostPressed]=useState(false);
 const startX=useRef(0);
 
 
-function getDistanceKm(
-  lat1:number,
-  lon1:number,
-  lat2:number,
-  lon2:number
-){
 
-  const R = 6371;
-
-  const dLat =
-    (lat2 - lat1) * Math.PI / 180;
-
-  const dLon =
-    (lon2 - lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(dLat / 2) *
-    Math.sin(dLat / 2)
-    +
-    Math.cos(lat1 * Math.PI / 180)
-    *
-    Math.cos(lat2 * Math.PI / 180)
-    *
-    Math.sin(dLon / 2)
-    *
-    Math.sin(dLon / 2);
-
-  return (
-    R *
-    2 *
-    Math.atan2(
-      Math.sqrt(a),
-      Math.sqrt(1 - a)
-    )
-  );
-}
 
 
 
@@ -200,18 +165,7 @@ useEffect(() => {
 
 }, [myId]);
 
-function calculateScore(
-  user: any,
-  me: any,
-  liked: any[],
-  myInterests: string[]
-) {
 
-  let score = 0;
-
-  
-
-}
 
 
 
@@ -240,44 +194,7 @@ function mergeUsers(
 }
 
 
-function buildFeed(
-  users: any[],
-  me: any,
-  myId: string
-) {
 
-  const feed = users
-
-    .filter(user => {
-
-      // не показываем себя
-      if (user.id === myId)
-        return false;
-
-      
-
-      return true;
-
-    })
-
-    .map(user => ({
-
-      ...user,
-
-      score: calculateScore(
-  user,
-  me,
-  [],
-  me?.interests || []
-)
-
-    }))
-
-    .sort((a,b)=>b.score-a.score);
-
-return feed;
-
-}
 
 
 async function loadUsers(){
@@ -330,46 +247,7 @@ const { data } = await supabase.rpc(
 
 if(data){
 
-  const withDistance =
-  data.map(user => {
-
-    if(
-      !me?.latitude ||
-      !me?.longitude ||
-      !user.latitude ||
-      !user.longitude
-    ){
-      return {
-        ...user,
-        distance:null
-      };
-    }
-
-    return {
-      ...user,
-      distance:getDistanceKm(
-        me.latitude,
-        me.longitude,
-        user.latitude,
-        user.longitude
-      )
-    };
-  });
-
-  const sorted = withDistance;
-
-
-  
-const feed = buildFeed(
-  sorted,
-  me,
-  myId
-);
-
-console.log(
-  "Feed size:",
-  feed.length
-);
+  const feed = data;
 
 
 
