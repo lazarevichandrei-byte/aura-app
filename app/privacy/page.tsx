@@ -48,17 +48,17 @@ async function loadSettings() {
   return;
 }
 
-  setShowOnline(
-    data.show_online ?? true
-  );
+setShowOnline(
+  data.show_online ?? false
+);
 
-  setShowLastSeen(
-    data.show_last_seen ?? true
-  );
+setShowLastSeen(
+  data.show_last_seen ?? false
+);
 
-  setHideProfile(
-    data.hide_profile ?? false
-  );
+setHideProfile(
+  data.hide_profile ?? false
+);
 }
 
 
