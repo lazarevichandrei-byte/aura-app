@@ -176,6 +176,34 @@ marginBottom:20
 <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
+      Все уведомления
+    </div>
+
+    <div style={subtitleStyle}>
+      Включить или отключить все уведомления
+    </div>
+  </div>
+
+  <Switch
+    active={notificationsEnabled}
+    onClick={async () => {
+
+      const value = !(notificationsEnabled ?? false);
+
+      setNotificationsEnabled(value);
+
+      await saveSetting(
+        "notifications_enabled",
+        value
+      );
+
+    }}
+  />
+</div>
+
+<div style={cardStyle}>
+  <div>
+    <div style={titleStyle}>
       Сообщения
     </div>
 
@@ -186,6 +214,7 @@ marginBottom:20
 
   <Switch
   active={messages}
+  disabled={!notificationsEnabled}
   onClick={async () => {
 
     const value =
@@ -214,6 +243,7 @@ marginBottom:20
 
   <Switch
   active={matches}
+  disabled={!notificationsEnabled}
   onClick={async () => {
 
     const value =
@@ -242,6 +272,7 @@ marginBottom:20
 
  <Switch
   active={vibration}
+  disabled={!notificationsEnabled}
   onClick={async () => {
 
     const value =
@@ -270,6 +301,7 @@ marginBottom:20
 
   <Switch
   active={silentMode}
+  disabled={!notificationsEnabled}
   onClick={async () => {
 
     const value = !silentMode;
@@ -322,15 +354,23 @@ const subtitleStyle = {
 
 function Switch({
   active,
-  onClick
+  onClick,
+  disabled = false
 }:{
   active:boolean | null;
   onClick:()=>void;
+  disabled?: boolean;
 }){
 
   return(
     <div
-      onClick={onClick}
+      onClick={() => {
+
+        if(disabled) return;
+
+        onClick();
+
+      }}
       style={{
         width:54,
         height:30,
@@ -343,10 +383,11 @@ function Switch({
 
         position:"relative",
 
-        transition:
-          "all .2s ease",
+        transition:"all .2s ease",
 
-        cursor:"pointer"
+        cursor: disabled ? "default" : "pointer",
+
+        opacity: disabled ? 0.45 : 1
       }}
     >
       <div
@@ -364,10 +405,11 @@ function Switch({
 
           background:"#fff",
 
-          transition:
-            "all .2s ease"
+          transition:"all .2s ease"
         }}
       />
     </div>
   );
 }
+
+  
