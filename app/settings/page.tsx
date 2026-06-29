@@ -29,7 +29,13 @@ async function loadSettings(){
   const { data } =
     await supabase
       .from("users")
-      .select("theme, language")
+      .select(`
+theme,
+language,
+show_online,
+show_last_seen,
+notifications_enabled
+`)
       .eq("telegram_id", telegramId)
       .single();
 
@@ -42,6 +48,18 @@ async function loadSettings(){
     setLanguage(
       data.language || "ru"
     );
+
+    setShowOnline(
+  data.show_online ?? true
+);
+
+setShowLastSeen(
+  data.show_last_seen ?? true
+);
+
+setNotificationsEnabled(
+  data.notifications_enabled ?? true
+);
 
   }
 
@@ -78,6 +96,15 @@ useState("system");
 
 const [language,setLanguage] =
 useState("ru");
+
+const [showOnline,setShowOnline] =
+useState(true);
+
+const [showLastSeen,setShowLastSeen] =
+useState(true);
+
+const [notificationsEnabled,setNotificationsEnabled] =
+useState(true);
 
 const [showThemeModal,setShowThemeModal] =
 useState(false);
