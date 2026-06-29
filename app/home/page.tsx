@@ -668,26 +668,35 @@ zIndex:8
   </span>
 
   <span
-    style={{
-      color:
-        currentUser.last_seen &&
-        Date.now() -
-        new Date(currentUser.last_seen).getTime()
-        < 5 * 60 * 1000
-          ? "#22C55E"
-          : "#9CA3AF",
-      fontWeight:600
-    }}
-  >
-    ● {
+  style={{
+    color:
+      currentUser.show_online &&
       currentUser.last_seen &&
       Date.now() -
       new Date(currentUser.last_seen).getTime()
       < 5 * 60 * 1000
-        ? "Онлайн"
-        : "Был недавно"
-    }
-  </span>
+        ? "#22C55E"
+        : "#9CA3AF",
+    fontWeight:600
+  }}
+>
+{
+currentUser.show_online &&
+currentUser.last_seen &&
+Date.now() -
+new Date(currentUser.last_seen).getTime()
+< 5 * 60 * 1000
+
+? "● Онлайн"
+
+: currentUser.show_last_seen &&
+currentUser.last_seen
+
+? "● Был недавно"
+
+: ""
+}
+</span>
 </div>
 
 {currentUser.distance

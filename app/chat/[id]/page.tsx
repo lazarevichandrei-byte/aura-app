@@ -2632,17 +2632,17 @@ style={{
 isOffline
 ? "нет соединения"
 
-: otherUser?.last_seen &&
+: otherUser?.show_online &&
+otherUser?.last_seen &&
 (
-  Date.now() -
-  new Date(
-    otherUser.last_seen
-  ).getTime()
+Date.now() -
+new Date(otherUser.last_seen).getTime()
 ) < 30000
 
 ? "online"
 
-: otherUser?.last_seen
+: otherUser?.show_last_seen &&
+otherUser?.last_seen
 
 ? `был ${new Date(
 otherUser.last_seen
@@ -2654,7 +2654,7 @@ minute:"2-digit"
 }
 )}`
 
-: "offline"
+: ""
 }
 
 </div>
