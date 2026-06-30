@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useState,
+  useEffect,
   ReactNode
 } from "react";
 
@@ -31,11 +32,22 @@ export function NotificationProvider({
   const [notification, setNotification] =
     useState<NotifyData | null>(null);
 
+    useEffect(() => {
+
+  console.log(
+    "NOTIFICATION STATE:",
+    notification
+  );
+
+}, [notification]);
+
   function notify(data: NotifyData){
 
-    setNotification(data);
+  console.log("NOTIFY:", data);
 
-  }
+  setNotification(data);
+
+}
 
   return(
 
