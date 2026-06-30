@@ -5,7 +5,8 @@ import { useState } from "react";
 
 import {
   NotificationProvider
-} from "././components/NotificationContext";
+} from "../components/NotificationContext";
+
 
 export default function Providers({
   children

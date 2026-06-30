@@ -7,7 +7,7 @@ import {
   ArrowLeft2,
   ArrowRight2
 } from "iconsax-react";
-import PageWrapper from "../components/PageWrapper";
+import PageWrapper from "../../components/PageWrapper";
 
 export default function SettingsPage() {
   const router = useRouter();

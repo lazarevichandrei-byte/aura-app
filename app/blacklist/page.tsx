@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-import PageWrapper from "../components/PageWrapper";
+import PageWrapper from "../../components/PageWrapper";
 
 export default function BlacklistPage(){
 

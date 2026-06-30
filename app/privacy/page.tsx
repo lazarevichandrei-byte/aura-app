@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
-import PageWrapper from "../components/PageWrapper";
+import PageWrapper from "../../components/PageWrapper";
 
 export default function PrivacyPage() {
 
