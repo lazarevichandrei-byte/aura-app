@@ -7,11 +7,17 @@ import { X, Heart, Sparkles } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
+import {
+  useNotification
+} from "../../components/NotificationContext";
 
 
 export default function Home() {
   console.log("HOME RENDER");
 const router = useRouter();  
+
+const { notify } =
+  useNotification();
 
 
 const [feedQueue,setFeedQueue] =
@@ -61,6 +67,20 @@ useEffect(() => {
 }, [myId]);
 
 
+
+useEffect(() => {
+
+  notify({
+
+    icon: "🎉",
+
+    title: "AURA",
+
+    text: "Система уведомлений подключена"
+
+  });
+
+}, []);
 
 
 useEffect(() => {
