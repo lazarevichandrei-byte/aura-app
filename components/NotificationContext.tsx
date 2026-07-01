@@ -3,8 +3,8 @@
 import {
   createContext,
   useContext,
+  useRef,
   useState,
-  useEffect,
   ReactNode
 } from "react";
 
@@ -14,10 +14,35 @@ type NotifyData = {
   title: string;
   text: string;
   icon?: string;
+  type?: "success" | "error" | "warning" | "info";
 };
 
 type NotificationContextType = {
-  notify: (data: NotifyData) => void;
+
+  notify: (
+    data: NotifyData
+  ) => void;
+
+  success: (
+    title: string,
+    text: string
+  ) => void;
+
+  error: (
+    title: string,
+    text: string
+  ) => void;
+
+  warning: (
+    title: string,
+    text: string
+  ) => void;
+
+  info: (
+    title: string,
+    text: string
+  ) => void;
+
 };
 
 const NotificationContext =
@@ -29,31 +54,151 @@ export function NotificationProvider({
   children: ReactNode;
 }){
 
-  const [notification, setNotification] =
+  const queue =
+    useRef<NotifyData[]>([]);
+
+  const showing =
+    useRef(false);
+
+  const [notification,setNotification] =
     useState<NotifyData | null>(null);
 
-    useEffect(() => {
+  function showNext(){
 
-  console.log(
-    "NOTIFICATION STATE:",
-    notification
-  );
+ 
 
-}, [notification]);
+  if(queue.current.length===0){
 
-  function notify(data: NotifyData){
+      showing.current=false;
 
-  console.log("NOTIFY:", data);
+      setNotification(null);
 
-  setNotification(data);
+      return;
+
+    }
+
+    showing.current=true;
+
+    setNotification(
+      queue.current.shift() || null
+    );
+
+  }
+
+  function notify(
+  data: NotifyData
+){
+
+  queue.current.push(data);
+
+  const tg =
+  (window as any)?.Telegram?.WebApp;
+
+if(tg?.HapticFeedback){
+
+  switch(data.type){
+
+    case "success":
+
+      tg.HapticFeedback.notificationOccurred(
+        "success"
+      );
+
+      break;
+
+    case "error":
+
+      tg.HapticFeedback.notificationOccurred(
+        "error"
+      );
+
+      break;
+
+    case "warning":
+
+      tg.HapticFeedback.notificationOccurred(
+        "warning"
+      );
+
+      break;
+
+    default:
+
+      tg.HapticFeedback.impactOccurred(
+        "light"
+      );
+
+  }
 
 }
+
+  if(showing.current){
+    return;
+  }
+
+  showNext();
+
+}
+
+  function handleClose(){
+
+    showNext();
+
+  }
 
   return(
 
     <NotificationContext.Provider
-      value={{ notify }}
-    >
+  value={{
+
+    notify,
+
+    success(title, text){
+
+      notify({
+        title,
+        text,
+        icon:"✅",
+        type:"success"
+      });
+
+    },
+
+    error(title, text){
+
+      notify({
+        title,
+        text,
+        icon:"❌",
+        type:"error"
+      });
+
+    },
+
+    warning(title, text){
+
+      notify({
+        title,
+        text,
+        icon:"⚠️",
+        type:"warning"
+      });
+
+    },
+
+    info(title, text){
+
+      notify({
+        title,
+        text,
+        icon:"ℹ️",
+        type:"info"
+      });
+
+    }
+
+  }}
+>
 
       {children}
 
@@ -61,17 +206,17 @@ export function NotificationProvider({
 
         <Notification
 
-          title={notification.title}
+  title={notification.title}
 
-          text={notification.text}
+  text={notification.text}
 
-          icon={notification.icon}
+  icon={notification.icon}
 
-          onClose={()=>
-            setNotification(null)
-          }
+  type={notification.type}
 
-        />
+  onClose={handleClose}
+
+/>
 
       )}
 
@@ -84,7 +229,9 @@ export function NotificationProvider({
 export function useNotification(){
 
   const context =
-    useContext(NotificationContext);
+    useContext(
+      NotificationContext
+    );
 
   if(!context){
 
