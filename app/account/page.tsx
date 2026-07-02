@@ -4,9 +4,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import BottomNav from "../../components/BottomNav";
+import { useNotification } from "../../components/NotificationContext";
 
 export default function AccountPage() {
   const router = useRouter();
+  const {
+  success,
+  error
+} = useNotification();
 
   const [profile, setProfile] = useState<any>(null);
   const [showDeleteModal,setShowDeleteModal] =
@@ -61,26 +66,44 @@ useState(false);
       .single();
 
   if (!user){
-    alert("Пользователь не найден");
-    return;
-  }
 
-  const { error } =
-    await supabase.rpc(
+  error(
+    "Ошибка",
+    "Пользователь не найден"
+  );
+
+  return;
+}
+const { error: rpcError } =
+  await supabase.rpc(
       "delete_my_account",
       {
         p_user_id:user.id
       }
     );
 
-  if (error){
-    alert(error.message);
-    return;
-  }
+  if (rpcError){
+
+  error(
+    "Ошибка",
+    rpcError.message
+  );
+
+  return;
+}
 
   localStorage.clear();
 
+success(
+  "Аккаунт удалён",
+  "Спасибо, что были с нами ❤️"
+);
+
+setTimeout(() => {
+
   router.replace("/");
+
+},1200);
 }
 
   return (
@@ -374,3 +397,4 @@ const itemStyle = {
   marginTop: 10,
   cursor: "pointer"
 };
+

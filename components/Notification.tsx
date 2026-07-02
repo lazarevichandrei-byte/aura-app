@@ -38,6 +38,18 @@ export default function Notification({
 
 }[type];
 
+const accentBackground = {
+
+  success: "#DCFCE7",
+
+  error: "#FEE2E2",
+
+  warning: "#FEF3C7",
+
+  info: "#DBEAFE"
+
+}[type];
+
   function closeNotification() {
 
     setVisible(false);
@@ -153,9 +165,12 @@ export default function Notification({
           "0 12px 40px rgba(0,0,0,.18)",
 
         opacity:
-          visible
-            ? 1
-            : 0,
+  visible
+    ? Math.max(
+        0.2,
+        1 - Math.abs(translateX) / 220
+      )
+    : 0,
 
         transform:
           `translateX(${translateX}px)
@@ -169,23 +184,54 @@ export default function Notification({
       }}
 
     >
+        <div
+  style={{
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 5,
+    background: accentColor
+  }}
+/>
 
       <div
         style={{
           display:"flex",
           alignItems:"center",
           gap:14,
-          padding:16
+          padding:"16px 16px 16px 22px"
         }}
       >
 
-        <div
-          style={{
-            fontSize:30
-          }}
-        >
-          {icon}
-        </div>
+       <div
+  style={{
+    width:44,
+    height:44,
+
+    borderRadius:14,
+
+    background:accentBackground,
+
+    display:"flex",
+
+    justifyContent:"center",
+
+    alignItems:"center",
+
+    flexShrink:0
+  }}
+>
+
+  <span
+    style={{
+      fontSize:24
+    }}
+  >
+    {icon}
+  </span>
+
+</div>
 
         <div
   style={{
@@ -220,40 +266,7 @@ export default function Notification({
 
       </div>
 
-      <div
-
-        style={{
-
-          height:3,
-
-          background:"#2F80FF",
-
-          animation:
-            "progress 2.5s linear forwards"
-
-        }}
-
-      />
-
-      <style jsx>{`
-
-        @keyframes progress{
-
-          from{
-
-            width:100%;
-
-          }
-
-          to{
-
-            width:0%;
-
-          }
-
-        }
-
-      `}</style>
+      
 
     </div>
 

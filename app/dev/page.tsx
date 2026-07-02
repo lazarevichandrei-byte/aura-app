@@ -1,15 +1,22 @@
 "use client";
 
+import { useState } from "react";
+
 import { useNotification } from "../../components/NotificationContext";
+import AuraLoader from "../../components/AuraLoader"; 
+import BottomSheet from "../../components/BottomSheet";
 
 export default function DevPage() {
 
   const {
-  success,
-  error,
-  warning,
-  info
-} = useNotification();
+    success,
+    error,
+    warning,
+    info
+  } = useNotification();
+
+  const [showLoader, setShowLoader] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
 
   return (
 
@@ -33,70 +40,236 @@ export default function DevPage() {
 
         onClick={() => {
 
-  success(
-    "Успешно",
-    "Профиль сохранён"
-  );
+          success(
+            "Успешно",
+            "Профиль сохранён"
+          );
 
-  setTimeout(() => {
+          setTimeout(() => {
 
-    error(
-      "Ошибка",
-      "Не удалось сохранить"
-    );
+            error(
+              "Ошибка",
+              "Не удалось сохранить"
+            );
 
-  },300);
+          },300);
 
-  setTimeout(() => {
+          setTimeout(() => {
 
-    warning(
-      "Внимание",
-      "Заполните возраст"
-    );
+            warning(
+              "Внимание",
+              "Заполните возраст"
+            );
 
-  },600);
+          },600);
 
-  setTimeout(() => {
+          setTimeout(() => {
 
-    info(
-      "Информация",
-      "Добро пожаловать!"
-    );
+            info(
+              "Информация",
+              "Добро пожаловать!"
+            );
 
-  },900);
+          },900);
 
-}}
+        }}
 
         style={{
 
-          width: "100%",
+          width:"100%",
 
-          height: 60,
+          height:60,
 
-          border: "none",
+          border:"none",
 
-          borderRadius: 16,
+          borderRadius:16,
 
-          background: "#2F80FF",
+          background:"#2F80FF",
 
-          color: "#fff",
+          color:"#fff",
 
-          fontSize: 18,
+          fontSize:18,
 
-          fontWeight: 600,
+          fontWeight:600,
 
-          cursor: "pointer"
+          cursor:"pointer"
 
         }}
 
       >
 
-        Проверить очередь
+        Проверить уведомления
 
       </button>
 
+      <button
+
+        onClick={() => {
+
+          setShowLoader(true);
+
+          setTimeout(() => {
+
+            setShowLoader(false);
+
+          },3000);
+
+        }}
+
+        style={{
+
+          marginTop:16,
+
+          width:"100%",
+
+          height:60,
+
+          border:"none",
+
+          borderRadius:16,
+
+          background:"#111827",
+
+          color:"#fff",
+
+          fontSize:18,
+
+          fontWeight:600,
+
+          cursor:"pointer"
+
+        }}
+
+      >
+
+        Проверить Loader
+
+        
+
+      </button>
+
+
+      <button
+
+  onClick={() => {
+
+    setShowSheet(true);
+
+  }}
+
+  style={{
+
+    marginTop:16,
+
+    width:"100%",
+
+    height:60,
+
+    border:"none",
+
+    borderRadius:16,
+
+    background:"#7C3AED",
+
+    color:"#fff",
+
+    fontSize:18,
+
+    fontWeight:600,
+
+    cursor:"pointer"
+
+  }}
+
+>
+
+  Проверить Bottom Sheet
+
+</button>
+      
+
+      {showLoader && (
+
+        <div
+          style={{
+            marginTop:40,
+            display:"flex",
+            justifyContent:"center"
+          }}
+        >
+
+          <AuraLoader />
+          
+
+        </div>
+
+      )}
+
+
+      <BottomSheet
+
+  open={showSheet}
+
+  onClose={() => setShowSheet(false)}
+
+>
+
+  <h2
+    style={{
+      margin:0,
+      textAlign:"center"
+    }}
+  >
+    Bottom Sheet
+  </h2>
+
+  <p
+    style={{
+      textAlign:"center",
+      color:"#6B7280",
+      marginTop:12
+    }}
+  >
+    Это новый универсальный Bottom Sheet.
+  </p>
+
+  <button
+
+    onClick={() => setShowSheet(false)}
+
+    style={{
+
+      marginTop:24,
+
+      width:"100%",
+
+      height:54,
+
+      border:"none",
+
+      borderRadius:16,
+
+      background:"#2F80FF",
+
+      color:"#fff",
+
+      fontWeight:600
+
+    }}
+
+  >
+
+    Закрыть
+
+  </button>
+
+</BottomSheet>
+
     </div>
 
+    
+
   );
+  
 
 }
