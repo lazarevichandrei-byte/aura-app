@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useEffect } from "react";
 import { supabase } from "../../lib/supabase";
-
+import AuraLoader from "../../components/AuraLoader";
 export default function LikesPage(){
 
 const router = useRouter();
@@ -43,19 +43,25 @@ useEffect(()=>{
 },[]);
 
 const [people,setPeople] = useState<any[]>([]);
+const [loading,setLoading] = useState(true);
 const [match,setMatch] = useState<any>(null);
 const [matchChatId,setMatchChatId] = useState<string | null>(null);
 
 const touchStartX = useRef(0);
 
 
-useEffect(()=>{
-  // loadLikes(myId);
-},[myId]);
+useEffect(() => {
+
+  if (myId) {
+    loadLikes(myId);
+  }
+
+}, [myId]);
 
 
 
 async function loadLikes(userId:string){
+  setLoading(true);
 
   const { data: likes, error } = await supabase
     .from("likes")
@@ -70,10 +76,14 @@ console.log("LIKES RAW:", likes);
     return;
   }
 
-  if(!likes){
-    setPeople([]);
-    return;
-  }
+ if(!likes){
+
+  setPeople([]);
+  setLoading(false);
+
+  return;
+
+}
 
   const ids = likes.map(l => l.from_user_id);
 
@@ -90,6 +100,7 @@ console.log("LIKES RAW:", likes);
   }));
 
   setPeople(formatted);
+  setLoading(false);
 }
 
 return(
@@ -132,6 +143,21 @@ paddingLeft:18,
 paddingRight:18,
 }}
 >
+
+{loading && (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      padding: "40px 0"
+    }}
+  >
+    <AuraLoader
+      size={42}
+      text="Загрузка..."
+    />
+  </div>
+)}
 
 {/* header */}
 <div
@@ -571,10 +597,16 @@ cursor:"pointer"
 </div>
 
 </div>
+
 )}
+
 
 </div>
 
-)
+
+
+
+);
 
 }
+

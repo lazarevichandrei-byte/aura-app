@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { joinChatPresence } from "../../lib/presence";
 import BottomNav from "../../components/BottomNav";
+import AuraLoader from "../../components/AuraLoader";
 
 
 const ChatCard = React.memo(
@@ -165,6 +166,9 @@ const router = useRouter();
 
 const [chats,setChats] =
 useState<any[]>([]);
+
+const [loading,setLoading] =
+useState(true);
 const matches = chats.filter(c => c.is_new_match);
 
 const [search,setSearch] =
@@ -417,33 +421,43 @@ async function createChatIfNotExists(userA: string, userB: string){
 
 async function loadChats(){
 
-  const tg =
-   (window as any)?.Telegram?.WebApp;
+  setLoading(true);
 
-  if(!tg?.initData){
-    return;
-  }
+  try{
 
-  const res = await fetch(
-    "/api/chats",
-    {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        initData: tg.initData
-      })
+    const tg =
+      (window as any)?.Telegram?.WebApp;
+
+    if(!tg?.initData){
+      return;
     }
-  );
 
-  const result = await res.json();
+    const res = await fetch(
+      "/api/chats",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          initData: tg.initData
+        })
+      }
+    );
 
-  if(!result?.ok){
-    return;
+    const result = await res.json();
+
+    if(!result?.ok){
+      return;
+    }
+
+    setChats(result.chats || []);
+
+  } finally {
+
+    setLoading(false);
+
   }
-
-  setChats(result.chats || []);
 
 }
 
@@ -464,6 +478,25 @@ maxWidth:"430px",
 margin:"0 auto"
 }}
 >
+
+  {loading && (
+
+<div
+style={{
+display:"flex",
+justifyContent:"center",
+padding:"80px 0"
+}}
+>
+
+<AuraLoader
+size={42}
+text="Загрузка чатов..."
+/>
+
+</div>
+
+)}
 
 {/* STORIES */}
 <div

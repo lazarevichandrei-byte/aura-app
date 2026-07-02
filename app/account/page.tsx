@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import BottomNav from "../../components/BottomNav";
+import BottomSheet from "../../components/BottomSheet";
 import { useNotification } from "../../components/NotificationContext";
 
 export default function AccountPage() {
@@ -261,128 +262,96 @@ setTimeout(() => {
 </div>
       </div>
 
-      {showDeleteModal && (
+      
+    
 
-<div
-  onClick={() =>
+<BottomSheet
+
+  open={showDeleteModal}
+
+  onClose={() =>
     setShowDeleteModal(false)
   }
-  style={{
-    position:"fixed",
-    inset:0,
 
-    background:"rgba(0,0,0,.45)",
-    backdropFilter:"blur(4px)",
-
-    zIndex:99999,
-
-    display:"flex",
-    justifyContent:"center",
-    alignItems:"center",
-
-    padding:"20px"
-  }}
 >
 
-  <div
-    onClick={(e)=>
-      e.stopPropagation()
-    }
+  <h2
     style={{
-      width:"100%",
-      maxWidth:"380px",
+      margin:0,
+      textAlign:"center"
+    }}
+  >
+    Удалить аккаунт?
+  </h2>
 
-      background:"#fff",
+  <p
+    style={{
+      textAlign:"center",
+      color:"#7B8595",
+      marginTop:14,
+      lineHeight:1.6
+    }}
+  >
+    Без вас приложение станет чуточку грустнее.
+    <br />
+    Если что-то работало не так —
+    напишите нам в поддержку ❤️
+  </p>
 
-      borderRadius:"28px",
-
-      padding:"24px",
-
-      boxShadow:
-        "0 20px 60px rgba(0,0,0,.18)"
+  <div
+    style={{
+      display:"flex",
+      gap:12,
+      marginTop:24
     }}
   >
 
-    <div
+    <button
+
+      onClick={() =>
+        setShowDeleteModal(false)
+      }
+
       style={{
-        fontSize:"22px",
-        fontWeight:700,
-        textAlign:"center",
-        marginBottom:"10px"
+        flex:1,
+        height:52,
+        border:"none",
+        borderRadius:16,
+        background:"#F3F5F8",
+        fontWeight:600
       }}
-    >
-      Удалить аккаунт?
-    </div>
 
-    <div
+    >
+      Отмена
+    </button>
+
+    <button
+
+      onClick={async()=>{
+
+        setShowDeleteModal(false);
+
+        await deleteAccount();
+
+      }}
+
       style={{
-        textAlign:"center",
-        color:"#7B8595",
-        fontSize:"14px",
-        lineHeight:1.6,
-        marginBottom:"24px"
+        flex:1,
+        height:52,
+        border:"none",
+        borderRadius:16,
+        background:"#FF4D4F",
+        color:"#fff",
+        fontWeight:600
       }}
+
     >
-  
-      <br />
-      Без вас приложение станет чуточку грустнее. Если что-то работало не так, просто напишите нам в поддержку — мы всё починим.
-    </div>
-
-    <div
-      style={{
-        display:"flex",
-        gap:"12px"
-      }}
-    >
-
-      <button
-        onClick={() =>
-          setShowDeleteModal(false)
-        }
-        style={{
-          flex:1,
-          height:"52px",
-
-          borderRadius:"16px",
-
-          background:"#F3F5F8",
-
-          fontWeight:600
-        }}
-      >
-        Отмена
-      </button>
-
-     <button
-  onClick={async () => {
-
-  setShowDeleteModal(false);
-
-  await deleteAccount();
-
-}}
-  style={{
-    flex:1,
-    height:"52px",
-
-    borderRadius:"16px",
-
-    background:"#FF4D4F",
-    color:"#fff",
-
-    fontWeight:600
-  }}
->
-  Удалить
-</button>
-
-    </div>
+      Удалить
+    </button>
 
   </div>
 
-</div>
-
-)}
+</BottomSheet>
 
       <BottomNav />
 

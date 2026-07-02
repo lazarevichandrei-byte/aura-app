@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
 import { useNotification } from "../../../components/NotificationContext";
-
+import BottomSheet from "../../../components/BottomSheet";
 export default function UserProfilePage() {
 
   const params = useParams();
@@ -762,7 +762,73 @@ fontWeight:600
 )}
 
 
+<BottomSheet
+
+  open={showActions}
+
+  onClose={() =>
+    setShowActions(false)
+  }
+
+>
+
+  <h2
+    style={{
+      margin:0,
+      textAlign:"center"
+    }}
+  >
+    Действия
+  </h2>
+
+  <div
+    style={{
+      marginTop:24
+    }}
+  >
+
+    <div
+
+      onClick={() => {
+
+        setShowActions(false);
+
+        setShowReportModal(true);
+
+      }}
+
+      style={actionItem}
+
+    >
+      ⚠️ Пожаловаться
+    </div>
+
+    <div
+
+      onClick={async()=>{
+
+        setShowActions(false);
+
+        await blockUser();
+
+      }}
+
+      style={{
+        ...actionItem,
+        color:"#FF4D4F"
+      }}
+
+    >
+      🚫 Заблокировать
+    </div>
+
+  </div>
+
+</BottomSheet>
+
 {showGallery && (
+
+
 
 <div
   onClick={() =>
