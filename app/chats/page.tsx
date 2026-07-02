@@ -485,12 +485,13 @@ margin:"0 auto"
 style={{
 display:"flex",
 justifyContent:"center",
-padding:"80px 0"
+alignItems:"center",
+height:"60vh"
 }}
 >
 
 <AuraLoader
-size={42}
+compact
 text="Загрузка чатов..."
 />
 

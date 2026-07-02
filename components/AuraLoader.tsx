@@ -5,6 +5,7 @@ type Props = {
   color?: string;
   fullscreen?: boolean;
   inline?: boolean;
+  compact?: boolean;
   text?: string;
 };
 
@@ -13,6 +14,7 @@ export default function AuraLoader({
   color = "#2AABEE",
   fullscreen = false,
   inline = false,
+  compact = false,
   text
 }: Props) {
   return (
@@ -23,11 +25,16 @@ export default function AuraLoader({
   justifyContent: "center",
   alignItems: "center",
   padding: inline
-    ? 0
-    : fullscreen
-    ? 0
-    : "40px 0",
-  minHeight: fullscreen ? "100vh" : "auto",
+  ? 0
+  : fullscreen
+  ? 0
+  : compact
+  ? 0
+  : "40px 0",
+  minHeight:
+  fullscreen || compact
+    ? "100vh"
+    : "auto",
 }}
 >
       <div className="loader">
@@ -40,8 +47,8 @@ export default function AuraLoader({
       <style jsx>{`
         .loader {
           position: relative;
-      width:${size}px;
-height:${size}px;
+      width:${compact ? 36 : size}px;
+height:${compact ? 36 : size}px;
         }
 
         {text && (

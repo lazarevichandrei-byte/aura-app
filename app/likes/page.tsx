@@ -103,6 +103,20 @@ console.log("LIKES RAW:", likes);
   setLoading(false);
 }
 
+
+if (loading) {
+
+  return (
+
+    <AuraLoader
+      compact
+      text="Загрузка лайков..."
+    />
+
+  );
+
+}
+
 return(
 
 <div
@@ -144,20 +158,7 @@ paddingRight:18,
 }}
 >
 
-{loading && (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      padding: "40px 0"
-    }}
-  >
-    <AuraLoader
-      size={42}
-      text="Загрузка..."
-    />
-  </div>
-)}
+
 
 {/* header */}
 <div

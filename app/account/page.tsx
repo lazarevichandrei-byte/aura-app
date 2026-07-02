@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import BottomNav from "../../components/BottomNav";
 import BottomSheet from "../../components/BottomSheet";
+import AuraLoader from "../../components/AuraLoader";
 import { useNotification } from "../../components/NotificationContext";
 
 export default function AccountPage() {
@@ -15,6 +16,8 @@ export default function AccountPage() {
 } = useNotification();
 
   const [profile, setProfile] = useState<any>(null);
+  const [loading,setLoading] =
+useState(true);
   const [showDeleteModal,setShowDeleteModal] =
 useState(false);
 
@@ -33,6 +36,7 @@ useState(false);
   }, []);
 
   async function loadProfile() {
+    setLoading(true);
     const tg = (window as any)?.Telegram?.WebApp;
     const tgId = tg?.initDataUnsafe?.user?.id;
 
@@ -47,6 +51,8 @@ useState(false);
     if (data) {
       setProfile(data);
     }
+
+    setLoading(false);
   }
 
   async function deleteAccount(){
@@ -105,6 +111,19 @@ setTimeout(() => {
   router.replace("/");
 
 },1200);
+}
+
+if (loading) {
+
+  return (
+
+    <AuraLoader
+      compact
+      text="Загрузка профиля..."
+    />
+
+  );
+
 }
 
   return (
