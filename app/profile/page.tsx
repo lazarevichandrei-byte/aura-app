@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
+import { useNotification } from "../../components/NotificationContext";
+import AuraLoader from "../../components/AuraLoader";
 
 
 const Cropper:any = dynamic(
@@ -79,6 +81,13 @@ const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
 
 const router = useRouter();
+
+const {
+  success,
+  error,
+  warning,
+  info
+} = useNotification();
 
 const base = BASE_INTERESTS;
 const extra = EXTRA_INTERESTS;
@@ -471,14 +480,20 @@ canvas.height = img.height * scale;
 });
   const uploadPhoto = async (file: File) => {
     if(uploading){
-  alert("Подожди, фото загружается");
+  warning(
+  "Подождите",
+  "Фотография ещё загружается"
+);
   return;
 }
  if (!telegramId) return;
  const now = Date.now();
 
 if(now - lastUploadTime < 3000){
- alert("Подожди пару секунд");
+ warning(
+  "Подождите",
+  "Попробуйте ещё раз через пару секунд"
+);
  return;
 }
 
@@ -500,20 +515,33 @@ setUploading(true);
  const compressedFile =
   await compressImage(file);
 
- const { error } = await supabase.storage
+ const { error: rpcError } = await supabase.storage
    .from("avatars")
    .upload(
       fileName,
       compressedFile
    );
 
-    if (!error) {
+   if (!rpcError) {
 
- const { data } = supabase.storage
-   .from("avatars")
-   .getPublicUrl(
-      fileName + "?v=" + Date.now()
-   );
+    if (rpcError) {
+
+  error(
+    "Ошибка загрузки",
+    rpcError.message
+  );
+
+  setUploading(false);
+  setUploadProgress(0);
+
+  return;
+}
+
+const { data } = supabase.storage
+  .from("avatars")
+  .getPublicUrl(
+    fileName + "?v=" + Date.now()
+  );
 
 setPhotos(prev=>{
 
@@ -573,11 +601,14 @@ setSavingProfile(true);
 if (!name.trim() || !city.trim()) {
  setSavingProfile(false);
  setUploading(false);
- alert("Заполни имя и город");
+ warning(
+  "Заполните профиль",
+  "Укажите имя и город"
+);
  return;
 }
 
-    const { error } = await supabase
+   const { error: rpcError } = await supabase
 .from("users")
 .update({
  name,
@@ -599,11 +630,18 @@ avatar_url:
 })
 .eq("telegram_id", telegramId);
 
-if (error) {
- setSavingProfile(false);
- setUploading(false);
- alert(error.message);
- return;
+if (rpcError) {
+
+  error(
+    "Ошибка",
+    rpcError.message
+  );
+
+  setSavingProfile(false);
+  setUploading(false);
+
+  return;
+
 }
 
 setSavingProfile(false);
@@ -620,7 +658,10 @@ if (isOnboarding) {
   async function updateLocation(){
 
   if(!navigator.geolocation){
-    alert("Геолокация не поддерживается");
+    error(
+  "Ошибка",
+  "Ваше устройство не поддерживает геолокацию"
+);
     return;
   }
 
@@ -690,27 +731,32 @@ if(!response.ok){
           setCity(detectedCity);
         }
 
-        alert(
-  `Город определён: ${detectedCity}`
+        info(
+  "Город определён",
+  detectedCity
 );
 
       }catch(e){
 
         console.log(e);
 
-alert(
-"Координаты получены, но город определить не удалось."
+warning(
+  "Внимание",
+  "Координаты получены, но определить город не удалось"
 );
 
       }
 
-      alert("Местоположение обновлено");
+      success(
+  "Готово",
+  "Местоположение обновлено"
+);
 
     },
 
-    async (error)=>{
+    async (locationError) => {
 
-  console.log(error);
+  console.log(locationError);
 
   try{
 
@@ -733,7 +779,10 @@ alert(
 
       setCity(geo.city);
 
-      alert(`Город определён: ${geo.city}`);
+      info(
+  "Город определён",
+  geo.city
+);
 
       return;
     }
@@ -744,7 +793,10 @@ alert(
 
   }
 
-  alert("Не удалось определить местоположение.");
+  error(
+  "Ошибка",
+  "Не удалось определить местоположение"
+);
 
 },
 
@@ -1081,22 +1133,50 @@ alert(
         
 
         <button
-  disabled={!isValid || uploading}
+  disabled={
+  !isValid ||
+  uploading ||
+  savingProfile
+}
   style={{
     ...styles.submit,
     opacity:isValid ? 1 : 0.5
   }}
   onClick={handleSubmit}
 >
-  {
-    savingProfile
-    ? "Подождите..."
-    : uploading
-    ? `Загрузка ${uploadProgress}%`
-    : isOnboarding
+  {savingProfile || uploading ? (
+
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10
+    }}
+  >
+
+    <AuraLoader
+  size={18}
+  inline
+/>
+
+    <span>
+
+      {savingProfile
+        ? "Сохранение..."
+        : `Загрузка ${uploadProgress}%`}
+
+    </span>
+
+  </div>
+
+) : (
+
+  isOnboarding
     ? "Продолжить"
     : "Сохранить"
-  }
+
+)}
 </button>
 <div
 style={{
@@ -1252,28 +1332,38 @@ setCropOpen(false);
  onChange={async (e)=>{
    const files = e.target.files;
 
-if(files && files.length > 1){
-  alert("Загружай по одному фото");
-  return;
-}
+
 
 
    for (let f of Array.from(files || [])) {
  if (f.size > 10 * 1024 * 1024){
-   alert("Фото до 10MB");
+   warning(
+  "Слишком большой файл",
+  "Максимальный размер — 10 МБ"
+);
    return;
  }
 }
    if (!files) return;
 
-   if (photos.length + files.length > 6){
-      alert("Максимум 6 фото");
-      return;
-   }
+   if (!files) return;
 
-   for(let i=0;i<files.length;i++){
-      await uploadPhoto(files[i]);
-   }
+const selectedFiles = Array.from(files);
+
+if (photos.length + selectedFiles.length > 6) {
+
+  warning(
+    "Лимит фотографий",
+    `Можно загрузить ещё ${6 - photos.length} фото`
+  );
+
+  return;
+
+}
+
+   for (const file of selectedFiles) {
+  await uploadPhoto(file);
+}
 
    e.target.value="";
  }}

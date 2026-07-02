@@ -4,11 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
+import { useNotification } from "../../../components/NotificationContext";
 
 export default function UserProfilePage() {
 
   const params = useParams();
   const router = useRouter();
+  const {
+  success,
+  warning
+} = useNotification();
 
   const [user,setUser] = useState<any>(null);
 
@@ -98,9 +103,15 @@ async function submitReport(){
   if(!me) return;
 
   if(!reportReason){
-    alert("Выберите причину");
-    return;
-  }
+
+  warning(
+    "Внимание",
+    "Выберите причину жалобы"
+  );
+
+  return;
+
+}
 
   await supabase
     .from("reports")
@@ -113,7 +124,10 @@ async function submitReport(){
   setShowReportModal(false);
   setReportReason("");
 
-  alert("Жалоба отправлена");
+  success(
+  "Готово",
+  "Жалоба отправлена"
+);
 }
 
   if(!user){

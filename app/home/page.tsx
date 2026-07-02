@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
+import AuraLoader from "../../components/AuraLoader";
 import { X, Heart, Sparkles } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -16,8 +17,10 @@ export default function Home() {
   console.log("HOME RENDER");
 const router = useRouter();  
 
-const { notify } =
-  useNotification();
+const {
+  notify,
+  error
+} = useNotification();
 
 
 const [feedQueue,setFeedQueue] =
@@ -30,6 +33,11 @@ const LOAD_MORE_AT = 15;
 const [isLoadingMore,setIsLoadingMore] =
 useState(false);
 
+const [loadingFeed, setLoadingFeed] =
+useState(true);
+
+
+
 
 const [photoIndex,setPhotoIndex]=useState(0);
 const [myProfile,setMyProfile]=useState<any>(null);
@@ -40,10 +48,10 @@ const [dragging,setDragging]=useState(false);
 
 const [showMatch,setShowMatch]=useState(false);
 useEffect(() => {
-  console.log("HOME MOUNT");
+  
 
   return () => {
-    console.log("HOME UNMOUNT");
+   
   };
 }, []);
 const [matchedUser,setMatchedUser]=useState<any>(null);
@@ -68,19 +76,7 @@ useEffect(() => {
 
 
 
-useEffect(() => {
 
-  notify({
-
-    icon: "🎉",
-
-    title: "AURA",
-
-    text: "Система уведомлений подключена"
-
-  });
-
-}, []);
 
 
 useEffect(() => {
@@ -221,6 +217,8 @@ async function loadUsers(){
 
   if(!myId) return;
 
+  setLoadingFeed(true);
+
 
 const { data: me } = await supabase
   .from("users")
@@ -290,16 +288,9 @@ setFeedQueue(prev => {
 
 });
 
-
-
-
-
-
-
-
-
-
 }
+
+setLoadingFeed(false);
 
 }
 
@@ -376,7 +367,7 @@ async function handleLike(){
   console.log("RPC RESPONSE:", response);
 
 const chatId = response?.data;
-const error = response?.error;
+const rpcError = response?.error;
 
 console.log("CHAT ID:", chatId);
 
@@ -385,15 +376,17 @@ console.log(
   JSON.stringify(error, null, 2)
 );
 
-if(error){
+if(rpcError){
 
-  console.log("FULL ERROR", error);
+  console.log("FULL ERROR", rpcError);
 
-  alert(
-    JSON.stringify(error, null, 2)
+  error(
+    "Ошибка",
+    rpcError.message ?? "Не удалось поставить лайк"
   );
 
   return;
+
 };
 
 
@@ -490,7 +483,16 @@ padding:"18px 18px 118px"
 }}
 >
 
-{currentUser && (
+{loadingFeed && (
+
+  <AuraLoader
+    fullscreen
+    text="Загрузка анкет..."
+  />
+
+)}
+
+{!loadingFeed && currentUser && (
 <>
 
 <div

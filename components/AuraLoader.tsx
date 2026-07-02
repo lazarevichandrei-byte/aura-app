@@ -1,27 +1,61 @@
 "use client";
 
-export default function AuraLoader() {
+type Props = {
+  size?: number;
+  color?: string;
+  fullscreen?: boolean;
+  inline?: boolean;
+  text?: string;
+};
+
+export default function AuraLoader({
+  size = 56,
+  color = "#2AABEE",
+  fullscreen = false,
+  inline = false,
+  text
+}: Props) {
   return (
     <div
   style={{
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "40px 0",
-  }}
+  width: inline ? "auto" : "100%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: inline
+    ? 0
+    : fullscreen
+    ? 0
+    : "40px 0",
+  minHeight: fullscreen ? "100vh" : "auto",
+}}
 >
       <div className="loader">
         <div className="ring"></div>
         <div className="glow"></div>
       </div>
 
+      
+
       <style jsx>{`
         .loader {
           position: relative;
-         width: 56px;
-height: 56px;
+      width:${size}px;
+height:${size}px;
         }
+
+        {text && (
+  <span
+    style={{
+      marginLeft: 10,
+      fontSize: 14,
+      fontWeight: 500,
+      color: "#374151",
+    }}
+  >
+    {text}
+  </span>
+)}
 
         .ring {
           position: absolute;
@@ -29,8 +63,8 @@ height: 56px;
           border-radius: 50%;
 
           border: 4px solid transparent;
-          border-top: 2.5px solid #3b82f6;
-border-right: 2.5px solid #60a5fa;
+          border-top: 2.5px solid ${color};
+border-right: 2.5px solid ${color};
 
           animation: spin 0.9s linear infinite;
 

@@ -5,10 +5,17 @@ import { useState } from "react";
 import { ArrowLeft2 } from "iconsax-react";
 import { supabase } from "../../lib/supabase";
 import PageWrapper from "../../components/PageWrapper";
+import { useNotification } from "../../components/NotificationContext";
 
 export default function SupportPage() {
 
   const router = useRouter();
+
+  const {
+  success,
+  error,
+  warning
+} = useNotification();
 
   const [category,setCategory] =
 useState("bug");
@@ -32,13 +39,19 @@ async function sendTicket(){
   }
 
   if(!message.trim()){
-    alert("Введите сообщение");
-    return;
-  }
+
+  warning(
+    "Внимание",
+    "Введите сообщение"
+  );
+
+  return;
+
+}
 
   setSending(true);
 
-  const { error } =
+  const { error: rpcError } =
     await supabase
       .from("support_tickets")
       .insert({
@@ -49,14 +62,23 @@ async function sendTicket(){
 
   setSending(false);
 
-  if(error){
-    alert("Ошибка отправки");
-    return;
-  }
+  if(rpcError){
 
-  alert("Сообщение отправлено ✓");
+  error(
+    "Ошибка",
+    "Не удалось отправить сообщение"
+  );
 
-  setMessage("");
+  return;
+
+}
+
+  success(
+  "Отправлено",
+  "Сообщение успешно отправлено"
+);
+
+setMessage("");
 }
 
   return (

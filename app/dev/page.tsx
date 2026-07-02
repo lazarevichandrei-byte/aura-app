@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useNotification } from "../../components/NotificationContext";
 import AuraLoader from "../../components/AuraLoader"; 
 import BottomSheet from "../../components/BottomSheet";
+import AuraSkeleton from "../../components/AuraSkeleton";
 
 export default function DevPage() {
 
@@ -17,6 +18,7 @@ export default function DevPage() {
 
   const [showLoader, setShowLoader] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
   return (
 
@@ -186,6 +188,44 @@ export default function DevPage() {
   Проверить Bottom Sheet
 
 </button>
+
+<button
+
+  onClick={() => {
+
+    setShowSkeleton(!showSkeleton);
+
+  }}
+
+  style={{
+
+    marginTop:16,
+
+    width:"100%",
+
+    height:60,
+
+    border:"none",
+
+    borderRadius:16,
+
+    background:"#6B7280",
+
+    color:"#fff",
+
+    fontSize:18,
+
+    fontWeight:600,
+
+    cursor:"pointer"
+
+  }}
+
+>
+
+  Проверить Skeleton
+
+</button>
       
 
       {showLoader && (
@@ -206,7 +246,54 @@ export default function DevPage() {
       )}
 
 
+      
+
+      {showSkeleton && (
+
+  <div
+    style={{
+      marginTop: 40,
+      display: "flex",
+      flexDirection: "column",
+      gap: 20
+    }}
+  >
+
+    <AuraSkeleton
+      width={90}
+      height={90}
+      radius={999}
+    />
+
+    <AuraSkeleton
+      width={180}
+      height={24}
+    />
+
+    <AuraSkeleton />
+
+    <AuraSkeleton width="75%" />
+
+    <AuraSkeleton width="55%" />
+
+    <AuraSkeleton
+      height={56}
+      radius={18}
+    />
+
+    <AuraSkeleton
+      height={220}
+      radius={28}
+    />
+
+  </div>
+
+)}
+
+
       <BottomSheet
+
+      
 
   open={showSheet}
 
@@ -232,6 +319,9 @@ export default function DevPage() {
   >
     Это новый универсальный Bottom Sheet.
   </p>
+
+
+  
 
   <button
 
