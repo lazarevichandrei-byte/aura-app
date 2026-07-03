@@ -22,6 +22,9 @@ router
 const [pressed,setPressed] =
 useState(false);
 
+
+
+
 return(
 
 <div
@@ -461,7 +464,21 @@ async function loadChats(){
 
 }
 
+if (loading) {
+
+  return (
+
+    <AuraLoader
+      compact
+      text="Загрузка чатов..."
+    />
+
+  );
+
+}
+
 return(
+
     
 <div
 style={{
@@ -479,25 +496,7 @@ margin:"0 auto"
 }}
 >
 
-  {loading && (
-
-<div
-style={{
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-height:"60vh"
-}}
->
-
-<AuraLoader
-compact
-text="Загрузка чатов..."
-/>
-
-</div>
-
-)}
+  
 
 {/* STORIES */}
 <div
