@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import AuraLoader from "../../components/AuraLoader";
+import HomeSkeleton from "../../components/HomeSkeleton";
+import AuraSkeleton from "../../components/AuraSkeleton";
 import { X, Heart, Sparkles } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -484,12 +486,7 @@ padding:"18px 18px 118px"
 >
 
 {loadingFeed && (
-
-  <AuraLoader
-    fullscreen
-    text="Загрузка анкет..."
-  />
-
+  <HomeSkeleton />
 )}
 
 {!loadingFeed && currentUser && (

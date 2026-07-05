@@ -8,6 +8,7 @@ import BottomSheet from "../../components/BottomSheet";
 import AuraLoader from "../../components/AuraLoader";
 import { useNotification } from "../../components/NotificationContext";
 
+
 export default function AccountPage() {
   const router = useRouter();
   const {
