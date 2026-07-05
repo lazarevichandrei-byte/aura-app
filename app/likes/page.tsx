@@ -104,6 +104,70 @@ console.log("LIKES RAW:", likes);
 }
 
 
+function EmptyLikes() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "90px 20px",
+        textAlign: "center"
+      }}
+    >
+      <div
+        style={{
+          fontSize: 72
+        }}
+      >
+        ❤️
+      </div>
+
+      <div
+        style={{
+          marginTop: 18,
+          fontSize: 24,
+          fontWeight: 700,
+          color: "#1F2937"
+        }}
+      >
+        Пока тебя никто не лайкнул
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 15,
+          color: "#8A8F9B",
+          lineHeight: 1.5
+        }}
+      >
+        Заполни профиль —
+        <br />
+        так шансов будет больше.
+      </div>
+
+      <button
+        onClick={() => router.push("/profile")}
+        style={{
+          marginTop: 28,
+          height: 48,
+          padding: "0 26px",
+          border: "none",
+          borderRadius: 999,
+          background: "#2F80FF",
+          color: "#fff",
+          fontWeight: 600,
+          cursor: "pointer"
+        }}
+      >
+        Заполнить профиль
+      </button>
+    </div>
+  );
+}
+
 if (loading) {
 
   return (
@@ -252,7 +316,13 @@ color:"#7B8794"
 {/* likes list */}
 <div style={{marginTop:22}}>
 
-{people.map(user=>(
+{people.length === 0 ? (
+
+  <EmptyLikes />
+
+) : (
+
+people.map(user => (
 
 <div
 key={user.id}
@@ -509,7 +579,9 @@ display:"inline-block"
 </div>
 
 
-))}
+))
+
+)}
 
 </div>
 
