@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import { useNotification } from "../../components/NotificationContext";
 import AuraLoader from "../../components/AuraLoader";
+import ProfileSkeleton from "../../components/ProfileSkeleton";
 
 
 const Cropper:any = dynamic(
@@ -814,53 +815,7 @@ warning(
 
 
   if (loading) {
- return (
-  <div style={styles.wrapper}>
-   <div style={styles.card}>
-
-
-
-
-
-
-    <div style={{
-      width:92,
-      height:92,
-      borderRadius:"50%",
-      margin:"0 auto 22px",
-      background:"#E9EEF5"
-    }}/>
-
-    <div style={{
-      height:56,
-      borderRadius:16,
-      background:"#EEF3F8",
-      marginBottom:14
-    }}/>
-
-    <div style={{
-      height:56,
-      borderRadius:16,
-      background:"#EEF3F8",
-      marginBottom:14
-    }}/>
-
-    <div style={{
-      height:130,
-      borderRadius:20,
-      background:"#EEF3F8",
-      marginBottom:20
-    }}/>
-
-    <div style={{
-      height:56,
-      borderRadius:18,
-      background:"#DDEBFF"
-    }}/>
-
-   </div>
-  </div>
- );
+  return <ProfileSkeleton />;
 }
 
 
@@ -1146,29 +1101,15 @@ warning(
 >
   {savingProfile || uploading ? (
 
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 10
-    }}
-  >
-
-    <AuraLoader
-  size={18}
+  <AuraLoader
   inline
+  size={18}
+  text={
+    savingProfile
+      ? "Сохранение..."
+      : `Загрузка ${uploadProgress}%`
+  }
 />
-
-    <span>
-
-      {savingProfile
-        ? "Сохранение..."
-        : `Загрузка ${uploadProgress}%`}
-
-    </span>
-
-  </div>
 
 ) : (
 
