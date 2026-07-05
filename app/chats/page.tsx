@@ -464,6 +464,69 @@ async function loadChats(){
 
 }
 
+
+function EmptyChats() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "80px 20px",
+        textAlign: "center"
+      }}
+    >
+      <div
+        style={{
+          fontSize: 72
+        }}
+      >
+        💬
+      </div>
+
+      <div
+        style={{
+          marginTop: 18,
+          fontSize: 24,
+          fontWeight: 700,
+          color: "#1F2937"
+        }}
+      >
+        Пока нет сообщений
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 15,
+          color: "#8A8F9B",
+          lineHeight: 1.5
+        }}
+      >
+        Начни знакомиться ❤️
+      </div>
+
+      <button
+        onClick={() => router.push("/home")}
+        style={{
+          marginTop: 28,
+          height: 48,
+          padding: "0 26px",
+          border: "none",
+          borderRadius: 999,
+          background: "#2F80FF",
+          color: "#fff",
+          fontWeight: 600,
+          cursor: "pointer"
+        }}
+      >
+        Начать знакомиться
+      </button>
+    </div>
+  );
+}
+
 if (loading) {
 
   return (
@@ -730,14 +793,18 @@ console.log("UPDATE ERROR:", error);
     </div>
   )}
 
-  {sortedChats.map((chat) => (
+  {sortedChats.length === 0 && !searching ? (
+  <EmptyChats />
+) : (
+  sortedChats.map((chat) => (
     <ChatCard
       key={chat.id}
       chat={chat}
       typing={typingChats[chat.id]}
       router={router}
     />
-  ))}
+  ))
+)}
 
   {searching && !filteredChats.length && (
     <div
