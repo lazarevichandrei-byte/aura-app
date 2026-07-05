@@ -8,6 +8,7 @@ import {
   ArrowRight2
 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
+import BottomSheet from "../../components/BottomSheet";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -266,259 +267,185 @@ useState(false);
       </div>
     </div>
 
-    {showThemeModal && (
-
-<div
-  onClick={() =>
-    setShowThemeModal(false)
-  }
-  style={{
-    position:"fixed",
-    inset:0,
-
-    background:"rgba(0,0,0,.45)",
-    backdropFilter:"blur(6px)",
-
-    zIndex:99999,
-
-    display:"flex",
-    alignItems:"flex-end"
-  }}
+    <BottomSheet
+  open={showThemeModal}
+  onClose={() => setShowThemeModal(false)}
 >
 
-  <div
-    onClick={(e)=>
-      e.stopPropagation()
-    }
+  <h2
     style={{
-      width:"100%",
-      background:"#fff",
-
-      borderTopLeftRadius:"28px",
-      borderTopRightRadius:"28px",
-
-      padding:"24px"
+      margin:0,
+      textAlign:"center"
     }}
   >
+    Выбор темы
+  </h2>
+
+  <div style={{ marginTop:20 }}>
 
     <div
       style={{
-        textAlign:"center",
-        fontSize:"22px",
-        fontWeight:700,
-        marginBottom:"20px"
+        ...sheetItem,
+        background:
+          theme === "light"
+            ? "#EAF5FF"
+            : "#F5F7FB",
+        border:
+          theme === "light"
+            ? "1px solid #2AABEE"
+            : "1px solid transparent"
+      }}
+      onClick={async()=>{
+
+        setTheme("light");
+
+        await saveSetting(
+          "theme",
+          "light"
+        );
+
+        setShowThemeModal(false);
+
       }}
     >
-      Выбор темы
+      ☀️ Светлая
     </div>
-
-    <div
-  style={{
-    ...sheetItem,
-    background:
-      theme === "light"
-        ? "#EAF5FF"
-        : "#F5F7FB",
-
-    border:
-      theme === "light"
-        ? "1px solid #2AABEE"
-        : "1px solid transparent"
-  }}
-  onClick={async()=>{
-
-    setTheme("light");
-
-    await saveSetting(
-      "theme",
-      "light"
-    );
-
-    setShowThemeModal(false);
-
-  }}
->
-  ☀️ Светлая
-  {theme === "light" && " "}
-</div>
-
-    <div
-  style={{
-    ...sheetItem,
-    background:
-      theme === "dark"
-        ? "#EAF5FF"
-        : "#F5F7FB",
-
-    border:
-      theme === "dark"
-        ? "1px solid #2AABEE"
-        : "1px solid transparent"
-  }}
-  onClick={async()=>{
-
-    setTheme("dark");
-
-    await saveSetting(
-      "theme",
-      "dark"
-    );
-
-    setShowThemeModal(false);
-
-  }}
->
-  🌙 Тёмная
-  {theme === "dark" && " "}
-</div>
-
-    <div
-  style={{
-    ...sheetItem,
-    background:
-      theme === "system"
-        ? "#EAF5FF"
-        : "#F5F7FB",
-
-    border:
-      theme === "system"
-        ? "1px solid #2AABEE"
-        : "1px solid transparent"
-  }}
-  onClick={async()=>{
-
-    setTheme("system");
-
-    await saveSetting(
-      "theme",
-      "system"
-    );
-
-    setShowThemeModal(false);
-
-  }}
->
-  ⚙️ Системная
-  {theme === "system" && " "}
-</div>
-
-  </div>
-
-</div>
-
-)}
-
-{showLanguageModal && (
-
-<div
-  onClick={() =>
-    setShowLanguageModal(false)
-  }
-  style={{
-    position:"fixed",
-    inset:0,
-
-    background:"rgba(0,0,0,.45)",
-    backdropFilter:"blur(6px)",
-
-    zIndex:99999,
-
-    display:"flex",
-    alignItems:"flex-end"
-  }}
->
-
-  <div
-    onClick={(e)=>
-      e.stopPropagation()
-    }
-    style={{
-      width:"100%",
-      background:"#fff",
-
-      borderTopLeftRadius:"28px",
-      borderTopRightRadius:"28px",
-
-      padding:"24px"
-    }}
-  >
 
     <div
       style={{
-        textAlign:"center",
-        fontSize:"22px",
-        fontWeight:700,
-        marginBottom:"20px"
+        ...sheetItem,
+        background:
+          theme === "dark"
+            ? "#EAF5FF"
+            : "#F5F7FB",
+        border:
+          theme === "dark"
+            ? "1px solid #2AABEE"
+            : "1px solid transparent"
+      }}
+      onClick={async()=>{
+
+        setTheme("dark");
+
+        await saveSetting(
+          "theme",
+          "dark"
+        );
+
+        setShowThemeModal(false);
+
       }}
     >
-      Выбор языка
+      🌙 Тёмная
     </div>
 
     <div
-  style={{
-    ...sheetItem,
-    background:
-      language === "ru"
-        ? "#EAF5FF"
-        : "#F5F7FB",
+      style={{
+        ...sheetItem,
+        background:
+          theme === "system"
+            ? "#EAF5FF"
+            : "#F5F7FB",
+        border:
+          theme === "system"
+            ? "1px solid #2AABEE"
+            : "1px solid transparent"
+      }}
+      onClick={async()=>{
 
-    border:
-      language === "ru"
-        ? "1px solid #2AABEE"
-        : "1px solid transparent"
-  }}
-  onClick={async()=>{
+        setTheme("system");
 
-    setLanguage("ru");
+        await saveSetting(
+          "theme",
+          "system"
+        );
 
-    await saveSetting(
-      "language",
-      "ru"
-    );
+        setShowThemeModal(false);
 
-    setShowLanguageModal(false);
-
-  }}
->
-  🇷🇺 Русский
-  {language === "ru" && " "}
-</div>
-
-    <div
-  style={{
-    ...sheetItem,
-    background:
-      language === "en"
-        ? "#EAF5FF"
-        : "#F5F7FB",
-
-    border:
-      language === "en"
-        ? "1px solid #2AABEE"
-        : "1px solid transparent"
-  }}
-  onClick={async()=>{
-
-    setLanguage("en");
-
-    await saveSetting(
-      "language",
-      "en"
-    );
-
-    setShowLanguageModal(false);
-
-  }}
->
-  🇺🇸 English
-  {language === "en" && " "}
-</div>
+      }}
+    >
+      ⚙️ Системная
+    </div>
 
   </div>
 
-</div>
+</BottomSheet>
 
-)}
+<BottomSheet
+  open={showLanguageModal}
+  onClose={() => setShowLanguageModal(false)}
+>
+
+  <h2
+    style={{
+      margin:0,
+      textAlign:"center"
+    }}
+  >
+    Выбор языка
+  </h2>
+
+  <div style={{ marginTop:20 }}>
+
+    <div
+      style={{
+        ...sheetItem,
+        background:
+          language === "ru"
+            ? "#EAF5FF"
+            : "#F5F7FB",
+        border:
+          language === "ru"
+            ? "1px solid #2AABEE"
+            : "1px solid transparent"
+      }}
+      onClick={async()=>{
+
+        setLanguage("ru");
+
+        await saveSetting(
+          "language",
+          "ru"
+        );
+
+        setShowLanguageModal(false);
+
+      }}
+    >
+      🇷🇺 Русский
+    </div>
+
+    <div
+      style={{
+        ...sheetItem,
+        background:
+          language === "en"
+            ? "#EAF5FF"
+            : "#F5F7FB",
+        border:
+          language === "en"
+            ? "1px solid #2AABEE"
+            : "1px solid transparent"
+      }}
+      onClick={async()=>{
+
+        setLanguage("en");
+
+        await saveSetting(
+          "language",
+          "en"
+        );
+
+        setShowLanguageModal(false);
+
+      }}
+    >
+      🇺🇸 English
+    </div>
+
+  </div>
+
+</BottomSheet>
     
   </PageWrapper>
   );
