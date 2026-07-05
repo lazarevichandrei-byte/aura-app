@@ -6,6 +6,7 @@ import { supabase } from "../../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
 import { useNotification } from "../../../components/NotificationContext";
 import BottomSheet from "../../../components/BottomSheet";
+import UserProfileSkeleton from "../../../components/UserProfileSkeleton";
 export default function UserProfilePage() {
 
   const params = useParams();
@@ -130,17 +131,9 @@ async function submitReport(){
 );
 }
 
-  if(!user){
-
-    return (
-      <div
-        style={{
-          minHeight:"100vh",
-          background:"#F5F7FB"
-        }}
-      />
-    );
-  }
+  if (!user) {
+  return <UserProfileSkeleton />;
+}
   async function blockUser(){
 
   const tg =
