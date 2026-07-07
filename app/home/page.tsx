@@ -304,6 +304,14 @@ setLoadingFeed(false);
 
 }
 
+async function refreshFeed(){
+
+  setFeedQueue([]);
+
+  await loadUsers();
+
+}
+
 
 
 const currentUser =
@@ -505,6 +513,11 @@ setPhotoIndex(p=>p===photos.length-1 ? 0 : p+1);
 }
 
 return(
+
+<PullToRefresh
+onRefresh={refreshFeed}
+>
+
 <div
 style={{
 height:"100vh",
@@ -1227,6 +1240,9 @@ fontWeight:500
 <BottomNav />
 
 </div>
+
+</PullToRefresh>
+
 );
 
 }
