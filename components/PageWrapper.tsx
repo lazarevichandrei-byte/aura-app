@@ -1,6 +1,11 @@
 "use client";
 
-import { ReactNode, useRef } from "react";
+import {
+  ReactNode,
+  useRef,
+  useEffect,
+  useState
+} from "react";
 import { useRouter } from "next/navigation";
 
 export default function PageWrapper({
@@ -15,6 +20,17 @@ export default function PageWrapper({
 
   const startX = useRef(0);
   const startY = useRef(0);
+
+  const [visible, setVisible] =
+  useState(false);
+
+useEffect(() => {
+
+  requestAnimationFrame(() => {
+    setVisible(true);
+  });
+
+}, []);
 
   
 
@@ -62,8 +78,17 @@ export default function PageWrapper({
     onTouchStart={touchStart}
     onTouchEnd={touchEnd}
     style={{
-      minHeight:"100vh"
-    }}
+  minHeight:"100vh",
+
+  opacity: visible ? 1 : 0,
+
+  transform: visible
+    ? "translateY(0)"
+    : "translateY(10px)",
+
+  transition:
+    "opacity .22s ease, transform .22s ease"
+}}
   >
       {children}
     </div>

@@ -16,7 +16,8 @@ const ChatCard = React.memo(
 function ChatCard({
 chat,
 typing,
-router
+router,
+index
 }:any){
 
 const [pressed,setPressed] =
@@ -68,6 +69,11 @@ boxShadow:
 
 transition:
 "background .15s ease",
+
+opacity: 1,
+
+animation:
+`chatAppear .28s ease ${index * 35}ms both`,
 
 cursor:"pointer"
 }}
@@ -160,6 +166,22 @@ fontWeight:700
 )
 
 });
+
+
+<style>{`
+@keyframes chatAppear{
+from{
+opacity:0;
+transform:translateY(16px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+`}</style>
+
+
 export default function Chats(){
 
 
@@ -183,6 +205,7 @@ const reloadTimer =
 useRef<any>(null);
 const [typingChats,setTypingChats] =
 useState<any>({});
+
 const [myId,setMyId] = useState<string | null>(null);
 
 const channelsRef = useRef<Record<string, any>>({});
@@ -454,7 +477,9 @@ async function loadChats(){
       return;
     }
 
-    setChats(result.chats || []);
+  setChats(result.chats || []);
+
+
 
   } finally {
 
@@ -796,13 +821,14 @@ console.log("UPDATE ERROR:", error);
   {sortedChats.length === 0 && !searching ? (
   <EmptyChats />
 ) : (
-  sortedChats.map((chat) => (
+  sortedChats.map((chat, index) => (
     <ChatCard
-      key={chat.id}
-      chat={chat}
-      typing={typingChats[chat.id]}
-      router={router}
-    />
+  key={chat.id}
+  chat={chat}
+  typing={typingChats[chat.id]}
+  router={router}
+  index={index}
+/>
   ))
 )}
 

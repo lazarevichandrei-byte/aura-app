@@ -47,6 +47,7 @@ const [loading,setLoading] = useState(true);
 const [match,setMatch] = useState<any>(null);
 const [matchChatId,setMatchChatId] = useState<string | null>(null);
 
+
 const touchStartX = useRef(0);
 
 
@@ -100,6 +101,7 @@ console.log("LIKES RAW:", likes);
   }));
 
   setPeople(formatted);
+  
   setLoading(false);
 }
 
@@ -325,7 +327,7 @@ color:"#7B8794"
 
 ) : (
 
-people.map(user => (
+people.map((user, index) => (
 
 <div
 key={user.id}
@@ -349,7 +351,10 @@ alignItems:"center",
 boxShadow:
 "0 2px 10px rgba(0,0,0,.04)",
 
-cursor:"pointer"
+cursor:"pointer",
+
+animation:
+`likeAppear .28s ease ${index * 35}ms both`,
 }}
 >
 
@@ -599,11 +604,16 @@ onClick={()=>{
 style={{
 position:"fixed",
 inset:0,
-background:"rgba(0,0,0,.5)",
+
+background:"rgba(0,0,0,.55)",
+
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-zIndex:9999
+
+zIndex:9999,
+
+animation:"fadeMatch .25s ease"
 }}
 >
 
@@ -612,14 +622,28 @@ onClick={(e)=>e.stopPropagation()}
 style={{
 width:"90%",
 maxWidth:360,
+
 background:"#fff",
+
 borderRadius:28,
+
 padding:"32px 24px",
-textAlign:"center"
+
+textAlign:"center",
+
+animation:"matchCard .35s ease"
 }}
 >
+<div
+style={{
+fontSize:42,
 
-<div style={{fontSize:36}}>💙</div>
+animation:
+"heartPulse 1.5s ease infinite"
+}}
+>
+💙
+</div>
 
 <div style={{
 marginTop:12,
@@ -644,7 +668,10 @@ width:90,
 height:90,
 borderRadius:"50%",
 objectFit:"cover",
-marginTop:18
+marginTop:18,
+
+animation:
+"avatarAppear .45s ease"
 }}
 />
 
@@ -658,13 +685,21 @@ style={{
 marginTop:28,
 height:50,
 borderRadius:16,
+
 background:"#2F80FF",
+
 color:"#fff",
+
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
+
 fontWeight:700,
-cursor:"pointer"
+
+cursor:"pointer",
+
+animation:
+"buttonAppear .55s ease"
 }}
 >
 Написать сообщение
@@ -675,9 +710,96 @@ cursor:"pointer"
 </div>
 
 )}
+<style jsx>{`
 
+@keyframes likeAppear{
+
+from{
+opacity:0;
+transform:translateY(16px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+@keyframes fadeMatch{
+
+from{
+opacity:0;
+}
+
+to{
+opacity:1;
+}
+
+}
+
+@keyframes matchCard{
+
+from{
+opacity:0;
+transform:translateY(30px) scale(.94);
+}
+
+to{
+opacity:1;
+transform:translateY(0) scale(1);
+}
+
+}
+
+@keyframes heartPulse{
+
+0%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.18);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+@keyframes avatarAppear{
+
+from{
+opacity:0;
+transform:scale(.8);
+}
+
+to{
+opacity:1;
+transform:scale(1);
+}
+
+}
+
+@keyframes buttonAppear{
+
+from{
+opacity:0;
+transform:translateY(12px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+`}</style>
 
 </div>
+
 
 
 
