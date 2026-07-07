@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
+import { selection } from "../lib/haptic";
 
 type Props = {
   open: boolean;
@@ -20,15 +21,17 @@ export default function BottomSheet({
 
     if (open) {
 
-      requestAnimationFrame(() => {
-        setVisible(true);
-      });
+  selection();
 
-    } else {
+  requestAnimationFrame(() => {
+    setVisible(true);
+  });
 
-      setVisible(false);
+} else {
 
-    }
+  setVisible(false);
+
+}
 
   }, [open]);
 

@@ -52,6 +52,8 @@ const [myProfile,setMyProfile]=useState<any>(null);
 
 const [dragX,setDragX]=useState(0);
 const [dragging,setDragging]=useState(false);
+const [cardVisible, setCardVisible] =
+useState(false);
 
 
 const [showMatch,setShowMatch]=useState(false);
@@ -309,6 +311,18 @@ feedQueue.length > 0
 ? feedQueue[0]
 : null;
 
+useEffect(() => {
+
+  if (!currentUser) return;
+
+  setCardVisible(false);
+
+  requestAnimationFrame(() => {
+    setCardVisible(true);
+  });
+
+}, [currentUser]);
+
 
 
 const photos=
@@ -528,12 +542,14 @@ borderRadius:36,
 overflow:"hidden",
 background:"#fff",
 boxShadow:"0 10px 30px rgba(0,0,0,.06)",
-transform:dragging
-?`translateX(${dragX}px) rotate(${dragX/80}deg)`
-:`translateX(${dragX}px)`,
-transition:dragging
-?"none"
-:"all .28s cubic-bezier(.2,.8,.2,1)"
+transform: dragging
+? `translateX(${dragX}px) rotate(${dragX/80}deg)`
+: cardVisible
+? "translateY(0) scale(1)"
+: "translateY(18px) scale(.98)",
+transition: dragging
+? "none"
+: "all .28s cubic-bezier(.22,1,.36,1)",
 }}
 >
 

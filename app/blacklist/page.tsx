@@ -5,6 +5,7 @@ import { ArrowLeft2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import PageWrapper from "../../components/PageWrapper";
+import { selection } from "../../lib/haptic";
 
 export default function BlacklistPage(){
 
@@ -77,10 +78,12 @@ export default function BlacklistPage(){
 }
 
   async function unblock(
-    blockId:string
-  ){
+  blockId:string
+){
 
-    await supabase
+  selection();
+
+  await supabase
       .from("blocked_users")
       .delete()
       .eq("id", blockId);

@@ -7,6 +7,7 @@ import BottomNav from "../../components/BottomNav";
 import BottomSheet from "../../components/BottomSheet";
 import AuraLoader from "../../components/AuraLoader";
 import { useNotification } from "../../components/NotificationContext";
+import { warning } from "../../lib/haptic";
 
 
 export default function AccountPage() {
@@ -57,6 +58,7 @@ useState(false);
   }
 
   async function deleteAccount(){
+    warning();
 
   const tg =
     (window as any)?.Telegram?.WebApp;
