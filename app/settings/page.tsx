@@ -8,6 +8,9 @@ import {
   ArrowRight2
 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
+import {
+  selection
+} from "../../lib/haptic";
 import BottomSheet from "../../components/BottomSheet";
 
 export default function SettingsPage() {
@@ -297,6 +300,8 @@ useState(false);
       }}
       onClick={async()=>{
 
+          selection();
+
         setTheme("light");
 
         await saveSetting(
@@ -323,9 +328,11 @@ useState(false);
             ? "1px solid #2AABEE"
             : "1px solid transparent"
       }}
-      onClick={async()=>{
+     onClick={async()=>{
 
-        setTheme("dark");
+  selection();
+
+  setTheme("dark");
 
         await saveSetting(
           "theme",
@@ -352,6 +359,8 @@ useState(false);
             : "1px solid transparent"
       }}
       onClick={async()=>{
+
+         selection();
 
         setTheme("system");
 
@@ -401,6 +410,8 @@ useState(false);
       }}
       onClick={async()=>{
 
+         selection();
+
         setLanguage("ru");
 
         await saveSetting(
@@ -428,6 +439,8 @@ useState(false);
             : "1px solid transparent"
       }}
       onClick={async()=>{
+
+          selection();
 
         setLanguage("en");
 
