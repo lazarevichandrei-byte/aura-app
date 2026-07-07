@@ -8,132 +8,151 @@ import {
 
 type Props = {
   children: ReactNode;
-  enabled?: boolean;
-  threshold?: number;
   onRefresh: () => Promise<void> | void;
+  enabled?: boolean;
 };
 
 export default function PullToRefresh({
   children,
   onRefresh,
-  enabled = true,
-  threshold = 70
+  enabled = true
 }: Props) {
 
-  const startY = useRef<number | null>(null);
+  const containerRef =
+    useRef<HTMLDivElement>(null);
 
-  const [pull, setPull] = useState(0);
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const startY =
+    useRef<number | null>(null);
 
-  function reset() {
-    startY.current = null;
-    setPull(0);
+  const pulling =
+    useRef(false);
+
+  const refreshing =
+    useRef(false);
+
+  const [offset,setOffset] =
+    useState(0);
+
+    const THRESHOLD = 90;
+
+    function handleTouchStart(
+  e: React.TouchEvent
+){
+
+  if(
+    !enabled ||
+    refreshing.current
+  ){
+    return;
   }
 
-  async function triggerRefresh() {
+  const scroller =
+    document.scrollingElement;
 
-    if (refreshing) return;
-
-    setRefreshing(true);
-
-    try {
-
-      await onRefresh();
-
-    } finally {
-
-      setTimeout(() => {
-
-        setRefreshing(false);
-        reset();
-
-      }, 400);
-
-    }
-
+  if(
+    scroller &&
+    scroller.scrollTop > 0
+  ){
+    return;
   }
 
-  return (
+  startY.current =
+    e.touches[0].clientY;
 
-    <div
+  pulling.current = true;
 
-      onTouchStart={(e) => {
+}
 
-        if (!enabled || refreshing) return;
+function handleTouchMove(
+  e: React.TouchEvent
+){
 
-        startY.current =
-          e.touches[0].clientY;
+  if(
+    !pulling.current ||
+    startY.current === null
+  ){
+    return;
+  }
 
-      }}
+  const diff =
+    e.touches[0].clientY -
+    startY.current;
 
-      onTouchMove={(e) => {
+  if(diff <= 0){
+    return;
+  }
 
-        if (
-          !enabled ||
-          refreshing ||
-          startY.current === null
-        ) {
-          return;
-        }
+  // сопротивление
+  const distance =
+    Math.pow(diff,0.85);
 
-        const distance =
-          e.touches[0].clientY -
-          startY.current;
+  setOffset(
+    Math.min(distance,120)
+  );
 
-        if (distance <= 0) {
-          return;
-        }
+}
 
-        setPull(
-          Math.min(distance * 0.45, threshold)
-        );
+async function handleTouchEnd(){
 
-      }}
-
-      onTouchEnd={async () => {
-
-  if (
-    enabled &&
-    pull >= threshold
-  ) {
-
-    await triggerRefresh();
+  if(!pulling.current){
 
     return;
 
   }
 
-  reset();
+  pulling.current = false;
+
+  startY.current = null;
+
+  if(offset >= THRESHOLD){
+
+    refreshing.current = true;
+
+    try{
+
+      await onRefresh();
+
+    }finally{
+
+      refreshing.current = false;
+
+    }
+
+  }
+
+  setOffset(0);
+
+}
+
+  return (
+
+    <div
+  ref={containerRef}
+
+  onTouchStart={handleTouchStart}
+
+  onTouchMove={handleTouchMove}
+
+  onTouchEnd={handleTouchEnd}
+      style={{
+
+  width:"100%",
+
+  height:"100%",
+
+  touchAction:"pan-y",
+
+  overflow:"hidden",
+
+  transform:`translateY(${offset}px)`,
+
+  transition:
+    pulling.current
+      ? "none"
+      : "transform .22s ease"
 
 }}
-
     >
-
-      <div
-        style={{
-          height: refreshing ? 42 : pull,
-          overflow: "hidden",
-          transition: "height .18s ease",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
-
-        {refreshing && (
-          <div
-            style={{
-              fontSize: 13,
-              color: "#2F80FF",
-              fontWeight: 600
-            }}
-          >
-            Обновление...
-          </div>
-        )}
-
-      </div>
 
       {children}
 
