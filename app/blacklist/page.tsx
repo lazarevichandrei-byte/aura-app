@@ -132,31 +132,67 @@ export default function BlacklistPage(){
 
         </div>
 
-        <p
-          style={{
-            color:"#7B8595",
-            fontSize:14,
-            marginBottom:20
-          }}
-        >
-          Пользователи, которых вы заблокировали.
-        </p>
+        {users.length > 0 && (
+
+<p
+  style={{
+    color:"#7B8595",
+    fontSize:14,
+    marginBottom:20
+  }}
+>
+  Пользователи, которых вы заблокировали.
+</p>
+
+)}
 
         {users.length === 0 && (
 
-          <div
-            style={{
-              background:"#fff",
-              borderRadius:"18px",
-              padding:"20px",
-              textAlign:"center",
-              color:"#8B95A7"
-            }}
-          >
-            Чёрный список пуст
-          </div>
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "24px 20px",
+      textAlign: "center"
+    }}
+  >
+    <div
+      style={{
+        fontSize: 30
+      }}
+    >
+      🚫
+    </div>
 
-        )}
+    <div
+      style={{
+        marginTop: 10,
+        fontSize: 16,
+        fontWeight: 600,
+        color: "#1F2937"
+      }}
+    >
+      Чёрный список пуст
+    </div>
+
+    <div
+      style={{
+        marginTop: 4,
+        fontSize: 12,
+        color: "#8A8F9B",
+        lineHeight: 1.5
+      }}
+    >
+      Здесь будут отображаться
+      <br />
+      заблокированные пользователи.
+    </div>
+
+  </div>
+
+)}
 
         {users.map((item:any)=>{
 
