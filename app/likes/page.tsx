@@ -112,13 +112,13 @@ function EmptyLikes() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "90px 20px",
+        padding: "24px 20px",
         textAlign: "center"
       }}
     >
       <div
         style={{
-          fontSize: 72
+          fontSize: 30
         }}
       >
         ❤️
@@ -126,9 +126,9 @@ function EmptyLikes() {
 
       <div
         style={{
-          marginTop: 18,
-          fontSize: 24,
-          fontWeight: 700,
+          marginTop: 10,
+          fontSize: 16,
+          fontWeight: 600,
           color: "#1F2937"
         }}
       >
@@ -137,8 +137,8 @@ function EmptyLikes() {
 
       <div
         style={{
-          marginTop: 10,
-          fontSize: 15,
+          marginTop: 4,
+          fontSize: 12,
           color: "#8A8F9B",
           lineHeight: 1.5
         }}
@@ -151,9 +151,9 @@ function EmptyLikes() {
       <button
         onClick={() => router.push("/profile")}
         style={{
-          marginTop: 28,
-          height: 48,
-          padding: "0 26px",
+          marginTop: 16,
+          height: 42,
+          padding: "0 20px",
           border: "none",
           borderRadius: 999,
           background: "#2F80FF",
