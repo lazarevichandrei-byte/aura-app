@@ -13,13 +13,14 @@ type Props = {
 };
 
 export default function PullToRefresh({
-  children,
-  onRefresh,
-  enabled = true
-}: Props) {
 
-  const containerRef =
-    useRef<HTMLDivElement>(null);
+  children,
+
+  onRefresh,
+
+  enabled = true
+
+}: Props) {
 
   const startY =
     useRef<number | null>(null);
@@ -27,16 +28,13 @@ export default function PullToRefresh({
   const pulling =
     useRef(false);
 
-  const refreshing =
-    useRef(false);
+  const [refreshing, setRefreshing] =
+  useState(false);
 
   const [offset,setOffset] =
-  useState(0);
+    useState(0);
 
-const THRESHOLD = 90;
-
-const progress =
-  Math.min(offset / THRESHOLD, 1);
+    const THRESHOLD = 90;
 
     function handleTouchStart(
   e: React.TouchEvent
@@ -44,8 +42,8 @@ const progress =
 
   if(
     !enabled ||
-    refreshing.current
-  ){
+    refreshing
+){
     return;
   }
 
@@ -85,22 +83,20 @@ function handleTouchMove(
     return;
   }
 
-  // сопротивление
-  const distance =
-    Math.pow(diff,0.85);
+  // Плавное сопротивление
+  const elastic =
+    120 *
+    (1 - Math.exp(-diff / 140));
 
-  setOffset(
-    Math.min(distance,120)
-  );
+  setOffset(elastic);
 
 }
+
 
 async function handleTouchEnd(){
 
   if(!pulling.current){
-
     return;
-
   }
 
   pulling.current = false;
@@ -109,7 +105,7 @@ async function handleTouchEnd(){
 
   if(offset >= THRESHOLD){
 
-    refreshing.current = true;
+    setRefreshing(true);
 
     try{
 
@@ -117,7 +113,7 @@ async function handleTouchEnd(){
 
     }finally{
 
-      refreshing.current = false;
+      setRefreshing(false);
 
     }
 
@@ -130,114 +126,82 @@ async function handleTouchEnd(){
   return (
 
     <div
-  ref={containerRef}
 
-  onTouchStart={handleTouchStart}
+onTouchStart={handleTouchStart}
 
-  onTouchMove={handleTouchMove}
+onTouchMove={handleTouchMove}
 
-  onTouchEnd={handleTouchEnd}
-      style={{
+onTouchEnd={handleTouchEnd}
 
-position:"relative",
+style={{
 
-width:"100%",
+        position:"relative",
 
-height:"100%",
+        width:"100%",
 
+        height:"100%",
 
-  touchAction:"pan-y",
+        overflow:"hidden"
 
-  overflow:"hidden",
+      }}
 
-  transform:`translateY(${offset}px)`,
-
-  transition:
-    pulling.current
-      ? "none"
-      : "transform .22s ease"
-
-}}
     >
-        
 
+      {/* Индикатор */}
 
-        <div
-style={{
+      <div
 
-position:"absolute",
+        style={{
 
-top:0,
+          position:"absolute",
 
-left:0,
+          top:0,
 
-right:0,
+          left:0,
 
-height:70,
+          right:0,
 
-display:"flex",
+          height:72,
 
-alignItems:"center",
+          display:"flex",
 
-justifyContent:"center",
+          justifyContent:"center",
 
-pointerEvents:"none",
+          alignItems:"center",
 
-opacity:
-offset > 0 || refreshing.current
-?1
-:0,
+          zIndex:5,
 
-transition:"opacity .2s"
+          pointerEvents:"none"
 
-}}
->
+        }}
 
-<div
-style={{
+      >
 
-width:34,
+      </div>
 
-height:34,
+      {/* Контент */}
 
-borderRadius:"50%",
+      <div
 
-border:`3px solid rgba(42,171,238,.2)`,
-
-borderTop:`3px solid #2AABEE`,
+       style={{
 
 transform:
-refreshing.current
-?undefined
-:`rotate(${progress*270}deg)`,
+`translateY(${offset}px)`,
 
-animation:
-refreshing.current
-?"auraSpin .9s linear infinite"
-:"none"
+transition:
+pulling.current
+? "none"
+: "transform .22s cubic-bezier(.22,.61,.36,1)",
+
+willChange:"transform"
 
 }}
-/>
 
-</div>
+      >
 
-      {children}
+        {children}
 
-<style jsx>{`
-
-@keyframes auraSpin{
-
-from{
-transform:rotate(0deg);
-}
-
-to{
-transform:rotate(360deg);
-}
-
-}
-
-`}</style>
+      </div>
 
     </div>
 
