@@ -473,13 +473,13 @@ function EmptyChats() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "80px 20px",
+        padding: "56px 20px",
         textAlign: "center"
       }}
     >
       <div
         style={{
-          fontSize: 72
+          fontSize: 52
         }}
       >
         💬
@@ -488,8 +488,8 @@ function EmptyChats() {
       <div
         style={{
           marginTop: 18,
-          fontSize: 24,
-          fontWeight: 700,
+          fontSize: 20,
+fontWeight: 700,
           color: "#1F2937"
         }}
       >
@@ -499,7 +499,7 @@ function EmptyChats() {
       <div
         style={{
           marginTop: 10,
-          fontSize: 15,
+          fontSize: 14,
           color: "#8A8F9B",
           lineHeight: 1.5
         }}
