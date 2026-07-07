@@ -473,13 +473,13 @@ function EmptyChats() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "56px 20px",
+        padding: "24px 20px",
         textAlign: "center"
       }}
     >
       <div
         style={{
-          fontSize: 52
+          fontSize: 30
         }}
       >
         💬
@@ -487,9 +487,9 @@ function EmptyChats() {
 
       <div
         style={{
-          marginTop: 18,
-          fontSize: 20,
-fontWeight: 700,
+          marginTop: 10,
+fontSize: 16,
+fontWeight: 600,
           color: "#1F2937"
         }}
       >
@@ -498,8 +498,8 @@ fontWeight: 700,
 
       <div
         style={{
-          marginTop: 10,
-          fontSize: 14,
+          marginTop: 4,
+fontSize: 12,
           color: "#8A8F9B",
           lineHeight: 1.5
         }}
@@ -510,9 +510,9 @@ fontWeight: 700,
       <button
         onClick={() => router.push("/home")}
         style={{
-          marginTop: 28,
-          height: 48,
-          padding: "0 26px",
+          marginTop: 16,
+          height: 42,
+          padding: "0 20px",
           border: "none",
           borderRadius: 999,
           background: "#2F80FF",
