@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import AuraLoader from "../../components/AuraLoader";
 import HomeSkeleton from "../../components/HomeSkeleton";
+import PullToRefresh from "../../components/PullToRefresh";
 import AuraSkeleton from "../../components/AuraSkeleton";
 import { X, Heart, Sparkles } from "lucide-react";
 
@@ -13,6 +14,11 @@ import { useRouter } from "next/navigation";
 import {
   useNotification
 } from "../../components/NotificationContext";
+
+import {
+  impact,
+  success
+} from "../../lib/haptic";
 
 
 export default function Home() {
@@ -347,7 +353,12 @@ async function nextUser(){
 
 async function handleLike(){
 
+  impact("medium");
+
   console.log("LIKE CLICK START", Date.now());
+
+
+
 
   if(!myId || !currentUser?.id){
     return;
@@ -395,6 +406,8 @@ if(rpcError){
 
 if(chatId){
 
+  success();
+
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
   setShowMatch(true);
@@ -408,6 +421,8 @@ nextUser();
 
 
 async function handleSkip(){
+
+  impact("light");
 
   if(!myId || !currentUser?.id){
     nextUser();

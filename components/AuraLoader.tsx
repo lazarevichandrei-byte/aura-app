@@ -42,16 +42,7 @@ export default function AuraLoader({
         <div className="glow"></div>
       </div>
 
-      
-
-      <style jsx>{`
-        .loader {
-          position: relative;
-      width:${compact ? 36 : size}px;
-height:${compact ? 36 : size}px;
-        }
-
-        {text && (
+      {text && (
   <span
     style={{
       marginLeft: 10,
@@ -63,6 +54,17 @@ height:${compact ? 36 : size}px;
     {text}
   </span>
 )}
+
+      
+
+      <style jsx>{`
+        .loader {
+          position: relative;
+      width:${compact ? 36 : size}px;
+height:${compact ? 36 : size}px;
+        }
+
+        
 
         .ring {
           position: absolute;
