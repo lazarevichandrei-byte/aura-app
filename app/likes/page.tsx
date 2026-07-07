@@ -273,7 +273,8 @@ color:"#8A8F9B"
 
 
 
-{/* top card */}
+{people.length > 0 && (
+
 <div
 style={{
 marginTop:22,
@@ -310,6 +311,8 @@ color:"#7B8794"
 </div>
 
 </div>
+
+)}
 
 
 
