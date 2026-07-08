@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
+import { selection } from "../../lib/haptic";
 
 export default function PrivacyPage() {
 
@@ -18,6 +19,9 @@ useState<boolean | null>(null);
 
 const [hideProfile,setHideProfile] =
 useState<boolean | null>(null);
+
+const [saving,setSaving] =
+useState(false);
 
 useEffect(() => {
   loadSettings();
@@ -67,24 +71,39 @@ async function saveSetting(
   value:boolean
 ){
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
+  if(saving) return;
 
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
+  setSaving(true);
 
-  if (!telegramId) return;
+  try{
 
-  await supabase
-    .from("users")
-    .update({
-      [field]: value
-    })
-    .eq(
-      "telegram_id",
-      telegramId
-    );
+    const tg =
+      (window as any)?.Telegram?.WebApp;
+
+    const telegramId =
+      tg?.initDataUnsafe?.user?.id;
+
+    if(!telegramId) return;
+
+    await supabase
+      .from("users")
+      .update({
+        [field]: value
+      })
+      .eq(
+        "telegram_id",
+        telegramId
+      );
+
+  } finally {
+
+    setSaving(false);
+
+  }
+
 }
+
+  
 
 
 
@@ -103,6 +122,7 @@ if (
     />
   );
 }
+
   return (
     <PageWrapper>
       <div
@@ -179,6 +199,8 @@ style={cardStyle}
   active={showOnline}
   onClick={async () => {
 
+    selection();
+
     const value =
       !showOnline;
 
@@ -209,6 +231,8 @@ style={cardStyle}
   active={showLastSeen}
   onClick={async () => {
 
+    selection();
+
     const value =
       !showLastSeen;
 
@@ -238,6 +262,8 @@ style={cardStyle}
   <Switch
   active={hideProfile}
   onClick={async () => {
+
+    selection();
 
     const value =
       !hideProfile;
@@ -313,7 +339,7 @@ function Switch({
         position:"relative",
 
         transition:
-          "all .2s ease",
+  "all .22s cubic-bezier(.22,1,.36,1)",
 
         cursor:"pointer"
       }}
@@ -334,7 +360,7 @@ function Switch({
           background:"#fff",
 
           transition:
-            "all .2s ease"
+  "all .22s cubic-bezier(.22,1,.36,1)"
         }}
       />
     </div>
