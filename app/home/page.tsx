@@ -520,8 +520,7 @@ onRefresh={refreshFeed}
 
 <div
 style={{
-height:"100vh",
-overflow:"hidden",
+minHeight:"100vh",
 background:"#F6F7FB",
 padding:"18px 18px 118px"
 }}
