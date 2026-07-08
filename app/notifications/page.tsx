@@ -257,8 +257,6 @@ marginBottom:20
   />
 </div>
 
-</div>
-
 <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
@@ -289,9 +287,11 @@ marginBottom:20
   />
 </div>
 
-  
+</div>
+
     </PageWrapper>
   );
+  
 }
 
 
