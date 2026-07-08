@@ -187,14 +187,25 @@ onboarding_completed
 if (!data) {
 
   const { data: createdUser } = await supabase
-    .from("users")
-    .insert({
-  telegram_id: user.id,
-  name: user.first_name || "User",
-  avatar_url: user.photo_url || null
-})
-    .select()
-    .single();
+  .from("users")
+  .insert({
+    telegram_id: user.id,
+    name: user.first_name || "User",
+    avatar_url: user.photo_url || null,
+
+    // Конфиденциальность
+    show_online: true,
+    show_last_seen: true,
+    hide_profile: false,
+
+    // Уведомления
+    likes_notifications: true,
+    messages_notifications: true,
+    matches_notifications: true,
+    news_notifications: true
+  })
+  .select()
+  .single();
 
   if(createdUser){
     setName(createdUser.name || "");
