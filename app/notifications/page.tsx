@@ -5,25 +5,25 @@ import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import { selection } from "../../lib/haptic";
 
 export default function NotificationsPage() {
 
   const router = useRouter();
 
-  const [messages,setMessages] =
+  const [likes,setLikes] =
+useState<boolean | null>(null);
+
+const [messages,setMessages] =
 useState<boolean | null>(null);
 
 const [matches,setMatches] =
 useState<boolean | null>(null);
 
-const [vibration,setVibration] =
+const [news,setNews] =
 useState<boolean | null>(null);
 
-const [silentMode,setSilentMode] =
-useState<boolean | null>(null);
 
-const [notificationsEnabled,setNotificationsEnabled] =
-useState<boolean | null>(null);
 
 useEffect(() => {
   loadSettings();
@@ -42,35 +42,30 @@ async function loadSettings() {
   const { data } = await supabase
     .from("users")
     .select(`
-      notifications_enabled,
-      notify_messages,
-      notify_matches,
-      notify_vibration,
-      notify_silent
+likes_notifications,
+messages_notifications,
+matches_notifications,
+news_notifications
 `)
     .eq("telegram_id", telegramId)
     .single();
 
   if (!data) return;
 
-  setMessages(
-    data.notify_messages ?? true
-  );
+  setLikes(
+data.likes_notifications ?? true
+);
 
-  setMatches(
-    data.notify_matches ?? true
-  );
+setMessages(
+data.messages_notifications ?? true
+);
 
-  setVibration(
-    data.notify_vibration ?? true
-  );
+setMatches(
+data.matches_notifications ?? true
+);
 
-  setSilentMode(
-    data.notify_silent ?? false
-  );
-
-  setNotificationsEnabled(
-    data.notifications_enabled ?? true
+setNews(
+data.news_notifications ?? true
 );
 }
 
@@ -99,11 +94,10 @@ async function saveSetting(
 }
 
 if (
-  notificationsEnabled === null ||
+  likes === null ||
   messages === null ||
   matches === null ||
-  vibration === null ||
-  silentMode === null
+  news === null
 ){
   return (
     <div
@@ -176,24 +170,88 @@ marginBottom:20
 <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
-      Все уведомления
+      ❤️ Новые лайки
     </div>
 
     <div style={subtitleStyle}>
-      Включить или отключить все уведомления
+      Уведомлять о новых лайках
     </div>
   </div>
 
   <Switch
-    active={notificationsEnabled}
-    onClick={async () => {
+    active={likes}
+    onClick={async()=>{
 
-      const value = !(notificationsEnabled ?? false);
+      selection();
 
-      setNotificationsEnabled(value);
+      const value=!likes;
+
+      setLikes(value);
 
       await saveSetting(
-        "notifications_enabled",
+        "likes_notifications",
+        value
+      );
+
+    }}
+  />
+</div>
+
+  <div style={cardStyle}>
+  <div>
+    <div style={titleStyle}>
+      💬 Сообщения
+    </div>
+
+    <div style={subtitleStyle}>
+      Уведомлять о новых сообщениях
+    </div>
+  </div>
+
+  <div style={cardStyle}>
+  <div>
+    <div style={titleStyle}>
+      💙 Новые совпадения
+    </div>
+
+    <div style={subtitleStyle}>
+      Уведомлять о новых совпадениях
+    </div>
+  </div>
+
+  <Switch
+    active={matches}
+    onClick={async()=>{
+
+      selection();
+
+      const value = !matches;
+
+      setMatches(value);
+
+      await saveSetting(
+        "matches_notifications",
+        value
+      );
+
+    }}
+  />
+</div>
+
+
+
+  <Switch
+    active={matches}
+    onClick={async()=>{
+
+      selection();
+
+      const value = !matches;
+
+      setMatches(value);
+
+      await saveSetting(
+        "matches_notifications",
         value
       );
 
@@ -204,129 +262,39 @@ marginBottom:20
 <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
-      Сообщения
+      📢 Новости AURA
     </div>
 
     <div style={subtitleStyle}>
-      Уведомлять о новых сообщениях
+      Новости и обновления приложения
     </div>
   </div>
 
   <Switch
-  active={messages}
-  disabled={!notificationsEnabled}
-  onClick={async () => {
+    active={news}
+    onClick={async()=>{
 
-    const value =
-  !(messages ?? false);
+      selection();
 
-    setMessages(value);
+      const value = !news;
 
-    await saveSetting(
-      "notify_messages",
-      value
-    );
-  }}
-/>
+      setNews(value);
+
+      await saveSetting(
+        "news_notifications",
+        value
+      );
+
+    }}
+  />
 </div>
 
-<div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      Новые мэтчи
-    </div>
-
-    <div style={subtitleStyle}>
-      Уведомлять о взаимных лайках
-    </div>
   </div>
-
-  <Switch
-  active={matches}
-  disabled={!notificationsEnabled}
-  onClick={async () => {
-
-    const value =
-  !(matches ?? false);
-
-    setMatches(value);
-
-    await saveSetting(
-      "notify_matches",
-      value
-    );
-  }}
-/>
-</div>
-
-<div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      Вибрация
-    </div>
-
-    <div style={subtitleStyle}>
-      Вибрация при уведомлениях
-    </div>
-  </div>
-
- <Switch
-  active={vibration}
-  disabled={!notificationsEnabled}
-  onClick={async () => {
-
-    const value =
-  !(vibration ?? false);
-
-    setVibration(value);
-
-    await saveSetting(
-      "notify_vibration",
-      value
-    );
-  }}
-/>
-</div>
-
-<div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      Тихий режим
-    </div>
-
-    <div style={subtitleStyle}>
-      Без звука и вибрации
-    </div>
-  </div>
-
-  <Switch
-  active={silentMode}
-  disabled={!notificationsEnabled}
-  onClick={async () => {
-
-    const value = !silentMode;
-
-    setSilentMode(value);
-
-    await saveSetting(
-      "notify_silent",
-      value
-    );
-  }}
-/>
-</div>
-
-      </div>
     </PageWrapper>
   );
 }
 
-const itemStyle = {
-  background:"#fff",
-  padding:"16px",
-  borderRadius:"16px",
-  marginTop:"12px"
-};
+
 const cardStyle = {
   background:"#fff",
   borderRadius:"18px",
