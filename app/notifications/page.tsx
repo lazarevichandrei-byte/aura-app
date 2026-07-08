@@ -209,22 +209,23 @@ marginBottom:20
   </div>
 
   <Switch
-  active={messages}
-  onClick={async()=>{
+    active={messages}
+    onClick={async()=>{
 
-    selection();
+      selection();
 
-    const value = !messages;
+      const value = !messages;
 
-    setMessages(value);
+      setMessages(value);
 
-    await saveSetting(
-      "messages_notifications",
-      value
-    );
+      await saveSetting(
+        "messages_notifications",
+        value
+      );
 
-  }}
-/>
+    }}
+  />
+</div>
 
   <div style={cardStyle}>
   <div>
@@ -288,7 +289,7 @@ marginBottom:20
   />
 </div>
 
-  </div>
+  
     </PageWrapper>
   );
 }
