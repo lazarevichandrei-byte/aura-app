@@ -208,6 +208,24 @@ marginBottom:20
     </div>
   </div>
 
+  <Switch
+  active={messages}
+  onClick={async()=>{
+
+    selection();
+
+    const value = !messages;
+
+    setMessages(value);
+
+    await saveSetting(
+      "messages_notifications",
+      value
+    );
+
+  }}
+/>
+
   <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
@@ -238,25 +256,6 @@ marginBottom:20
   />
 </div>
 
-
-
-  <Switch
-    active={matches}
-    onClick={async()=>{
-
-      selection();
-
-      const value = !matches;
-
-      setMatches(value);
-
-      await saveSetting(
-        "matches_notifications",
-        value
-      );
-
-    }}
-  />
 </div>
 
 <div style={cardStyle}>
