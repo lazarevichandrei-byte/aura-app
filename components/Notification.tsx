@@ -96,9 +96,14 @@ const accentBackground = {
     if(!dragging) return;
 
     const diff =
-      e.clientX -
-      startX.current;
+  e.clientX -
+  startX.current;
 
+if (Math.abs(diff) < 8) {
+  return;
+}
+
+setTranslateX(diff);
     setTranslateX(diff);
 
   }
@@ -177,9 +182,9 @@ const accentBackground = {
            translateY(${visible ? 0 : -20}px)`,
 
         transition:
-          dragging
-            ? "none"
-            : "all .18s ease"
+dragging
+? "none"
+: "all .22s cubic-bezier(.22,1,.36,1)"
 
       }}
 
