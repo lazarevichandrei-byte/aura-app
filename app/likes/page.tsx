@@ -541,6 +541,17 @@ if(error){
 
 if(chatId){
 
+  await fetch("/api/telegram/send", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      userId:user.from_user_id,
+      text:"💙 У вас новый MATCH в AURA! Откройте приложение и начните общение."
+    })
+  });
+
   setPeople(prev =>
     prev.filter(
       p => p.from_user_id !== user.from_user_id
