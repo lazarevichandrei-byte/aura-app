@@ -1,6 +1,5 @@
 import { NotificationPayload } from "./types";
 import { NotificationTemplates } from "./templates";
-import { NotificationType } from "../constants/notificationTypes";
 
 export async function sendNotification(
   payload: NotificationPayload
@@ -9,25 +8,9 @@ export async function sendNotification(
   const template =
     NotificationTemplates[payload.type];
 
-  if (!template) {
-    throw new Error(
-      "Unknown notification type"
-    );
-  }
-
-  const title =
-    payload.title || template.title;
-
-  const text =
-    payload.text || template.text;
-
-  const button =
-    payload.buttonText || template.button;
-
   const response = await fetch(
-    "/api/notifications",
+    "/api/telegram/send",
     {
-
       method: "POST",
 
       headers: {
@@ -38,21 +21,31 @@ export async function sendNotification(
 
         userId: payload.userId,
 
-        type: payload.type,
+        title:
+          payload.title ??
+          template.title,
 
-        title,
+        text:
+          payload.text ??
+          template.text,
 
-        text,
-
-        button
+        button:
+          payload.buttonText ??
+          template.button
 
       })
 
     }
   );
 
+  if (!response.ok) {
+
+    throw new Error(
+      "Notification send failed"
+    );
+
+  }
+
   return await response.json();
 
 }
-
-export { NotificationType };

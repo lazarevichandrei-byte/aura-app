@@ -7,13 +7,22 @@ export async function sendMessageNotification(
   message: string
 ) {
 
+  const preview =
+    message.length > 80
+      ? message.substring(0, 80) + "..."
+      : message;
+
   return await sendNotification({
 
     userId,
 
     type: NotificationType.MESSAGE,
 
-    text: `${senderName}:\n${message}`
+    title: "💬 Новое сообщение",
+
+    text: `${senderName}:\n${preview}`,
+
+    buttonText: "📨 Ответить"
 
   });
 

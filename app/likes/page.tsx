@@ -540,9 +540,26 @@ if(error){
 
 // await loadLikes(myId);
 
-if(chatId){
+if (chatId) {
 
-  await sendMatchNotification(user.from_user_id);
+  console.log("✅ MATCH CREATED:", chatId);
+
+  try {
+
+    console.log("📤 Sending notification...");
+
+    const result =
+      await sendMatchNotification(
+        user.from_user_id
+      );
+
+    console.log("✅ Notification result:", result);
+
+  } catch (err) {
+
+    console.error("❌ Notification error:", err);
+
+  }
 
   setPeople(prev =>
     prev.filter(

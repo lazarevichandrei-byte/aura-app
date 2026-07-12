@@ -10,54 +10,123 @@ export async function POST(req: Request) {
 
   try {
 
-    const { userId, text } = await req.json();
+    const {
+      userId,
+      title,
+      text,
+      button
+    } = await req.json();
 
     const token =
       process.env.TELEGRAM_BOT_TOKEN;
 
     if (!token) {
+
       return NextResponse.json(
-        { error: "No bot token" },
-        { status: 500 }
+        {
+          error: "No bot token"
+        },
+        {
+          status: 500
+        }
       );
+
     }
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("telegram_id")
-      .eq("id", userId)
-      .single();
+    const { data: user } =
+      await supabase
+        .from("users")
+        .select("telegram_id")
+        .eq("id", userId)
+        .single();
 
     if (!user?.telegram_id) {
+
       return NextResponse.json(
-        { error: "Telegram ID not found" },
-        { status: 404 }
+        {
+          error: "Telegram ID not found"
+        },
+        {
+          status: 404
+        }
       );
+
     }
 
+    const message = title
+      ? `${title}\n\n${text}`
+      : text;
+
     const response = await fetch(
+
       `https://api.telegram.org/bot${token}/sendMessage`,
+
       {
+
         method: "POST",
+
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type":"application/json"
         },
+
         body: JSON.stringify({
+
           chat_id: user.telegram_id,
-          text
+
+          text: message,
+
+          parse_mode: "Markdown",
+
+          reply_markup: {
+
+            inline_keyboard: [
+
+              [
+
+                {
+
+                  text:
+                    button ||
+                    "🚀 Открыть AURA",
+
+                  web_app: {
+
+                    url:
+                      "https://t.me/Datingaurabot?startapp"
+
+                  }
+
+                }
+
+              ]
+
+            ]
+
+          }
+
         })
+
       }
+
     );
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     return NextResponse.json(result);
 
-  } catch (e) {
+  } catch(e){
 
     return NextResponse.json(
-      { error: String(e) },
-      { status: 500 }
+
+      {
+        error: String(e)
+      },
+
+      {
+        status:500
+      }
+
     );
 
   }
