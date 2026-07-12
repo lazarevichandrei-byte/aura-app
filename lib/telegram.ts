@@ -1,4 +1,4 @@
-export async function sendTelegramNotification(
+async function send(
   telegramId: number,
   text: string
 ) {
@@ -9,13 +9,13 @@ export async function sendTelegramNotification(
       "/api/telegram/send",
       {
 
-        method: "POST",
+        method:"POST",
 
-        headers: {
+        headers:{
           "Content-Type":"application/json"
         },
 
-        body: JSON.stringify({
+        body:JSON.stringify({
 
           telegramId,
 
@@ -28,13 +28,94 @@ export async function sendTelegramNotification(
 
     return await res.json();
 
-  } catch (e) {
+  } catch(e){
 
-    console.error(
-      "Telegram notification error:",
-      e
-    );
+    console.error(e);
 
   }
+
+}
+
+export function sendTelegramNotification(
+  telegramId:number,
+  text:string
+){
+
+  return send(
+    telegramId,
+    text
+  );
+
+}
+
+export function sendLikeNotification(
+  telegramId:number
+){
+
+  return send(
+
+    telegramId,
+
+`❤️ Вам поставили лайк
+
+Откройте AURA, чтобы посмотреть кто 😉`
+
+  );
+
+}
+
+export function sendMatchNotification(
+  telegramId:number
+){
+
+  return send(
+
+    telegramId,
+
+`💙 У вас новое совпадение!
+
+Теперь можно начать общение ✨`
+
+  );
+
+}
+
+export function sendMessageNotification(
+
+  telegramId:number,
+
+  sender:string
+
+){
+
+  return send(
+
+    telegramId,
+
+`💬 Новое сообщение
+
+${sender} написал вам.`
+
+  );
+
+}
+
+export function sendNewsNotification(
+
+  telegramId:number,
+
+  text:string
+
+){
+
+  return send(
+
+    telegramId,
+
+`📢 Новости AURA
+
+${text}`
+
+  );
 
 }
