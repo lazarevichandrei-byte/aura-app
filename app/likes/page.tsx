@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import { sendMatchNotification } from "../../lib/notifications/matches";
 import AuraLoader from "../../components/AuraLoader";
 export default function LikesPage(){
 
@@ -541,16 +542,7 @@ if(error){
 
 if(chatId){
 
-  await fetch("/api/telegram/send", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      userId:user.from_user_id,
-      text:"💙 У вас новый MATCH в AURA! Откройте приложение и начните общение."
-    })
-  });
+  await sendMatchNotification(user.from_user_id);
 
   setPeople(prev =>
     prev.filter(
