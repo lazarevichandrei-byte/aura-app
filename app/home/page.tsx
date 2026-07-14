@@ -15,10 +15,15 @@ import {
   useNotification
 } from "../../components/NotificationContext";
 
+
 import {
   impact,
   success
 } from "../../lib/haptic";
+
+import { sendNotification } from "../../lib/notifications/index";
+import { NotificationType } from "../../lib/constants/notificationTypes";
+
 
 
 export default function Home() {
@@ -428,6 +433,14 @@ if(rpcError){
 
 if(chatId){
 
+  await sendNotification({
+
+    userId: currentUser.id,
+
+    type: NotificationType.MATCH
+
+  });
+
   success();
 
   setMatchedUser(currentUser);
@@ -437,7 +450,14 @@ if(chatId){
   return;
 }
 
-/* обычный лайк */
+await sendNotification({
+
+  userId: currentUser.id,
+
+  type: NotificationType.LIKE
+
+});
+
 nextUser();
 }
 

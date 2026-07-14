@@ -14,6 +14,9 @@ import {
 
 import BottomSheet from "../../components/BottomSheet";
 
+import { sendNotification } from "../../lib/notifications/index";
+import { NotificationType } from "../../lib/constants/notificationTypes";
+
 
 export default function SettingsPage() {
 
@@ -224,6 +227,57 @@ useState(false);
 
 
 
+<div
+  style={cardStyle}
+  onClick={async () => {
+
+    const tg =
+      (window as any)?.Telegram?.WebApp;
+
+    const telegramId =
+      tg?.initDataUnsafe?.user?.id;
+
+    if (!telegramId) {
+      alert("Telegram ID не найден");
+      return;
+    }
+
+    const { data: user } =
+      await supabase
+        .from("users")
+        .select("id")
+        .eq("telegram_id", telegramId)
+        .single();
+
+    if (!user) {
+      alert("Пользователь не найден");
+      return;
+    }
+
+    const result = await sendNotification({
+      userId: user.id,
+      type: "system"
+    });
+
+    console.log(result);
+    alert("Запрос отправлен");
+
+  }}
+>
+
+  <div>
+
+    <div style={titleStyle}>
+      🧪 Тест уведомлений
+    </div>
+
+    <div style={subtitleStyle}>
+      Отправить тестовое уведомление
+    </div>
+
+  </div>
+
+</div>
 
 
 <div
