@@ -22,7 +22,6 @@ export default function SettingsPage() {
 
 
 
-
  
   const router = useRouter();
 
@@ -254,13 +253,32 @@ useState(false);
       return;
     }
 
-    const result = await sendNotification({
+    try {
+
+  const result =
+    await sendNotification({
+
       userId: user.id,
-      type: "system"
+
+      type: NotificationType.SYSTEM
+
     });
 
-    console.log(result);
-    alert("Запрос отправлен");
+  console.log(result);
+
+  alert(
+    JSON.stringify(result)
+  );
+
+} catch (e) {
+
+  console.error(e);
+
+  alert(
+    String(e)
+  );
+
+}
 
   }}
 >

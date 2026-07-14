@@ -5,6 +5,8 @@ export async function sendNotification(
   payload: NotificationPayload
 ) {
 
+  console.log("SEND NOTIFICATION:", payload);
+
   const template =
     NotificationTemplates[payload.type];
 
@@ -38,14 +40,21 @@ export async function sendNotification(
     }
   );
 
+  console.log("FETCH STATUS:", response.status);
+
+  const result =
+    await response.json();
+
+  console.log("FETCH RESULT:", result);
+
   if (!response.ok) {
 
     throw new Error(
-      "Notification send failed"
+      JSON.stringify(result)
     );
 
   }
 
-  return await response.json();
+  return result;
 
 }
