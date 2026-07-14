@@ -110,10 +110,15 @@ export async function POST(req: Request) {
 
     );
 
-    const result =
-      await response.json();
+    const result = await response.json();
 
-    return NextResponse.json(result);
+console.log("========== TELEGRAM ==========");
+console.log("User ID:", userId);
+console.log("Telegram ID:", user.telegram_id);
+console.log("Response:", result);
+console.log("==============================");
+
+return NextResponse.json(result);
 
   } catch(e){
 
