@@ -11,10 +11,16 @@ import PageWrapper from "../../components/PageWrapper";
 import {
   selection
 } from "../../lib/haptic";
-import { sendTelegramNotification } from "../../lib/telegram";
+
 import BottomSheet from "../../components/BottomSheet";
 
+
 export default function SettingsPage() {
+
+
+
+
+ 
   const router = useRouter();
 
   useEffect(() => {
@@ -215,45 +221,9 @@ useState(false);
 
 </div>
 
-<div
-  style={cardStyle}
-  onClick={async()=>{
 
-    const tg =
-      (window as any)?.Telegram?.WebApp;
 
-    const telegramId =
-      tg?.initDataUnsafe?.user?.id;
 
-    if(!telegramId) return;
-
-    const result =
-      await sendTelegramNotification(
-
-        telegramId,
-
-        "✅ AURA\n\nТестовое уведомление работает!"
-
-      );
-
-    console.log(result);
-
-  }}
->
-
-  <div>
-
-    <div style={titleStyle}>
-      🧪 Тест уведомлений
-    </div>
-
-    <div style={subtitleStyle}>
-      Отправить уведомление в Telegram
-    </div>
-
-  </div>
-
-</div>
 
 
 <div
@@ -262,6 +232,9 @@ useState(false);
     setShowLanguageModal(true)
   }
 >
+
+
+  
 
   <div>
 
