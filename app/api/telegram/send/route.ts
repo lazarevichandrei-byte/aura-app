@@ -8,6 +8,8 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
 
+
+  console.log("========== TELEGRAM API ==========");
   try {
 
     const {
