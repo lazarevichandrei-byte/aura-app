@@ -89,25 +89,30 @@ export async function POST(req: Request) {
 
           reply_markup: {
 
-            inline_keyboard: [
+  inline_keyboard: [
 
-              [
+    [
 
-                {
+      {
 
-                  text:
-                    button ||
-                    "🚀 Открыть AURA",
+        text:
+          button ||
+          "🚀 Открыть",
 
-                  url: "https://t.me/Datingaurabot"
+        web_app: {
 
-                }
+          url:
+            "https://aura-app-sage.vercel.app/"
 
-              ]
+        }
 
-            ]
+      }
 
-          }
+    ]
+
+  ]
+
+}
 
         })
 
