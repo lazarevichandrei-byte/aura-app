@@ -19,6 +19,13 @@ export async function POST(req: Request) {
       button
     } = await req.json();
 
+    console.log("BODY:", {
+  userId,
+  title,
+  text,
+  button
+});
+
     const token =
       process.env.TELEGRAM_BOT_TOKEN;
 
@@ -36,6 +43,7 @@ export async function POST(req: Request) {
     }
 
     const { data: user } =
+    
       await supabase
         .from("users")
         .select("telegram_id")
@@ -91,12 +99,7 @@ export async function POST(req: Request) {
                     button ||
                     "🚀 Открыть AURA",
 
-                  web_app: {
-
-                    url:
-                      "https://t.me/Datingaurabot?startapp"
-
-                  }
+                  url: "https://t.me/Datingaurabot"
 
                 }
 
@@ -113,6 +116,7 @@ export async function POST(req: Request) {
     );
 
     const result = await response.json();
+    console.log("TELEGRAM RESULT:", result);
 
 console.log("========== TELEGRAM ==========");
 console.log("User ID:", userId);
