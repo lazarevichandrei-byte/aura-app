@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../../components/PageWrapper";
-import MeetMap from "../../../components/meet/MeetMap";
+import AuraMap from "../../../components/map/AuraMap";
 
 export default function MeetLocationPage() {
 
@@ -115,7 +115,7 @@ export default function MeetLocationPage() {
           }}
         >
 
-          <MeetMap/>
+          <AuraMap/>
 
         </div>
 
