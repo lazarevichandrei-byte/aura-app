@@ -9,7 +9,6 @@ import { supabase } from "../../../lib/supabase";
 import { createMeetEvent } from "../../../lib/meet/api";
 import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
-import CategorySheet from "../../../components/meet/CategorySheet";
 export default function CreateMeetPage() {
     
 
@@ -46,8 +45,11 @@ const [loading,setLoading] =
 useState(false);
 
   const [category,setCategory] = useState("coffee");
-  const [showCategories,setShowCategories] =
+
+  const [showAllCategories,setShowAllCategories] =
 useState(false);
+
+  
 
 
 
@@ -230,9 +232,10 @@ style={inputStyle}
           }}
         >
 
-          {MEET_CATEGORIES
-.slice(0,3)
-.map(item=>(
+          {(showAllCategories
+  ? MEET_CATEGORIES
+  : MEET_CATEGORIES.slice(0,3)
+).map(item => (
 
             <div
 
@@ -280,7 +283,9 @@ style={inputStyle}
           <div
 
 onClick={()=>
-setShowCategories(true)
+setShowAllCategories(
+!showAllCategories
+)
 }
 
 style={{
@@ -303,7 +308,11 @@ fontWeight:600
 
 >
 
-➕ Еще
+{
+showAllCategories
+? "➖ Скрыть"
+: "➕ Еще"
+}
 
 </div>
 
@@ -532,21 +541,9 @@ loading
       </div>
 
 
-      <CategorySheet
+      
 
-open={showCategories}
 
-selected={category}
-
-onClose={()=>
-setShowCategories(false)
-}
-
-onSelect={(id)=>
-setCategory(id)
-}
-
-/>
 
     </PageWrapper>
 
