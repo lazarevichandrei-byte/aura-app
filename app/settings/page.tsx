@@ -14,8 +14,7 @@ import {
 
 import BottomSheet from "../../components/BottomSheet";
 
-import { sendNotification } from "../../lib/notifications/index";
-import { NotificationType } from "../../lib/constants/notificationTypes";
+
 
 
 export default function SettingsPage() {
@@ -266,76 +265,7 @@ useState(false);
 
 
 
-<div
-  style={cardStyle}
-  onClick={async () => {
 
-    const tg =
-      (window as any)?.Telegram?.WebApp;
-
-    const telegramId =
-      tg?.initDataUnsafe?.user?.id;
-
-    if (!telegramId) {
-      alert("Telegram ID не найден");
-      return;
-    }
-
-    const { data: user } =
-      await supabase
-        .from("users")
-        .select("id")
-        .eq("telegram_id", telegramId)
-        .single();
-
-    if (!user) {
-      alert("Пользователь не найден");
-      return;
-    }
-
-    try {
-
-  const result =
-    await sendNotification({
-
-      userId: user.id,
-
-      type: NotificationType.SYSTEM
-
-    });
-
-  console.log(result);
-
-  alert(
-    JSON.stringify(result)
-  );
-
-} catch (e) {
-
-  console.error(e);
-
-  alert(
-    String(e)
-  );
-
-}
-
-  }}
->
-
-  <div>
-
-    <div style={titleStyle}>
-      🧪 Тест уведомлений
-    </div>
-
-    <div style={subtitleStyle}>
-      Отправить тестовое уведомление
-    </div>
-
-  </div>
-
-</div>
 
 
 <div
@@ -373,88 +303,7 @@ useState(false);
 
 
 
-<div
-  style={{
-    ...cardStyle,
-    display: "block"
-  }}
->
 
-  <div
-    style={{
-      fontSize: 17,
-      fontWeight: 700,
-      marginBottom: 16
-    }}
-  >
-    🔔 Уведомления
-  </div>
-
-  {[
-    {
-      title: "Новые сообщения",
-      value: notifyMessages,
-      setter: setNotifyMessages,
-      field: "notify_messages"
-    },
-    {
-      title: "Новые матчи",
-      value: notifyMatches,
-      setter: setNotifyMatches,
-      field: "notify_matches"
-    },
-    {
-      title: "Системные",
-      value: notifySystem,
-      setter: setNotifySystem,
-      field: "notify_system"
-    },
-    {
-      title: "Звук",
-      value: notifySound,
-      setter: setNotifySound,
-      field: "notify_sound"
-    },
-    {
-      title: "Вибрация",
-      value: notifyVibration,
-      setter: setNotifyVibration,
-      field: "notify_vibration"
-    }
-  ].map(item => (
-
-    <div
-      key={item.field}
-      style={{
-        display:"flex",
-        justifyContent:"space-between",
-        alignItems:"center",
-        marginBottom:14
-      }}
-    >
-
-      <span>{item.title}</span>
-
-      <input
-        type="checkbox"
-        checked={item.value}
-        onChange={async(e)=>{
-
-          item.setter(e.target.checked);
-
-          await saveSetting(
-            item.field,
-            e.target.checked
-          );
-
-        }}
-      />
-
-    </div>
-
-  ))}
-
-</div>
 
 <div
   style={cardStyle}
