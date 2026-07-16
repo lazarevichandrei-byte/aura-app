@@ -28,6 +28,7 @@ import {
   Reply
 } from "lucide-react";
 
+import { sendNotification } from "../../../lib/notifications/index";
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -1713,6 +1714,39 @@ if(data){
     )
 
   );
+
+}
+
+const receiverId =
+  otherUser?.id;
+
+if (receiverId) {
+
+  try {
+
+    await sendNotification({
+
+      userId: receiverId,
+
+      type: "message",
+
+      title: "💬 Новое сообщение",
+
+      text:
+        text.length > 80
+          ? text.slice(0, 80) + "..."
+          : text
+
+    });
+
+  } catch (e) {
+
+    console.error(
+      "Notification error",
+      e
+    );
+
+  }
 
 }
 
