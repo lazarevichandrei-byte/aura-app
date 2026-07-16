@@ -35,94 +35,94 @@ export default function MeetPage() {
       >
 
         <div
-          style={{
-            fontSize: 30,
-            fontWeight: 700
-          }}
-        >
-          📍 Встречи
-        </div>
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  }}
+>
 
-        <div
-          style={{
-            marginTop: 6,
-            color: "#7B8595",
-            fontSize: 14
-          }}
-        >
-          Найдите интересные встречи рядом или создайте свою.
-        </div>
+    <div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            overflowX: "auto",
-            marginTop: 24,
-            paddingBottom: 4
-          }}
-        >
+  <div
+    style={{
+      fontSize: 24,
+      fontWeight: 700,
+      color: "#1F2937"
+    }}
+  >
+    📍 Встречи
+  </div>
 
-          {categories.map((item) => (
+  <div
+    style={{
+      marginTop: 4,
+      color: "#7B8595",
+      fontSize: 14
+    }}
+  >
+    Найди компанию рядом
+  </div>
 
-            <div
-              key={item}
-              style={{
-                whiteSpace: "nowrap",
-                padding: "10px 18px",
-                borderRadius: 999,
-                background:
-                  item === "Все"
-                    ? "#2F80FF"
-                    : "#fff",
-                color:
-                  item === "Все"
-                    ? "#fff"
-                    : "#333",
-                fontWeight: 600,
-                boxShadow:
-                  "0 2px 10px rgba(0,0,0,.05)"
-              }}
-            >
-              {item}
-            </div>
+</div>
 
-          ))}
+<div
 
-        </div>
+  onClick={()=>{
+    alert("Создание встречи скоро подключим 🚀");
+  }}
 
-        <div
+  style={{
+    width:46,
+    height:46,
 
-          onClick={()=>{
-            alert("Создание встречи скоро подключим 🚀");
-          }}
+    borderRadius:"50%",
 
-          style={{
+    background:
+      "linear-gradient(135deg,#2F80FF,#56CCF2)",
 
-            marginTop:30,
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
 
-            height:58,
+    color:"#fff",
+    fontSize:28,
+    cursor:"pointer",
 
-            borderRadius:18,
+    boxShadow:
+      "0 8px 20px rgba(47,128,255,.25)"
+  }}
+>
+  +
+</div>
 
-            background:
-              "linear-gradient(135deg,#2F80FF,#56CCF2)",
+</div>
 
-            color:"#fff",
+  <div>
 
-            display:"flex",
-            justifyContent:"center",
-            alignItems:"center",
+    <div
+      style={{
+        fontSize: 24,
+        fontWeight: 700,
+        color: "#1F2937"
+      }}
+    >
+      📍 Встречи
+    </div>
 
-            fontSize:17,
-            fontWeight:700,
+    <div
+      style={{
+        marginTop: 4,
+        color: "#7B8595",
+        fontSize: 14
+      }}
+    >
+      Найди компанию рядом
+    </div>
 
-            cursor:"pointer"
+  </div>
 
-          }}
-        >
-          ＋ Создать встречу
-        </div>
+ 
 
         <div
 
