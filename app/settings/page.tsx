@@ -45,13 +45,7 @@ async function loadSettings(){
 theme,
 language,
 show_online,
-show_last_seen,
-notifications_enabled,
-notify_messages,
-notify_matches,
-notify_system,
-notify_sound,
-notify_vibration
+show_last_seen
 `)
       .eq("telegram_id", telegramId)
       .single();
@@ -74,29 +68,7 @@ notify_vibration
       data.show_last_seen ?? true
     );
 
-    setNotificationsEnabled(
-      data.notifications_enabled ?? false
-    );
-
-    setNotifyMessages(
-  data.notify_messages ?? true
-);
-
-setNotifyMatches(
-  data.notify_matches ?? true
-);
-
-setNotifySystem(
-  data.notify_system ?? true
-);
-
-setNotifySound(
-  data.notify_sound ?? true
-);
-
-setNotifyVibration(
-  data.notify_vibration ?? true
-);
+    
 
 }
 
@@ -140,23 +112,7 @@ useState(true);
 const [showLastSeen,setShowLastSeen] =
 useState(true);
 
-const [notificationsEnabled,setNotificationsEnabled] =
-useState(true);
 
-const [notifyMessages, setNotifyMessages] =
-useState(true);
-
-const [notifyMatches, setNotifyMatches] =
-useState(true);
-
-const [notifySystem, setNotifySystem] =
-useState(true);
-
-const [notifySound, setNotifySound] =
-useState(true);
-
-const [notifyVibration, setNotifyVibration] =
-useState(true);
 
 const [showThemeModal,setShowThemeModal] =
 useState(false);
@@ -302,7 +258,29 @@ useState(false);
 </div>
 
 
+<div
+  style={cardStyle}
+  onClick={() => router.push("/notifications")}
+>
 
+  <div>
+
+    <div style={titleStyle}>
+      🔔 Уведомления
+    </div>
+
+    <div style={subtitleStyle}>
+      Лайки, сообщения, матчи и новости
+    </div>
+
+  </div>
+
+  <ArrowRight2
+    size="18"
+    color="#A0A8B5"
+  />
+
+</div>
 
 
 <div
