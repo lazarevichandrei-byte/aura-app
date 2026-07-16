@@ -1,76 +1,57 @@
 "use client";
 
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  useMapEvents
-} from "react-leaflet";
+import { useEffect, useRef } from "react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
-import { useState } from "react";
-import L from "leaflet";
+export default function MeetMap() {
 
-const icon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25,41],
-  iconAnchor: [12,41]
-});
+  const mapRef = useRef<HTMLDivElement>(null);
 
-function ClickMarker(){
+  useEffect(() => {
 
-  const [position,setPosition] =
-    useState<[number,number] | null>(null);
+    if (!mapRef.current) return;
 
-  useMapEvents({
+    const map = new maplibregl.Map({
 
-    click(e){
+      container: mapRef.current,
 
-      setPosition([
-        e.latlng.lat,
-        e.latlng.lng
-      ]);
+      style: "https://demotiles.maplibre.org/style.json",
 
-    }
+      center: [27.5667,53.9],
 
-  });
+      zoom: 12
 
-  if(!position) return null;
+    });
+
+    map.addControl(
+      new maplibregl.NavigationControl(),
+      "top-right"
+    );
+
+    return () => map.remove();
+
+  }, []);
 
   return (
-    <Marker
-      position={position}
-      icon={icon}
-    />
-  );
 
-}
+    <div
 
-export default function MeetMap(){
-
-  return(
-
-    <MapContainer
-
-      center={[53.9,27.5667]}
-
-      zoom={13}
+      ref={mapRef}
 
       style={{
+
         width:"100%",
+
         height:"100%",
-        borderRadius:20
+
+        borderRadius:20,
+
+        overflow:"hidden"
+
       }}
 
-    >
-
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      <ClickMarker/>
-
-    </MapContainer>
+    />
 
   );
 

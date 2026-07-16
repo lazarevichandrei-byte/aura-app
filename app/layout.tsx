@@ -1,5 +1,6 @@
 import { Sora } from "next/font/google";
 import "./globals.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 import Script from "next/script";
 import Providers from "./providers";
 
