@@ -1,62 +1,76 @@
 "use client";
 
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMapEvents
+} from "react-leaflet";
+
+import { useState } from "react";
+import L from "leaflet";
+
+const icon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25,41],
+  iconAnchor: [12,41]
+});
+
+function ClickMarker(){
+
+  const [position,setPosition] =
+    useState<[number,number] | null>(null);
+
+  useMapEvents({
+
+    click(e){
+
+      setPosition([
+        e.latlng.lat,
+        e.latlng.lng
+      ]);
+
+    }
+
+  });
+
+  if(!position) return null;
+
+  return (
+    <Marker
+      position={position}
+      icon={icon}
+    />
+  );
+
+}
+
 export default function MeetMap(){
 
   return(
 
-    <div
+    <MapContainer
+
+      center={[53.9,27.5667]}
+
+      zoom={13}
 
       style={{
-
         width:"100%",
-
         height:"100%",
-
-        borderRadius:22,
-
-        background:
-          "linear-gradient(135deg,#EEF6FF,#DCEEFF)",
-
-        display:"flex",
-
-        justifyContent:"center",
-
-        alignItems:"center",
-
-        flexDirection:"column"
-
+        borderRadius:20
       }}
 
     >
 
-      <div
-        style={{
-          fontSize:70
-        }}
-      >
-        🗺
-      </div>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
 
-      <div
-        style={{
-          marginTop:12,
-          fontSize:20,
-          fontWeight:700
-        }}
-      >
-        Карта встреч
-      </div>
+      <ClickMarker/>
 
-      <div
-        style={{
-          marginTop:6,
-          color:"#6B7280"
-        }}
-      >
-        Следующим шагом подключим Leaflet
-      </div>
-
-    </div>
+    </MapContainer>
 
   );
 
