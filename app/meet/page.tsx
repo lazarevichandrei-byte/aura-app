@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import BottomNav from "../../components/BottomNav";
 import { loadMeetEvents } from "../../lib/meet/api";
+import { useRouter } from "next/navigation";
 
 export default function MeetPage() {
+    const router = useRouter();
 
     const [events,setEvents] =
 useState<any[]>([]);
@@ -89,9 +91,9 @@ async function load(){
 
           onClick={() => {
 
-            alert("Создание встречи скоро подключим 🚀");
+  router.push("/meet/create");
 
-          }}
+}}
 
           style={{
 
@@ -204,92 +206,186 @@ async function load(){
 
         {tab === "feed" && (
 
-          <div
-            style={{
+<>
 
-              background: "#fff",
+{loading && (
 
-              borderRadius: 24,
+<div
+style={{
+padding:40,
+textAlign:"center"
+}}
+>
+Загрузка...
+</div>
 
-              padding: "42px 24px",
+)}
 
-              textAlign: "center",
+{!loading && events.length===0 && (
 
-              boxShadow:
-                "0 8px 20px rgba(0,0,0,.05)"
+<div
+style={{
 
-            }}
-          >
+background:"#fff",
 
-            <div
-              style={{
-                fontSize: 56
-              }}
-            >
-              📍
-            </div>
+borderRadius:24,
 
-            <div
-              style={{
-                marginTop: 18,
-                fontSize: 21,
-                fontWeight: 700
-              }}
-            >
-              Пока нет встреч
-            </div>
+padding:"42px 24px",
 
-            <div
-              style={{
-                marginTop: 10,
-                color: "#7B8595",
-                lineHeight: 1.6,
-                fontSize: 14
-              }}
-            >
-              Создай первую встречу
-              <br />
-              и люди рядом смогут
-              присоединиться к тебе.
-            </div>
+textAlign:"center",
 
-            <div
+boxShadow:"0 8px 20px rgba(0,0,0,.05)"
 
-              onClick={() => {
+}}
+>
 
-                alert("Создание встречи скоро подключим 🚀");
+<div
+style={{
+fontSize:56
+}}
+>
+📍
+</div>
 
-              }}
+<div
+style={{
+marginTop:18,
+fontSize:21,
+fontWeight:700
+}}
+>
+Пока нет встреч
+</div>
 
-              style={{
+<div
+style={{
+marginTop:10,
+color:"#7B8595",
+lineHeight:1.6,
+fontSize:14
+}}
+>
+Создай первую встречу
+<br/>
+и люди рядом смогут
+присоединиться к тебе.
+</div>
 
-                marginTop: 28,
+<div
 
-                height: 52,
+onClick={()=>
+router.push("/meet/create")
+}
 
-                borderRadius: 16,
+style={{
 
-                background:
-                  "linear-gradient(135deg,#2F80FF,#56CCF2)",
+marginTop:28,
 
-                color: "#fff",
+height:52,
 
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+borderRadius:16,
 
-                fontWeight: 700,
+background:
+"linear-gradient(135deg,#2F80FF,#56CCF2)",
 
-                cursor: "pointer"
+color:"#fff",
 
-              }}
-            >
-              Создать встречу
-            </div>
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
 
-          </div>
+fontWeight:700,
 
-        )}
+cursor:"pointer"
+
+}}
+>
+Создать встречу
+</div>
+
+</div>
+
+)}
+
+{!loading && events.length>0 && (
+
+<div
+style={{
+display:"flex",
+flexDirection:"column",
+gap:16
+}}
+>
+
+{events.map((event:any)=>(
+
+<div
+
+key={event.id}
+
+style={{
+
+background:"#fff",
+
+borderRadius:22,
+
+padding:18,
+
+boxShadow:
+"0 8px 20px rgba(0,0,0,.05)"
+
+}}
+
+>
+
+<div
+style={{
+fontSize:18,
+fontWeight:700
+}}
+>
+{event.title}
+</div>
+
+<div
+style={{
+marginTop:6,
+color:"#6B7280"
+}}
+>
+📍 {event.place}
+</div>
+
+<div
+style={{
+marginTop:4,
+color:"#6B7280"
+}}
+>
+📅 {new Date(event.starts_at).toLocaleString()}
+</div>
+
+<div
+style={{
+marginTop:10,
+color:"#555",
+lineHeight:1.5
+}}
+>
+{event.description}
+</div>
+
+</div>
+
+))}
+
+</div>
+
+)}
+
+</>
+
+)}
 
         {tab === "map" && (
 
