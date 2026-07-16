@@ -5,12 +5,132 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../../components/PageWrapper";
 import { MEET_CATEGORIES } from "../../../lib/meet/categories";
-
+import { supabase } from "../../../lib/supabase";
+import { createMeetEvent } from "../../../lib/meet/api";
 export default function CreateMeetPage() {
 
   const router = useRouter();
 
+  const [title,setTitle] =
+useState("");
+
+const [description,setDescription] =
+useState("");
+
+const [place,setPlace] =
+useState("");
+
+const [city,setCity] =
+useState("");
+
+const [date,setDate] =
+useState("");
+
+const [time,setTime] =
+useState("");
+
+const [maxPeople,setMaxPeople] =
+useState(2);
+
+const [loading,setLoading] =
+useState(false);
+
   const [category,setCategory] = useState("coffee");
+
+
+
+  async function createMeet(){
+
+  if(loading) return;
+
+  if(
+    !title ||
+    !date ||
+    !time
+  ){
+    alert("Заполните обязательные поля");
+    return;
+  }
+
+  setLoading(true);
+
+  try{
+
+    const tg =
+      (window as any)
+      ?.Telegram
+      ?.WebApp;
+
+    const telegramId =
+      tg?.initDataUnsafe
+      ?.user?.id;
+
+    if(!telegramId){
+
+      alert("Ошибка Telegram");
+
+      return;
+
+    }
+
+    const { data:user } =
+      await supabase
+        .from("users")
+        .select("id")
+        .eq(
+          "telegram_id",
+          telegramId
+        )
+        .single();
+
+    if(!user){
+
+      alert("Пользователь не найден");
+
+      return;
+
+    }
+
+    await createMeetEvent({
+
+      creator_id:user.id,
+
+      title,
+
+      description,
+
+      category,
+
+      city,
+
+      place,
+
+      latitude:null,
+
+      longitude:null,
+
+      starts_at:
+        `${date}T${time}:00`,
+
+      max_people:maxPeople
+
+    });
+
+    router.replace("/meet");
+
+  }catch(err){
+
+    console.log(err);
+
+    alert("Ошибка создания встречи");
+
+  }finally{
+
+    setLoading(false);
+
+  }
+
+}
 
   return (
 
@@ -73,9 +193,13 @@ export default function CreateMeetPage() {
         </div>
 
         <input
-          placeholder="Например: Кофе вечером"
-          style={inputStyle}
-        />
+value={title}
+onChange={(e)=>
+setTitle(e.target.value)
+}
+placeholder="Например: Кофе вечером"
+style={inputStyle}
+/>
 
         {/* Категории */}
 
@@ -151,16 +275,21 @@ export default function CreateMeetPage() {
 
         <textarea
 
-          placeholder="Расскажите немного о встрече..."
+value={description}
 
-          style={{
-            ...inputStyle,
-            minHeight:120,
-            resize:"none",
-            paddingTop:14
-          }}
+onChange={(e)=>
+setDescription(e.target.value)
+}
 
-        />
+placeholder="Расскажите немного о встрече..."
+
+style={{
+...inputStyle,
+minHeight:120,
+resize:"none",
+paddingTop:14
+}}
+/>
 
         {/* Дата */}
 
@@ -174,9 +303,17 @@ export default function CreateMeetPage() {
         </div>
 
         <input
-          type="date"
-          style={inputStyle}
-        />
+
+type="date"
+
+value={date}
+
+onChange={(e)=>
+setDate(e.target.value)
+}
+
+style={inputStyle}
+/>
 
         {/* Время */}
 
@@ -190,9 +327,17 @@ export default function CreateMeetPage() {
         </div>
 
         <input
-          type="time"
-          style={inputStyle}
-        />
+
+type="time"
+
+value={time}
+
+onChange={(e)=>
+setTime(e.target.value)
+}
+
+style={inputStyle}
+/>
 
         {/* Место */}
 
@@ -206,9 +351,41 @@ export default function CreateMeetPage() {
         </div>
 
         <input
-          placeholder="Например: Starbucks"
-          style={inputStyle}
-        />
+
+  value={place}
+
+  onChange={(e)=>
+    setPlace(e.target.value)
+  }
+
+  placeholder="Например: Starbucks"
+
+  style={inputStyle}
+
+/>
+
+<div
+  style={{
+    ...labelStyle,
+    marginTop:24
+  }}
+>
+  Город
+</div>
+
+<input
+
+  value={city}
+
+  onChange={(e)=>
+    setCity(e.target.value)
+  }
+
+  placeholder="Например: Минск"
+
+  style={inputStyle}
+
+/>
 
         {/* Участники */}
 
@@ -222,18 +399,45 @@ export default function CreateMeetPage() {
         </div>
 
         <input
-          type="number"
-          defaultValue={2}
-          min={2}
-          max={50}
-          style={inputStyle}
-        />
+
+  type="number"
+
+  value={maxPeople}
+
+  onChange={(e)=>{
+
+  const value =
+    Number(e.target.value);
+
+  setMaxPeople(
+
+    Math.min(
+      50,
+      Math.max(
+        2,
+        value
+      )
+    )
+
+  );
+
+}}
+
+  min={2}
+
+  max={50}
+
+  style={inputStyle}
+
+/>
 
         {/* Кнопка */}
 
         <div
 
-          style={{
+  onClick={createMeet}
+
+  style={{
 
             marginTop:34,
 
@@ -258,7 +462,11 @@ export default function CreateMeetPage() {
           }}
 
         >
-          Создать встречу
+          {
+loading
+? "Создание..."
+: "Создать встречу"
+}
         </div>
 
       </div>
