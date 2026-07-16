@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
-import { AURA_MAP_STYLE } from "../../lib/map/styles";
+import { MAP_STYLE } from "../../lib/map/styles";
 
 export default function AuraMap() {
 
@@ -23,7 +23,9 @@ export default function AuraMap() {
 
         container: mapContainer.current,
 
-        style: AURA_MAP_STYLE,
+        style: MAP_STYLE({
+  key: process.env.NEXT_PUBLIC_MAPTILER_KEY!
+}),
 
         center: [27.5615,53.9023],
 
