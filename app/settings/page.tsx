@@ -47,7 +47,12 @@ theme,
 language,
 show_online,
 show_last_seen,
-notifications_enabled
+notifications_enabled,
+notify_messages,
+notify_matches,
+notify_system,
+notify_sound,
+notify_vibration
 `)
       .eq("telegram_id", telegramId)
       .single();
@@ -74,13 +79,33 @@ notifications_enabled
       data.notifications_enabled ?? false
     );
 
+    setNotifyMessages(
+  data.notify_messages ?? true
+);
+
+setNotifyMatches(
+  data.notify_matches ?? true
+);
+
+setNotifySystem(
+  data.notify_system ?? true
+);
+
+setNotifySound(
+  data.notify_sound ?? true
+);
+
+setNotifyVibration(
+  data.notify_vibration ?? true
+);
+
 }
 
 }
 
 async function saveSetting(
   field:string,
-  value:string
+  value:any
 ){
 
   const tg =
@@ -117,6 +142,21 @@ const [showLastSeen,setShowLastSeen] =
 useState(true);
 
 const [notificationsEnabled,setNotificationsEnabled] =
+useState(true);
+
+const [notifyMessages, setNotifyMessages] =
+useState(true);
+
+const [notifyMatches, setNotifyMatches] =
+useState(true);
+
+const [notifySystem, setNotifySystem] =
+useState(true);
+
+const [notifySound, setNotifySound] =
+useState(true);
+
+const [notifyVibration, setNotifyVibration] =
 useState(true);
 
 const [showThemeModal,setShowThemeModal] =
@@ -328,6 +368,91 @@ useState(false);
     size="18"
     color="#A0A8B5"
   />
+
+</div>
+
+
+
+<div
+  style={{
+    ...cardStyle,
+    display: "block"
+  }}
+>
+
+  <div
+    style={{
+      fontSize: 17,
+      fontWeight: 700,
+      marginBottom: 16
+    }}
+  >
+    🔔 Уведомления
+  </div>
+
+  {[
+    {
+      title: "Новые сообщения",
+      value: notifyMessages,
+      setter: setNotifyMessages,
+      field: "notify_messages"
+    },
+    {
+      title: "Новые матчи",
+      value: notifyMatches,
+      setter: setNotifyMatches,
+      field: "notify_matches"
+    },
+    {
+      title: "Системные",
+      value: notifySystem,
+      setter: setNotifySystem,
+      field: "notify_system"
+    },
+    {
+      title: "Звук",
+      value: notifySound,
+      setter: setNotifySound,
+      field: "notify_sound"
+    },
+    {
+      title: "Вибрация",
+      value: notifyVibration,
+      setter: setNotifyVibration,
+      field: "notify_vibration"
+    }
+  ].map(item => (
+
+    <div
+      key={item.field}
+      style={{
+        display:"flex",
+        justifyContent:"space-between",
+        alignItems:"center",
+        marginBottom:14
+      }}
+    >
+
+      <span>{item.title}</span>
+
+      <input
+        type="checkbox"
+        checked={item.value}
+        onChange={async(e)=>{
+
+          item.setter(e.target.checked);
+
+          await saveSetting(
+            item.field,
+            e.target.checked
+          );
+
+        }}
+      />
+
+    </div>
+
+  ))}
 
 </div>
 
