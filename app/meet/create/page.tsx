@@ -39,7 +39,7 @@ const [time,setTime] =
 useState("");
 
 const [maxPeople,setMaxPeople] =
-useState(2);
+useState(1);
 
 const [loading,setLoading] =
 useState(false);
@@ -193,7 +193,7 @@ useState(false);
 
         </div>
 
-        {/* Название */}
+        {/* Название встречи */}
 
         <div style={labelStyle}>
           Название
@@ -204,7 +204,7 @@ value={title}
 onChange={(e)=>
 setTitle(e.target.value)
 }
-placeholder="Например: Кофе вечером"
+placeholder="Например: Вечерний кофе ☕"
 style={inputStyle}
 />
 
@@ -239,7 +239,7 @@ style={inputStyle}
 
               style={{
 
-                padding:"10px 16px",
+                padding:"7px 12px",
 
                 borderRadius:999,
 
@@ -255,10 +255,9 @@ style={inputStyle}
                   ? "#fff"
                   : "#222",
 
-                fontWeight:600,
+                fontSize:13,
 
-                boxShadow:
-                  "0 3px 12px rgba(0,0,0,.05)"
+                border:"1px solid #E8EEF6",
 
               }}
             >
@@ -269,7 +268,7 @@ style={inputStyle}
 
         </div>
 
-        {/* Описание */}
+        {/* О встрече */}
 
         <div
           style={{
@@ -288,11 +287,16 @@ onChange={(e)=>
 setDescription(e.target.value)
 }
 
-placeholder="Расскажите немного о встрече..."
+placeholder={`Напишите пару слов о встрече.
+
+Например:
+
+После работы собираемся выпить кофе.
+Будем рады новым знакомствам ☕`}
 
 style={{
 ...inputStyle,
-minHeight:120,
+minHeight:90,
 resize:"none",
 paddingTop:14
 }}
@@ -322,18 +326,51 @@ setDate(e.target.value)
 style={inputStyle}
 />
 
-        {/* Время */}
-
         <div
-          style={{
-            ...labelStyle,
-            marginTop:24
-          }}
-        >
-          Время
-        </div>
+style={{
+display:"flex",
+gap:12,
+marginTop:24
+}}
+>
 
-        <input
+<div
+style={{
+flex:1
+}}
+>
+
+<div style={labelStyle}>
+📅 Дата
+</div>
+
+<input
+
+type="date"
+
+value={date}
+
+onChange={(e)=>
+setDate(e.target.value)
+}
+
+style={inputStyle}
+
+/>
+
+</div>
+
+<div
+style={{
+flex:1
+}}
+>
+
+<div style={labelStyle}>
+🕒 Время
+</div>
+
+<input
 
 type="time"
 
@@ -344,7 +381,12 @@ setTime(e.target.value)
 }
 
 style={inputStyle}
+
 />
+
+</div>
+
+</div>
 
         <div
 style={{
@@ -352,7 +394,7 @@ style={{
 marginTop:24
 }}
 >
-Локация
+Где встречаемся
 </div>
 
 <LocationCard
@@ -421,7 +463,7 @@ marginTop:24
 
 >
 
-👥 Участники
+Кто может присоединиться
 
 </div>
 
@@ -466,8 +508,8 @@ onChange={setMaxPeople}
         >
           {
 loading
-? "Создание..."
-: "Создать встречу"
+? "⏳ Создаем..."
+: "🚀 Создать встречу"
 }
         </div>
 
@@ -499,15 +541,16 @@ const inputStyle = {
 
   outline:"none",
 
-  borderRadius:16,
-
+  borderRadius:18,
+  
   padding:"0 16px",
 
   background:"#fff",
 
   fontSize:15,
 
-  boxShadow:"0 3px 12px rgba(0,0,0,.05)",
+
+boxShadow:"0 2px 8px rgba(0,0,0,.03)",
 
   boxSizing:"border-box" as const
 
