@@ -13,11 +13,12 @@ export async function POST(req: Request) {
   try {
 
     const {
-      userId,
-      title,
-      text,
-      button
-    } = await req.json();
+  userId,
+  type,
+  title,
+  text,
+  button
+} = await req.json();
 
     console.log("BODY:", {
   userId,
@@ -43,12 +44,33 @@ export async function POST(req: Request) {
     }
 
     const { data: user } =
-    
-      await supabase
-        .from("users")
-        .select("telegram_id")
-        .eq("id", userId)
-        .single();
+
+  await supabase
+    .from("users")
+    .select(`
+      telegram_id,
+      likes_notifications,
+      messages_notifications,
+      matches_notifications,
+      news_notifications
+    `)
+    .eq("id", userId)
+    .single();
+
+
+    if (
+  (type === "like" && !user?.likes_notifications) ||
+  (type === "message" && !user?.messages_notifications) ||
+  (type === "match" && !user?.matches_notifications) ||
+  (type === "news" && !user?.news_notifications)
+) {
+
+  return NextResponse.json({
+    success: true,
+    skipped: true
+  });
+
+}
 
     if (!user?.telegram_id) {
 
@@ -121,7 +143,21 @@ export async function POST(req: Request) {
     );
 
     const result = await response.json();
-    console.log("TELEGRAM RESULT:", result);
+
+console.log("TELEGRAM RESULT:", result);
+
+if (!result.ok) {
+
+  console.error("❌ Telegram error:", result);
+
+  return NextResponse.json(
+    result,
+    {
+      status: 500
+    }
+  );
+
+}
 
 console.log("========== TELEGRAM ==========");
 console.log("User ID:", userId);
