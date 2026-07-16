@@ -1,2 +1,2 @@
-export const AURA_MAP_STYLE =
-  "https://demotiles.maplibre.org/style.json";
+export const MAP_STYLE = ({key}:{key:string}) =>
+  `https://api.maptiler.com/maps/streets-v2/style.json?key=${key}`;
