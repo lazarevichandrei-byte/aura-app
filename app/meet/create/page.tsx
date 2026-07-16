@@ -8,6 +8,7 @@ import { MEET_CATEGORIES } from "../../../lib/meet/categories";
 import { supabase } from "../../../lib/supabase";
 import { createMeetEvent } from "../../../lib/meet/api";
 import PeopleSelector from "../../../components/meet/PeopleSelector";
+import LocationCard from "../../../components/meet/LocationCard";
 export default function CreateMeetPage() {
     
 
@@ -21,6 +22,12 @@ useState("");
 
 const [place,setPlace] =
 useState("");
+
+const [latitude,setLatitude] =
+useState<number | null>(null);
+
+const [longitude,setLongitude] =
+useState<number | null>(null);
 
 const [city,setCity] =
 useState("");
@@ -339,51 +346,26 @@ setTime(e.target.value)
 style={inputStyle}
 />
 
-        {/* Место */}
-
         <div
-          style={{
-            ...labelStyle,
-            marginTop:24
-          }}
-        >
-          Место встречи
-        </div>
-
-        <input
-
-  value={place}
-
-  onChange={(e)=>
-    setPlace(e.target.value)
-  }
-
-  placeholder="Например: Starbucks"
-
-  style={inputStyle}
-
-/>
-
-<div
-  style={{
-    ...labelStyle,
-    marginTop:24
-  }}
+style={{
+...labelStyle,
+marginTop:24
+}}
 >
-  Город
+Локация
 </div>
 
-<input
+<LocationCard
 
-  value={city}
+place={place}
 
-  onChange={(e)=>
-    setCity(e.target.value)
-  }
+city={city}
 
-  placeholder="Например: Минск"
+onClick={()=>{
 
-  style={inputStyle}
+  router.push("/meet/location");
+
+}}
 
 />
 
