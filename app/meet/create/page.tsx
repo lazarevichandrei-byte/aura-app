@@ -357,15 +357,53 @@ marginTop:24
 
 <LocationCard
 
-place={place}
+  place={place}
 
-city={city}
+  city={city}
 
-onClick={()=>{
+  onMapClick={() => {
 
-  router.push("/meet/location");
+    router.push("/meet/location");
 
-}}
+  }}
+
+  onCurrentLocationClick={() => {
+
+    if (!navigator.geolocation) {
+
+      alert("Геолокация не поддерживается");
+
+      return;
+
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+
+        setLatitude(
+          position.coords.latitude
+        );
+
+        setLongitude(
+          position.coords.longitude
+        );
+
+        setPlace("Моё местоположение");
+
+        setCity("Определяется...");
+
+      },
+
+      () => {
+
+        alert("Не удалось получить геолокацию");
+
+      }
+
+    );
+
+  }}
 
 />
 
