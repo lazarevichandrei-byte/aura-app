@@ -1,9 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BottomNav from "../../components/BottomNav";
+import { loadMeetEvents } from "../../lib/meet/api";
 
 export default function MeetPage() {
+
+    const [events,setEvents] =
+useState<any[]>([]);
+
+const [loading,setLoading] =
+useState(true);
+
+useEffect(()=>{
+
+  load();
+
+},[]);
+
+async function load(){
+
+  try{
+
+    const data =
+      await loadMeetEvents();
+
+    setEvents(
+      data || []
+    );
+
+  }finally{
+
+    setLoading(false);
+
+  }
+
+}
 
   const [tab, setTab] =
     useState("feed");
