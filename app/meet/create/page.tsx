@@ -114,9 +114,9 @@ useState(false);
 
       place,
 
-      latitude:null,
+      latitude,
 
-      longitude:null,
+longitude,
 
       starts_at:
         `${date}T${time}:00`,
@@ -196,7 +196,7 @@ useState(false);
         {/* Название встречи */}
 
         <div style={labelStyle}>
-          Название
+          Название встречи
         </div>
 
         <input
@@ -227,7 +227,9 @@ style={inputStyle}
           }}
         >
 
-          {MEET_CATEGORIES.map(item=>(
+          {MEET_CATEGORIES
+.slice(0,3)
+.map(item=>(
 
             <div
 
@@ -264,7 +266,43 @@ style={inputStyle}
               {item.icon} {item.name}
             </div>
 
+            
+
+
+  
+
           ))}
+
+
+          <div
+
+onClick={()=>{
+  alert("Категории скоро откроются");
+}}
+
+style={{
+
+padding:"7px 12px",
+
+borderRadius:999,
+
+cursor:"pointer",
+
+background:"#fff",
+
+border:"1px solid #E8EEF6",
+
+fontSize:13,
+
+fontWeight:600
+
+}}
+
+>
+
+➕ Еще
+
+</div>
 
         </div>
 
@@ -276,7 +314,7 @@ style={inputStyle}
             marginTop:24
           }}
         >
-          Описание
+          О встрече
         </div>
 
         <textarea
@@ -287,12 +325,10 @@ onChange={(e)=>
 setDescription(e.target.value)
 }
 
-placeholder={`Напишите пару слов о встрече.
-
-Например:
-
-После работы собираемся выпить кофе.
-Будем рады новым знакомствам ☕`}
+placeholder={`Например:
+Выпьем кофе,
+погуляем
+и познакомимся ☕`}
 
 style={{
 ...inputStyle,
@@ -302,29 +338,7 @@ paddingTop:14
 }}
 />
 
-        {/* Дата */}
-
-        <div
-          style={{
-            ...labelStyle,
-            marginTop:24
-          }}
-        >
-          Дата
-        </div>
-
-        <input
-
-type="date"
-
-value={date}
-
-onChange={(e)=>
-setDate(e.target.value)
-}
-
-style={inputStyle}
-/>
+        
 
         <div
 style={{
@@ -463,7 +477,7 @@ marginTop:24
 
 >
 
-Кто может присоединиться
+Количество участников
 
 </div>
 
