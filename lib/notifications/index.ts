@@ -21,22 +21,23 @@ export async function sendNotification(
 
       body: JSON.stringify({
 
-        userId: payload.userId,
+  userId: payload.userId,
 
-        title:
-          payload.title ??
-          template.title,
+  type: payload.type,
 
-        text:
-          payload.text ??
-          template.text,
+  title:
+    payload.title ??
+    template.title,
 
-        button:
-          payload.buttonText ??
-          template.button
+  text:
+    payload.text ??
+    template.text,
 
-      })
+  button:
+    payload.buttonText ??
+    template.button
 
+})
     }
   );
 
