@@ -14,8 +14,7 @@ export default function PrivacyPage() {
   const [showOnline,setShowOnline] =
 useState<boolean | null>(null);
 
-const [showLastSeen,setShowLastSeen] =
-useState<boolean | null>(null);
+
 
 const [hideProfile,setHideProfile] =
 useState<boolean | null>(null);
@@ -41,8 +40,7 @@ async function loadSettings() {
     .from("users")
     .select(`
       show_online,
-      show_last_seen,
-      hide_profile
+hide_profile
     `)
     .eq("telegram_id", telegramId)
     .single();
@@ -56,9 +54,7 @@ setShowOnline(
   data.show_online ?? false
 );
 
-setShowLastSeen(
-  data.show_last_seen ?? false
-);
+
 
 setHideProfile(
   data.hide_profile ?? false
@@ -85,15 +81,30 @@ async function saveSetting(
 
     if(!telegramId) return;
 
-    await supabase
-      .from("users")
-      .update({
-        [field]: value
-      })
-      .eq(
-        "telegram_id",
-        telegramId
-      );
+    const { error } =
+  await supabase
+    .from("users")
+    .update({
+
+  [field]: value,
+
+  ...(field === "show_online"
+    ? {
+        show_last_seen: value
+      }
+    : {})
+
+})
+    .eq(
+      "telegram_id",
+      telegramId
+    );
+
+if (error) {
+
+  console.error(error);
+
+}
 
   } finally {
 
@@ -110,7 +121,6 @@ async function saveSetting(
 
 if (
   showOnline === null ||
-  showLastSeen === null ||
   hideProfile === null
 ){
   return (
@@ -214,37 +224,7 @@ style={cardStyle}
 />
 </div>
 
-<div
-style={cardStyle}
->
-  <div>
-    <div style={titleStyle}>
-      Показывать "был недавно"
-    </div>
 
-    <div style={subtitleStyle}>
-      Отображать последнюю активность
-    </div>
-  </div>
-
-  <Switch
-  active={showLastSeen}
-  onClick={async () => {
-
-    selection();
-
-    const value =
-      !showLastSeen;
-
-    setShowLastSeen(value);
-
-    await saveSetting(
-      "show_last_seen",
-      value
-    );
-  }}
-/>
-</div>
 
 <div
 style={cardStyle}

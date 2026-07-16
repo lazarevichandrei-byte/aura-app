@@ -28,7 +28,7 @@ import {
   Reply
 } from "lucide-react";
 
-import { sendNotification } from "../../../lib/notifications/index";
+import { sendMessageNotification } from "../../../lib/notifications/messages";
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -1724,20 +1724,19 @@ if (receiverId) {
 
   try {
 
-    await sendNotification({
+    const myName =
+      localStorage.getItem("my_name")
+      || "Новый пользователь";
 
-      userId: receiverId,
+    await sendMessageNotification(
 
-      type: "message",
+      receiverId,
 
-      title: "💬 Новое сообщение",
+      myName,
 
-      text:
-        text.length > 80
-          ? text.slice(0, 80) + "..."
-          : text
+      text
 
-    });
+    );
 
   } catch (e) {
 
