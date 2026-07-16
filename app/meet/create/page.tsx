@@ -7,7 +7,9 @@ import PageWrapper from "../../../components/PageWrapper";
 import { MEET_CATEGORIES } from "../../../lib/meet/categories";
 import { supabase } from "../../../lib/supabase";
 import { createMeetEvent } from "../../../lib/meet/api";
+import PeopleSelector from "../../../components/meet/PeopleSelector";
 export default function CreateMeetPage() {
+    
 
   const router = useRouter();
 
@@ -120,15 +122,13 @@ useState(false);
 
   }catch(err){
 
-    console.log(err);
+  console.error("CREATE MEET ERROR:", err);
 
-    alert("Ошибка создания встречи");
+  alert(
+    JSON.stringify(err)
+  );
 
-  }finally{
-
-    setLoading(false);
-
-  }
+}
 
 }
 
@@ -390,44 +390,26 @@ style={inputStyle}
         {/* Участники */}
 
         <div
-          style={{
-            ...labelStyle,
-            marginTop:24
-          }}
-        >
-          Максимум участников
-        </div>
 
-        <input
+style={{
 
-  type="number"
+...labelStyle,
 
-  value={maxPeople}
-
-  onChange={(e)=>{
-
-  const value =
-    Number(e.target.value);
-
-  setMaxPeople(
-
-    Math.min(
-      50,
-      Math.max(
-        2,
-        value
-      )
-    )
-
-  );
+marginTop:24
 
 }}
 
-  min={2}
+>
 
-  max={50}
+👥 Участники
 
-  style={inputStyle}
+</div>
+
+<PeopleSelector
+
+value={maxPeople}
+
+onChange={setMaxPeople}
 
 />
 
