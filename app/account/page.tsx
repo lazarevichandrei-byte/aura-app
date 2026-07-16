@@ -232,12 +232,7 @@ if (loading) {
   🔒 Конфиденциальность
 </div>
 
-<div
-  style={itemStyle}
-  onClick={() => router.push("/notifications")}
->
-  🔔 Уведомления
-</div>
+
 
 
 <div
