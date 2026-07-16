@@ -12,7 +12,12 @@ useState
 
 import { supabase }
 from "../lib/supabase";
-import { Home, Search, Heart, User } from "lucide-react";
+import {
+  Home,
+  MapPinned,
+  Heart,
+  User
+} from "lucide-react";
 
 export default function BottomNav(){
 
@@ -128,11 +133,11 @@ style={itemStyle(pathname==="/home")}
 
 
 <div
-onClick={()=>router.push("/discover")}
-style={itemStyle(pathname==="/discover")}
+onClick={()=>router.push("/meet")}
+style={itemStyle(pathname==="/meet")}
 >
-<Search size={28}/>
-Поиск
+<MapPinned size={28}/>
+Встречи
 </div>
 
 
