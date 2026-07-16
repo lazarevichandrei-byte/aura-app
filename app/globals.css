@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "leaflet/dist/leaflet.css";
+
 
 /* RESET */
 *{
@@ -215,4 +217,3 @@ margin:0 !important;
 padding:0 !important;
 background:#F5F7FB !important;
 }
-@import "leaflet/dist/leaflet.css";
