@@ -46,7 +46,10 @@ export async function sendNotification(
   const result =
     await response.json();
 
-  console.log("FETCH RESULT:", result);
+  console.log(
+  "FETCH RESULT:",
+  JSON.stringify(result, null, 2)
+);
 
   if (!response.ok) {
 
