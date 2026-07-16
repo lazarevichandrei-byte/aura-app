@@ -32,7 +32,9 @@ export default function PeopleSelector({
 
         borderRadius:18,
 
-        padding:"12px",
+        border:"1px solid #E8EEF6",
+
+        padding:"10px 14px",
 
         boxShadow:
           "0 4px 14px rgba(0,0,0,.05)"
@@ -45,11 +47,11 @@ export default function PeopleSelector({
 
         onClick={()=>{
 
-          if(value>2){
+          if(value>1){
 
-            onChange(value-1);
+  onChange(value-1);
 
-          }
+}
 
         }}
 
@@ -62,28 +64,22 @@ export default function PeopleSelector({
       </button>
 
       <div
-        style={{
-          textAlign:"center"
-        }}
-      >
+  style={{
+    flex:1,
+    textAlign:"center"
+  }}
+>
 
         <div
           style={{
-            fontSize:26,
+            fontSize:20,
             fontWeight:700
           }}
         >
           {value}
         </div>
 
-        <div
-          style={{
-            color:"#8B95A7",
-            fontSize:13
-          }}
-        >
-          участников
-        </div>
+        
 
       </div>
 
@@ -115,9 +111,9 @@ export default function PeopleSelector({
 
 const buttonStyle={
 
-width:54,
+width:42,
 
-height:54,
+height:42,
 
 border:"none",
 
@@ -125,7 +121,7 @@ borderRadius:"50%",
 
 background:"#EEF5FF",
 
-fontSize:28,
+fontSize:24,
 
 fontWeight:700,
 

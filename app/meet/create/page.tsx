@@ -9,6 +9,7 @@ import { supabase } from "../../../lib/supabase";
 import { createMeetEvent } from "../../../lib/meet/api";
 import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
+import CategorySheet from "../../../components/meet/CategorySheet";
 export default function CreateMeetPage() {
     
 
@@ -45,6 +46,8 @@ const [loading,setLoading] =
 useState(false);
 
   const [category,setCategory] = useState("coffee");
+  const [showCategories,setShowCategories] =
+useState(false);
 
 
 
@@ -276,9 +279,9 @@ style={inputStyle}
 
           <div
 
-onClick={()=>{
-  alert("Категории скоро откроются");
-}}
+onClick={()=>
+setShowCategories(true)
+}
 
 style={{
 
@@ -326,8 +329,7 @@ setDescription(e.target.value)
 }
 
 placeholder={`Например:
-Выпьем кофе,
-погуляем
+Выпьем кофе,погуляем
 и познакомимся ☕`}
 
 style={{
@@ -528,6 +530,23 @@ loading
         </div>
 
       </div>
+
+
+      <CategorySheet
+
+open={showCategories}
+
+selected={category}
+
+onClose={()=>
+setShowCategories(false)
+}
+
+onSelect={(id)=>
+setCategory(id)
+}
+
+/>
 
     </PageWrapper>
 
