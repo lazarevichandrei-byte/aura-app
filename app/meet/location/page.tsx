@@ -1,6 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ArrowLeft2 } from "iconsax-react";
+import PageWrapper from "../../../components/PageWrapper";
+import MeetMap from "../../../components/meet/MeetMap";
 
 export default function MeetLocationPage() {
 
@@ -8,76 +11,117 @@ export default function MeetLocationPage() {
 
   return (
 
-    <div
-      style={{
-        minHeight:"100vh",
-        background:"#F5F7FB",
-        display:"flex",
-        justifyContent:"center",
-        alignItems:"center",
-        flexDirection:"column",
-        gap:20
-      }}
-    >
+    <PageWrapper>
 
       <div
         style={{
-          fontSize:64
+          height:"100vh",
+          display:"flex",
+          flexDirection:"column",
+          background:"#F5F7FB"
         }}
       >
-        🗺
+
+        {/* Header */}
+
+        <div
+          style={{
+            padding:"20px",
+            display:"flex",
+            alignItems:"center",
+            gap:14
+          }}
+        >
+
+          <div
+            onClick={()=>router.back()}
+            style={{
+              cursor:"pointer"
+            }}
+          >
+            <ArrowLeft2
+              size="28"
+              color="#2F80FF"
+            />
+          </div>
+
+          <div>
+
+            <div
+              style={{
+                fontSize:22,
+                fontWeight:700
+              }}
+            >
+              Выбор места
+            </div>
+
+            <div
+              style={{
+                marginTop:4,
+                color:"#7B8595",
+                fontSize:13
+              }}
+            >
+              Выберите место встречи
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Поиск */}
+
+        <div
+          style={{
+            padding:"0 20px 20px"
+          }}
+        >
+
+          <input
+
+            placeholder="🔍 Поиск кафе, парка..."
+
+            style={{
+
+              width:"100%",
+
+              height:48,
+
+              border:"none",
+
+              outline:"none",
+
+              borderRadius:16,
+
+              padding:"0 16px",
+
+              background:"#fff",
+
+              boxSizing:"border-box"
+
+            }}
+
+          />
+
+        </div>
+
+        {/* Карта */}
+
+        <div
+          style={{
+            flex:1,
+            padding:"0 20px 20px"
+          }}
+        >
+
+          <MeetMap/>
+
+        </div>
+
       </div>
 
-      <div
-        style={{
-          fontSize:24,
-          fontWeight:700
-        }}
-      >
-        Выбор места
-      </div>
-
-      <div
-        style={{
-          color:"#7B8595",
-          textAlign:"center",
-          lineHeight:1.6
-        }}
-      >
-        Здесь скоро появится карта
-        <br/>
-        для выбора места встречи.
-      </div>
-
-      <button
-
-        onClick={()=>router.back()}
-
-        style={{
-
-          width:180,
-          height:52,
-
-          border:"none",
-
-          borderRadius:16,
-
-          background:
-            "linear-gradient(135deg,#2F80FF,#56CCF2)",
-
-          color:"#fff",
-
-          fontWeight:700,
-
-          cursor:"pointer"
-
-        }}
-
-      >
-        Назад
-      </button>
-
-    </div>
+    </PageWrapper>
 
   );
 
