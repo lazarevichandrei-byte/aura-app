@@ -402,6 +402,9 @@ async function handleLike(){
       to_id: currentUser.id
     });
 
+    console.log("RPC DATA:", response.data);
+console.log("RPC ERROR:", response.error);
+
   console.log("RPC DONE");
 
   console.log("RPC RESPONSE:", response);
@@ -450,6 +453,8 @@ if(chatId){
   return;
 }
 
+console.log("❤️ SEND LIKE NOTIFICATION");
+
 await sendNotification({
 
   userId: currentUser.id,
@@ -457,6 +462,8 @@ await sendNotification({
   type: NotificationType.LIKE
 
 });
+
+console.log("❤️ NOTIFICATION SENT");
 
 nextUser();
 }
