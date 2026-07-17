@@ -18,6 +18,13 @@ export default function AuraMap() {
 
     if (map.current) return;
 
+
+
+    console.log(
+  "Map key:",
+  process.env.NEXT_PUBLIC_MAPTILER_KEY
+);
+
     map.current =
       new maplibregl.Map({
 
@@ -35,13 +42,15 @@ export default function AuraMap() {
 
       });
 
-    map.current.addControl(
+      map.current.on("load", () => {
+  console.log("✅ Map loaded");
+});
 
-      new maplibregl.NavigationControl(),
+map.current.on("error", (e) => {
+  console.log("❌ Map error", e);
+});
 
-      "top-right"
-
-    );
+    
 
     return ()=>{
 
