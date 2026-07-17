@@ -20,7 +20,35 @@ export default function AuraMap() {
 
 
 
-   
+    console.log(
+  "Map key:",
+  process.env.NEXT_PUBLIC_MAPTILER_KEY
+);
+
+    map.current =
+      new maplibregl.Map({
+
+        container: mapContainer.current,
+
+        style: MAP_STYLE({
+  key: process.env.NEXT_PUBLIC_MAPTILER_KEY!
+}),
+
+        center: [27.5615,53.9023],
+
+        zoom: 12,
+
+        attributionControl:false
+
+      });
+
+      map.current.on("load", () => {
+  console.log("✅ Map loaded");
+});
+
+map.current.on("error", (e) => {
+  console.log("❌ Map error", e);
+});
 
     
 
