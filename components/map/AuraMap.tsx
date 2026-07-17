@@ -55,26 +55,40 @@ export default function AuraMap() {
 
   },[]);
 
-  return(
+  return (
+
+  <div
+    style={{
+      width: "100%",
+      height: "100%",
+      position: "relative"
+    }}
+  >
 
     <div
-
       ref={mapContainer}
-
       style={{
-
-        width:"100%",
-
-        height:"100%",
-
-        borderRadius:22,
-
-        overflow:"hidden"
-
+        width: "100%",
+        height: "100%"
       }}
-
     />
 
-  );
+    <div
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -100%)",
+        fontSize: 42,
+        pointerEvents: "none",
+        zIndex: 15
+      }}
+    >
+      📍
+    </div>
+
+  </div>
+
+);
 
 }
