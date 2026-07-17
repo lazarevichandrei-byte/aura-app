@@ -26,7 +26,7 @@ export default function MeetLocationPage() {
         style={{
           position:"relative",
           width:"100%",
-          height:"100vh",
+          height:"100dvh",
           overflow:"hidden",
           background:"#F5F7FB"
         }}
@@ -66,7 +66,7 @@ export default function MeetLocationPage() {
             left:0,
             right:0,
             zIndex:20,
-            paddingTop:18
+            paddingTop:8
           }}
         >
 
@@ -75,7 +75,7 @@ export default function MeetLocationPage() {
               display:"flex",
               alignItems:"center",
               gap:14,
-              padding:"0 20px 12px"
+              padding:"0 16px 8px"
             }}
           >
 
@@ -85,11 +85,9 @@ export default function MeetLocationPage() {
 
               style={{
 
-                width:42,
-
-                height:42,
-
-                borderRadius:21,
+                width:36,
+height:36,
+borderRadius:18,
 
                 background:"#fff",
 
@@ -119,7 +117,7 @@ export default function MeetLocationPage() {
 
               <div
                 style={{
-                  fontSize:22,
+                  fontSize:18,
                   fontWeight:700,
                   color:"#111827"
                 }}
@@ -131,7 +129,7 @@ export default function MeetLocationPage() {
                 style={{
                   marginTop:3,
                   color:"#6B7280",
-                  fontSize:13
+                  fontSize:12
                 }}
               >
                 Выберите место на карте

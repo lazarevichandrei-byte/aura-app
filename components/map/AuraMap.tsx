@@ -20,10 +20,7 @@ export default function AuraMap() {
 
 
 
-    console.log(
-  "Map key:",
-  process.env.NEXT_PUBLIC_MAPTILER_KEY
-);
+ 
 
     map.current =
       new maplibregl.Map({
@@ -42,13 +39,9 @@ export default function AuraMap() {
 
       });
 
-      map.current.on("load", () => {
-  console.log("✅ Map loaded");
-});
+    
 
-map.current.on("error", (e) => {
-  console.log("❌ Map error", e);
-});
+
 
     
 

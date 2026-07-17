@@ -30,7 +30,7 @@ export default function MapControls({
 
         right:18,
 
-        bottom:170,
+        bottom:150,
 
         display:"flex",
 
@@ -84,12 +84,9 @@ function CircleButton({
 
       style={{
 
-        width:52,
-
-        height:52,
-
-        borderRadius:26,
-
+        width:44,
+height:44,
+borderRadius:22,
         background:"#fff",
 
         display:"flex",
@@ -100,11 +97,11 @@ function CircleButton({
 
         cursor:"pointer",
 
-        fontSize:24,
+        fontSize:20,
 
         fontWeight:700,
 
-        boxShadow:"0 8px 22px rgba(0,0,0,.12)"
+        boxShadow:"0 4px 12px rgba(0,0,0,.10)"
 
       }}
 

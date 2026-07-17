@@ -14,15 +14,14 @@ export default function PlaceBottomCard(){
 
         right:16,
 
-        bottom:24,
+        bottom:16,
 
         zIndex:30,
 
         background:"#fff",
 
-        borderRadius:24,
-
-        padding:20,
+        borderRadius:18,
+padding:14,
 
         boxShadow:"0 18px 40px rgba(0,0,0,.12)"
 
@@ -36,7 +35,7 @@ export default function PlaceBottomCard(){
 
           fontWeight:700,
 
-          fontSize:18
+          fontSize:16
 
         }}
 
@@ -50,7 +49,7 @@ export default function PlaceBottomCard(){
 
         style={{
 
-          marginTop:6,
+          marginTop:2,
 
           color:"#6B7280"
 
@@ -65,27 +64,17 @@ export default function PlaceBottomCard(){
       <button
 
         style={{
-
-          marginTop:18,
-
-          width:"100%",
-
-          height:52,
-
-          border:"none",
-
-          borderRadius:18,
-
-          background:
-            "linear-gradient(135deg,#2F80FF,#56CCF2)",
-
-          color:"#fff",
-
-          fontWeight:700,
-
-          cursor:"pointer"
-
-        }}
+  marginTop:12,
+  width:"100%",
+  height:44,
+  border:"none",
+  borderRadius:14,
+  background:"linear-gradient(135deg,#2F80FF,#56CCF2)",
+  color:"#fff",
+  fontWeight:700,
+  fontSize:15,
+  cursor:"pointer"
+}}
 
       >
 
