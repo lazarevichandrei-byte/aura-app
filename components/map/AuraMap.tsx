@@ -4,7 +4,16 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import { MAP_STYLE } from "../../lib/map/styles";
 
-export default function AuraMap() {
+type Props = {
+  onCenterChanged?: (
+    lat: number,
+    lng: number
+  ) => void;
+};
+
+export default function AuraMap({
+  onCenterChanged
+}: Props) {
 
   const mapContainer =
     useRef<HTMLDivElement>(null);
@@ -38,6 +47,19 @@ export default function AuraMap() {
         attributionControl:false
 
       });
+
+      map.current.on("moveend", () => {
+
+  if (!map.current) return;
+
+  const center = map.current.getCenter();
+
+  onCenterChanged?.(
+    center.lat,
+    center.lng
+  );
+
+});
 
     
 

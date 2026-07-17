@@ -18,6 +18,11 @@ export default function MeetLocationPage() {
   const [search,setSearch] =
     useState("");
 
+    const [center, setCenter] = useState({
+  lat: 53.9023,
+  lng: 27.5615
+});
+
   return (
 
     <PageWrapper>
@@ -41,7 +46,14 @@ export default function MeetLocationPage() {
           }}
         >
 
-          <AuraMap/>
+          <AuraMap
+  onCenterChanged={(lat, lng) => {
+    setCenter({
+      lat,
+      lng
+    });
+  }}
+/>
 
           <MapControls
 
