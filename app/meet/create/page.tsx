@@ -166,11 +166,18 @@ longitude,
   }catch (err: any) {
 
   console.error("CREATE MEET ERROR:", err);
+  console.dir(err);
 
-  alert(
-    err?.message ||
-    JSON.stringify(err)
-  );
+  if (err) {
+    alert(`
+Message: ${err.message}
+Code: ${err.code}
+Details: ${err.details}
+Hint: ${err.hint}
+`);
+  } else {
+    alert("Неизвестная ошибка");
+  }
 
 }
 
