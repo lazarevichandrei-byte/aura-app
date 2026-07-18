@@ -3,11 +3,13 @@
 type Props = {
   title: string;
   address: string;
+  onSelect: () => void;
 };
 
 export default function PlaceBottomCard({
   title,
-  address
+  address,
+  onSelect
 }: Props) {
 
   return(
@@ -70,7 +72,7 @@ padding:14,
       </div>
 
       <button
-
+onClick={onSelect}
         style={{
   marginTop:12,
   width:"100%",

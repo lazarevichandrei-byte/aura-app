@@ -1,7 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useState,
+  useEffect
+} from "react";
+import {
+  useRouter,
+  useSearchParams
+} from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../../components/PageWrapper";
 import { MEET_CATEGORIES } from "../../../lib/meet/categories";
@@ -13,6 +19,7 @@ export default function CreateMeetPage() {
     
 
   const router = useRouter();
+  
 
   const [title,setTitle] =
 useState("");
@@ -49,9 +56,33 @@ useState(false);
   const [showAllCategories,setShowAllCategories] =
 useState(false);
 
+useEffect(() => {
+
+  const raw =
+    sessionStorage.getItem("meet_location");
+
+  if (!raw) return;
+
+  try {
+
+    const data = JSON.parse(raw);
+
+    setPlace(data.title || "");
+    setCity(data.address || "");
+    setLatitude(data.lat ?? null);
+    setLongitude(data.lng ?? null);
+
+    sessionStorage.removeItem("meet_location");
+
+  } catch {
+
+    sessionStorage.removeItem("meet_location");
+
+  }
+
+}, []);
+
   
-
-
 
   async function createMeet(){
 

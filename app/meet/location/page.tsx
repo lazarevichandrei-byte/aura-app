@@ -42,7 +42,7 @@ useEffect(() => {
 
   let cancelled = false;
 
-  async function loadPlace() {
+  const timer = setTimeout(async () => {
 
     const result = await reverseGeocode(
       center.lat,
@@ -53,12 +53,11 @@ useEffect(() => {
       setPlace(result);
     }
 
-  }
-
-  loadPlace();
+  }, 350);
 
   return () => {
     cancelled = true;
+    clearTimeout(timer);
   };
 
 }, [center]);
@@ -115,6 +114,21 @@ useEffect(() => {
 <PlaceBottomCard
   title={place.title}
   address={place.address}
+  onSelect={() => {
+
+  sessionStorage.setItem(
+    "meet_location",
+    JSON.stringify({
+      title: place.title,
+      address: place.address,
+      lat: center.lat,
+      lng: center.lng
+    })
+  );
+
+  router.back();
+
+}}
 />
 
         </div>
