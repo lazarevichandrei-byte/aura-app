@@ -9,13 +9,11 @@ type Props = {
 
 export default function MeetBottomSheet({
   event,
-  onClose
 }: Props) {
 
   if (!event) return null;
 
   return (
-
     <div
       style={{
         position: "fixed",
@@ -23,133 +21,179 @@ export default function MeetBottomSheet({
         right: 0,
         bottom: 0,
         background: "#fff",
-        borderTopLeftRadius: 26,
-        borderTopRightRadius: 26,
-        padding: 20,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        padding: "18px 20px 26px",
         zIndex: 999,
-        boxShadow: "0 -10px 35px rgba(0,0,0,.18)"
+        boxShadow: "0 -10px 40px rgba(0,0,0,.18)"
       }}
     >
 
+      {/* Drag Handle */}
+
       <div
         style={{
-          width: 60,
-          height: 5,
+          width: 58,
+          height: 6,
           borderRadius: 999,
-          background: "#ddd",
+          background: "#D6D6D6",
           margin: "0 auto 18px"
         }}
       />
 
+      {/* Header */}
+
       <div
         style={{
           display: "flex",
-          alignItems: "center",
-          gap: 14
+          gap: 16,
+          alignItems: "center"
         }}
       >
 
         <div
           style={{
-            width: 58,
-            height: 58,
+            width: 68,
+            height: 68,
             borderRadius: "50%",
-            background: "#ECECEC"
+            background:
+              "linear-gradient(135deg,#8B5CF6,#6366F1)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#fff",
+            fontSize: 30,
+            flexShrink: 0
           }}
-        />
+        >
+          👤
+        </div>
 
-        <div>
+        <div style={{ flex: 1 }}>
 
           <div
             style={{
-              fontWeight: 700,
-              fontSize: 18
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between"
             }}
           >
-            Организатор
+
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 700
+              }}
+            >
+              Александр
+            </div>
+
+            <div
+              style={{
+                color: "#22C55E",
+                fontWeight: 600,
+                fontSize: 14
+              }}
+            >
+              ● Онлайн
+            </div>
+
           </div>
 
           <div
             style={{
-              color: "#777",
-              marginTop: 2
+              marginTop: 6,
+              color: "#6B7280",
+              fontSize: 14
             }}
           >
-            Здесь будет имя
+            Организатор встречи
           </div>
 
         </div>
 
       </div>
 
+      {/* Title */}
+
       <div
         style={{
           marginTop: 24,
-          fontSize: 22,
-          fontWeight: 700
+          fontSize: 24,
+          fontWeight: 700,
+          color: "#111827"
         }}
       >
         {event.title}
       </div>
 
-      <div style={{marginTop:10}}>
-        📍 {event.place}
-      </div>
-
-      <div style={{marginTop:6}}>
-        📅 {new Date(event.starts_at).toLocaleString()}
-      </div>
+      {/* Info */}
 
       <div
         style={{
-          marginTop:18,
-          color:"#555",
-          lineHeight:1.6
+          marginTop: 18,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          color: "#4B5563",
+          fontSize: 15
         }}
       >
-        {event.description}
+
+        <div>
+          📍 {event.place}
+        </div>
+
+        <div>
+          📅 {new Date(event.starts_at).toLocaleString()}
+        </div>
+
+        <div>
+          👥 2 из 5 участников
+        </div>
+
       </div>
 
-      <div
+      {/* Description */}
+
+      {event.description && (
+
+        <div
+          style={{
+            marginTop: 20,
+            color: "#555",
+            lineHeight: 1.6,
+            fontSize: 15
+          }}
+        >
+          {event.description}
+        </div>
+
+      )}
+
+      {/* Join */}
+
+      <button
         style={{
-          display:"flex",
-          gap:12,
-          marginTop:24
+          marginTop: 26,
+          width: "100%",
+          height: 56,
+          border: "none",
+          borderRadius: 18,
+          background:
+            "linear-gradient(135deg,#7C3AED,#8B5CF6)",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 17,
+          cursor: "pointer",
+          boxShadow:
+            "0 10px 22px rgba(124,58,237,.35)"
         }}
       >
-
-        <button
-          style={{
-            flex:1,
-            height:50,
-            borderRadius:16,
-            border:"none",
-            background:"#7C3AED",
-            color:"#fff",
-            fontWeight:700,
-            cursor:"pointer"
-          }}
-        >
-          💜 Присоединиться
-        </button>
-
-        <button
-          style={{
-            flex:1,
-            height:50,
-            borderRadius:16,
-            border:"1px solid #ddd",
-            background:"#fff",
-            cursor:"pointer"
-          }}
-        >
-          👤 Профиль
-        </button>
-
-      </div>
+        💜 Присоединиться
+      </button>
 
     </div>
-
   );
 
 }
