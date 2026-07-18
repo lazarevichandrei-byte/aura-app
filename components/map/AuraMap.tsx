@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle
+} from "react";
 import maplibregl from "maplibre-gl";
 import { MAP_STYLE } from "../../lib/map/styles";
 
@@ -11,9 +16,15 @@ type Props = {
   ) => void;
 };
 
-export default function AuraMap({
+export type AuraMapRef = {
+  zoomIn: () => void;
+  zoomOut: () => void;
+  flyToUser: () => void;
+};
+
+const AuraMap = forwardRef<AuraMapRef, Props>(({
   onCenterChanged
-}: Props) {
+}, ref) => {
 
   const mapContainer =
     useRef<HTMLDivElement>(null);
@@ -77,6 +88,37 @@ export default function AuraMap({
 
   },[]);
 
+  useImperativeHandle(ref, () => ({
+
+  zoomIn() {
+    map.current?.zoomIn();
+  },
+
+  zoomOut() {
+    map.current?.zoomOut();
+  },
+
+  flyToUser() {
+
+    navigator.geolocation.getCurrentPosition((pos) => {
+
+      map.current?.flyTo({
+
+        center: [
+          pos.coords.longitude,
+          pos.coords.latitude
+        ],
+
+        zoom: 16
+
+      });
+
+    });
+
+  }
+
+}));
+
   return (
 
   <div
@@ -113,4 +155,6 @@ export default function AuraMap({
 
 );
 
-}
+});
+
+export default AuraMap;

@@ -1,6 +1,14 @@
 "use client";
 
-export default function PlaceBottomCard(){
+type Props = {
+  title: string;
+  address: string;
+};
+
+export default function PlaceBottomCard({
+  title,
+  address
+}: Props) {
 
   return(
 
@@ -41,7 +49,7 @@ padding:14,
 
       >
 
-        📍 Green City
+        📍 {title || "Выберите место"}
 
       </div>
 
@@ -57,7 +65,7 @@ padding:14,
 
       >
 
-        Минск
+        {address || "Переместите карту"}
 
       </div>
 

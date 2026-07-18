@@ -1,19 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useState,
+  useRef,
+  useEffect
+} from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 
 import PageWrapper from "../../../components/PageWrapper";
 
-import AuraMap from "../../../components/map/AuraMap";
+import AuraMap, {
+  AuraMapRef
+} from "../../../components/map/AuraMap";
 import MapSearch from "../../../components/map/MapSearch";
 import MapCategories from "../../../components/map/MapCategories";
 import MapControls from "../../../components/map/MapControls";
 import PlaceBottomCard from "../../../components/map/PlaceBottomCard";
+import { reverseGeocode } from "../../../lib/map/reverseGeocode";
 export default function MeetLocationPage() {
 
   const router = useRouter();
+
+  const mapRef =
+  useRef<AuraMapRef>(null);
 
   const [search,setSearch] =
     useState("");
@@ -22,6 +32,36 @@ export default function MeetLocationPage() {
   lat: 53.9023,
   lng: 27.5615
 });
+
+const [place, setPlace] = useState({
+  title: "",
+  address: ""
+});
+
+useEffect(() => {
+
+  let cancelled = false;
+
+  async function loadPlace() {
+
+    const result = await reverseGeocode(
+      center.lat,
+      center.lng
+    );
+
+    if (!cancelled) {
+      setPlace(result);
+    }
+
+  }
+
+  loadPlace();
+
+  return () => {
+    cancelled = true;
+  };
+
+}, [center]);
 
   return (
 
@@ -47,6 +87,7 @@ export default function MeetLocationPage() {
         >
 
           <AuraMap
+  ref={mapRef}
   onCenterChanged={(lat, lng) => {
     setCenter({
       lat,
@@ -57,15 +98,24 @@ export default function MeetLocationPage() {
 
           <MapControls
 
-  onLocation={()=>{}}
+  onLocation={() => {
+    mapRef.current?.flyToUser();
+  }}
 
-  onZoomIn={()=>{}}
+  onZoomIn={() => {
+    mapRef.current?.zoomIn();
+  }}
 
-  onZoomOut={()=>{}}
+  onZoomOut={() => {
+    mapRef.current?.zoomOut();
+  }}
 
 />
 
-<PlaceBottomCard/>
+<PlaceBottomCard
+  title={place.title}
+  address={place.address}
+/>
 
         </div>
 

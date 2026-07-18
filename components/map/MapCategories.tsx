@@ -16,9 +16,9 @@ export default function MapCategories() {
     <div
       style={{
         display: "flex",
-        gap: 10,
+        gap: 8,
         overflowX: "auto",
-        padding: "0 20px 14px"
+        padding: "0 16px 8px"
       }}
     >
 
@@ -26,15 +26,16 @@ export default function MapCategories() {
         <div
           key={item}
           style={{
-            minWidth: 46,
-            height: 46,
-            borderRadius: 23,
+            minWidth:40,
+            width:40,
+            height:40,
+            borderRadius:20,   
             background: "#fff",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 6px 16px rgba(0,0,0,.05)",
-            fontSize: 20
+           boxShadow:"0 4px 10px rgba(0,0,0,.06)",
+            fontSize: 18
           }}
         >
           {item}
