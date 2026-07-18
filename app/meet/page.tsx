@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import BottomNav from "../../components/BottomNav";
 import { loadMeetEvents } from "../../lib/meet/api";
 import { useRouter } from "next/navigation";
+import AuraMap from "../../components/map/AuraMap";
 
 export default function MeetPage() {
     const router = useRouter();
@@ -389,103 +390,26 @@ lineHeight:1.5
 
         {tab === "map" && (
 
-          <div
-            style={{
+<div
+style={{
 
-              background: "#fff",
+height:"70vh",
 
-              borderRadius: 24,
+borderRadius:24,
 
-              padding: 60,
+overflow:"hidden",
 
-              textAlign: "center",
+boxShadow:
+"0 8px 20px rgba(0,0,0,.05)"
 
-              boxShadow:
-                "0 8px 20px rgba(0,0,0,.05)"
+}}
+>
 
-            }}
-          >
+<AuraMap />
 
-            <div
-              style={{
-                fontSize: 56
-              }}
-            >
-              🗺
-            </div>
+</div>
 
-            <div
-              style={{
-                marginTop: 16,
-                fontSize: 20,
-                fontWeight: 700
-              }}
-            >
-              Карта встреч
-            </div>
-
-            <div
-              style={{
-                marginTop: 8,
-                color: "#7B8595"
-              }}
-            >
-              Скоро здесь появится карта.
-            </div>
-
-          </div>
-
-        )}
-
-        {tab === "ai" && (
-
-          <div
-            style={{
-
-              background: "#fff",
-
-              borderRadius: 24,
-
-              padding: 60,
-
-              textAlign: "center",
-
-              boxShadow:
-                "0 8px 20px rgba(0,0,0,.05)"
-
-            }}
-          >
-
-            <div
-              style={{
-                fontSize: 56
-              }}
-            >
-              ✨
-            </div>
-
-            <div
-              style={{
-                marginTop: 16,
-                fontSize: 20,
-                fontWeight: 700
-              }}
-            >
-              AI рекомендации
-            </div>
-
-            <div
-              style={{
-                marginTop: 8,
-                color: "#7B8595"
-              }}
-            >
-              Скоро AI будет подбирать встречи специально для тебя.
-            </div>
-
-          </div>
-
-        )}
+)}
 
       </div>
 

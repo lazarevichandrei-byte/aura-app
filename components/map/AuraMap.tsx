@@ -65,6 +65,12 @@ const events =
     el.style.fontSize = "34px";
     el.style.cursor = "pointer";
 
+    el.onclick = () => {
+
+  console.log("CLICK EVENT:", event);
+
+};
+
     const marker = new maplibregl.Marker({
       element: el,
       anchor: "bottom"
