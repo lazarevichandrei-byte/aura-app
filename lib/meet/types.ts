@@ -28,4 +28,10 @@ export interface MeetEvent {
 
   created_at: string;
 
+    users?: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+  };
+
 }

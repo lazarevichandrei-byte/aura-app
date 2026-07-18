@@ -8,12 +8,16 @@ import {
 } from "react";
 import maplibregl from "maplibre-gl";
 import { MAP_STYLE } from "../../lib/map/styles";
+import type { MeetEvent } from "../../lib/meet/types";
+import { loadMeetEvents } from "../../lib/meet/api";
 
 type Props = {
   onCenterChanged?: (
     lat: number,
     lng: number
   ) => void;
+
+  category?: string | null;
 };
 
 export type AuraMapRef = {
@@ -32,7 +36,15 @@ const AuraMap = forwardRef<AuraMapRef, Props>(({
   const map =
     useRef<maplibregl.Map | null>(null);
 
+    const markers =
+  useRef<maplibregl.Marker[]>([]);
+
+const events =
+  useRef<MeetEvent[]>([]);
+
   useEffect(() => {
+
+
 
     if (!mapContainer.current) return;
 
@@ -118,6 +130,35 @@ const AuraMap = forwardRef<AuraMapRef, Props>(({
   }
 
 }));
+
+
+useEffect(() => {
+
+  async function load() {
+
+    try {
+
+      events.current = await loadMeetEvents();
+
+      console.log(
+        "Loaded meet events:",
+        events.current
+      );
+
+    } catch (e) {
+
+      console.error(
+        "Load meet events error:",
+        e
+      );
+
+    }
+
+  }
+
+  load();
+
+}, []);
 
   return (
 

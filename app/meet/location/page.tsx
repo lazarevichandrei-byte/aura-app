@@ -64,7 +64,7 @@ useEffect(() => {
 
   return (
 
-    <PageWrapper>
+    <PageWrapper enabled={false}>
 
       <div
         style={{

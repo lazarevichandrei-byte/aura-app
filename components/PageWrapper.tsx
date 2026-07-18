@@ -40,11 +40,22 @@ useEffect(() => {
     startX.current =
       e.touches[0].clientX;
 
+      const startedFromEdge =
+  startX.current < 30;
+
+if (!startedFromEdge) {
+  startX.current = -1;
+  return;
+}
+
     startY.current =
       e.touches[0].clientY;
   }
 
   
+if (startX.current === -1) {
+  return;
+}
 
   function touchEnd(
   e: React.TouchEvent
