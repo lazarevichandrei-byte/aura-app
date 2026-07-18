@@ -163,11 +163,12 @@ longitude,
 
     router.replace("/meet");
 
-  }catch(err){
+  }catch (err: any) {
 
   console.error("CREATE MEET ERROR:", err);
 
   alert(
+    err?.message ||
     JSON.stringify(err)
   );
 
