@@ -14,26 +14,26 @@ export default function MapSearch({
 
     <div
       style={{
-        padding: "16px 20px 12px"
+        padding: "8px 16px 8px"
       }}
     >
 
       <div
         style={{
-          height: 52,
-          borderRadius: 18,
+          height: 46,
+          borderRadius: 16,
           background: "#fff",
           display: "flex",
           alignItems: "center",
-          padding: "0 16px",
+          padding: "0 14px",
           boxShadow: "0 6px 20px rgba(0,0,0,.06)"
         }}
       >
 
         <div
           style={{
-            fontSize: 18,
-            marginRight: 10
+            fontSize: 16,
+            marginRight: 8
           }}
         >
           🔍
@@ -46,7 +46,7 @@ export default function MapSearch({
           style={{
             flex: 1,
             background: "transparent",
-            fontSize: 15
+            fontSize: 14
           }}
         />
 
