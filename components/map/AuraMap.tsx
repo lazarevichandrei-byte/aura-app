@@ -12,9 +12,15 @@ import type { MeetEvent } from "../../lib/meet/types";
 import { loadMeetEvents } from "../../lib/meet/api";
 
 type Props = {
+  mode?: "create" | "view";
+
   onCenterChanged?: (
     lat: number,
     lng: number
+  ) => void;
+
+  onMarkerClick?: (
+    event: MeetEvent
   ) => void;
 
   category?: string | null;
@@ -27,7 +33,9 @@ export type AuraMapRef = {
 };
 
 const AuraMap = forwardRef<AuraMapRef, Props>(({
-  onCenterChanged
+  mode = "create",
+  onCenterChanged,
+  onMarkerClick
 }, ref) => {
 
   const mapContainer =
@@ -67,7 +75,7 @@ const events =
 
     el.onclick = () => {
 
-  console.log("CLICK EVENT:", event);
+  onMarkerClick?.(event);
 
 };
 
@@ -227,19 +235,23 @@ useEffect(() => {
       }}
     />
 
-    <div
-      style={{
-        position: "absolute",
-        left: "50%",
-        top: "50%",
-        transform: "translate(-50%, -100%)",
-        fontSize: 42,
-        pointerEvents: "none",
-        zIndex: 15
-      }}
-    >
-      📍
-    </div>
+   {mode === "create" && (
+
+  <div
+    style={{
+      position: "absolute",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -100%)",
+      fontSize: 42,
+      pointerEvents: "none",
+      zIndex: 15
+    }}
+  >
+    📍
+  </div>
+
+)}
 
   </div>
 

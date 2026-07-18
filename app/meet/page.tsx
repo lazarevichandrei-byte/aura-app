@@ -5,6 +5,9 @@ import BottomNav from "../../components/BottomNav";
 import { loadMeetEvents } from "../../lib/meet/api";
 import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
+import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
+import type { MeetEvent } from "../../lib/meet/types";
+
 
 export default function MeetPage() {
     const router = useRouter();
@@ -42,6 +45,9 @@ async function load(){
 
   const [tab, setTab] =
     useState("feed");
+
+    const [selectedEvent, setSelectedEvent] =
+  useState<MeetEvent | null>(null);
 
   return (
 
@@ -404,14 +410,21 @@ boxShadow:
 
 }}
 >
-
-<AuraMap />
+<AuraMap
+  mode="view"
+  onMarkerClick={setSelectedEvent}
+/>
 
 </div>
 
 )}
 
       </div>
+
+      <MeetBottomSheet
+  event={selectedEvent}
+  onClose={() => setSelectedEvent(null)}
+/>
 
       <BottomNav />
 
