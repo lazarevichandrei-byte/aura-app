@@ -42,6 +42,45 @@ const AuraMap = forwardRef<AuraMapRef, Props>(({
 const events =
   useRef<MeetEvent[]>([]);
 
+  function renderMarkers() {
+
+  if (!map.current) return;
+
+  markers.current.forEach(marker => marker.remove());
+  markers.current = [];
+
+  for (const event of events.current) {
+
+    if (
+      event.latitude == null ||
+      event.longitude == null
+    ) {
+      continue;
+    }
+
+    const el = document.createElement("div");
+
+    el.innerHTML = "📍";
+
+    el.style.fontSize = "34px";
+    el.style.cursor = "pointer";
+
+    const marker = new maplibregl.Marker({
+      element: el,
+      anchor: "bottom"
+    })
+      .setLngLat([
+        event.longitude,
+        event.latitude
+      ])
+      .addTo(map.current);
+
+    markers.current.push(marker);
+
+  }
+
+}
+
   useEffect(() => {
 
 
@@ -140,6 +179,8 @@ useEffect(() => {
 
       events.current = await loadMeetEvents();
 
+      renderMarkers();
+
       console.log(
         "Loaded meet events:",
         events.current
@@ -159,6 +200,8 @@ useEffect(() => {
   load();
 
 }, []);
+
+
 
   return (
 
