@@ -92,34 +92,15 @@ export async function createMeetEvent({
 
 export async function loadMeetEvents() {
 
-  const { data, error } =
+  const { data, error } = await supabase
+    .from("meet_events")
+    .select("*");
 
-    await supabase
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
 
-      .from("meet_events")
-
-      .select(`
-        *,
-        users(
-          id,
-          name,
-          avatar_url
-        )
-      `)
-
-      .eq("is_active", true)
-
-      .order(
-        "starts_at",
-        {
-          ascending: true
-        }
-      );
-
-  if(error){
-
+  if (error) {
     throw error;
-
   }
 
   return data;
