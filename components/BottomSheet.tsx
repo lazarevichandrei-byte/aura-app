@@ -23,9 +23,7 @@ export default function BottomSheet({
 
   selection();
 
-  requestAnimationFrame(() => {
-    setVisible(true);
-  });
+  setVisible(true);
 
 } else {
 

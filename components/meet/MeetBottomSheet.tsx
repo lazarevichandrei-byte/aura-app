@@ -11,35 +11,61 @@ type Props = {
 
 export default function MeetBottomSheet({
   event,
+  onClose,
 }: Props) {
 
   if (!event) return null;
 
   const [expanded, setExpanded] = useState(false);
 
-  const buttonStyle: React.CSSProperties = {
-  width: "100%",
-  height: 52,
-  borderRadius: 16,
-  border: "1px solid #E5E7EB",
-  background: "#fff",
-  fontSize: 16,
-  fontWeight: 600,
-  cursor: "pointer",
-  marginBottom: 12
-};
+  const [dragOffset, setDragOffset] = useState(0);
+
+  
 
   return (
   <motion.div
-    initial={{ y: 500 }}
-    animate={{ y: 0 }}
-    exit={{ y: 500 }}
-    transition={{
-      type: "spring",
-      stiffness: 320,
-      damping: 32,
-    }}
-    style={{
+  initial={{ y: 500 }}
+  animate={{
+    y: dragOffset,
+  }}
+  exit={{ y: 500 }}
+  transition={{
+    type: "spring",
+    stiffness: 320,
+    damping: 32,
+  }}
+
+  drag="y"
+  dragConstraints={{
+    top: 0,
+    bottom: 0,
+  }}
+  dragElastic={0.18}
+
+  onDragEnd={(_, info) => {
+
+    if (info.offset.y > 180) {
+      onClose();
+      return;
+    }
+
+    if (info.offset.y > 70) {
+      setExpanded(false);
+      setDragOffset(0);
+      return;
+    }
+
+    if (info.offset.y < -70) {
+      setExpanded(true);
+      setDragOffset(0);
+      return;
+    }
+
+    setDragOffset(0);
+
+  }}
+
+  style={{
       position: "fixed",
       left: 0,
       right: 0,
