@@ -53,13 +53,17 @@ if (!startedFromEdge) {
   }
 
   
-if (startX.current === -1) {
-  return;
-}
+
 
   function touchEnd(
   e: React.TouchEvent
 ){
+
+  if (startX.current === -1) {
+    return;
+  }
+
+
 
   const endX =
     e.changedTouches[0].clientX;
