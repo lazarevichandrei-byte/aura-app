@@ -35,7 +35,7 @@ export default function MeetCard({ event, expanded }: Props) {
           display: "flex",
           alignItems: "center",
           gap: 14,
-          marginBottom: 20,
+          marginBottom: expanded ? 20 : 12,
         }}
       >
         {organizerAvatar ? (
@@ -94,25 +94,35 @@ export default function MeetCard({ event, expanded }: Props) {
       <h2
         style={{
           margin: 0,
-          fontSize: 22,
+          fontSize: expanded ? 22 : 20,
           fontWeight: 700,
         }}
       >
         {event.title}
       </h2>
 
-      <div style={{ marginTop: 14 }}>📍 {event.place}</div>
-
-      <div style={{ marginTop: 8 }}>
-        📅 {eventDate}
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          marginTop: 12,
+          color: "#555",
+          fontSize: 14,
+        }}
+      >
+        <span>📍 {event.place}</span>
+        <span>📅 {eventDate}</span>
       </div>
 
-      <div style={{ marginTop: 8 }}>👥 2 из {event.max_people} участников</div>
+      {expanded && (
+        <div style={{ marginTop: 12 }}>👥 2 из {event.max_people} участников</div>
+      )}
 
       {event.description && (
         <p
           style={{
-            marginTop: 18,
+            marginTop: expanded ? 18 : 10,
             color: "#555",
             lineHeight: 1.6,
             display: "-webkit-box",
@@ -150,15 +160,6 @@ export default function MeetCard({ event, expanded }: Props) {
           <button style={buttonStyle}>👤 Посмотреть профиль</button>
 
           <button style={buttonStyle}>💬 Написать организатору</button>
-
-          <button
-            style={{
-              ...buttonStyle,
-              color: "#DC2626",
-            }}
-          >
-            🚩 Пожаловаться
-          </button>
         </div>
       )}
     </>

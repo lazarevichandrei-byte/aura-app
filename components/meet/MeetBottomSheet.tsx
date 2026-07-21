@@ -19,7 +19,7 @@ type SnapPoint = "collapsed" | "expanded";
 
 const SHEET_HEIGHT = 0.95;
 const SNAP_POSITIONS: Record<SnapPoint, number> = {
-  collapsed: 0.77,
+  collapsed: 0.67,
   expanded: 0,
 };
 const SPRING = { type: "spring" as const, stiffness: 420, damping: 38 };
