@@ -40,7 +40,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
   const dragControls = useDragControls();
   const wasOpen = useRef(false);
   const isClosing = useRef(false);
-  const wasDragged = useRef(false);
+  const snapPointRef = useRef<SnapPoint>("collapsed");
 
   const getPosition = useCallback(
     (point: SnapPoint) => viewportHeight * SNAP_POSITIONS[point],
@@ -52,6 +52,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
   );
 
   const snapTo = (point: SnapPoint) => {
+    snapPointRef.current = point;
     setSnapPoint(point);
     animate(y, getPosition(point), SPRING);
   };
@@ -80,14 +81,15 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     if (!wasOpen.current) {
       wasOpen.current = true;
       isClosing.current = false;
+      snapPointRef.current = "collapsed";
       setSnapPoint("collapsed");
       y.set(getClosedPosition());
       animate(y, getPosition("collapsed"), SPRING);
       return;
     }
 
-    animate(y, getPosition(snapPoint), SPRING);
-  }, [event, getClosedPosition, getPosition, snapPoint, y]);
+    y.set(getPosition(snapPointRef.current));
+  }, [event, getClosedPosition, getPosition, viewportHeight, y]);
 
   const handleDragEnd = (_: PointerEvent, info: PanInfo) => {
     const isDraggingUp =
@@ -121,25 +123,6 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     snapTo(snapPoint);
   };
 
-  const handleGrabberClick = () => {
-    if (wasDragged.current) {
-      wasDragged.current = false;
-      return;
-    }
-
-    if (snapPoint === "collapsed") {
-      snapTo("medium");
-      return;
-    }
-
-    if (snapPoint === "medium") {
-      snapTo("expanded");
-      return;
-    }
-
-    snapTo("medium");
-  };
-
   if (!event) return null;
 
   return (
@@ -149,9 +132,6 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
       dragListener={false}
       dragConstraints={{ top: 0, bottom: 0 }}
       dragElastic={0.18}
-      onDragStart={() => {
-        wasDragged.current = true;
-      }}
       onDragEnd={handleDragEnd}
       style={{
         y,
@@ -169,24 +149,28 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
         boxShadow: "0 -10px 40px rgba(0,0,0,.18)",
       }}
     >
-      <button
-        type="button"
-        aria-label="Изменить размер карточки встречи"
-        onClick={handleGrabberClick}
+      <div
+        aria-label="Потяните, чтобы изменить размер карточки встречи"
         onPointerDown={(pointerEvent) => dragControls.start(pointerEvent)}
         style={{
-          display: "block",
-          width: 58,
-          height: 6,
-          border: 0,
-          borderRadius: 999,
-          background: "#D6D6D6",
-          padding: 0,
-          margin: "0 auto 18px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 38,
+          margin: "-12px -12px 6px",
           cursor: "grab",
           touchAction: "none",
         }}
-      />
+      >
+        <div
+          style={{
+            width: 58,
+            height: 6,
+            borderRadius: 999,
+            background: "#D6D6D6",
+          }}
+        />
+      </div>
 
       <MeetCard event={event} expanded={snapPoint !== "collapsed"} />
     </motion.section>
