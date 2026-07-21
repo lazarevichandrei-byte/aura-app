@@ -6,6 +6,8 @@ import {
   getMeetEvent,
   updateMeetEvent,
 } from "../../../../lib/meet/api";
+import LocationCard from "../../../../components/meet/LocationCard";
+import PeopleSelector from "../../../../components/meet/PeopleSelector";
 
 export default function EditMeetPage() {
   const { id } = useParams();
@@ -19,7 +21,15 @@ const [description, setDescription] = useState("");
 const [category, setCategory] = useState("");
 const [city, setCity] = useState("");
 const [place, setPlace] = useState("");
+
+const [latitude, setLatitude] =
+  useState<number | null>(null);
+
+const [longitude, setLongitude] =
+  useState<number | null>(null);
+
 const [startsAt, setStartsAt] = useState("");
+
 const [maxPeople, setMaxPeople] = useState(2);
 
 useEffect(() => {
@@ -34,6 +44,8 @@ async function load() {
   setCategory(event.category);
   setCity(event.city);
   setPlace(event.place);
+  setLatitude(event.latitude);
+setLongitude(event.longitude);
   setStartsAt(event.starts_at);
   setMaxPeople(event.max_people);
 
@@ -43,14 +55,16 @@ async function load() {
 async function handleSave() {
   try {
     await updateMeetEvent(id as string, {
-      title,
-      description,
-      category,
-      city,
-      place,
-      starts_at: startsAt,
-      max_people: maxPeople,
-    });
+  title,
+  description,
+  category,
+  city,
+  place,
+  latitude,
+  longitude,
+  starts_at: startsAt,
+  max_people: maxPeople,
+});
 
     router.back();
   } catch (error) {
@@ -130,28 +144,37 @@ if (loading) {
   </div>
 
   <div>
-    <div style={{ fontWeight: 600, marginBottom: 8 }}>
-      Город
-    </div>
-
-    <input
-      value={city}
-      onChange={(e) => setCity(e.target.value)}
-      style={inputStyle}
-    />
+  <div style={{ fontWeight: 600, marginBottom: 8 }}>
+    📍 Где встречаемся
   </div>
 
-  <div>
-    <div style={{ fontWeight: 600, marginBottom: 8 }}>
-      Место
-    </div>
+  <LocationCard
+    place={place}
+    city={city}
+    onMapClick={() => {
+      router.push("/meet/location");
+    }}
+    onCurrentLocationClick={() => {
+      if (!navigator.geolocation) {
+        alert("Геолокация не поддерживается");
+        return;
+      }
 
-    <input
-      value={place}
-      onChange={(e) => setPlace(e.target.value)}
-      style={inputStyle}
-    />
-  </div>
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+
+          setPlace("Моё местоположение");
+          setCity("Определяется...");
+        },
+        () => {
+          alert("Не удалось получить геолокацию");
+        }
+      );
+    }}
+  />
+</div>
 
   <div>
     <div style={{ fontWeight: 600, marginBottom: 8 }}>

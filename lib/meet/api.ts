@@ -144,14 +144,16 @@ export async function getMeetEvent(eventId: string) {
 export async function updateMeetEvent(
   eventId: string,
   values: {
-    title: string;
-    description: string;
-    category: string;
-    city: string;
-    place: string;
-    starts_at: string;
-    max_people: number;
-  }
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+  place: string;
+  latitude: number | null;
+  longitude: number | null;
+  starts_at: string;
+  max_people: number;
+}
 ) {
   const { data, error } = await supabase
     .from("meet_events")
