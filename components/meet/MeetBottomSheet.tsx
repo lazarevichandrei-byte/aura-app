@@ -121,8 +121,17 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
 
   return (
     <motion.section
+      drag="y"
+      dragElastic={0.08}
+      dragMomentum={false}
+      dragConstraints={{
+        top: 0,
+        bottom: getClosedPosition(),
+      }}
       onPanEnd={
-        snapPoint === "collapsed" ? handleCollapsedPanEnd : undefined
+        snapPoint === "collapsed"
+          ? handleCollapsedPanEnd
+          : handleExpandedPanEnd
       }
       style={{
         y,
