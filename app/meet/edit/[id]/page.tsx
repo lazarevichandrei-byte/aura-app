@@ -186,9 +186,7 @@ console.log(
     place={place}
     city={city}
     onMapClick={() => {
-  alert(window.location.pathname);
-
-  window.location.href = "/meet/location";
+  router.push("/meet/location");
 }}
     onCurrentLocationClick={() => {
       if (!navigator.geolocation) {
