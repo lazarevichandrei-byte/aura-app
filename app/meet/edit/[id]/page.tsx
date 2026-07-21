@@ -126,7 +126,11 @@ async function handleDelete() {
     router.replace("/meet");
   } catch (error) {
     console.error(error);
-    alert("Не удалось удалить встречу.");
+
+alert(
+  (error as any)?.message ??
+  "Неизвестная ошибка"
+);
   }
 }
 
