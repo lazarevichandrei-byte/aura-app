@@ -38,9 +38,11 @@ useEffect(() => {
 
 useEffect(() => {
   function restoreLocation() {
-    const raw = sessionStorage.getItem("meet_location");
+  const raw = sessionStorage.getItem("meet_location");
 
-    if (!raw) return;
+  console.log("RESTORE RAW =", raw);
+
+  if (!raw) return;
 
     try {
       const data = JSON.parse(raw);
@@ -66,7 +68,11 @@ useEffect(() => {
 }, []);
 
 async function load() {
+  console.log("LOAD START");
+
   const event = await getMeetEvent(id as string);
+
+  console.log("LOAD FINISH");
 
   setTitle(event.title);
   setDescription(event.description);
@@ -74,7 +80,7 @@ async function load() {
   setCity(event.city);
   setPlace(event.place);
   setLatitude(event.latitude);
-setLongitude(event.longitude);
+  setLongitude(event.longitude);
   setStartsAt(event.starts_at);
   setMaxPeople(event.max_people);
 
