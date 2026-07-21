@@ -37,22 +37,32 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  const raw = sessionStorage.getItem("meet_location");
+  function restoreLocation() {
+    const raw = sessionStorage.getItem("meet_location");
 
-  if (!raw) return;
+    if (!raw) return;
 
-  try {
-    const data = JSON.parse(raw);
+    try {
+      const data = JSON.parse(raw);
 
-    setPlace(data.title || "");
-    setCity(data.address || "");
-    setLatitude(data.lat ?? null);
-    setLongitude(data.lng ?? null);
+      setPlace(data.title || "");
+      setCity(data.address || "");
+      setLatitude(data.lat ?? null);
+      setLongitude(data.lng ?? null);
 
-    sessionStorage.removeItem("meet_location");
-  } catch {
-    sessionStorage.removeItem("meet_location");
+      sessionStorage.removeItem("meet_location");
+    } catch {
+      sessionStorage.removeItem("meet_location");
+    }
   }
+
+  restoreLocation();
+
+  window.addEventListener("pageshow", restoreLocation);
+
+  return () => {
+    window.removeEventListener("pageshow", restoreLocation);
+  };
 }, []);
 
 async function load() {
