@@ -103,6 +103,22 @@ export default function MeetCard({ event, expanded }: Props) {
         {event.title}
       </h2>
 
+      {!expanded && event.description && (
+        <p
+          style={{
+            marginTop: 10,
+            color: "#555",
+            lineHeight: 1.5,
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {event.description}
+        </p>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -121,16 +137,12 @@ export default function MeetCard({ event, expanded }: Props) {
         <div style={{ marginTop: 12 }}>👥 2 из {event.max_people} участников</div>
       )}
 
-      {event.description && (
+      {expanded && event.description && (
         <p
           style={{
-            marginTop: expanded ? 18 : 10,
+            marginTop: 18,
             color: "#555",
             lineHeight: 1.6,
-            display: "-webkit-box",
-            WebkitLineClamp: expanded ? "unset" : 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
           }}
         >
           {event.description}
