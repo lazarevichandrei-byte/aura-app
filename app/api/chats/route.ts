@@ -20,7 +20,7 @@ export async function POST(req: Request){
 
     const validation = validateTelegramInitData(initData);
 
-    if (!validation.ok) {
+    if (validation.ok === false) {
       return NextResponse.json(
         { ok: false, error: validation.error },
         { status: validation.error === "BOT_TOKEN_MISSING" ? 500 : 403 }
