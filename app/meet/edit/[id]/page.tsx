@@ -234,7 +234,7 @@ if (loading) {
       height: 52,
       border: "none",
       borderRadius: 14,
-      background: "#2AABEE",
+     background: "linear-gradient(135deg,#2F80FF,#56CCF2)",
       color: "#fff",
       fontSize: 16,
       fontWeight: 600,
