@@ -128,9 +128,7 @@ sessionStorage.setItem(
   JSON.stringify(data)
 );
 
-alert(
-  sessionStorage.getItem("meet_location")
-);
+
 
 window.history.back();
 

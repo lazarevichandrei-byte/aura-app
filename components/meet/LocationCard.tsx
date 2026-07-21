@@ -20,7 +20,7 @@ export default function LocationCard({
 
       <div
         onClick={() => {
-          alert("LocationCard");
+          
           onMapClick();
         }}
         style={{

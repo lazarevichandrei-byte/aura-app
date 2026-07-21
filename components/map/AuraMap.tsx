@@ -130,7 +130,7 @@ const events =
 
   const center = map.current.getCenter();
 
-console.log("CENTER", center.lat, center.lng);
+
 
 onCenterChanged?.(
   center.lat,

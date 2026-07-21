@@ -42,8 +42,7 @@ useEffect(() => {
   function restoreLocation() {
   const raw = sessionStorage.getItem("meet_location");
 
-  console.log("RESTORE RAW =", raw);
-
+  
   if (!raw) return;
 
     try {
@@ -72,13 +71,10 @@ setLongitude(data.lng ?? null);
 }, []);
 
 async function load() {
-  console.log("LOAD START");
-
+  
   const event = await getMeetEvent(id as string);
 
-  console.log("LOAD FINISH");
-
-  setTitle(event.title);
+    setTitle(event.title);
   setDescription(event.description);
   setCategory(event.category);
   if (!restoredLocation.current) {
@@ -137,10 +133,7 @@ if (loading) {
   );
 }
 
-console.log(
-  "meet_location =",
-  sessionStorage.getItem("meet_location")
-);
+
 
   return (
     <div
