@@ -16,12 +16,11 @@ type Props = {
   onClose: () => void;
 };
 
-type SnapPoint = "collapsed" | "medium" | "expanded";
+type SnapPoint = "collapsed" | "expanded";
 
 const SHEET_HEIGHT = 0.95;
 const SNAP_POSITIONS: Record<SnapPoint, number> = {
   collapsed: 0.7,
-  medium: 0.3,
   expanded: 0,
 };
 const SPRING = { type: "spring" as const, stiffness: 420, damping: 38 };
@@ -97,26 +96,22 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     const isDraggingDown =
       info.offset.y > DRAG_THRESHOLD || info.velocity.y > VELOCITY_THRESHOLD;
 
-    if (snapPoint === "collapsed" && isDraggingDown) {
+    if (isDraggingUp) {
+      snapTo("expanded");
+      return;
+    }
+
+    if (isDraggingDown) {
       if (
-        info.offset.y > CLOSE_THRESHOLD ||
-        info.velocity.y > VELOCITY_THRESHOLD
+        snapPoint === "collapsed" &&
+        (info.offset.y > CLOSE_THRESHOLD ||
+          info.velocity.y > VELOCITY_THRESHOLD)
       ) {
         closeSheet();
         return;
       }
 
       snapTo("collapsed");
-      return;
-    }
-
-    if (isDraggingUp) {
-      snapTo(snapPoint === "collapsed" ? "medium" : "expanded");
-      return;
-    }
-
-    if (isDraggingDown) {
-      snapTo(snapPoint === "expanded" ? "medium" : "collapsed");
       return;
     }
 
@@ -129,7 +124,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     <motion.section
       drag="y"
       dragControls={dragControls}
-      dragListener={false}
+      dragListener={snapPoint === "collapsed"}
       dragConstraints={{ top: 0, bottom: 0 }}
       dragElastic={0.18}
       onDragEnd={handleDragEnd}
@@ -151,7 +146,11 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     >
       <div
         aria-label="Потяните, чтобы изменить размер карточки встречи"
-        onPointerDown={(pointerEvent) => dragControls.start(pointerEvent)}
+        onPointerDown={(pointerEvent) => {
+          if (snapPoint === "expanded") {
+            dragControls.start(pointerEvent);
+          }
+        }}
         style={{
           display: "flex",
           alignItems: "center",
