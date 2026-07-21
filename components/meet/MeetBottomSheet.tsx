@@ -89,34 +89,44 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
   }, [event, getClosedPosition, getPosition, viewportHeight, y]);
 
   const handleCollapsedPanEnd = (_: PointerEvent, info: PanInfo) => {
-    const isDraggingUp =
-      info.offset.y < -DRAG_THRESHOLD || info.velocity.y < -VELOCITY_THRESHOLD;
-    const isDraggingDown =
-      info.offset.y > DRAG_THRESHOLD || info.velocity.y > VELOCITY_THRESHOLD;
+  const currentY = y.get();
 
-    if (isDraggingUp) {
-      snapTo("expanded");
-      return;
-    }
+  const expandedY = getPosition("expanded");
+  const collapsedY = getPosition("collapsed");
 
-    if (
-      isDraggingDown &&
-      (info.offset.y > CLOSE_THRESHOLD || info.velocity.y > VELOCITY_THRESHOLD)
-    ) {
-      closeSheet();
-      return;
-    }
-  };
+  if (
+    currentY > collapsedY + 180 ||
+    info.velocity.y > VELOCITY_THRESHOLD
+  ) {
+    closeSheet();
+    return;
+  }
 
-  const handleExpandedPanEnd = (_: PointerEvent, info: PanInfo) => {
-    if (
-      info.offset.y > DRAG_THRESHOLD ||
-      info.velocity.y > VELOCITY_THRESHOLD
-    ) {
-      snapTo("collapsed");
-    }
-  };
+  const distanceToExpanded = Math.abs(currentY - expandedY);
+  const distanceToCollapsed = Math.abs(currentY - collapsedY);
 
+  if (distanceToExpanded < distanceToCollapsed) {
+    snapTo("expanded");
+  } else {
+    snapTo("collapsed");
+  }
+};
+
+  const handleExpandedPanEnd = (_: PointerEvent) => {
+  const currentY = y.get();
+
+  const expandedY = getPosition("expanded");
+  const collapsedY = getPosition("collapsed");
+
+  const distanceToExpanded = Math.abs(currentY - expandedY);
+  const distanceToCollapsed = Math.abs(currentY - collapsedY);
+
+  if (distanceToExpanded < distanceToCollapsed) {
+    snapTo("expanded");
+  } else {
+    snapTo("collapsed");
+  }
+};
   if (!event) return null;
 
   return (
