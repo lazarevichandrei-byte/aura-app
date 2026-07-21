@@ -172,6 +172,8 @@ if (loading) {
     city={city}
     onMapClick={() => {
   alert(window.location.pathname);
+
+  window.location.href = "/meet/location";
 }}
     onCurrentLocationClick={() => {
       if (!navigator.geolocation) {
