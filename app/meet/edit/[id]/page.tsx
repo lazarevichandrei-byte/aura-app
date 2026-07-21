@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   getMeetEvent,
@@ -32,6 +32,8 @@ const [startsAt, setStartsAt] = useState("");
 
 const [maxPeople, setMaxPeople] = useState(2);
 
+const restoredLocation = useRef(false);
+
 useEffect(() => {
   load();
 }, []);
@@ -47,10 +49,12 @@ useEffect(() => {
     try {
       const data = JSON.parse(raw);
 
-      setPlace(data.title || "");
-      setCity(data.address || "");
-      setLatitude(data.lat ?? null);
-      setLongitude(data.lng ?? null);
+restoredLocation.current = true;
+
+setPlace(data.title || "");
+setCity(data.address || "");
+setLatitude(data.lat ?? null);
+setLongitude(data.lng ?? null);
 
       sessionStorage.removeItem("meet_location");
     } catch {
@@ -77,10 +81,12 @@ async function load() {
   setTitle(event.title);
   setDescription(event.description);
   setCategory(event.category);
+  if (!restoredLocation.current) {
   setCity(event.city);
   setPlace(event.place);
   setLatitude(event.latitude);
   setLongitude(event.longitude);
+}
   setStartsAt(event.starts_at);
   setMaxPeople(event.max_people);
 
