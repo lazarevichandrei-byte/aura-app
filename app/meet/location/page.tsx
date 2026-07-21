@@ -117,16 +117,21 @@ useEffect(() => {
   onSelect={() => {
 
   sessionStorage.setItem(
-    "meet_location",
-    JSON.stringify({
-      title: place.title,
-      address: place.address,
-      lat: center.lat,
-      lng: center.lng
-    })
-  );
+  "meet_location",
+  JSON.stringify({
+    title: place.title,
+    address: place.address,
+    lat: center.lat,
+    lng: center.lng
+  })
+);
 
-  router.back();
+console.log(
+  "AFTER SAVE:",
+  sessionStorage.getItem("meet_location")
+);
+
+window.history.back();
 
 }}
 />
