@@ -40,6 +40,36 @@ async function load() {
   setLoading(false);
 }
 
+async function handleSave() {
+  try {
+    await updateMeetEvent(id as string, {
+      title,
+      description,
+      category,
+      city,
+      place,
+      starts_at: startsAt,
+      max_people: maxPeople,
+    });
+
+    router.back();
+  } catch (error) {
+    console.error(error);
+    alert("Не удалось сохранить изменения.");
+  }
+}
+
+const inputStyle = {
+  width: "100%",
+  height: 52,
+  borderRadius: 14,
+  border: "1px solid #E5E7EB",
+  padding: "0 16px",
+  fontSize: 16,
+  background: "#fff",
+  boxSizing: "border-box" as const,
+};
+
 if (loading) {
   return (
     <div
@@ -64,32 +94,97 @@ if (loading) {
 
       <div
   style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 18,
     marginTop: 24,
   }}
 >
-  <div
-    style={{
-      fontWeight: 600,
-      marginBottom: 8,
-    }}
-  >
-    Название встречи
+  <div>
+    <div style={{ fontWeight: 600, marginBottom: 8 }}>
+      Название
+    </div>
+
+    <input
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      style={inputStyle}
+    />
   </div>
 
-  <input
-    value={title}
-    onChange={(e) => setTitle(e.target.value)}
+  <div>
+    <div style={{ fontWeight: 600, marginBottom: 8 }}>
+      Описание
+    </div>
+
+    <textarea
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+      style={{
+        ...inputStyle,
+        height: 120,
+        paddingTop: 14,
+        resize: "none",
+      }}
+    />
+  </div>
+
+  <div>
+    <div style={{ fontWeight: 600, marginBottom: 8 }}>
+      Город
+    </div>
+
+    <input
+      value={city}
+      onChange={(e) => setCity(e.target.value)}
+      style={inputStyle}
+    />
+  </div>
+
+  <div>
+    <div style={{ fontWeight: 600, marginBottom: 8 }}>
+      Место
+    </div>
+
+    <input
+      value={place}
+      onChange={(e) => setPlace(e.target.value)}
+      style={inputStyle}
+    />
+  </div>
+
+  <div>
+    <div style={{ fontWeight: 600, marginBottom: 8 }}>
+      Максимум участников
+    </div>
+
+    <input
+      type="number"
+      value={maxPeople}
+      onChange={(e) =>
+        setMaxPeople(Number(e.target.value))
+      }
+      style={inputStyle}
+    />
+  </div>
+
+  <button
+    onClick={handleSave}
     style={{
+      marginTop: 32,
       width: "100%",
       height: 52,
+      border: "none",
       borderRadius: 14,
-      border: "1px solid #E5E7EB",
-      padding: "0 16px",
+      background: "#7C3AED",
+      color: "#fff",
       fontSize: 16,
-      boxSizing: "border-box",
-      background: "#fff",
+      fontWeight: 600,
+      cursor: "pointer",
     }}
-  />
+  >
+    💾 Сохранить изменения
+  </button>
 </div>
     </div>
   );
