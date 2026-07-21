@@ -116,5 +116,54 @@ export async function leaveMeetEvent(
   if (error) {
     throw error;
   }
+  
+}
+export async function getMeetEvent(eventId: string) {
+  const { data, error } = await supabase
+    .from("meet_events")
+    .select(`
+      *,
+      users(
+        id,
+        name,
+        age,
+        city,
+        avatar_url
+      )
+    `)
+    .eq("id", eventId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function updateMeetEvent(
+  eventId: string,
+  values: {
+    title: string;
+    description: string;
+    category: string;
+    city: string;
+    place: string;
+    starts_at: string;
+    max_people: number;
+  }
+) {
+  const { data, error } = await supabase
+    .from("meet_events")
+    .update(values)
+    .eq("id", eventId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }
 

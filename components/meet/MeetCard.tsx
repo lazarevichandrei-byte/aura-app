@@ -322,9 +322,9 @@ const isFull =
         open={manageOpen}
         onClose={() => setManageOpen(false)}
         onEdit={() => {
-          setManageOpen(false);
-          console.log("edit");
-        }}
+  setManageOpen(false);
+  router.push(`/meet/edit/${event.id}`);
+}}
         onParticipants={() => {
           setManageOpen(false);
           console.log("participants");
