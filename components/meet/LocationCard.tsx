@@ -64,14 +64,15 @@ export default function LocationCard({
 
   return (
 
-    <div
-      style={{
-        background:"#fff",
-        borderRadius:18,
-        overflow:"hidden",
-        boxShadow:"0 4px 14px rgba(0,0,0,.05)"
-      }}
-    >
+  <div
+    onClick={onMapClick}
+    style={{
+      background:"#fff",
+      borderRadius:18,
+      cursor: "pointer",
+      boxShadow:"0 4px 14px rgba(0,0,0,.05)"
+    }}
+  >
 
       <div
         style={{
