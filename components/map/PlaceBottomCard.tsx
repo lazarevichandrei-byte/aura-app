@@ -72,10 +72,7 @@ padding:14,
       </div>
 
       <button
-onClick={() => {
-  alert("BUTTON CLICK");
-  onSelect();
-}}
+onClick={onSelect}
         style={{
   marginTop:12,
   width:"100%",

@@ -47,10 +47,8 @@ export default function PeopleSelector({
 
         onClick={()=>{
 
-          if(value>1){
-
-  onChange(value-1);
-
+          if (value > 2) {
+  onChange(value - 1);
 }
 
         }}
@@ -119,7 +117,7 @@ border:"none",
 
 borderRadius:"50%",
 
-background:"#EEF5FF",
+background:"#E6F7FF",
 
 fontSize:24,
 
@@ -127,6 +125,6 @@ fontWeight:700,
 
 cursor:"pointer",
 
-color:"#2F80FF"
+color:"#2AABEE"
 
 } as const;

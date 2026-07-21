@@ -216,19 +216,15 @@ if (loading) {
 </div>
 
   <div>
-    <div style={{ fontWeight: 600, marginBottom: 8 }}>
-      Максимум участников
-    </div>
-
-    <input
-      type="number"
-      value={maxPeople}
-      onChange={(e) =>
-        setMaxPeople(Number(e.target.value))
-      }
-      style={inputStyle}
-    />
+  <div style={{ fontWeight: 600, marginBottom: 8 }}>
+    Максимум участников
   </div>
+
+  <PeopleSelector
+    value={maxPeople}
+    onChange={setMaxPeople}
+  />
+</div>
 
   <button
     onClick={handleSave}
@@ -238,7 +234,7 @@ if (loading) {
       height: 52,
       border: "none",
       borderRadius: 14,
-      background: "#7C3AED",
+      background: "#2AABEE",
       color: "#fff",
       fontSize: 16,
       fontWeight: 600,
