@@ -134,8 +134,10 @@ export default function MeetCard({ event, expanded }: Props) {
       </div>
 
       {expanded && (
-        <div style={{ marginTop: 12 }}>👥 2 из {event.max_people} участников</div>
-      )}
+  <div style={{ marginTop: 12 }}>
+    👥 {event.meet_participants?.length ?? 0} из {event.max_people} участников
+  </div>
+)}
 
       {expanded && event.description && (
         <p

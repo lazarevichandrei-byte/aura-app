@@ -29,9 +29,23 @@ export interface MeetEvent {
   created_at: string;
 
     users?: {
+  id: string;
+  name: string;
+  age: number | null;
+  city: string | null;
+  avatar_url: string | null;
+  photos: string[] | null;
+  is_online: boolean;
+};
+
+meet_participants?: {
+  joined_at: string;
+  users: {
     id: string;
     name: string;
     avatar_url: string | null;
+    photos: string[] | null;
   };
+}[];
 
 }

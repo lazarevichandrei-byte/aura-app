@@ -99,13 +99,26 @@ export async function loadMeetEvents() {
       .from("meet_events")
 
       .select(`
-        *,
-        users(
-          id,
-          name,
-          avatar_url
-        )
-      `)
+  *,
+  users(
+    id,
+    name,
+    age,
+    city,
+    avatar_url,
+    photos,
+    is_online
+  ),
+  meet_participants(
+    joined_at,
+    users(
+      id,
+      name,
+      avatar_url,
+      photos
+    )
+  )
+`)
 
       .eq("is_active", true)
 
