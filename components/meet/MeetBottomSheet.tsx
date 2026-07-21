@@ -20,7 +20,7 @@ type SnapPoint = "collapsed" | "expanded";
 
 const SHEET_HEIGHT = 0.95;
 const SNAP_POSITIONS: Record<SnapPoint, number> = {
-  collapsed: 0.7,
+  collapsed: 0.73,
   expanded: 0,
 };
 const SPRING = { type: "spring" as const, stiffness: 420, damping: 38 };
@@ -126,7 +126,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
       dragControls={dragControls}
       dragListener={snapPoint === "collapsed"}
       dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={0.18}
+      dragElastic={snapPoint === "collapsed" ? 0.18 : 0}
       onDragEnd={handleDragEnd}
       style={{
         y,
