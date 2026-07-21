@@ -30,7 +30,7 @@ const [longitude, setLongitude] =
 
 const [startsAt, setStartsAt] = useState("");
 
-const [maxPeople, setMaxPeople] = useState(2);
+const [maxPeople, setMaxPeople] = useState(1);
 
 const restoredLocation = useRef(false);
 

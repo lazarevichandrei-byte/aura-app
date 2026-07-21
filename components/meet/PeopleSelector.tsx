@@ -47,7 +47,8 @@ export default function PeopleSelector({
 
         onClick={()=>{
 
-          if (value > 2) {
+            
+if (value > 1) {
   onChange(value - 1);
 }
 
