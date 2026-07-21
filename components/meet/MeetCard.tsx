@@ -7,6 +7,15 @@ type Props = {
 };
 
 export default function MeetCard({ event, expanded }: Props) {
+  const organizerName = event.users?.name || "Организатор";
+  const organizerAvatar = event.users?.avatar_url;
+  const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   const buttonStyle: CSSProperties = {
     width: "100%",
     height: 52,
@@ -29,15 +38,36 @@ export default function MeetCard({ event, expanded }: Props) {
           marginBottom: 20,
         }}
       >
-        <div
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            background: "#E5E7EB",
-            flexShrink: 0,
-          }}
-        />
+        {organizerAvatar ? (
+          <img
+            src={organizerAvatar}
+            alt={`Фото ${organizerName}`}
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: "50%",
+              objectFit: "cover",
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: "50%",
+              background: "#EDE9FE",
+              color: "#7C3AED",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 20,
+              fontWeight: 700,
+              flexShrink: 0,
+            }}
+          >
+            {organizerName.slice(0, 1).toUpperCase()}
+          </div>
+        )}
 
         <div>
           <div
@@ -46,7 +76,7 @@ export default function MeetCard({ event, expanded }: Props) {
               fontWeight: 700,
             }}
           >
-            Александр
+            {organizerName}
           </div>
 
           <div
@@ -71,13 +101,13 @@ export default function MeetCard({ event, expanded }: Props) {
         {event.title}
       </h2>
 
-      <div style={{ marginTop: 16 }}>📍 {event.place}</div>
+      <div style={{ marginTop: 14 }}>📍 {event.place}</div>
 
-      <div style={{ marginTop: 10 }}>
-        📅 {new Date(event.starts_at).toLocaleString()}
+      <div style={{ marginTop: 8 }}>
+        📅 {eventDate}
       </div>
 
-      <div style={{ marginTop: 10 }}>👥 2 из 5 участников</div>
+      <div style={{ marginTop: 8 }}>👥 2 из {event.max_people} участников</div>
 
       {event.description && (
         <p
@@ -85,28 +115,15 @@ export default function MeetCard({ event, expanded }: Props) {
             marginTop: 18,
             color: "#555",
             lineHeight: 1.6,
+            display: "-webkit-box",
+            WebkitLineClamp: expanded ? "unset" : 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
           }}
         >
           {event.description}
         </p>
       )}
-
-      <button
-        style={{
-          marginTop: 22,
-          width: "100%",
-          height: 56,
-          borderRadius: 18,
-          border: "none",
-          background: "#7C3AED",
-          color: "#fff",
-          fontSize: 17,
-          fontWeight: 700,
-          cursor: "pointer",
-        }}
-      >
-        💜 Присоединиться
-      </button>
 
       {expanded && (
         <div
@@ -116,11 +133,23 @@ export default function MeetCard({ event, expanded }: Props) {
             paddingTop: 24,
           }}
         >
+          <button
+            style={{
+              ...buttonStyle,
+              height: 56,
+              border: "none",
+              background: "#7C3AED",
+              color: "#fff",
+              fontSize: 17,
+              marginBottom: 16,
+            }}
+          >
+            💜 Присоединиться
+          </button>
+
           <button style={buttonStyle}>👤 Посмотреть профиль</button>
 
           <button style={buttonStyle}>💬 Написать организатору</button>
-
-          <button style={buttonStyle}>📤 Поделиться встречей</button>
 
           <button
             style={{
