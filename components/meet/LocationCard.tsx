@@ -16,13 +16,18 @@ export default function LocationCard({
 
   if (place) {
 
-    return (
+  return (
 
       <div
+        onClick={() => {
+          alert("LocationCard");
+          onMapClick();
+        }}
         style={{
           background:"#fff",
           borderRadius:18,
           padding:16,
+          cursor:"pointer",
           boxShadow:"0 4px 14px rgba(0,0,0,.05)"
         }}
       >
