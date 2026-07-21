@@ -171,8 +171,9 @@ if (loading) {
     place={place}
     city={city}
     onMapClick={() => {
-      router.push("/meet/location");
-    }}
+  alert("Клик работает");
+  router.push("/meet/location");
+}}
     onCurrentLocationClick={() => {
       if (!navigator.geolocation) {
         alert("Геолокация не поддерживается");
