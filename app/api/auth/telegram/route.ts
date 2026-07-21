@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import * as crypto from "crypto";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
+import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
 
@@ -31,63 +31,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const params =
-      new URLSearchParams(initData);
+    const validation = validateTelegramInitData(initData);
 
-    const userRaw =
-      params.get("user");
-
-    const hash =
-      params.get("hash");
-
-    if (!userRaw || !hash) {
+    if (!validation.ok) {
       return NextResponse.json(
-        { ok:false, error:"INVALID_DATA" },
-        { status:400 }
+        { ok: false, error: validation.error },
+        { status: validation.error === "BOT_TOKEN_MISSING" ? 500 : 403 }
       );
     }
 
-    params.delete("hash");
-
-    const dataCheckString =
-      [...params.entries()]
-      .sort(([a],[b]) =>
-        a.localeCompare(b)
-      )
-      .map(([key,value]) =>
-        `${key}=${value}`
-      )
-      .join("\n");
-
-    const secretKey = crypto
-      .createHash("sha256")
-      .update(
-        process.env.TELEGRAM_BOT_TOKEN!
-      )
-      .digest();
-
-    const hmac = crypto
-      .createHmac(
-        "sha256",
-        secretKey
-      )
-      .update(dataCheckString)
-      .digest("hex");
-
-    // if (hmac !== hash) {
-//
-//   return NextResponse.json(
-//     { ok:false, error:"INVALID_HASH" },
-//     { status:403 }
-//   );
-//
-// }
-
-    const telegramUser =
-      JSON.parse(userRaw);
-
-    const telegramId =
-      telegramUser.id;
+    const telegramUser = validation.user;
+    const telegramId = telegramUser.id;
 
     const { data: existingUser } =
       await supabaseAdmin
