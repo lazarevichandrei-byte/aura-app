@@ -2,7 +2,8 @@ import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
-
+import { useState } from "react";
+import MeetManageSheet from "./MeetManageSheet";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -35,6 +36,8 @@ const isFull =
 
   const isCreator =
   currentUserId === event.users?.id;
+
+  const [manageOpen, setManageOpen] = useState(false);
 
   const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
     day: "numeric",
@@ -236,22 +239,24 @@ const isFull =
         >
           {isCreator ? (
   <div
-    style={{
-      ...buttonStyle,
-      height: 56,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "rgba(42,171,238,.15)",
-      color: "#2AABEE",
-      border: "1px solid rgba(42,171,238,.35)",
-      borderRadius: 16,
-      marginBottom: 16,
-      fontWeight: 600,
-    }}
-  >
-    👑 Вы организатор
-  </div>
+  onClick={() => setManageOpen(true)}
+  style={{
+    ...buttonStyle,
+    height: 56,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(42,171,238,.15)",
+    color: "#2AABEE",
+    border: "1px solid rgba(42,171,238,.35)",
+    borderRadius: 16,
+    marginBottom: 16,
+    fontWeight: 600,
+    cursor: "pointer",
+  }}
+>
+  ⚙️ Управление встречей
+</div>
 ) : (
   <button
     onClick={() =>
@@ -312,6 +317,23 @@ const isFull =
 </button>
         </div>
       )}
+
+      <MeetManageSheet
+        open={manageOpen}
+        onClose={() => setManageOpen(false)}
+        onEdit={() => {
+          setManageOpen(false);
+          console.log("edit");
+        }}
+        onParticipants={() => {
+          setManageOpen(false);
+          console.log("participants");
+        }}
+        onDelete={() => {
+          setManageOpen(false);
+          console.log("delete");
+        }}
+      />
     </>
   );
 }

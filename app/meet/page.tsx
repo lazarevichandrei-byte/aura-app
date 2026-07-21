@@ -358,25 +358,36 @@ gap:16
 }}
 >
 
-{events.map((event:any)=>(
+{events.map((event: any) => {
+
+  const isParticipant =
+    !!currentUser &&
+    (event.meet_participants ?? []).some(
+      (p: any) => p.users.id === currentUser.id
+    );
+
+  const isCreator =
+    currentUser?.id === event.users?.id;
+
+  const isFull =
+    (event.meet_participants?.length ?? 0) >= event.max_people;
+
+  return (
+
+
+
+    
 
 <div
-
-key={event.id}
-
-style={{
-
-background:"#fff",
-
-borderRadius:22,
-
-padding:18,
-
-boxShadow:
-"0 8px 20px rgba(0,0,0,.05)"
-
-}}
-
+  key={event.id}
+  onClick={() => setSelectedEvent(event)}
+  style={{
+    background: "#fff",
+    borderRadius: 22,
+    padding: 18,
+    cursor: "pointer",
+    boxShadow: "0 8px 20px rgba(0,0,0,.05)"
+  }}
 >
 
 <div
@@ -403,22 +414,101 @@ marginTop:4,
 color:"#6B7280"
 }}
 >
-📅 {new Date(event.starts_at).toLocaleString()}
+📅 {new Date(event.starts_at).toLocaleString("ru-RU", {
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+})}
 </div>
 
 <div
 style={{
-marginTop:10,
-color:"#555",
-lineHeight:1.5
+  marginTop: 10,
+  color: "#555",
+  lineHeight: 1.5,
+  display: "-webkit-box",
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
 }}
 >
 {event.description}
 </div>
 
+<div
+  style={{
+    marginTop: 14,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <div
+    style={{
+      color: "#6B7280",
+      fontWeight: 600,
+    }}
+  >
+    👥 {event.meet_participants?.length ?? 0}/{event.max_people}
+  </div>
+
+  {isCreator ? (
+    <div
+      style={{
+        color: "#2AABEE",
+        fontWeight: 700,
+      }}
+    >
+      👑 Моя встреча
+    </div>
+  ) : isParticipant ? (
+    <div
+      style={{
+        color: "#10B981",
+        fontWeight: 700,
+      }}
+    >
+      ✅ Вы участвуете
+    </div>
+
+
+
+  ) : isFull ? (
+    <div
+      style={{
+        color: "#EF4444",
+        fontWeight: 700,
+      }}
+    >
+      🚫 Нет мест
+    </div>
+  ) : (
+    <button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleJoin(event.id);
+  }}
+      style={{
+        border: "none",
+        background:
+          "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+        color: "#fff",
+        padding: "10px 18px",
+        borderRadius: 12,
+        cursor: "pointer",
+        fontWeight: 600,
+      }}
+    >
+      Присоединиться
+    </button>
+  )}
 </div>
 
-))}
+</div>
+
+  );
+})}
 
 </div>
 
