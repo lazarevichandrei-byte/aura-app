@@ -5,7 +5,6 @@ import type { PanInfo } from "motion/react";
 import {
   animate,
   motion,
-  useDragControls,
   useMotionValue,
 } from "motion/react";
 import type { MeetEvent } from "../../lib/meet/types";
@@ -20,7 +19,7 @@ type SnapPoint = "collapsed" | "expanded";
 
 const SHEET_HEIGHT = 0.95;
 const SNAP_POSITIONS: Record<SnapPoint, number> = {
-  collapsed: 0.73,
+  collapsed: 0.77,
   expanded: 0,
 };
 const SPRING = { type: "spring" as const, stiffness: 420, damping: 38 };
@@ -36,7 +35,6 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [snapPoint, setSnapPoint] = useState<SnapPoint>("collapsed");
   const y = useMotionValue(viewportHeight);
-  const dragControls = useDragControls();
   const wasOpen = useRef(false);
   const isClosing = useRef(false);
   const snapPointRef = useRef<SnapPoint>("collapsed");
@@ -122,11 +120,9 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
 
   return (
     <motion.section
-      drag="y"
-      dragControls={dragControls}
-      dragListener={snapPoint === "collapsed"}
+      drag={snapPoint === "collapsed" ? "y" : false}
       dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={snapPoint === "collapsed" ? 0.18 : 0}
+      dragElastic={0.18}
       onDragEnd={handleDragEnd}
       style={{
         y,
@@ -144,13 +140,9 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
         boxShadow: "0 -10px 40px rgba(0,0,0,.18)",
       }}
     >
-      <div
+      <motion.div
         aria-label="Потяните, чтобы изменить размер карточки встречи"
-        onPointerDown={(pointerEvent) => {
-          if (snapPoint === "expanded") {
-            dragControls.start(pointerEvent);
-          }
-        }}
+        onPanEnd={snapPoint === "expanded" ? handleDragEnd : undefined}
         style={{
           display: "flex",
           alignItems: "center",
@@ -169,7 +161,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
             background: "#D6D6D6",
           }}
         />
-      </div>
+      </motion.div>
 
       <MeetCard event={event} expanded={snapPoint !== "collapsed"} />
     </motion.section>
