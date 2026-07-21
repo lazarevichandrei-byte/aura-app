@@ -116,18 +116,19 @@ useEffect(() => {
   address={place.address}
   onSelect={() => {
 
-  sessionStorage.setItem(
+  const data = {
+  title: place.title,
+  address: place.address,
+  lat: center.lat,
+  lng: center.lng
+};
+
+sessionStorage.setItem(
   "meet_location",
-  JSON.stringify({
-    title: place.title,
-    address: place.address,
-    lat: center.lat,
-    lng: center.lng
-  })
+  JSON.stringify(data)
 );
 
-console.log(
-  "AFTER SAVE:",
+alert(
   sessionStorage.getItem("meet_location")
 );
 
