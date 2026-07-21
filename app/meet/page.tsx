@@ -2,15 +2,21 @@
 
 import { useState, useEffect } from "react";
 import BottomNav from "../../components/BottomNav";
-import { loadMeetEvents } from "../../lib/meet/api";
+import {
+  loadMeetEvents,
+  joinMeetEvent,
+  leaveMeetEvent,
+} from "../../lib/meet/api";
 import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
 import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
 import type { MeetEvent } from "../../lib/meet/types";
+import { useCurrentUser } from "../../lib/useCurrentUser";
 
 
 export default function MeetPage() {
     const router = useRouter();
+    const { user: currentUser } = useCurrentUser();
 
     const [events,setEvents] =
 useState<any[]>([]);
@@ -23,6 +29,34 @@ useEffect(()=>{
   load();
 
 },[]);
+
+async function handleJoin(eventId: string) {
+  if (!currentUser) return;
+
+  await joinMeetEvent(eventId, currentUser.id);
+
+  const updated = (await loadMeetEvents()) ?? [];
+
+setEvents(updated);
+
+setSelectedEvent(
+  updated.find((e: MeetEvent) => e.id === eventId) ?? null
+);
+}
+
+async function handleLeave(eventId: string) {
+  if (!currentUser) return;
+
+  await leaveMeetEvent(eventId, currentUser.id);
+
+  const updated = await loadMeetEvents();
+
+  setEvents(updated || []);
+
+  setSelectedEvent(
+    updated.find((e: MeetEvent) => e.id === eventId) ?? null
+  );
+}
 
 async function load(){
 
@@ -423,6 +457,9 @@ boxShadow:
 
       <MeetBottomSheet
   event={selectedEvent}
+  currentUserId={currentUser?.id ?? null}
+  onJoin={handleJoin}
+  onLeave={handleLeave}
   onClose={() => setSelectedEvent(null)}
 />
 

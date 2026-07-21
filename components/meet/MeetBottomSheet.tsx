@@ -19,6 +19,9 @@ import MeetCard from "./MeetCard";
 
 type Props = {
   event: MeetEvent | null;
+  currentUserId: string | null;
+  onJoin: (eventId: string) => Promise<void>;
+  onLeave: (eventId: string) => Promise<void>;
   onClose: () => void;
 };
 
@@ -38,7 +41,13 @@ function getViewportHeight() {
   return typeof window === "undefined" ? 0 : window.innerHeight;
 }
 
-export default function MeetBottomSheet({ event, onClose }: Props) {
+export default function MeetBottomSheet({
+  event,
+  currentUserId,
+  onJoin,
+  onLeave,
+  onClose,
+}: Props) {
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [snapPoint, setSnapPoint] = useState<SnapPoint>("collapsed");
   const y = useMotionValue(viewportHeight);
@@ -207,7 +216,13 @@ const collapsedPosition = useMemo(
         />
       </motion.div>
 
-      <MeetCard event={event} expanded={snapPoint !== "collapsed"} />
+      <MeetCard
+  event={event}
+  expanded={snapPoint !== "collapsed"}
+  currentUserId={currentUserId}
+  onJoin={onJoin}
+  onLeave={onLeave}
+/>
     </motion.section>
   </>
 );

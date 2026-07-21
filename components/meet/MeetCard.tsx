@@ -4,11 +4,28 @@ import type { MeetEvent } from "../../lib/meet/types";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
+  currentUserId: string | null;
+  onJoin: (eventId: string) => Promise<void>;
+  onLeave: (eventId: string) => Promise<void>;
 };
 
-export default function MeetCard({ event, expanded }: Props) {
+export default function MeetCard({
+  event,
+  expanded,
+  currentUserId,
+  onJoin,
+  onLeave,
+}: Props) {
   const organizerName = event.users?.name || "Организатор";
   const organizerAvatar = event.users?.avatar_url;
+  const isParticipant =
+  !!currentUserId &&
+  (event.meet_participants ?? []).some(
+    (participant) => participant.users.id === currentUserId
+  );
+
+const isFull =
+  (event.meet_participants?.length ?? 0) >= event.max_people;
   const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
     day: "numeric",
     month: "long",
@@ -134,9 +151,57 @@ export default function MeetCard({ event, expanded }: Props) {
       </div>
 
       {expanded && (
-  <div style={{ marginTop: 12 }}>
-    👥 {event.meet_participants?.length ?? 0} из {event.max_people} участников
-  </div>
+  <>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        marginTop: 14,
+        marginBottom: 8,
+      }}
+    >
+      {event.meet_participants?.slice(0, 5).map((participant, index) => (
+        <img
+          key={participant.users.id}
+          src={participant.users.avatar_url || "/avatar-placeholder.png"}
+          alt={participant.users.name}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: "50%",
+            objectFit: "cover",
+            marginLeft: index === 0 ? 0 : -12,
+            border: "2px solid #fff",
+            background: "#F3F4F6",
+          }}
+        />
+      ))}
+
+      {(event.meet_participants?.length ?? 0) > 5 && (
+        <div
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: "50%",
+            background: "#F3F4F6",
+            display: "grid",
+            placeItems: "center",
+            fontWeight: 600,
+            fontSize: 13,
+            marginLeft: -12,
+            border: "2px solid #fff",
+          }}
+        >
+          +{(event.meet_participants?.length ?? 0) - 5}
+        </div>
+      )}
+    </div>
+
+    <div style={{ marginBottom: 10 }}>
+      👥 {event.meet_participants?.length ?? 0} из {event.max_people} участников
+    </div>
+  </>
 )}
 
       {expanded && event.description && (
@@ -160,18 +225,35 @@ export default function MeetCard({ event, expanded }: Props) {
           }}
         >
           <button
-            style={{
-              ...buttonStyle,
-              height: 56,
-              border: "none",
-              background: "#7C3AED",
-              color: "#fff",
-              fontSize: 17,
-              marginBottom: 16,
-            }}
-          >
-            💜 Присоединиться
-          </button>
+  onClick={() =>
+    isParticipant
+      ? onLeave(event.id)
+      : onJoin(event.id)
+  }
+  disabled={!isParticipant && isFull}
+  style={{
+    ...buttonStyle,
+    height: 56,
+    border: "none",
+    background: isParticipant
+  ? "#EF4444"
+  : "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+    color: "#fff",
+    fontSize: 17,
+    marginBottom: 16,
+    opacity: !isParticipant && isFull ? 0.6 : 1,
+    cursor:
+      !isParticipant && isFull
+        ? "not-allowed"
+        : "pointer",
+  }}
+>
+  {isParticipant
+    ? "🚪 Покинуть встречу"
+    : isFull
+    ? "🚫 Нет мест"
+    : " Присоединиться"}
+</button>
 
           <button style={buttonStyle}>👤 Посмотреть профиль</button>
 
