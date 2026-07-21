@@ -130,10 +130,12 @@ const events =
 
   const center = map.current.getCenter();
 
-  onCenterChanged?.(
-    center.lat,
-    center.lng
-  );
+console.log("CENTER", center.lat, center.lng);
+
+onCenterChanged?.(
+  center.lat,
+  center.lng
+);
 
 });
 
@@ -213,7 +215,7 @@ useEffect(() => {
 
   load();
 
-}, []);
+}, [onCenterChanged]);
 
 
 

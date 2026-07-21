@@ -115,6 +115,11 @@ if (loading) {
   );
 }
 
+console.log(
+  "meet_location =",
+  sessionStorage.getItem("meet_location")
+);
+
   return (
     <div
       style={{
