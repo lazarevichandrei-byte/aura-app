@@ -1,11 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { PanInfo } from "motion/react";
 import {
   animate,
   motion,
   useMotionValue,
+  useTransform,
 } from "motion/react";
 import type { MeetEvent } from "../../lib/meet/types";
 import MeetCard from "./MeetCard";
@@ -35,6 +42,9 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [snapPoint, setSnapPoint] = useState<SnapPoint>("collapsed");
   const y = useMotionValue(viewportHeight);
+
+ 
+
   const wasOpen = useRef(false);
   const isClosing = useRef(false);
   const snapPointRef = useRef<SnapPoint>("collapsed");
@@ -47,6 +57,17 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     () => viewportHeight * SHEET_HEIGHT,
     [viewportHeight]
   );
+
+const collapsedPosition = useMemo(
+  () => getPosition("collapsed"),
+  [getPosition]
+);
+
+  const backdropOpacity = useTransform(
+  y,
+  [0, collapsedPosition],
+  [0.45, 0]
+);
 
   const snapTo = (point: SnapPoint) => {
     snapPointRef.current = point;
@@ -61,12 +82,38 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     animate(y, getClosedPosition(), SPRING).then(onClose);
   };
 
+  const snapToNearest = (velocityY = 0) => {
+  const currentY = y.get();
+
+  const expandedY = getPosition("expanded");
+  const collapsedY = getPosition("collapsed");
+
+  if (
+    snapPointRef.current === "collapsed" &&
+    (currentY > collapsedY + 180 || velocityY > VELOCITY_THRESHOLD)
+  ) {
+    closeSheet();
+    return;
+  }
+
+  const distanceToExpanded = Math.abs(currentY - expandedY);
+  const distanceToCollapsed = Math.abs(currentY - collapsedY);
+
+  snapTo(
+    distanceToExpanded < distanceToCollapsed
+      ? "expanded"
+      : "collapsed"
+  );
+};
+
   useEffect(() => {
     const updateViewportHeight = () => setViewportHeight(getViewportHeight());
 
     window.addEventListener("resize", updateViewportHeight);
     return () => window.removeEventListener("resize", updateViewportHeight);
   }, []);
+
+  
 
   useEffect(() => {
     if (!event) {
@@ -88,48 +135,25 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     y.set(getPosition(snapPointRef.current));
   }, [event, getClosedPosition, getPosition, viewportHeight, y]);
 
-  const handleCollapsedPanEnd = (_: PointerEvent, info: PanInfo) => {
-  const currentY = y.get();
+  
 
-  const expandedY = getPosition("expanded");
-  const collapsedY = getPosition("collapsed");
-
-  if (
-    currentY > collapsedY + 180 ||
-    info.velocity.y > VELOCITY_THRESHOLD
-  ) {
-    closeSheet();
-    return;
-  }
-
-  const distanceToExpanded = Math.abs(currentY - expandedY);
-  const distanceToCollapsed = Math.abs(currentY - collapsedY);
-
-  if (distanceToExpanded < distanceToCollapsed) {
-    snapTo("expanded");
-  } else {
-    snapTo("collapsed");
-  }
-};
-
-  const handleExpandedPanEnd = (_: PointerEvent) => {
-  const currentY = y.get();
-
-  const expandedY = getPosition("expanded");
-  const collapsedY = getPosition("collapsed");
-
-  const distanceToExpanded = Math.abs(currentY - expandedY);
-  const distanceToCollapsed = Math.abs(currentY - collapsedY);
-
-  if (distanceToExpanded < distanceToCollapsed) {
-    snapTo("expanded");
-  } else {
-    snapTo("collapsed");
-  }
-};
+  
   if (!event) return null;
 
   return (
+  <>
+    <motion.div
+      onClick={closeSheet}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#000",
+        opacity: backdropOpacity,
+        pointerEvents: "auto",
+        zIndex: 998,
+      }}
+    />
+
     <motion.section
       drag="y"
       dragElastic={0.08}
@@ -138,11 +162,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
         top: 0,
         bottom: getClosedPosition(),
       }}
-      onPanEnd={
-        snapPoint === "collapsed"
-          ? handleCollapsedPanEnd
-          : handleExpandedPanEnd
-      }
+      onPanEnd={(_, info) => snapToNearest(info.velocity.y)}
       style={{
         y,
         position: "fixed",
@@ -154,23 +174,28 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
         borderTopLeftRadius: 28,
         borderTopRightRadius: 28,
         padding: "18px 20px 26px",
-        overflowY: "auto",
+        overflowY: snapPoint === "expanded" ? "auto" : "hidden",
         zIndex: 999,
         boxShadow: "0 -10px 40px rgba(0,0,0,.18)",
       }}
     >
       <motion.div
         aria-label="Потяните, чтобы изменить размер карточки встречи"
-        onPanEnd={snapPoint === "expanded" ? handleExpandedPanEnd : undefined}
+        onPanEnd={() => snapToNearest()}
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: 38,
-          margin: "-12px -12px 6px",
-          cursor: "grab",
-          touchAction: "none",
-        }}
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  height: 38,
+  margin: "-12px -12px 6px",
+  cursor: "grab",
+  touchAction: "none",
+
+  position: "sticky",
+  top: -18,
+  background: "#fff",
+  zIndex: 2,
+}}
       >
         <div
           style={{
@@ -184,5 +209,6 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
 
       <MeetCard event={event} expanded={snapPoint !== "collapsed"} />
     </motion.section>
-  );
+  </>
+);
 }
