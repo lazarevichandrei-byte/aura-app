@@ -24,8 +24,8 @@ const SNAP_POSITIONS: Record<SnapPoint, number> = {
 };
 const SPRING = { type: "spring" as const, stiffness: 420, damping: 38 };
 const DRAG_THRESHOLD = 60;
-const CLOSE_THRESHOLD = 170;
-const VELOCITY_THRESHOLD = 900;
+const CLOSE_THRESHOLD = 300;
+const VELOCITY_THRESHOLD = 1200;
 
 function getViewportHeight() {
   return typeof window === "undefined" ? 0 : window.innerHeight;
@@ -88,7 +88,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     y.set(getPosition(snapPointRef.current));
   }, [event, getClosedPosition, getPosition, viewportHeight, y]);
 
-  const handleDragEnd = (_: PointerEvent, info: PanInfo) => {
+  const handleCollapsedPanEnd = (_: PointerEvent, info: PanInfo) => {
     const isDraggingUp =
       info.offset.y < -DRAG_THRESHOLD || info.velocity.y < -VELOCITY_THRESHOLD;
     const isDraggingDown =
@@ -99,31 +99,31 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
       return;
     }
 
-    if (isDraggingDown) {
-      if (
-        snapPoint === "collapsed" &&
-        (info.offset.y > CLOSE_THRESHOLD ||
-          info.velocity.y > VELOCITY_THRESHOLD)
-      ) {
-        closeSheet();
-        return;
-      }
-
-      snapTo("collapsed");
+    if (
+      isDraggingDown &&
+      (info.offset.y > CLOSE_THRESHOLD || info.velocity.y > VELOCITY_THRESHOLD)
+    ) {
+      closeSheet();
       return;
     }
+  };
 
-    snapTo(snapPoint);
+  const handleExpandedPanEnd = (_: PointerEvent, info: PanInfo) => {
+    if (
+      info.offset.y > DRAG_THRESHOLD ||
+      info.velocity.y > VELOCITY_THRESHOLD
+    ) {
+      snapTo("collapsed");
+    }
   };
 
   if (!event) return null;
 
   return (
     <motion.section
-      drag={snapPoint === "collapsed" ? "y" : false}
-      dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={0.18}
-      onDragEnd={handleDragEnd}
+      onPanEnd={
+        snapPoint === "collapsed" ? handleCollapsedPanEnd : undefined
+      }
       style={{
         y,
         position: "fixed",
@@ -142,7 +142,7 @@ export default function MeetBottomSheet({ event, onClose }: Props) {
     >
       <motion.div
         aria-label="Потяните, чтобы изменить размер карточки встречи"
-        onPanEnd={snapPoint === "expanded" ? handleDragEnd : undefined}
+        onPanEnd={snapPoint === "expanded" ? handleExpandedPanEnd : undefined}
         style={{
           display: "flex",
           alignItems: "center",

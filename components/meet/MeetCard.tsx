@@ -43,8 +43,8 @@ export default function MeetCard({ event, expanded }: Props) {
             src={organizerAvatar}
             alt={`Фото ${organizerName}`}
             style={{
-              width: 52,
-              height: 52,
+              width: expanded ? 52 : 44,
+              height: expanded ? 52 : 44,
               borderRadius: "50%",
               objectFit: "cover",
               flexShrink: 0,
@@ -53,14 +53,14 @@ export default function MeetCard({ event, expanded }: Props) {
         ) : (
           <div
             style={{
-              width: 52,
-              height: 52,
+              width: expanded ? 52 : 44,
+              height: expanded ? 52 : 44,
               borderRadius: "50%",
               background: "#EDE9FE",
               color: "#7C3AED",
               display: "grid",
               placeItems: "center",
-              fontSize: 20,
+              fontSize: expanded ? 20 : 18,
               fontWeight: 700,
               flexShrink: 0,
             }}
@@ -79,15 +79,17 @@ export default function MeetCard({ event, expanded }: Props) {
             {organizerName}
           </div>
 
-          <div
-            style={{
-              fontSize: 14,
-              color: "#10B981",
-              marginTop: 2,
-            }}
-          >
-            ● Онлайн
-          </div>
+          {expanded && (
+            <div
+              style={{
+                fontSize: 14,
+                color: "#10B981",
+                marginTop: 2,
+              }}
+            >
+              ● Онлайн
+            </div>
+          )}
         </div>
       </div>
 
