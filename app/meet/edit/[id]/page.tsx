@@ -36,6 +36,25 @@ useEffect(() => {
   load();
 }, []);
 
+useEffect(() => {
+  const raw = sessionStorage.getItem("meet_location");
+
+  if (!raw) return;
+
+  try {
+    const data = JSON.parse(raw);
+
+    setPlace(data.title || "");
+    setCity(data.address || "");
+    setLatitude(data.lat ?? null);
+    setLongitude(data.lng ?? null);
+
+    sessionStorage.removeItem("meet_location");
+  } catch {
+    sessionStorage.removeItem("meet_location");
+  }
+}, []);
+
 async function load() {
   const event = await getMeetEvent(id as string);
 
