@@ -10,6 +10,7 @@ import { supabase } from "../../lib/supabase";
 import { joinChatPresence } from "../../lib/presence";
 import BottomNav from "../../components/BottomNav";
 import AuraLoader from "../../components/AuraLoader";
+import { createChatIfNotExists } from "../../lib/chat/api";
 
 
 const ChatCard = React.memo(
@@ -410,37 +411,7 @@ const sortedChats = [...filteredChats].sort((a, b) => {
 });
 
 
-async function createChatIfNotExists(userA: string, userB: string){
 
-  const { data: existing } = 
-  await supabase
-  .from("chats")
-  .select("id")
-  .or(`and(user1_id.eq.${userA},user2_id.eq.${userB}),and(user1_id.eq.${userB},user2_id.eq.${userA})`)
-  .maybeSingle();
-
-  if (existing) return existing.id;
-
-  const { data, error } = 
-  await supabase
-  .from("chats")
-  .insert({
-    user1_id: userA,
-    user2_id: userB,
-    last_message: "",
-    liked_by: true,
-    is_new_match: true
-  })
-  .select()
-  .single();
-
-  if(error){
-    console.log("CREATE CHAT ERROR:", error);
-    return null;
-  }
-
-  return data.id;
-}
 
 
 

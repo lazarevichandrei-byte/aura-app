@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
+import { useRouter } from "next/navigation";
+import { createChatIfNotExists } from "../../lib/chat/api";
 
 type Props = {
   event: MeetEvent;
@@ -16,16 +18,24 @@ export default function MeetCard({
   onJoin,
   onLeave,
 }: Props) {
+
+  const router = useRouter();
+
   const organizerName = event.users?.name || "Организатор";
   const organizerAvatar = event.users?.avatar_url;
+
   const isParticipant =
-  !!currentUserId &&
-  (event.meet_participants ?? []).some(
-    (participant) => participant.users.id === currentUserId
-  );
+    !!currentUserId &&
+    (event.meet_participants ?? []).some(
+      (participant) => participant.users.id === currentUserId
+    );
 
 const isFull =
   (event.meet_participants?.length ?? 0) >= event.max_people;
+
+  const isCreator =
+  currentUserId === event.users?.id;
+
   const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
     day: "numeric",
     month: "long",
@@ -224,40 +234,82 @@ const isFull =
             paddingTop: 24,
           }}
         >
+          {isCreator ? (
+  <div
+    style={{
+      ...buttonStyle,
+      height: 56,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "rgba(42,171,238,.15)",
+      color: "#2AABEE",
+      border: "1px solid rgba(42,171,238,.35)",
+      borderRadius: 16,
+      marginBottom: 16,
+      fontWeight: 600,
+    }}
+  >
+    👑 Вы организатор
+  </div>
+) : (
+  <button
+    onClick={() =>
+      isParticipant
+        ? onLeave(event.id)
+        : onJoin(event.id)
+    }
+    disabled={!isParticipant && isFull}
+    style={{
+      ...buttonStyle,
+      height: 56,
+      border: "none",
+      background: isParticipant
+        ? "#EF4444"
+        : "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+      color: "#fff",
+      fontSize: 17,
+      marginBottom: 16,
+      opacity: !isParticipant && isFull ? 0.6 : 1,
+      cursor:
+        !isParticipant && isFull
+          ? "not-allowed"
+          : "pointer",
+    }}
+  >
+    {isParticipant
+      ? "🚪 Покинуть встречу"
+      : isFull
+      ? "🚫 Нет мест"
+      : " Присоединиться"}
+  </button>
+)}
+
           <button
   onClick={() =>
-    isParticipant
-      ? onLeave(event.id)
-      : onJoin(event.id)
+    router.push(`/profile/${event.users?.id}`)
   }
-  disabled={!isParticipant && isFull}
-  style={{
-    ...buttonStyle,
-    height: 56,
-    border: "none",
-    background: isParticipant
-  ? "#EF4444"
-  : "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-    color: "#fff",
-    fontSize: 17,
-    marginBottom: 16,
-    opacity: !isParticipant && isFull ? 0.6 : 1,
-    cursor:
-      !isParticipant && isFull
-        ? "not-allowed"
-        : "pointer",
-  }}
+  style={buttonStyle}
 >
-  {isParticipant
-    ? "🚪 Покинуть встречу"
-    : isFull
-    ? "🚫 Нет мест"
-    : " Присоединиться"}
+  👤 Посмотреть профиль
 </button>
+<button
+  onClick={async () => {
+    if (!currentUserId || !event.users?.id) return;
 
-          <button style={buttonStyle}>👤 Посмотреть профиль</button>
+    const chatId = await createChatIfNotExists(
+      currentUserId,
+      event.users.id
+    );
 
-          <button style={buttonStyle}>💬 Написать организатору</button>
+    if (chatId) {
+      router.push(`/chat/${chatId}`);
+    }
+  }}
+  style={buttonStyle}
+>
+  💬 Написать организатору
+</button>
         </div>
       )}
     </>
