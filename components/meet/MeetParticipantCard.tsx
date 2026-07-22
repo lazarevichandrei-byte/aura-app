@@ -3,11 +3,19 @@
 type Props = {
     user: any;
     organizer?: boolean;
+    onProfile?: () => void;
+    onChat?: () => void;
+    onRemove?: () => void;
+    canRemove?: boolean;
 };
 
 export default function MeetParticipantCard({
     user,
     organizer = false,
+    onProfile,
+    onChat,
+    onRemove,
+    canRemove = false,
 }: Props) {
     return (
         <div
@@ -91,6 +99,7 @@ export default function MeetParticipantCard({
                 }}
             >
                 <button
+                onClick={onProfile}
                     style={{
                         flex: 1,
                         height: 46,
@@ -105,7 +114,9 @@ export default function MeetParticipantCard({
                 </button>
 
                 <button
+                onClick={onChat}
                     style={{
+                        
                         flex: 1,
                         height: 46,
                         borderRadius: 14,
@@ -119,8 +130,9 @@ export default function MeetParticipantCard({
                     💬
                 </button>
 
-                {!organizer && (
+                {!organizer && canRemove && (
                     <button
+                    onClick={onRemove}
                         style={{
                             width: 46,
                             borderRadius: 14,

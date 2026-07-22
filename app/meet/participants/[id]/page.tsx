@@ -87,20 +87,33 @@ export default function MeetParticipantsPage() {
             }}
         >
 
-            <button
-                onClick={() => history.back()}
-                style={{
-                    border: "none",
-                    background: "transparent",
-                    fontSize: 16,
-                    cursor: "pointer",
-                    marginBottom: 18,
-                    color: "#374151",
-                    fontWeight: 600,
-                }}
-            >
-                ← Назад
-            </button>
+            <div
+    style={{
+        display: "flex",
+        alignItems: "center",
+        marginBottom: 20,
+    }}
+>
+    <button
+        onClick={() => history.back()}
+        style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            border: "none",
+            background: "#fff",
+            boxShadow: "0 4px 12px rgba(0,0,0,.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            fontSize: 22,
+            color: "#111827",
+        }}
+    >
+        ←
+    </button>
+</div>
 
             <div
                 style={{
