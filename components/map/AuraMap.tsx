@@ -101,6 +101,16 @@ ${icon}
 </span>
 `;
 
+el.onclick = () => {
+  onMarkerClick?.(event);
+};
+
+el.innerHTML = `
+<span style="font-size:24px">
+${icon}
+</span>
+`;
+
 
 
     const marker = new maplibregl.Marker({
