@@ -97,15 +97,7 @@ export default function MeetManageSheet({
           🗑️ Удалить встречу
         </button>
 
-        <button
-          style={{
-            ...itemStyle,
-            marginTop: 8,
-          }}
-          onClick={onClose}
-        >
-          Отмена
-        </button>
+        
       </div>
     </>
   );

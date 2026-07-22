@@ -111,21 +111,7 @@ async function handleSave() {
   }
 }
 
-async function handleDelete() {
-  alert("handleDelete");
 
-  try {
-    await deleteMeetEvent(id as string);
-
-    alert("Удалено");
-
-    router.replace("/meet");
-  } catch (error) {
-    console.error(error);
-
-    alert(JSON.stringify(error));
-  }
-}
 
 const inputStyle = {
   width: "100%",
@@ -261,25 +247,7 @@ if (loading) {
     💾 Сохранить изменения
   </button>
   
-<button
-  onClick={() => {
-    alert("Кнопка нажата");
-  }}
-  style={{
-    marginTop: 14,
-    width: "100%",
-    height: 52,
-    border: "none",
-    borderRadius: 14,
-    background: "#EF4444",
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: 600,
-    cursor: "pointer",
-  }}
->
-  🗑 Удалить встречу
-</button>
+
 
 </div>
     </div>

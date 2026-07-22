@@ -171,17 +171,14 @@ export async function updateMeetEvent(
 export async function deleteMeetEvent(
   eventId: string
 ) {
-  alert("deleteMeetEvent");
+  
 
   const participants = await supabase
   .from("meet_participants")
   .delete()
   .eq("event_id", eventId);
 
-alert(
-  "participants:\n" +
-    JSON.stringify(participants, null, 2)
-);
+
 
 const event = await supabase
   .from("meet_events")
@@ -189,10 +186,7 @@ const event = await supabase
   .eq("id", eventId)
   .select();
 
-alert(
-  "event:\n" +
-    JSON.stringify(event, null, 2)
-);
+
 
 if (participants.error) {
   throw participants.error;

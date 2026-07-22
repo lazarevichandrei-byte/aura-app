@@ -333,6 +333,10 @@ const isFull =
         onDelete={async () => {
   setManageOpen(false);
 
+  if (!confirm("Удалить встречу? Это действие нельзя отменить.")) {
+    return;
+  }
+
   try {
     await deleteMeetEvent(event.id);
 
@@ -340,7 +344,7 @@ const isFull =
   } catch (error) {
   console.error(error);
 
-  alert(JSON.stringify(error, null, 2));
+  alert("Не удалось удалить встречу.");
 }
 }}
       />
