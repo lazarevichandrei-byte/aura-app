@@ -262,7 +262,9 @@ if (loading) {
   </button>
   
 <button
-  onClick={handleDelete}
+  onClick={() => {
+    alert("Кнопка нажата");
+  }}
   style={{
     marginTop: 14,
     width: "100%",
