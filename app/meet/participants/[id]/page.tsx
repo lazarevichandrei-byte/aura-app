@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { motion } from "motion/react";
 import { useParams, useRouter } from "next/navigation";
 import { useCurrentUser } from "../../../../lib/useCurrentUser";
 
@@ -87,80 +89,70 @@ export default function MeetParticipantsPage() {
             style={{
                 maxWidth: 560,
                 margin: "0 auto",
-                padding: "24px 20px 40px",
+                padding: "12px 20px 40px",
             }}
         >
 
-            <div
+            <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.22 }}
     style={{
         display: "flex",
-        alignItems: "center",
-        marginBottom: 20,
+        alignItems: "flex-start",
+        gap: 14,
+        marginBottom: 18,
     }}
 >
-    <button
-        onClick={() => history.back()}
-        style={{
-            width: 42,
-            height: 42,
-            borderRadius: "50%",
-            border: "none",
-            background: "#fff",
-            boxShadow: "0 4px 12px rgba(0,0,0,.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            fontSize: 22,
-            color: "#111827",
-        }}
-    >
-        ←
-    </button>
-</div>
+   <motion.button
+    onClick={() => router.back()}
+    whileTap={{ scale: 0.92 }}
+    whileHover={{ scale: 1.03 }}
+    transition={{ duration: 0.15 }}
+    style={{
+        width: 42,
+        height: 42,
+        borderRadius: "50%",
+        border: "1px solid #EEF2F7",
+        background: "#fff",
+        boxShadow: "0 6px 16px rgba(15,23,42,.06)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        color: "#111827",
+        flexShrink: 0,
+    }}
+>
+    <ArrowLeft size={20} strokeWidth={2.4} />
+</motion.button>
 
-            <div
-                style={{
-                    background: "#fff",
-                    borderRadius: 24,
-                    padding: 24,
-                    boxShadow: "0 8px 20px rgba(0,0,0,.05)",
-                }}
-            >
+    <div style={{ flex: 1 }}>
+        <div
+            style={{
+                fontSize: 21,
+                fontWeight: 700,
+                color: "#111827",
+                lineHeight: 1.1,
+            }}
+        >
+            Участники встречи
+        </div>
 
-                <div
-                    style={{
-                        fontSize: 28,
-                        fontWeight: 700,
-                        color: "#111827",
-                    }}
-                >
-                    👥 Участники встречи
-                </div>
+        <div
+            style={{
+                marginTop: 3,
+                fontSize: 13,
+                color: "#7B8595",
+            }}
+        >
+            {participants.length} из {event.max_people} участников • Свободно{" "}
+            {event.max_people - participants.length}
+        </div>
+    </div>
+</motion.div>
 
-                <div
-                    style={{
-                        marginTop: 10,
-                        color: "#6B7280",
-                        fontSize: 16,
-                    }}
-                >
-                    {participants.length} из {event.max_people} участников
-                </div>
-
-                <div
-                    style={{
-                        marginTop: 6,
-                        color: "#9CA3AF",
-                        fontSize: 14,
-                    }}
-                >
-                    Свободно мест: {event.max_people - participants.length}
-                </div>
-
-            </div>
-
-                        {event?.users && (
+{event?.users && (
     <MeetParticipantCard
     user={event.users}
     organizer
