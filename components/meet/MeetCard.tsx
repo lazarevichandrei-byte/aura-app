@@ -293,8 +293,8 @@ const isFull =
 
           <button
   onClick={() =>
-    router.push(`/profile/${event.users?.id}`)
-  }
+  router.push(`/user/${event.users?.id}`)
+}
   style={buttonStyle}
 >
   👤 Посмотреть профиль
