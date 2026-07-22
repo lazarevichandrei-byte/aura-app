@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft2 } from "iconsax-react";
 import { motion } from "motion/react";
 import { useParams, useRouter } from "next/navigation";
+import PageWrapper from "../../../../components/PageWrapper";
+import BottomSheet from "../../../../components/BottomSheet";
+import AuraLoader from "../../../../components/AuraLoader";
 import { useCurrentUser } from "../../../../lib/useCurrentUser";
 
 import {
@@ -25,6 +28,7 @@ export default function MeetParticipantsPage() {
     const [event, setEvent] = useState<any>(null);
 
     const [participants, setParticipants] = useState<any[]>([]);
+    const [removeUser, setRemoveUser] = useState<any>(null);
 
     useEffect(() => {
 
@@ -56,7 +60,7 @@ export default function MeetParticipantsPage() {
 
 
     async function handleRemoveParticipant(
-    userId: string
+    user: any
 ) {
 
     if (!currentUser) return;
@@ -65,47 +69,13 @@ export default function MeetParticipantsPage() {
         return;
     }
 
-    const confirmed = window.confirm(
-        "Удалить участника из встречи?"
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    await removeMeetParticipant(
-        event.id,
-        userId
-    );
-
-    await load();
+    setRemoveUser(user);
 
 }
 
-    if (loading) {
-
-        return (
-
-            <main
-    style={{
-        minHeight: "100vh",
-        background: "#F5F7FB",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#111827",
-        fontSize: 18,
-        fontWeight: 600,
-    }}
->
-    Загрузка...
-</main>
-
-        );
-
-    }
-
     return (
+
+    <PageWrapper>
 
     <main
         style={{
@@ -133,28 +103,25 @@ export default function MeetParticipantsPage() {
         marginBottom: 18,
     }}
 >
-   <motion.button
+   <motion.div
     onClick={() => router.back()}
     whileTap={{ scale: 0.92 }}
-    whileHover={{ scale: 1.03 }}
     transition={{ duration: 0.15 }}
     style={{
-        width: 42,
-        height: 42,
-        borderRadius: "50%",
-        border: "1px solid #EEF2F7",
-        background: "#fff",
-        boxShadow: "0 6px 16px rgba(15,23,42,.06)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        paddingRight: 10,
         cursor: "pointer",
-        color: "#111827",
         flexShrink: 0,
     }}
 >
-    <ArrowLeft size={20} strokeWidth={2.4} />
-</motion.button>
+    <ArrowLeft2
+        size="28"
+        color="#2E7BFF"
+        variant="Outline"
+    />
+</motion.div>
 
     <div style={{ flex: 1 }}>
         <div
@@ -218,10 +185,10 @@ export default function MeetParticipantsPage() {
     }
 
     onRemove={() =>
-        handleRemoveParticipant(
-            participant.users.id
-        )
-    }
+    handleRemoveParticipant(
+        participant.users
+    )
+}
 
     onProfile={() =>
         router.push(`/user/${participant.users.id}`)
@@ -248,8 +215,122 @@ export default function MeetParticipantsPage() {
 
         </div>
 
+        <BottomSheet
+            open={!!removeUser}
+            onClose={() => setRemoveUser(null)}
+        >
+            <div
+    style={{
+        padding: 20,
+        textAlign: "center",
+    }}
+>
+    {removeUser && (
+        <>
+            <motion.div
+                initial={{ scale: .9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: .18 }}
+            >
+                <img
+                    src={
+                        removeUser.avatar_url ||
+                        "/avatar-placeholder.png"
+                    }
+                    alt={removeUser.name}
+                    style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        margin: "0 auto",
+                        border: "2px solid #E5E7EB",
+                    }}
+                />
+            </motion.div>
+
+            <div
+                style={{
+                    marginTop: 14,
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: "#111827",
+                }}
+            >
+                {removeUser.name}
+            </div>
+
+            <div
+                style={{
+                    marginTop: 8,
+                    fontSize: 14,
+                    color: "#6B7280",
+                    lineHeight: 1.5,
+                }}
+            >
+                Удалить этого участника
+                <br />
+                из встречи?
+            </div>
+
+            <motion.button
+                whileTap={{ scale: .97 }}
+                transition={{ duration: .15 }}
+                onClick={async () => {
+
+                    await removeMeetParticipant(
+                        event.id,
+                        removeUser.id
+                    );
+
+                    setRemoveUser(null);
+
+                    await load();
+
+                }}
+                style={{
+                    marginTop: 22,
+                    width: "100%",
+                    height: 48,
+                    border: "none",
+                    borderRadius: 14,
+                    background: "#EF4444",
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: 15,
+                    cursor: "pointer",
+                }}
+            >
+                Удалить
+            </motion.button>
+
+            <motion.button
+                whileTap={{ scale: .97 }}
+                transition={{ duration: .15 }}
+                onClick={() => setRemoveUser(null)}
+                style={{
+                    marginTop: 10,
+                    width: "100%",
+                    height: 48,
+                    borderRadius: 14,
+                    border: "1px solid #E5E7EB",
+                    background: "#fff",
+                    color: "#111827",
+                    fontWeight: 600,
+                    fontSize: 15,
+                    cursor: "pointer",
+                }}
+            >
+                Отмена
+            </motion.button>
+        </>
+    )}
+</div>
+        </BottomSheet>
 
     </main>
+
+    </PageWrapper>
 
 );
 
