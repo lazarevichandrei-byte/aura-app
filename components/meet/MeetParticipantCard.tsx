@@ -8,6 +8,8 @@ import {
     UserMinus,
 } from "lucide-react";
 
+import { motion } from "motion/react";
+
 type Props = {
     user: any;
     organizer?: boolean;
@@ -26,20 +28,26 @@ export default function MeetParticipantCard({
     canRemove = false,
 }: Props) {
     return (
-        <div
-            style={{
-                marginTop: 18,
-                background: "#fff",
-                borderRadius: 30,
-                padding: 24,
-                boxShadow: "0 10px 35px rgba(15,23,42,.08)",
-            }}
-        >
+       <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    whileTap={{ scale: 0.99 }}
+    transition={{
+        duration: .18
+    }}
+    style={{
+    marginTop: 12,
+    background: "#fff",
+    borderRadius: 22,
+    padding: 16,
+    boxShadow: "0 6px 18px rgba(15,23,42,.06)",
+}}
+>
             <div
                 style={{
                     display: "flex",
                     alignItems: "flex-start",
-                    gap: 20,
+                    gap: 12,
                 }}
             >
                 {/* Avatar */}
@@ -47,8 +55,8 @@ export default function MeetParticipantCard({
                 <div
                     style={{
                         position: "relative",
-                        width: 84,
-                        height: 84,
+                        width: 56,
+                        height: 56,
                         flexShrink: 0,
                     }}
                 >
@@ -67,13 +75,13 @@ export default function MeetParticipantCard({
                     <div
                         style={{
                             position: "absolute",
-                            right: 4,
-                            bottom: 4,
-                            width: 16,
-                            height: 16,
+                            right: 1,
+                            bottom: 1,
+                            width: 10,
+                            height: 10,
                             borderRadius: "50%",
                             background: "#22C55E",
-                            border: "3px solid white",
+                           border:"2px solid white"
                         }}
                     />
                 </div>
@@ -94,10 +102,10 @@ export default function MeetParticipantCard({
                     >
                         <div
                             style={{
-                                fontSize: 26,
+                                fontSize:18,
                                 fontWeight: 700,
                                 color: "#111827",
-                                lineHeight: 1.2,
+                                lineHeight: 1.1,
                             }}
                         >
                             {user.name}
@@ -107,19 +115,19 @@ export default function MeetParticipantCard({
                         {organizer && (
     <div
         style={{
-            padding: "8px 16px",
+            marginTop: 6,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "3px 8px",
             borderRadius: 999,
             background: "#FFF6DD",
             color: "#D89A00",
+            fontSize: 11,
             fontWeight: 600,
-            fontSize: 14,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            whiteSpace: "nowrap",
         }}
     >
-        <Crown size={16} fill="#FACC15" color="#D89A00" />
+        <Crown size={12} />
         Организатор
     </div>
 )}
@@ -132,19 +140,19 @@ export default function MeetParticipantCard({
         alignItems: "center",
         gap: 8,
         color: "#6B7280",
-        fontSize: 16,
+        fontSize: 13,
     }}
 >
-    <MapPin size={17} />
+    <MapPin size={14} />
     {user.city || "Не указан"}
 </div>
 
                     {user.bio && (
                         <div
                             style={{
-                                marginTop: 14,
+                                marginTop: 8,
                                 color: "#4B5563",
-                                fontSize: 16,
+                                fontSize: 13,
                                 lineHeight: 1.5,
                             }}
                         >
@@ -156,72 +164,76 @@ export default function MeetParticipantCard({
 
             <div
                 style={{
-                    marginTop: 22,
+                    marginTop: 14,
                     borderTop: "1px solid #EEF2F7",
-                    paddingTop: 22,
+                    paddingTop: 14,
                     display: "flex",
                     justifyContent: "center",
-                    gap: 24,
+                    gap: 12,
                 }}
             >
-                <button
-                    onClick={onProfile}
-                   style={{
-    width: 56,
-    height: 56,
-    borderRadius: "50%",
-    border: "1px solid #E7EAF0",
-    background: "#fff",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    cursor: "pointer",
-    transition: ".2s",
-}}
-                >
-                    <User size={24} />
-                </button>
+                <motion.button
+    onClick={onProfile}
+    whileHover={{ scale: 1.06 }}
+    whileTap={{ scale: 0.92 }}
+    transition={{ duration: 0.15 }}
+    style={{
+        width: 42,
+        height: 42,
+        borderRadius: "50%",
+        border: "1px solid #E7EAF0",
+        background: "#fff",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+    }}
+>
+    <User size={18} />
+</motion.button>
 
-                <button
-                    onClick={onChat}
-                    style={{
-    width: 56,
-    height: 56,
-    borderRadius: "50%",
-    border: "none",
-    background: "#2F80FF",
-    color: "#fff",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    cursor: "pointer",
-    transition: ".2s",
-}}
-                >
-                    <MessageCircle size={24} />
-                </button>
+                <motion.button
+    onClick={onChat}
+    whileHover={{ scale: 1.06 }}
+    whileTap={{ scale: 0.92 }}
+    transition={{ duration: 0.15 }}
+    style={{
+        width: 42,
+        height: 42,
+        borderRadius: "50%",
+        border: "none",
+        background: "#2F80FF",
+        color: "#fff",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+    }}
+>
+    <MessageCircle size={18} />
+</motion.button>
 
-                {!organizer && canRemove && (
-                    <button
-                        onClick={onRemove}
-                       style={{
-    width: 56,
-    height: 56,
-    borderRadius: "50%",
-    border: "none",
-    background: "#FFF1F2",
-    color: "#EF4444",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    cursor: "pointer",
-    transition: ".2s",
-}}
-                    >
-                        <UserMinus size={22} />
-                    </button>
-                )}
+                <motion.button
+    onClick={onRemove}
+    whileHover={{ scale: 1.06 }}
+    whileTap={{ scale: 0.92 }}
+    transition={{ duration: 0.15 }}
+    style={{
+        width: 42,
+        height: 42,
+        borderRadius: "50%",
+        border: "none",
+        background: "#FFF1F2",
+        color: "#EF4444",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+    }}
+>
+    <UserMinus size={17} />
+</motion.button>
             </div>
-        </div>
+        </motion.div>
     );
 }
