@@ -52,15 +52,29 @@ const [deleteOpen, setDeleteOpen] = useState(false);
   minute: "2-digit",
 });
 
-const onlineStatus = event.users?.is_online
-  ? {
-      text: "Онлайн",
-      color: "#10B981",
-    }
-  : {
-      text: "Не в сети",
-      color: "#9CA3AF",
-    };
+const onlineStatus =
+  event.users?.show_online &&
+  event.users?.last_seen &&
+  Date.now() - new Date(event.users.last_seen).getTime() < 30000
+    ? {
+        text: "Онлайн",
+        color: "#10B981",
+      }
+    : event.users?.show_last_seen &&
+      event.users?.last_seen
+    ? {
+        text: `Был ${new Date(
+          event.users.last_seen
+        ).toLocaleTimeString("ru-RU", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}`,
+        color: "#9CA3AF",
+      }
+    : {
+        text: "",
+        color: "#9CA3AF",
+      };
 
   const buttonStyle: CSSProperties = {
     width: "100%",
