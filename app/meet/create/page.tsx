@@ -57,9 +57,47 @@ useState(false);
 useState(false);
 
 useEffect(() => {
+  const raw = sessionStorage.getItem("meet_draft");
 
-  const raw =
-    sessionStorage.getItem("meet_location");
+  if (!raw) return;
+
+  try {
+    const draft = JSON.parse(raw);
+
+    setTitle(draft.title ?? "");
+    setDescription(draft.description ?? "");
+    setCategory(draft.category ?? "coffee");
+    setDate(draft.date ?? "");
+    setTime(draft.time ?? "");
+    setMaxPeople(draft.maxPeople ?? 1);
+  } catch {}
+}, []);
+
+useEffect(() => {
+  sessionStorage.setItem(
+    "meet_draft",
+    JSON.stringify({
+      title,
+      description,
+      category,
+      date,
+      time,
+      maxPeople,
+    })
+  );
+}, [
+  title,
+  description,
+  category,
+  date,
+  time,
+  maxPeople,
+]);
+
+useEffect(() => {
+  const raw = sessionStorage.getItem("meet_location");
+
+
 
   if (!raw) return;
 
@@ -161,7 +199,10 @@ longitude,
 
     });
 
-    router.replace("/meet");
+    sessionStorage.removeItem("meet_draft");
+sessionStorage.removeItem("meet_location");
+
+router.replace("/meet");
 
   }catch (err: any) {
 

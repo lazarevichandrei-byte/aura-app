@@ -130,12 +130,49 @@ const events =
 
   const center = map.current.getCenter();
 
+  onCenterChanged?.(
+    center.lat,
+    center.lng
+  );
 
+});
 
-onCenterChanged?.(
-  center.lat,
-  center.lng
-);
+// После загрузки карты сразу определяем местоположение
+map.current.on("load", () => {
+
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.getCurrentPosition(
+
+    (pos) => {
+
+      map.current?.flyTo({
+
+        center: [
+          pos.coords.longitude,
+          pos.coords.latitude
+        ],
+
+        zoom: 16,
+
+        essential: true
+
+      });
+
+    },
+
+    () => {
+      // Если пользователь запретил доступ,
+      // остаемся на стартовой позиции.
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+
+  );
 
 });
 
@@ -166,23 +203,32 @@ onCenterChanged?.(
   },
 
   flyToUser() {
+  if (!navigator.geolocation) {
+    alert("Геолокация не поддерживается");
+    return;
+  }
 
-    navigator.geolocation.getCurrentPosition((pos) => {
-
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
       map.current?.flyTo({
-
         center: [
           pos.coords.longitude,
-          pos.coords.latitude
+          pos.coords.latitude,
         ],
-
-        zoom: 16
-
+        zoom: 16,
       });
-
-    });
-
-  }
+    },
+    (error) => {
+      console.error(error);
+      alert("Не удалось определить местоположение.");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    }
+  );
+}
 
 }));
 

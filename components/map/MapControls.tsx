@@ -24,23 +24,25 @@ export default function MapControls({
 
     <div
 
-      style={{
+     style={{
 
-        position:"absolute",
+  position:"absolute",
 
-        right:18,
+  right:16,
 
-        bottom:150,
+  bottom:130,
 
-        display:"flex",
+  display:"flex",
 
-        flexDirection:"column",
+  flexDirection:"column",
 
-        gap:12,
+  gap:10,
 
-        zIndex:20
+  zIndex:30,
 
-      }}
+  alignItems:"center"
+
+}}
 
     >
 
@@ -84,26 +86,40 @@ function CircleButton({
 
       style={{
 
-        width:44,
-height:44,
-borderRadius:22,
-        background:"#fff",
+  width:50,
+  height:50,
 
-        display:"flex",
+  borderRadius:25,
 
-        justifyContent:"center",
+  background:"rgba(255,255,255,.92)",
 
-        alignItems:"center",
+  backdropFilter:"blur(18px)",
 
-        cursor:"pointer",
+  WebkitBackdropFilter:"blur(18px)",
 
-        fontSize:20,
+  display:"flex",
 
-        fontWeight:700,
+  justifyContent:"center",
 
-        boxShadow:"0 4px 12px rgba(0,0,0,.10)"
+  alignItems:"center",
 
-      }}
+  cursor:"pointer",
+
+  userSelect:"none",
+
+  fontSize:22,
+
+  fontWeight:700,
+
+  color:"#2F80FF",
+
+  border:"1px solid rgba(255,255,255,.7)",
+
+  boxShadow:"0 10px 28px rgba(0,0,0,.12)",
+
+  transition:"all .2s ease"
+
+}}
 
     >
 

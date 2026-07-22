@@ -18,24 +18,31 @@ export default function PlaceBottomCard({
 
       style={{
 
-        position:"absolute",
+  position:"absolute",
 
-        left:16,
+  left:16,
 
-        right:16,
+  right:16,
 
-        bottom:16,
+  bottom:16,
 
-        zIndex:30,
+  zIndex:30,
 
-        background:"#fff",
+  background:"rgba(255,255,255,.88)",
 
-        borderRadius:18,
-padding:14,
+  backdropFilter:"blur(24px)",
 
-        boxShadow:"0 18px 40px rgba(0,0,0,.12)"
+  WebkitBackdropFilter:"blur(24px)",
 
-      }}
+  border:"1px solid rgba(255,255,255,.65)",
+
+  borderRadius:24,
+
+  padding:"14px 16px",
+
+  boxShadow:"0 18px 45px rgba(0,0,0,.16)"
+
+}}
 
     >
 
@@ -43,11 +50,19 @@ padding:14,
 
         style={{
 
-          fontWeight:700,
+  fontWeight:700,
 
-          fontSize:16
+  fontSize:17,
 
-        }}
+  color:"#111827",
+
+  whiteSpace:"nowrap",
+
+  overflow:"hidden",
+
+  textOverflow:"ellipsis"
+
+}}
 
       >
 
@@ -59,11 +74,19 @@ padding:14,
 
         style={{
 
-          marginTop:2,
+  marginTop:4,
 
-          color:"#6B7280"
+  color:"#6B7280",
 
-        }}
+  fontSize:13,
+
+  whiteSpace:"nowrap",
+
+  overflow:"hidden",
+
+  textOverflow:"ellipsis"
+
+}}
 
       >
 
@@ -73,17 +96,34 @@ padding:14,
 
       <button
 onClick={onSelect}
-        style={{
+       style={{
+
   marginTop:12,
+
   width:"100%",
-  height:44,
+
+  height:48,
+
   border:"none",
-  borderRadius:14,
+
+  borderRadius:16,
+
   background:"linear-gradient(135deg,#2F80FF,#56CCF2)",
+
   color:"#fff",
+
   fontWeight:700,
+
   fontSize:15,
-  cursor:"pointer"
+
+  letterSpacing:".2px",
+
+  cursor:"pointer",
+
+  boxShadow:"0 10px 24px rgba(47,128,255,.28)",
+
+  transition:"all .2s ease"
+
 }}
 
       >

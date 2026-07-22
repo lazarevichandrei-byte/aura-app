@@ -22,6 +22,7 @@ type Props = {
   currentUserId: string | null;
   onJoin: (eventId: string) => Promise<void>;
   onLeave: (eventId: string) => Promise<void>;
+  onDelete: (eventId: string) => Promise<void>;
   onClose: () => void;
 };
 
@@ -46,6 +47,7 @@ export default function MeetBottomSheet({
   currentUserId,
   onJoin,
   onLeave,
+  onDelete,
   onClose,
 }: Props) {
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
@@ -222,6 +224,7 @@ const collapsedPosition = useMemo(
   currentUserId={currentUserId}
   onJoin={onJoin}
   onLeave={onLeave}
+  onDelete={onDelete}
 />
     </motion.section>
   </>

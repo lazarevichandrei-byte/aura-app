@@ -6,6 +6,7 @@ import {
   loadMeetEvents,
   joinMeetEvent,
   leaveMeetEvent,
+  deleteMeetEvent,
 } from "../../lib/meet/api";
 import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
@@ -56,6 +57,21 @@ async function handleLeave(eventId: string) {
   setSelectedEvent(
     updated.find((e: MeetEvent) => e.id === eventId) ?? null
   );
+}
+
+async function handleDelete(eventId: string) {
+  try {
+    await deleteMeetEvent(eventId);
+
+    setEvents((prev) =>
+      prev.filter((event) => event.id !== eventId)
+    );
+
+    setSelectedEvent(null);
+  } catch (error) {
+    console.error(error);
+    alert("Не удалось удалить встречу.");
+  }
 }
 
 async function load(){
@@ -390,6 +406,8 @@ gap:16
   }}
 >
 
+
+
 <div
 style={{
 fontSize:18,
@@ -414,23 +432,14 @@ marginTop:4,
 color:"#6B7280"
 }}
 >
-📅 {new Date(event.starts_at).toLocaleString("ru-RU", {
-  day: "numeric",
-  month: "long",
-  hour: "2-digit",
-  minute: "2-digit",
-})}
+📅 {new Date(event.starts_at).toLocaleString()}
 </div>
 
 <div
 style={{
-  marginTop: 10,
-  color: "#555",
-  lineHeight: 1.5,
-  display: "-webkit-box",
-  WebkitLineClamp: 3,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
+marginTop:10,
+color:"#555",
+lineHeight:1.5
 }}
 >
 {event.description}
@@ -471,9 +480,6 @@ style={{
     >
       ✅ Вы участвуете
     </div>
-
-
-
   ) : isFull ? (
     <div
       style={{
@@ -485,10 +491,7 @@ style={{
     </div>
   ) : (
     <button
-  onClick={(e) => {
-    e.stopPropagation();
-    handleJoin(event.id);
-  }}
+      onClick={() => handleJoin(event.id)}
       style={{
         border: "none",
         background:
@@ -550,6 +553,7 @@ boxShadow:
   currentUserId={currentUser?.id ?? null}
   onJoin={handleJoin}
   onLeave={handleLeave}
+  onDelete={handleDelete}
   onClose={() => setSelectedEvent(null)}
 />
 
