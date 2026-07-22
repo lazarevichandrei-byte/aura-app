@@ -41,29 +41,84 @@ useEffect(()=>{
 async function handleJoin(eventId: string) {
   if (!currentUser) return;
 
-  await joinMeetEvent(eventId, currentUser.id);
+  setEvents((prev) =>
+    prev.map((event) => {
 
-  const updated = (await loadMeetEvents()) ?? [];
+      if (event.id !== eventId) return event;
 
-setEvents(updated);
+      return {
+        ...event,
+        meet_participants: [
+          ...(event.meet_participants ?? []),
+          {
+            users: {
+              id: currentUser.id,
+            },
+          },
+        ],
+      };
 
-setSelectedEvent(
-  updated.find((e: MeetEvent) => e.id === eventId) ?? null
-);
+    })
+  );
+
+  try {
+
+    await joinMeetEvent(eventId, currentUser.id);
+
+    const updated = (await loadMeetEvents()) ?? [];
+
+    setEvents(updated);
+
+    setSelectedEvent(
+      updated.find((e: MeetEvent) => e.id === eventId) ?? null
+    );
+
+  } catch (e) {
+
+    console.error(e);
+
+    await load();
+
+  }
 }
 
 async function handleLeave(eventId: string) {
   if (!currentUser) return;
 
-  await leaveMeetEvent(eventId, currentUser.id);
+  setEvents((prev) =>
+    prev.map((event) => {
 
-  const updated = await loadMeetEvents();
+      if (event.id !== eventId) return event;
 
-  setEvents(updated || []);
+      return {
+        ...event,
+        meet_participants: (event.meet_participants ?? []).filter(
+          (p: any) => p.users.id !== currentUser.id
+        ),
+      };
 
-  setSelectedEvent(
-    updated.find((e: MeetEvent) => e.id === eventId) ?? null
+    })
   );
+
+  try {
+
+    await leaveMeetEvent(eventId, currentUser.id);
+
+    const updated = await loadMeetEvents();
+
+    setEvents(updated || []);
+
+    setSelectedEvent(
+      updated.find((e: MeetEvent) => e.id === eventId) ?? null
+    );
+
+  } catch (e) {
+
+    console.error(e);
+
+    await load();
+
+  }
 }
 
 async function handleDelete(eventId: string) {

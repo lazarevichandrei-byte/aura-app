@@ -84,9 +84,11 @@ export default function BottomSheet({
 
           paddingBottom: 34,
 
-height: "88vh",
+maxHeight: "65vh",
 
-overflow: "hidden",
+height: "auto",
+
+overflowY: "auto",
 
 display: "flex",
 
