@@ -9,6 +9,7 @@ import { useCurrentUser } from "../../../../lib/useCurrentUser";
 import {
     getMeetEvent,
     getMeetParticipants,
+    removeMeetParticipant,
 } from "../../../../lib/meet/api";
 import MeetParticipantCard from "../../../../components/meet/MeetParticipantCard";
 import { createChatIfNotExists } from "../../../../lib/chat/api";
@@ -52,6 +53,34 @@ export default function MeetParticipantsPage() {
         }
 
     }
+
+
+    async function handleRemoveParticipant(
+    userId: string
+) {
+
+    if (!currentUser) return;
+
+    if (currentUser.id !== event.creator_id) {
+        return;
+    }
+
+    const confirmed = window.confirm(
+        "Удалить участника из встречи?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    await removeMeetParticipant(
+        event.id,
+        userId
+    );
+
+    await load();
+
+}
 
     if (loading) {
 
@@ -183,6 +212,16 @@ export default function MeetParticipantsPage() {
         <MeetParticipantCard
     key={participant.users.id}
     user={participant.users}
+
+    canRemove={
+        currentUser?.id === event.creator_id
+    }
+
+    onRemove={() =>
+        handleRemoveParticipant(
+            participant.users.id
+        )
+    }
 
     onProfile={() =>
         router.push(`/user/${participant.users.id}`)

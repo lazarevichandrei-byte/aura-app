@@ -200,6 +200,21 @@ return event.data;
   
 }
 
+export async function removeMeetParticipant(
+  eventId: string,
+  userId: string
+) {
+  const { error } = await supabase
+    .from("meet_participants")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function getMeetParticipants(
   eventId: string
 ) {
