@@ -2,16 +2,17 @@ import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
-import { deleteMeetEvent } from "../../lib/meet/api";
+
 import { useState } from "react";
 import MeetManageSheet from "./MeetManageSheet";
 import DeleteMeetSheet from "./DeleteMeetSheet";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
-  currentUserId: string | null;
-  onJoin: (eventId: string) => Promise<void>;
-  onLeave: (eventId: string) => Promise<void>;
+  currentUserId: string;
+  onJoin: (id: string) => Promise<void>;
+  onLeave: (id: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 };
 
 export default function MeetCard({
@@ -20,6 +21,7 @@ export default function MeetCard({
   currentUserId,
   onJoin,
   onLeave,
+  onDelete,
 }: Props) {
 
   const router = useRouter();
@@ -343,16 +345,9 @@ const [deleteOpen, setDeleteOpen] = useState(false);
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={async () => {
-          setDeleteOpen(false);
-
-          try {
-            await deleteMeetEvent(event.id);
-            router.refresh();
-          } catch (error) {
-            console.error(error);
-            alert("Не удалось удалить встречу.");
-          }
-        }}
+  setDeleteOpen(false);
+  await onDelete(event.id);
+}}
       />
     </>
   );
