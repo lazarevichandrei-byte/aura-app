@@ -95,28 +95,7 @@ el.style.border =
 
 el.style.cursor = "pointer";
 
-el.style.transition =
-  "transform .18s ease";
 
-el.innerHTML = `
-<span style="font-size:24px">
-${icon}
-</span>
-`;
-
-el.onmouseenter = () => {
-  el.style.transform = "scale(1.08)";
-};
-
-el.onmouseleave = () => {
-  el.style.transform = "scale(1)";
-};
-
-    el.onclick = () => {
-
-  onMarkerClick?.(event);
-
-};
 
     const marker = new maplibregl.Marker({
       element: el,

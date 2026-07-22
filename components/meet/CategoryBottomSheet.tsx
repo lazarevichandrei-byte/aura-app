@@ -59,17 +59,33 @@ export default function CategoryBottomSheet({
   {selectedGroup && (
 
     <div
-      onClick={() => setSelectedGroup(null)}
-      style={{
-        cursor: "pointer",
-        fontSize: 22,
-        fontWeight: 700,
-        color: "#2F80FF",
-        userSelect: "none",
-      }}
-    >
-      ←
-    </div>
+  onClick={() => setSelectedGroup(null)}
+  style={{
+    width: 34,
+    height: 34,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    userSelect: "none",
+    color: "#2F80FF",
+    transition: "background .15s ease",
+  }}
+>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M15 18L9 12L15 6" />
+  </svg>
+</div>
 
   )}
 
@@ -219,7 +235,7 @@ export default function CategoryBottomSheet({
       fontSize: 18,
     }}
   >
-    ✓
+    
   </span>
 )}
 
@@ -233,50 +249,7 @@ export default function CategoryBottomSheet({
 
 </AnimatePresence>
 
-      {selectedGroup &&
-
-  MEET_CATEGORIES
-    .filter(item => item.group === selectedGroup)
-    .map(item => (
-
-      <div
-        key={item.id}
-        onClick={() => {
-
-          onSelect(item.id);
-
-          setSelectedGroup(null);
-
-          onClose();
-
-        }}
-        style={{
-          height: 56,
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          cursor: "pointer",
-          borderBottom: "1px solid #F1F3F6",
-        }}
-      >
-        <span style={{ fontSize: 22 }}>
-          {item.icon}
-        </span>
-
-        <span
-          style={{
-            fontSize: 16,
-            fontWeight: 500,
-          }}
-        >
-          {item.name}
-        </span>
-
-      </div>
-
-    ))
-
-}
+      
     
 </div>
 </BottomSheet>
