@@ -9,7 +9,10 @@ import {
   leaveMeetEvent,
   deleteMeetEvent,
 } from "../../lib/meet/api";
-import { useRouter } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
 import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
 import type { MeetEvent } from "../../lib/meet/types";
@@ -18,6 +21,8 @@ import { useCurrentUser } from "../../lib/useCurrentUser";
 
 export default function MeetPage() {
     const router = useRouter();
+
+const searchParams = useSearchParams();
     const { user: currentUser } = useCurrentUser();
 
     const [events,setEvents] =
@@ -95,7 +100,24 @@ async function load(){
 }
 
   const [tab, setTab] =
-    useState("feed");
+  useState("feed");
+
+  useEffect(() => {
+
+  const value =
+    searchParams.get("tab");
+
+  if (
+    value === "map" ||
+    value === "feed" ||
+    value === "ai"
+  ) {
+
+    setTab(value);
+
+  }
+
+}, [searchParams]);
 
     const [selectedEvent, setSelectedEvent] =
   useState<MeetEvent | null>(null);
@@ -537,9 +559,16 @@ lineHeight:1.5
 
 
 <div
+  onClick={() => {
+
+    if (categoryMenuOpen) {
+      setCategoryMenuOpen(false);
+    }
+
+  }}
   style={{
-  position: "relative",
-  height: "70vh",
+    position: "relative",
+    height: "70vh",
   borderRadius: 24,
   overflow: "hidden",
   boxShadow: "0 8px 20px rgba(0,0,0,.05)",
@@ -554,11 +583,11 @@ lineHeight:1.5
   selectedEvent={selectedEvent}
   onMarkerClick={(event) => {
 
-  
+    setCategoryMenuOpen(false);
 
-  setSelectedEvent(event);
+    setSelectedEvent(event);
 
-}}
+  }}
 />
 
   {selectedEvent && (
@@ -596,9 +625,13 @@ lineHeight:1.5
 >
 
     <div
-      onClick={() =>
-        setCategoryMenuOpen(!categoryMenuOpen)
-      }
+      onClick={(e) => {
+
+  e.stopPropagation();
+
+  setCategoryMenuOpen(!categoryMenuOpen);
+
+}}
       style={{
         height: 38,
         padding: "0 14px",
@@ -627,6 +660,7 @@ lineHeight:1.5
     </div>
 
     <div
+  onClick={(e) => e.stopPropagation()}
   style={{
     marginTop: 8,
     borderRadius: 16,

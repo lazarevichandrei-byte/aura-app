@@ -329,11 +329,11 @@ const [deleteOpen, setDeleteOpen] = useState(false);
         onClose={() => setManageOpen(false)}
         onEdit={() => {
           setManageOpen(false);
-          router.push(`/meet/edit/${event.id}`);
+          router.push(`/meet/edit/${event.id}?tab=map`);
         }}
         onParticipants={() => {
           setManageOpen(false);
-          router.push(`/meet/participants/${event.id}`);
+          router.push(`/meet/participants/${event.id}?tab=map`);
         }}
         onDelete={() => {
           setManageOpen(false);

@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft2 } from "iconsax-react";
 import { motion } from "motion/react";
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import PageWrapper from "../../../../components/PageWrapper";
 import BottomSheet from "../../../../components/BottomSheet";
 import AuraLoader from "../../../../components/AuraLoader";
@@ -22,6 +26,8 @@ export default function MeetParticipantsPage() {
     const { id } = useParams();
 
     const router = useRouter();
+
+const searchParams = useSearchParams();
     const { user: currentUser } = useCurrentUser();
     const [loading, setLoading] = useState(true);
 
@@ -117,7 +123,14 @@ if (loading) {
     }}
 >
    <motion.div
-    onClick={() => router.back()}
+    onClick={() => {
+
+  const tab =
+    searchParams.get("tab") ?? "feed";
+
+  router.push(`/meet?tab=${tab}`);
+
+}}
     whileTap={{ scale: 0.92 }}
     transition={{ duration: 0.15 }}
     style={{
