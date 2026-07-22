@@ -541,31 +541,28 @@ lineHeight:1.5
     borderRadius: 24,
     overflow: "hidden",
     boxShadow: "0 8px 20px rgba(0,0,0,.05)",
-
-    transform: selectedEvent
-      ? "scale(.985)"
-      : "scale(1)",
-
-    transition:
-      "transform .34s cubic-bezier(.22,.61,.36,1)",
-
-    transformOrigin: "center center",
   }}
 >
 
-  {selectedEvent && (
-  <div
-    style={{
-      position: "absolute",
-      inset: 0,
-      background: "rgba(0,0,0,.10)",
-      backdropFilter: "blur(1.5px)",
-      pointerEvents: "none",
-      transition: "all .3s",
-      zIndex: 500,
-    }}
+  <AuraMap
+    mode="view"
+    category={selectedCategory}
+    onMarkerClick={setSelectedEvent}
   />
-)}
+
+  {selectedEvent && (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,.10)",
+        backdropFilter: "blur(1.5px)",
+        pointerEvents: "none",
+        transition: "all .3s",
+        zIndex: 500,
+      }}
+    />
+  )}
 
   <div
     style={{
