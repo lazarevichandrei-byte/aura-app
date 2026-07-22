@@ -174,24 +174,35 @@ export async function deleteMeetEvent(
   alert("deleteMeetEvent");
 
   const participants = await supabase
-    .from("meet_participants")
-    .delete()
-    .eq("event_id", eventId);
+  .from("meet_participants")
+  .delete()
+  .eq("event_id", eventId);
 
-  console.log(participants);
+alert(
+  "participants:\n" +
+    JSON.stringify(participants, null, 2)
+);
 
-  const event = await supabase
-    .from("meet_events")
-    .delete()
-    .eq("id", eventId)
-    .select();
+const event = await supabase
+  .from("meet_events")
+  .delete()
+  .eq("id", eventId)
+  .select();
 
-  console.log(event);
+alert(
+  "event:\n" +
+    JSON.stringify(event, null, 2)
+);
 
-  if (event.error) {
-    throw event.error;
-  }
+if (participants.error) {
+  throw participants.error;
+}
 
-  return event.data;
+if (event.error) {
+  throw event.error;
+}
+
+return event.data;
+  
 }
 

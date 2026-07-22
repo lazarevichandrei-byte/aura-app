@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
+import { deleteMeetEvent } from "../../lib/meet/api";
 import { useState } from "react";
 import MeetManageSheet from "./MeetManageSheet";
 type Props = {
@@ -329,10 +330,19 @@ const isFull =
           setManageOpen(false);
           console.log("participants");
         }}
-        onDelete={() => {
-          setManageOpen(false);
-          console.log("delete");
-        }}
+        onDelete={async () => {
+  setManageOpen(false);
+
+  try {
+    await deleteMeetEvent(event.id);
+
+    router.refresh();
+  } catch (error) {
+  console.error(error);
+
+  alert(JSON.stringify(error, null, 2));
+}
+}}
       />
     </>
   );
