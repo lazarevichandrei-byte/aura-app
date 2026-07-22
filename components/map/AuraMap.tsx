@@ -52,6 +52,9 @@ const AuraMap = forwardRef<AuraMapRef, Props>(({
     const markers =
   useRef<maplibregl.Marker[]>([]);
 
+const markerElements =
+  useRef<Map<string, HTMLDivElement>>(new Map());
+
 const events =
   useRef<MeetEvent[]>([]);
 
@@ -60,7 +63,10 @@ const events =
   if (!map.current) return;
 
   markers.current.forEach(marker => marker.remove());
-  markers.current = [];
+
+markers.current = [];
+
+markerElements.current.clear();
 
   for (const event of events.current) {
 
@@ -82,14 +88,11 @@ const icon = meetCategory?.icon ?? "📍";
 
 el.style.width = "46px";
 el.style.height = "46px";
-const isSelected =
-  selectedEvent?.id === event.id;
 
-el.style.width =
-  isSelected ? "58px" : "46px";
 
-el.style.height =
-  isSelected ? "58px" : "46px";
+el.style.width = "46px";
+
+el.style.height = "46px";
 
 el.style.borderRadius = "50%";
 
@@ -101,14 +104,10 @@ el.style.alignItems = "center";
 el.style.justifyContent = "center";
 
 el.style.border =
-  isSelected
-    ? "3px solid #2F80FF"
-    : "2px solid rgba(47,128,255,.18)";
+  "2px solid rgba(47,128,255,.18)";
 
 el.style.boxShadow =
-  isSelected
-    ? "0 0 0 8px rgba(47,128,255,.18), 0 18px 38px rgba(0,0,0,.28)"
-    : "0 12px 28px rgba(0,0,0,.22)";
+  "0 12px 28px rgba(0,0,0,.22)";
 
 el.style.backdropFilter =
   "blur(10px)";
@@ -118,27 +117,7 @@ el.style.transition =
 
 el.style.cursor = "pointer";
 
-if (isSelected) {
 
-  el.animate(
-    [
-      {
-        transform: "scale(1)"
-      },
-      {
-        transform: "scale(1.22)"
-      },
-      {
-        transform: "scale(1.12)"
-      }
-    ],
-    {
-      duration: 350,
-      easing: "cubic-bezier(.22,1,.36,1)"
-    }
-  );
-
-}
 
 el.innerHTML = `
 <span style="font-size:24px">
@@ -175,8 +154,6 @@ el.onclick = () => {
 
 el.onmouseenter = () => {
 
-  if (isSelected) return;
-
   el.style.transform = "scale(1.08)";
 
   el.style.boxShadow =
@@ -185,7 +162,11 @@ el.onmouseenter = () => {
 
 el.onmouseleave = () => {
 
-  if (isSelected) return;
+  if (
+    selectedEvent?.id === event.id
+  ) {
+    return;
+  }
 
   el.style.transform = "scale(1)";
 
@@ -200,6 +181,7 @@ ${icon}
 `;
 
 
+markerElements.current.set(event.id, el);
 
     const marker = new maplibregl.Marker({
       element: el,
@@ -395,7 +377,37 @@ useEffect(() => {
 
 useEffect(() => {
   renderMarkers();
-}, [category, selectedEvent]);
+}, [category]);
+
+useEffect(() => {
+
+  markerElements.current.forEach((el, id) => {
+
+    const active =
+      selectedEvent?.id === id;
+
+    el.style.width =
+      active ? "58px" : "46px";
+
+    el.style.height =
+      active ? "58px" : "46px";
+
+    el.style.border =
+      active
+        ? "3px solid #2F80FF"
+        : "2px solid rgba(47,128,255,.18)";
+
+    el.style.boxShadow =
+      active
+        ? "0 0 0 8px rgba(47,128,255,.18), 0 18px 38px rgba(0,0,0,.28)"
+        : "0 12px 28px rgba(0,0,0,.22)";
+
+    el.style.transform =
+      active ? "scale(1.15)" : "scale(1)";
+
+  });
+
+}, [selectedEvent]);
 
 
 
