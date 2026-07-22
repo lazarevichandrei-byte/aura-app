@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import {
     Location,
     Calendar,
+    Clock,
     People,
 } from "iconsax-react";
 import type { MeetEvent } from "../../lib/meet/types";
@@ -30,7 +31,9 @@ export default function MeetFeedCard({
 
         <motion.div
 
-            layout
+layout
+
+layoutId={event.id}
 
             initial={{
                 opacity: 0,
@@ -55,7 +58,7 @@ export default function MeetFeedCard({
             style={{
                 background: "#fff",
                 borderRadius: 24,
-                padding: 18,
+                padding: 16,
                 cursor: "pointer",
                 boxShadow:
                     "0 10px 28px rgba(0,0,0,.05)",
@@ -135,7 +138,7 @@ export default function MeetFeedCard({
 
             <div
                 style={{
-                    marginTop: 18,
+                    marginTop: 12,
                     fontSize: 20,
                     fontWeight: 700,
                 }}
@@ -148,7 +151,7 @@ export default function MeetFeedCard({
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    marginTop: 14,
+                    marginTop: 10,
                     color: "#697586",
                 }}
             >
@@ -161,30 +164,66 @@ export default function MeetFeedCard({
             </div>
 
             <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginTop: 10,
-                    color: "#697586",
-                }}
-            >
-                <Calendar
-                    size="18"
-                    color="#2AABEE"
-                />
+    style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 18,
+        marginTop: 10,
+        color: "#697586",
+        flexWrap: "wrap",
+    }}
+>
 
-                {new Date(
-                    event.starts_at
-                ).toLocaleString()}
-            </div>
+    <div
+        style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+        }}
+    >
+        <Calendar
+            size="18"
+            color="#2AABEE"
+        />
+
+        {new Date(event.starts_at).toLocaleDateString(
+            "ru-RU",
+            {
+                day: "numeric",
+                month: "long",
+            }
+        )}
+    </div>
+
+    <div
+        style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+        }}
+    >
+        <Clock
+            size="18"
+            color="#2AABEE"
+        />
+
+        {new Date(event.starts_at).toLocaleTimeString(
+            "ru-RU",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+            }
+        )}
+    </div>
+
+</div>
 
             <div
                 style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    marginTop: 20,
+                    marginTop: 16,
                 }}
             >
 
@@ -303,7 +342,7 @@ export default function MeetFeedCard({
 
                         style={{
                             border: "none",
-                            height: 42,
+                            height: 38,
                             padding: "0 18px",
                             borderRadius: 14,
                             background:
@@ -313,7 +352,7 @@ export default function MeetFeedCard({
                             fontWeight: 700,
                         }}
                     >
-                        Присоединиться
+                      Вступить
                     </motion.button>
 
                 )}

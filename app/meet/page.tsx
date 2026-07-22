@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
 import BottomNav from "../../components/BottomNav";
 import {
@@ -435,7 +436,10 @@ cursor:"pointer"
 
 {!loading && events.length>0 && (
 
-<div
+<motion.div
+
+layout
+
 style={{
 display:"grid",
 gridTemplateColumns:
@@ -445,6 +449,11 @@ view === "grid"
 gap:16,
 alignItems:"start",
 }}
+
+transition={{
+duration:.28,
+}}
+
 >
 
 {events.map((event: any) => {
@@ -493,7 +502,7 @@ view === "list" ? (
 
 })}
 
-</div>
+</motion.div>
 
 )}
 

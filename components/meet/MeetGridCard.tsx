@@ -29,7 +29,9 @@ export default function MeetGridCard({
 
         <motion.div
 
-            layout
+layout
+
+layoutId={event.id}
 
             whileTap={{
                 scale: .98,
