@@ -36,7 +36,8 @@ export type AuraMapRef = {
 const AuraMap = forwardRef<AuraMapRef, Props>(({
   mode = "create",
   onCenterChanged,
-  onMarkerClick
+  onMarkerClick,
+  category
 }, ref) => {
 
   const mapContainer =
@@ -60,20 +61,20 @@ const events =
 
   for (const event of events.current) {
 
-    if (
-      event.latitude == null ||
-      event.longitude == null
-    ) {
-      continue;
-    }
+  if (
+    category &&
+    event.category !== category
+  ) {
+    continue;
+  }
 
     const el = document.createElement("div");
 
-    const category = MEET_CATEGORIES.find(
+    const meetCategory = MEET_CATEGORIES.find(
   c => c.id === event.category
 );
 
-const icon = category?.icon ?? "📍";
+const icon = meetCategory?.icon ?? "📍";
 
 
 el.style.width = "46px";
@@ -296,6 +297,10 @@ useEffect(() => {
   load();
 
 }, [onCenterChanged]);
+
+useEffect(() => {
+  renderMarkers();
+}, [category]);
 
 
 

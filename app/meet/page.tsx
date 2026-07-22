@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { MEET_CATEGORIES } from "../../lib/meet/categories";
 import BottomNav from "../../components/BottomNav";
 import {
   loadMeetEvents,
@@ -98,6 +99,9 @@ async function load(){
 
     const [selectedEvent, setSelectedEvent] =
   useState<MeetEvent | null>(null);
+
+const [selectedCategory, setSelectedCategory] =
+  useState<string | null>(null);
 
   return (
 
@@ -523,26 +527,87 @@ lineHeight:1.5
 
         {tab === "map" && (
 
+<>
+
+<div
+  style={{
+    display: "flex",
+    gap: 10,
+    overflowX: "auto",
+    paddingBottom: 14,
+    marginBottom: 14,
+  }}
+>
+
+  <div
+    onClick={() => setSelectedCategory(null)}
+    style={{
+      whiteSpace: "nowrap",
+      padding: "10px 16px",
+      borderRadius: 999,
+      cursor: "pointer",
+      background:
+        selectedCategory === null
+          ? "#2F80FF"
+          : "#fff",
+      color:
+        selectedCategory === null
+          ? "#fff"
+          : "#374151",
+      fontWeight: 600,
+      boxShadow: "0 2px 10px rgba(0,0,0,.05)",
+    }}
+  >
+    Все
+  </div>
+
+  {MEET_CATEGORIES.map((item) => (
+
+    <div
+      key={item.id}
+      onClick={() => setSelectedCategory(item.id)}
+      style={{
+        whiteSpace: "nowrap",
+        padding: "10px 16px",
+        borderRadius: 999,
+        cursor: "pointer",
+        background:
+          selectedCategory === item.id
+            ? "#2F80FF"
+            : "#fff",
+        color:
+          selectedCategory === item.id
+            ? "#fff"
+            : "#374151",
+        fontWeight: 600,
+        boxShadow: "0 2px 10px rgba(0,0,0,.05)",
+      }}
+    >
+      {item.icon} {item.name}
+    </div>
+
+  ))}
+
+</div>
+
 <div
 style={{
-
 height:"70vh",
-
 borderRadius:24,
-
 overflow:"hidden",
-
-boxShadow:
-"0 8px 20px rgba(0,0,0,.05)"
-
+boxShadow:"0 8px 20px rgba(0,0,0,.05)"
 }}
 >
+
 <AuraMap
   mode="view"
+  category={selectedCategory}
   onMarkerClick={setSelectedEvent}
 />
 
 </div>
+
+</>
 
 )}
 
