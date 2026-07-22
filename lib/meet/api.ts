@@ -200,3 +200,32 @@ return event.data;
   
 }
 
+export async function getMeetParticipants(
+  eventId: string
+) {
+  const { data, error } = await supabase
+    .from("meet_participants")
+    .select(`
+      joined_at,
+      users(
+        id,
+        name,
+        age,
+        city,
+        avatar_url,
+        photos,
+        is_online
+      )
+    `)
+    .eq("event_id", eventId)
+    .order("joined_at", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
