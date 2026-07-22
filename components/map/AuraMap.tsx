@@ -379,35 +379,7 @@ useEffect(() => {
   renderMarkers();
 }, [category]);
 
-useEffect(() => {
 
-  markerElements.current.forEach((el, id) => {
-
-    const active =
-      selectedEvent?.id === id;
-
-    el.style.width =
-      active ? "58px" : "46px";
-
-    el.style.height =
-      active ? "58px" : "46px";
-
-    el.style.border =
-      active
-        ? "3px solid #2F80FF"
-        : "2px solid rgba(47,128,255,.18)";
-
-    el.style.boxShadow =
-      active
-        ? "0 0 0 8px rgba(47,128,255,.18), 0 18px 38px rgba(0,0,0,.28)"
-        : "0 12px 28px rgba(0,0,0,.22)";
-
-    el.style.transform =
-      active ? "scale(1.15)" : "scale(1)";
-
-  });
-
-}, [selectedEvent]);
 
 
 
