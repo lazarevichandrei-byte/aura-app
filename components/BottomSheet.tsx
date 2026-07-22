@@ -84,15 +84,23 @@ export default function BottomSheet({
 
           paddingBottom: 34,
 
-          transform: visible
-            ? "translateY(0)"
-            : "translateY(100%)",
+height: "88vh",
 
-          transition:
-            "transform .25s ease",
+overflow: "hidden",
 
-          boxShadow:
-            "0 -10px 40px rgba(0,0,0,.15)"
+display: "flex",
+
+flexDirection: "column",
+
+transform: visible
+  ? "translateY(0)"
+  : "translateY(100%)",
+
+transition:
+  "transform .25s ease",
+
+boxShadow:
+  "0 -10px 40px rgba(0,0,0,.15)"
 
         }}
 

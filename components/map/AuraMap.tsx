@@ -10,6 +10,7 @@ import maplibregl from "maplibre-gl";
 import { MAP_STYLE } from "../../lib/map/styles";
 import type { MeetEvent } from "../../lib/meet/types";
 import { loadMeetEvents } from "../../lib/meet/api";
+import { MEET_CATEGORIES } from "../../lib/meet/categories";
 
 type Props = {
   mode?: "create" | "view";
@@ -68,10 +69,48 @@ const events =
 
     const el = document.createElement("div");
 
-    el.innerHTML = "📍";
+    const category = MEET_CATEGORIES.find(
+  c => c.id === event.category
+);
 
-    el.style.fontSize = "34px";
-    el.style.cursor = "pointer";
+const icon = category?.icon ?? "📍";
+
+
+el.style.width = "46px";
+el.style.height = "46px";
+
+el.style.borderRadius = "50%";
+
+el.style.background = "#FFFFFF";
+
+el.style.display = "flex";
+el.style.alignItems = "center";
+el.style.justifyContent = "center";
+
+el.style.boxShadow =
+  "0 8px 22px rgba(0,0,0,.18)";
+
+el.style.border =
+  "2px solid #2F80FF";
+
+el.style.cursor = "pointer";
+
+el.style.transition =
+  "transform .18s ease";
+
+el.innerHTML = `
+<span style="font-size:24px">
+${icon}
+</span>
+`;
+
+el.onmouseenter = () => {
+  el.style.transform = "scale(1.08)";
+};
+
+el.onmouseleave = () => {
+  el.style.transform = "scale(1)";
+};
 
     el.onclick = () => {
 
