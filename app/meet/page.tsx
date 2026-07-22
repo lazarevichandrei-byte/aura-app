@@ -376,9 +376,9 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
       {/* Content */}
 
       <div
-        style={{
-          padding: "20px"
-        }}
+      style={{
+  padding: "12px 20px 20px"
+}}
       >
 
         {tab === "feed" && (

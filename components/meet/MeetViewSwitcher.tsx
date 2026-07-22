@@ -24,7 +24,7 @@ export default function MeetViewSwitcher({
             style={{
                 display: "flex",
                 justifyContent: "flex-end",
-                marginBottom: 16,
+                marginBottom: 8,
             }}
         >
 
@@ -32,8 +32,8 @@ export default function MeetViewSwitcher({
                 style={{
                     display: "flex",
                     background: "#fff",
-                    borderRadius: 14,
-                    padding: 4,
+                    borderRadius: 12,
+                    padding: 1,
                     boxShadow:
                         "0 6px 18px rgba(0,0,0,.06)",
                 }}
@@ -47,9 +47,10 @@ export default function MeetViewSwitcher({
                         onChange("list")
                     }
                     style={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: 10,
+                        width: 34,
+                        height: 34,
+                        borderRadius: 8
+                    ,
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
@@ -62,7 +63,7 @@ export default function MeetViewSwitcher({
                 >
 
                     <RowVertical
-                        size="20"
+                        size="16"
                         color={
                             view === "list"
                                 ? "#fff"
@@ -80,10 +81,10 @@ export default function MeetViewSwitcher({
                     onClick={() =>
                         onChange("grid")
                     }
-                    style={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: 10,
+                   style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: 8,
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
@@ -96,7 +97,7 @@ export default function MeetViewSwitcher({
                 >
 
                     <Element3
-                        size="20"
+                        size="16"
                         color={
                             view === "grid"
                                 ? "#fff"
