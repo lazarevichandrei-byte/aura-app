@@ -9,10 +9,7 @@ import {
   leaveMeetEvent,
   deleteMeetEvent,
 } from "../../lib/meet/api";
-import {
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
 import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
 import type { MeetEvent } from "../../lib/meet/types";
@@ -22,7 +19,7 @@ import { useCurrentUser } from "../../lib/useCurrentUser";
 export default function MeetPage() {
     const router = useRouter();
 
-const searchParams = useSearchParams();
+
     const { user: currentUser } = useCurrentUser();
 
     const [events,setEvents] =
@@ -104,20 +101,23 @@ async function load(){
 
   useEffect(() => {
 
-  const value =
-    searchParams.get("tab");
+  if (typeof window === "undefined") return;
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  const value = params.get("tab");
 
   if (
     value === "map" ||
     value === "feed" ||
     value === "ai"
   ) {
-
     setTab(value);
-
   }
 
-}, [searchParams]);
+}, []);
 
     const [selectedEvent, setSelectedEvent] =
   useState<MeetEvent | null>(null);
