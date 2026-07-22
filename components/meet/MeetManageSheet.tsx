@@ -1,5 +1,7 @@
 "use client";
 
+import { motion, AnimatePresence } from "motion/react";
+
 
 
 type Props = {
@@ -17,7 +19,7 @@ export default function MeetManageSheet({
   onParticipants,
   onDelete,
 }: Props) {
-  if (!open) return null;
+  
 
   const itemStyle = {
     width: "100%",
@@ -34,8 +36,14 @@ export default function MeetManageSheet({
   };
 
   return (
-    <>
-      <div
+  <AnimatePresence>
+    {open && (
+      <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
         onClick={onClose}
         style={{
           position: "fixed",
@@ -45,17 +53,33 @@ export default function MeetManageSheet({
         }}
       />
 
-      <div
+      <motion.div
+        initial={{
+          y: 80,
+          opacity: 0,
+        }}
+        animate={{
+          y: 0,
+          opacity: 1,
+        }}
+        exit={{
+          y: 80,
+          opacity: 0,
+        }}
+        transition={{
+          duration: 0.25,
+        }}
         style={{
           position: "fixed",
           left: 0,
           right: 0,
           bottom: 80,
           background: "#F8F8F8",
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
           padding: "20px 20px 32px",
           zIndex: 1999,
+          boxShadow: "0 -8px 30px rgba(0,0,0,.12)",
         }}
       >
         <div
@@ -71,34 +95,179 @@ export default function MeetManageSheet({
         <div
           style={{
             textAlign: "center",
-            fontSize: 20,
-            fontWeight: 700,
-            marginBottom: 20,
+            marginBottom: 24,
           }}
         >
-          ⚙️ Управление встречей
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#111827",
+            }}
+          >
+            Управление встречей
+          </div>
+
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 14,
+              color: "#6B7280",
+            }}
+          >
+            Выберите необходимое действие
+          </div>
         </div>
 
-        <button style={itemStyle} onClick={onEdit}>
-          ✏️ Редактировать
-        </button>
+        <motion.button
+  whileTap={{ scale: 0.98 }}
+  onClick={onEdit}
+  style={{
+    ...itemStyle,
+    height: 74,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderRadius: 18,
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 17,
+        fontWeight: 700,
+        color: "#111827",
+      }}
+    >
+      ✏️ Редактировать
+    </div>
 
-        <button style={itemStyle} onClick={onParticipants}>
-          👥 Участники
-        </button>
+    <div
+      style={{
+        marginTop: 4,
+        fontSize: 13,
+        color: "#6B7280",
+      }}
+    >
+      Изменить информацию о встрече
+    </div>
+  </div>
 
-        <button
-          style={{
-            ...itemStyle,
-            color: "#EF4444",
-          }}
-          onClick={onDelete}
-        >
-          🗑️ Удалить встречу
-        </button>
+  <div
+    style={{
+      fontSize: 22,
+      color: "#9CA3AF",
+    }}
+  >
+    ›
+  </div>
+</motion.button>
+
+<motion.button
+  whileTap={{ scale: 0.98 }}
+  onClick={onParticipants}
+  style={{
+    ...itemStyle,
+    height: 74,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderRadius: 18,
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 17,
+        fontWeight: 700,
+        color: "#111827",
+      }}
+    >
+      👥 Участники
+    </div>
+
+    <div
+      style={{
+        marginTop: 4,
+        fontSize: 13,
+        color: "#6B7280",
+      }}
+    >
+      Управление участниками встречи
+    </div>
+  </div>
+
+  <div
+    style={{
+      fontSize: 22,
+      color: "#9CA3AF",
+    }}
+  >
+    ›
+  </div>
+</motion.button>
+
+<div
+  style={{
+    margin: "10px 0 18px",
+    height: 1,
+    background: "#ECECEC",
+  }}
+/>
+
+<motion.button
+  whileTap={{ scale: 0.98 }}
+  onClick={onDelete}
+  style={{
+    width: "100%",
+    height: 74,
+    border: "1px solid #FECACA",
+    background: "#FFF5F5",
+    borderRadius: 18,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0 18px",
+    cursor: "pointer",
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 17,
+        fontWeight: 700,
+        color: "#DC2626",
+      }}
+    >
+      🗑️ Удалить встречу
+    </div>
+
+    <div
+      style={{
+        marginTop: 4,
+        fontSize: 13,
+        color: "#EF4444",
+      }}
+    >
+      Это действие нельзя отменить
+    </div>
+  </div>
+
+  <div
+    style={{
+      fontSize: 22,
+      color: "#F87171",
+    }}
+  >
+    ›
+  </div>
+</motion.button>
 
         
-      </div>
-    </>
-  );
+      </motion.div>
+      
+      </>
+    )}
+  </AnimatePresence>
+);
 }
