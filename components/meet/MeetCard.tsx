@@ -5,6 +5,7 @@ import { createChatIfNotExists } from "../../lib/chat/api";
 import { deleteMeetEvent } from "../../lib/meet/api";
 import { useState } from "react";
 import MeetManageSheet from "./MeetManageSheet";
+import DeleteMeetSheet from "./DeleteMeetSheet";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -39,6 +40,8 @@ const isFull =
   currentUserId === event.users?.id;
 
   const [manageOpen, setManageOpen] = useState(false);
+const [deleteOpen, setDeleteOpen] = useState(false);
+  
 
   const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
     day: "numeric",
@@ -323,30 +326,33 @@ const isFull =
         open={manageOpen}
         onClose={() => setManageOpen(false)}
         onEdit={() => {
-  setManageOpen(false);
-  router.push(`/meet/edit/${event.id}`);
-}}
+          setManageOpen(false);
+          router.push(`/meet/edit/${event.id}`);
+        }}
         onParticipants={() => {
-  setManageOpen(false);
-  router.push(`/meet/participants/${event.id}`);
-}}
-        onDelete={async () => {
-  setManageOpen(false);
+          setManageOpen(false);
+          router.push(`/meet/participants/${event.id}`);
+        }}
+        onDelete={() => {
+          setManageOpen(false);
+          setDeleteOpen(true);
+        }}
+      />
 
-  if (!confirm("Удалить встречу? Это действие нельзя отменить.")) {
-    return;
-  }
+      <DeleteMeetSheet
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={async () => {
+          setDeleteOpen(false);
 
-  try {
-    await deleteMeetEvent(event.id);
-
-    router.refresh();
-  } catch (error) {
-  console.error(error);
-
-  alert("Не удалось удалить встречу.");
-}
-}}
+          try {
+            await deleteMeetEvent(event.id);
+            router.refresh();
+          } catch (error) {
+            console.error(error);
+            alert("Не удалось удалить встречу.");
+          }
+        }}
       />
     </>
   );
