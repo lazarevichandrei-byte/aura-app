@@ -46,11 +46,21 @@ const [deleteOpen, setDeleteOpen] = useState(false);
   
 
   const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const onlineStatus = event.users?.is_online
+  ? {
+      text: "Онлайн",
+      color: "#10B981",
+    }
+  : {
+      text: "Не в сети",
+      color: "#9CA3AF",
+    };
 
   const buttonStyle: CSSProperties = {
     width: "100%",
@@ -117,16 +127,16 @@ const [deleteOpen, setDeleteOpen] = useState(false);
           </div>
 
           {expanded && (
-            <div
-              style={{
-                fontSize: 12,
-                 color: "#10B981",
-                 marginTop: 1,
-              }}
-            >
-              ● Онлайн
-            </div>
-          )}
+  <div
+    style={{
+      fontSize: 12,
+      color: onlineStatus.color,
+      marginTop: 1,
+    }}
+  >
+    ● {onlineStatus.text}
+  </div>
+)}
         </div>
       </div>
 

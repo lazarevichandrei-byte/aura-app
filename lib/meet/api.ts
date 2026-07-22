@@ -54,24 +54,27 @@ export async function loadMeetEvents() {
       .from("meet_events")
       .select(`
         *,
-        users(
-          id,
-          name,
-          age,
-          city,
-          avatar_url,
-          photos,
-          is_online
-        ),
-        meet_participants(
-          joined_at,
-          users(
-            id,
-            name,
-            avatar_url,
-            photos
-          )
-        )
+       users(
+  id,
+  name,
+  age,
+  city,
+  avatar_url,
+  photos,
+  is_online,
+  last_seen,
+  show_online,
+  show_last_seen
+),
+meet_participants(
+  joined_at,
+  users(
+    id,
+    name,
+    avatar_url,
+    photos
+  )
+)
       `)
       .eq("is_active", true)
       .order("starts_at", {
@@ -124,12 +127,17 @@ export async function getMeetEvent(eventId: string) {
     .select(`
       *,
       users(
-        id,
-        name,
-        age,
-        city,
-        avatar_url
-      )
+  id,
+  name,
+  age,
+  city,
+  avatar_url,
+  photos,
+  is_online,
+  last_seen,
+  show_online,
+  show_last_seen
+)
     `)
     .eq("id", eventId)
     .single();
@@ -223,14 +231,17 @@ export async function getMeetParticipants(
     .select(`
       joined_at,
       users(
-        id,
-        name,
-        age,
-        city,
-        avatar_url,
-        photos,
-        is_online
-      )
+  id,
+  name,
+  age,
+  city,
+  avatar_url,
+  photos,
+  is_online,
+  last_seen,
+  show_online,
+  show_last_seen
+)
     `)
     .eq("event_id", eventId)
     .order("joined_at", {

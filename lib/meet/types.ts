@@ -36,6 +36,9 @@ export interface MeetEvent {
   avatar_url: string | null;
   photos: string[] | null;
   is_online: boolean;
+  last_seen: string | null;
+  show_online: boolean;
+  show_last_seen: boolean;
 };
 
 meet_participants?: {
