@@ -15,6 +15,8 @@ import { supabase } from "../../../lib/supabase";
 import { createMeetEvent } from "../../../lib/meet/api";
 import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
+import CategoryPicker from "../../../components/meet/CategoryPicker";
+import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
 export default function CreateMeetPage() {
     
 
@@ -53,7 +55,7 @@ useState(false);
 
   const [category,setCategory] = useState("coffee");
 
-  const [showAllCategories,setShowAllCategories] =
+  const [categorySheetOpen, setCategorySheetOpen] =
 useState(false);
 
 useEffect(() => {
@@ -293,112 +295,37 @@ placeholder="Например: Вечерний кофе ☕"
 style={inputStyle}
 />
 
-        {/* Категории */}
+        {/* Категория */}
 
-        <div
-          style={{
-            ...labelStyle,
-            marginTop:24
-          }}
-        >
-          Категория
-        </div>
-
-        <div
-          style={{
-            display:"flex",
-            flexWrap:"wrap",
-            gap:10
-          }}
-        >
-
-          {(showAllCategories
-  ? MEET_CATEGORIES
-  : MEET_CATEGORIES.slice(0,3)
-).map(item => (
-
-            <div
-
-              key={item.id}
-
-              onClick={()=>
-                setCategory(item.id)
-              }
-
-              style={{
-
-                padding:"7px 12px",
-
-                borderRadius:999,
-
-                cursor:"pointer",
-
-                background:
-                  category===item.id
-                  ? "#2F80FF"
-                  : "#fff",
-
-                color:
-                  category===item.id
-                  ? "#fff"
-                  : "#222",
-
-                fontSize:13,
-
-                border:"1px solid #E8EEF6",
-
-              }}
-            >
-              {item.icon} {item.name}
-            </div>
-
-            
-
-
-  
-
-          ))}
-
-
-          <div
-
-onClick={()=>
-setShowAllCategories(
-!showAllCategories
-)
-}
-
-style={{
-
-padding:"7px 12px",
-
-borderRadius:999,
-
-cursor:"pointer",
-
-background:"#fff",
-
-border:"1px solid #E8EEF6",
-
-fontSize:13,
-
-fontWeight:600
-
-}}
-
+<div
+  style={{
+    ...labelStyle,
+    marginTop: 24,
+  }}
 >
-
-{
-showAllCategories
-? "➖ Скрыть"
-: "➕ Еще"
-}
-
+  Категория
 </div>
 
-        </div>
+<CategoryPicker
+  value={
+    MEET_CATEGORIES.find(
+      item => item.id === category
+    ) ?? null
+  }
+  onClick={() => setCategorySheetOpen(true)}
+/>
 
-        {/* О встрече */}
+<CategoryBottomSheet
+  open={categorySheetOpen}
+  onClose={() => setCategorySheetOpen(false)}
+  value={category}
+  onSelect={(id) => {
+    setCategory(id);
+    setCategorySheetOpen(false);
+  }}
+/>
+
+{/* О встрече */}
 
         <div
           style={{
