@@ -103,6 +103,9 @@ async function load(){
 const [selectedCategory, setSelectedCategory] =
   useState<string | null>(null);
 
+const [categoryMenuOpen, setCategoryMenuOpen] =
+  useState(false);
+
   return (
 
     <div
@@ -529,81 +532,155 @@ lineHeight:1.5
 
 <>
 
+
+
 <div
   style={{
-    display: "flex",
-    gap: 10,
-    overflowX: "auto",
-    paddingBottom: 14,
-    marginBottom: 14,
+    position: "relative",
+    height: "70vh",
+    borderRadius: 24,
+    overflow: "hidden",
+    boxShadow: "0 8px 20px rgba(0,0,0,.05)",
+
+    transform: selectedEvent
+      ? "scale(.985)"
+      : "scale(1)",
+
+    transition:
+      "transform .34s cubic-bezier(.22,.61,.36,1)",
+
+    transformOrigin: "center center",
   }}
 >
 
+  {selectedEvent && (
   <div
-    onClick={() => setSelectedCategory(null)}
     style={{
-      whiteSpace: "nowrap",
-      padding: "10px 16px",
-      borderRadius: 999,
-      cursor: "pointer",
-      background:
-        selectedCategory === null
-          ? "#2F80FF"
-          : "#fff",
-      color:
-        selectedCategory === null
-          ? "#fff"
-          : "#374151",
-      fontWeight: 600,
-      boxShadow: "0 2px 10px rgba(0,0,0,.05)",
+      position: "absolute",
+      inset: 0,
+      background: "rgba(0,0,0,.10)",
+      backdropFilter: "blur(1.5px)",
+      pointerEvents: "none",
+      transition: "all .3s",
+      zIndex: 500,
+    }}
+  />
+)}
+
+  <div
+    style={{
+      position: "absolute",
+      top: 12,
+      left: 12,
+      right: 12,
+      zIndex: 1000,
     }}
   >
-    Все
-  </div>
-
-  {MEET_CATEGORIES.map((item) => (
 
     <div
-      key={item.id}
-      onClick={() => setSelectedCategory(item.id)}
+      onClick={() =>
+        setCategoryMenuOpen(!categoryMenuOpen)
+      }
       style={{
-        whiteSpace: "nowrap",
-        padding: "10px 16px",
-        borderRadius: 999,
+        height: 38,
+        padding: "0 14px",
+        borderRadius: 14,
+        background: "rgba(255,255,255,.82)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
         cursor: "pointer",
-        background:
-          selectedCategory === item.id
-            ? "#2F80FF"
-            : "#fff",
-        color:
-          selectedCategory === item.id
-            ? "#fff"
-            : "#374151",
+        boxShadow: "0 8px 24px rgba(0,0,0,.12)",
+        fontSize: 14,
         fontWeight: 600,
-        boxShadow: "0 2px 10px rgba(0,0,0,.05)",
       }}
     >
-      {item.icon} {item.name}
+      <span>
+        {selectedCategory
+          ? `${MEET_CATEGORIES.find(c => c.id === selectedCategory)?.icon} ${MEET_CATEGORIES.find(c => c.id === selectedCategory)?.name}`
+          : "🔍 Все категории"}
+      </span>
+
+      <span>
+        {categoryMenuOpen ? "▲" : "▼"}
+      </span>
     </div>
 
-  ))}
+    <div
+  style={{
+    marginTop: 8,
+    borderRadius: 16,
+    background: "rgba(255,255,255,.88)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    boxShadow: "0 12px 28px rgba(0,0,0,.15)",
 
-</div>
+    maxHeight: categoryMenuOpen ? 260 : 0,
+    opacity: categoryMenuOpen ? 1 : 0,
 
-<div
-style={{
-height:"70vh",
-borderRadius:24,
-overflow:"hidden",
-boxShadow:"0 8px 20px rgba(0,0,0,.05)"
-}}
+    transform: categoryMenuOpen
+      ? "translateY(0)"
+      : "translateY(-10px)",
+
+    transition:
+      "all .28s cubic-bezier(.22,.61,.36,1)",
+
+    pointerEvents: categoryMenuOpen
+      ? "auto"
+      : "none",
+
+    overflow: "hidden",
+    overflowY: "auto",
+  }}
 >
 
-<AuraMap
-  mode="view"
-  category={selectedCategory}
-  onMarkerClick={setSelectedEvent}
-/>
+        <div
+          onClick={() => {
+            setSelectedCategory(null);
+            setCategoryMenuOpen(false);
+          }}
+          style={{
+            padding: "11px 14px",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          ✓ Все
+        </div>
+
+        {MEET_CATEGORIES.map((item) => (
+
+          <div
+            key={item.id}
+            onClick={() => {
+              setSelectedCategory(item.id);
+              setCategoryMenuOpen(false);
+            }}
+            style={{
+              padding: "11px 14px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              cursor: "pointer",
+              background:
+                selectedCategory === item.id
+                  ? "rgba(47,128,255,.08)"
+                  : "transparent",
+            }}
+          >
+            <span>{item.icon}</span>
+            <span>{item.name}</span>
+          </div>
+
+        ))}
+
+      </div>
+
+    
+
+  </div>
 
 </div>
 

@@ -82,17 +82,24 @@ el.style.height = "46px";
 
 el.style.borderRadius = "50%";
 
-el.style.background = "#FFFFFF";
+el.style.background =
+  "rgba(255,255,255,.96)";
 
 el.style.display = "flex";
 el.style.alignItems = "center";
 el.style.justifyContent = "center";
 
-el.style.boxShadow =
-  "0 8px 22px rgba(0,0,0,.18)";
-
 el.style.border =
-  "2px solid #2F80FF";
+  "2px solid rgba(47,128,255,.18)";
+
+el.style.boxShadow =
+  "0 12px 28px rgba(0,0,0,.22)";
+
+el.style.backdropFilter =
+  "blur(10px)";
+
+el.style.transition =
+  "transform .18s ease, box-shadow .18s ease";
 
 el.style.cursor = "pointer";
 
@@ -104,6 +111,18 @@ ${icon}
 
 el.onclick = () => {
   onMarkerClick?.(event);
+};
+
+el.onmouseenter = () => {
+  el.style.transform = "scale(1.08)";
+  el.style.boxShadow =
+    "0 18px 34px rgba(0,0,0,.28)";
+};
+
+el.onmouseleave = () => {
+  el.style.transform = "scale(1)";
+  el.style.boxShadow =
+    "0 12px 28px rgba(0,0,0,.22)";
 };
 
 el.innerHTML = `
@@ -172,8 +191,22 @@ ${icon}
 
 });
 
-// После загрузки карты сразу определяем местоположение
 map.current.on("load", () => {
+
+  const saved = localStorage.getItem("aura_last_location");
+
+  if (saved) {
+
+    const { lat, lng } = JSON.parse(saved);
+
+    map.current?.flyTo({
+      center: [lng, lat],
+      zoom: 16,
+      essential: true,
+    });
+
+    return;
+  }
 
   if (!navigator.geolocation) return;
 
@@ -181,12 +214,17 @@ map.current.on("load", () => {
 
     (pos) => {
 
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      localStorage.setItem(
+        "aura_last_location",
+        JSON.stringify({ lat, lng })
+      );
+
       map.current?.flyTo({
 
-        center: [
-          pos.coords.longitude,
-          pos.coords.latitude
-        ],
+        center: [lng, lat],
 
         zoom: 16,
 
@@ -196,15 +234,16 @@ map.current.on("load", () => {
 
     },
 
-    () => {
-      // Если пользователь запретил доступ,
-      // остаемся на стартовой позиции.
-    },
+    () => {},
 
     {
+
       enableHighAccuracy: true,
+
       timeout: 10000,
+
       maximumAge: 0
+
     }
 
   );
