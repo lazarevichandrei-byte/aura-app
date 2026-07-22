@@ -171,24 +171,27 @@ export async function updateMeetEvent(
 export async function deleteMeetEvent(
   eventId: string
 ) {
-  // Сначала удаляем участников
-  const { error: participantsError } = await supabase
+  console.log("DELETE EVENT:", eventId);
+
+  const participants = await supabase
     .from("meet_participants")
     .delete()
     .eq("event_id", eventId);
 
-  if (participantsError) {
-    throw participantsError;
-  }
+  console.log("PARTICIPANTS:", participants);
 
-  // Затем удаляем саму встречу
-  const { error } = await supabase
+  const event = await supabase
     .from("meet_events")
     .delete()
-    .eq("id", eventId);
+    .eq("id", eventId)
+    .select();
 
-  if (error) {
-    throw error;
+  console.log("EVENT:", event);
+
+  if (event.error) {
+    throw event.error;
   }
+
+  return event.data;
 }
 
