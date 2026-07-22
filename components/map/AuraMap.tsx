@@ -25,6 +25,8 @@ type Props = {
   ) => void;
 
   category?: string | null;
+
+  selectedEvent?: MeetEvent | null;
 };
 
 export type AuraMapRef = {
@@ -37,7 +39,8 @@ const AuraMap = forwardRef<AuraMapRef, Props>(({
   mode = "create",
   onCenterChanged,
   onMarkerClick,
-  category
+  category,
+  selectedEvent
 }, ref) => {
 
   const mapContainer =
@@ -79,6 +82,14 @@ const icon = meetCategory?.icon ?? "📍";
 
 el.style.width = "46px";
 el.style.height = "46px";
+const isSelected =
+  selectedEvent?.id === event.id;
+
+el.style.width =
+  isSelected ? "58px" : "46px";
+
+el.style.height =
+  isSelected ? "58px" : "46px";
 
 el.style.borderRadius = "50%";
 
@@ -90,10 +101,14 @@ el.style.alignItems = "center";
 el.style.justifyContent = "center";
 
 el.style.border =
-  "2px solid rgba(47,128,255,.18)";
+  isSelected
+    ? "3px solid #2F80FF"
+    : "2px solid rgba(47,128,255,.18)";
 
 el.style.boxShadow =
-  "0 12px 28px rgba(0,0,0,.22)";
+  isSelected
+    ? "0 0 0 8px rgba(47,128,255,.18), 0 18px 38px rgba(0,0,0,.28)"
+    : "0 12px 28px rgba(0,0,0,.22)";
 
 el.style.backdropFilter =
   "blur(10px)";
@@ -110,7 +125,30 @@ ${icon}
 `;
 
 el.onclick = () => {
-  onMarkerClick?.(event);
+
+  if (map.current) {
+
+    map.current.flyTo({
+
+      center: [
+        event.longitude,
+        event.latitude - 0.0012
+      ],
+
+      duration: 700,
+
+      essential: true
+
+    });
+
+  }
+
+  setTimeout(() => {
+
+    onMarkerClick?.(event);
+
+  }, 220);
+
 };
 
 el.onmouseenter = () => {
@@ -339,7 +377,7 @@ useEffect(() => {
 
 useEffect(() => {
   renderMarkers();
-}, [category]);
+}, [category, selectedEvent]);
 
 
 
