@@ -109,12 +109,14 @@ export default function MeetManageSheet({
           </div>
 
           <div
-            style={{
-              marginTop: 6,
-              fontSize: 14,
-              color: "#6B7280",
-            }}
-          >
+  style={{
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: 400,
+    color: "#6B7280",
+    lineHeight: 1.3,
+  }}
+>
             Выберите необходимое действие
           </div>
         </div>
@@ -149,18 +151,11 @@ export default function MeetManageSheet({
         color: "#6B7280",
       }}
     >
-      Изменить информацию о встрече
+      Изменить информацию
     </div>
   </div>
 
-  <div
-    style={{
-      fontSize: 22,
-      color: "#9CA3AF",
-    }}
-  >
-    ›
-  </div>
+ 
 </motion.button>
 
 <motion.button
@@ -193,18 +188,11 @@ export default function MeetManageSheet({
         color: "#6B7280",
       }}
     >
-      Управление участниками встречи
+      Управление участниками
     </div>
   </div>
 
-  <div
-    style={{
-      fontSize: 22,
-      color: "#9CA3AF",
-    }}
-  >
-    ›
-  </div>
+ 
 </motion.button>
 
 <div
@@ -243,24 +231,19 @@ export default function MeetManageSheet({
     </div>
 
     <div
-      style={{
-        marginTop: 4,
-        fontSize: 13,
-        color: "#EF4444",
-      }}
-    >
+  style={{
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: 400,
+    color: "#EF4444",
+    lineHeight: 1.3,
+  }}
+>
       Это действие нельзя отменить
     </div>
   </div>
 
-  <div
-    style={{
-      fontSize: 22,
-      color: "#F87171",
-    }}
-  >
-    ›
-  </div>
+ 
 </motion.button>
 
         
