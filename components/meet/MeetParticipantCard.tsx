@@ -36,11 +36,12 @@ export default function MeetParticipantCard({
         duration: .18
     }}
     style={{
-    marginTop: 12,
+    marginTop: 8,
     background: "#fff",
-    borderRadius: 22,
-    padding: 16,
-    boxShadow: "0 6px 18px rgba(15,23,42,.06)",
+    borderRadius: 18,
+    padding: 14,
+    border: "1px solid rgba(15,23,42,.05)",
+    boxShadow: "0 4px 12px rgba(15,23,42,.04)",
 }}
 >
             <div
