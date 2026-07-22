@@ -64,7 +64,11 @@ export default function MeetParticipantCard({
                     }}
                 >
                     <img
-                        src={user.avatar_url || "/avatar-placeholder.png"}
+                        src={
+    user.avatar_url ||
+    user.photos?.[0] ||
+    "/avatar-placeholder.png"
+}
                         alt={user.name}
                         style={{
                             width: "100%",
@@ -75,18 +79,20 @@ export default function MeetParticipantCard({
                         }}
                     />
 
-                    <div
-                        style={{
-                            position: "absolute",
-                            right: 1,
-                            bottom: 1,
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            background: "#22C55E",
-                           border:"2px solid white"
-                        }}
-                    />
+                    {user.is_online && (
+    <div
+        style={{
+            position: "absolute",
+            right: 1,
+            bottom: 1,
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: "#22C55E",
+            border: "2px solid white",
+        }}
+    />
+)}
                 </div>
 
                 {/* Info */}

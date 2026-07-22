@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft2 } from "iconsax-react";
+import { motion } from "motion/react";
+
+import PageWrapper from "../../../../components/PageWrapper";
+import AuraLoader from "../../../../components/AuraLoader";
 import {
   getMeetEvent,
   updateMeetEvent,
@@ -126,19 +131,20 @@ const inputStyle = {
 
 if (loading) {
   return (
-    <div
-      style={{
-        padding: 40,
-      }}
-    >
-      Загрузка...
-    </div>
+    <PageWrapper>
+      <AuraLoader
+        fullscreen
+        text="Загрузка встречи..."
+      />
+    </PageWrapper>
   );
 }
 
 
 
   return (
+<PageWrapper>
+
     <div
       style={{
         minHeight: "100vh",
@@ -146,7 +152,59 @@ if (loading) {
         padding: 24,
       }}
     >
-      <h1>✏️ Редактирование встречи</h1>
+      <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.22 }}
+    style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 14,
+        marginBottom: 24,
+    }}
+>
+    <motion.div
+        onClick={() => router.back()}
+        whileTap={{ scale: 0.92 }}
+        transition={{ duration: 0.15 }}
+        style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingRight: 10,
+            cursor: "pointer",
+            flexShrink: 0,
+        }}
+    >
+        <ArrowLeft2
+            size="28"
+            color="#2E7BFF"
+            variant="Outline"
+        />
+    </motion.div>
+
+    <div>
+        <div
+            style={{
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#111827",
+            }}
+        >
+            Редактирование
+        </div>
+
+        <div
+            style={{
+                marginTop: 4,
+                fontSize: 13,
+                color: "#7B8595",
+            }}
+        >
+            Измените данные встречи
+        </div>
+    </div>
+</motion.div>
 
       <div
   style={{
@@ -251,5 +309,7 @@ if (loading) {
 
 </div>
     </div>
+
+</PageWrapper>
   );
 }
