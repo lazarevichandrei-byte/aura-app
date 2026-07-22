@@ -114,9 +114,31 @@ el.style.backdropFilter =
   "blur(10px)";
 
 el.style.transition =
-  "transform .18s ease, box-shadow .18s ease";
+  "transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease";
 
 el.style.cursor = "pointer";
+
+if (isSelected) {
+
+  el.animate(
+    [
+      {
+        transform: "scale(1)"
+      },
+      {
+        transform: "scale(1.22)"
+      },
+      {
+        transform: "scale(1.12)"
+      }
+    ],
+    {
+      duration: 350,
+      easing: "cubic-bezier(.22,1,.36,1)"
+    }
+  );
+
+}
 
 el.innerHTML = `
 <span style="font-size:24px">
@@ -152,13 +174,21 @@ el.onclick = () => {
 };
 
 el.onmouseenter = () => {
+
+  if (isSelected) return;
+
   el.style.transform = "scale(1.08)";
+
   el.style.boxShadow =
     "0 18px 34px rgba(0,0,0,.28)";
 };
 
 el.onmouseleave = () => {
+
+  if (isSelected) return;
+
   el.style.transform = "scale(1)";
+
   el.style.boxShadow =
     "0 12px 28px rgba(0,0,0,.22)";
 };
@@ -233,18 +263,9 @@ map.current.on("load", () => {
 
   const saved = localStorage.getItem("aura_last_location");
 
-  if (saved) {
-
-    const { lat, lng } = JSON.parse(saved);
-
-    map.current?.flyTo({
-      center: [lng, lat],
-      zoom: 16,
-      essential: true,
-    });
-
-    return;
-  }
+if (saved) {
+  return;
+}
 
   if (!navigator.geolocation) return;
 
@@ -260,15 +281,12 @@ map.current.on("load", () => {
         JSON.stringify({ lat, lng })
       );
 
-      map.current?.flyTo({
+     map.current?.setCenter([
+  lng,
+  lat
+]);
 
-        center: [lng, lat],
-
-        zoom: 16,
-
-        essential: true
-
-      });
+map.current?.setZoom(16);
 
     },
 

@@ -33,7 +33,12 @@ const SNAP_POSITIONS: Record<SnapPoint, number> = {
   collapsed: 0.5,
   expanded: 0,
 };
-const SPRING = { type: "spring" as const, stiffness: 420, damping: 38 };
+const SPRING = {
+  type: "spring" as const,
+  stiffness: 300,
+  damping: 28,
+  mass: 0.8
+};
 const DRAG_THRESHOLD = 60;
 const CLOSE_THRESHOLD = 300;
 const VELOCITY_THRESHOLD = 1200;
@@ -76,8 +81,8 @@ const collapsedPosition = useMemo(
 
   const backdropOpacity = useTransform(
   y,
-  [0, collapsedPosition],
-  [0.45, 0]
+  [0, collapsedPosition, getClosedPosition()],
+  [0.55, 0.18, 0]
 );
 
   const snapTo = (point: SnapPoint) => {
@@ -158,7 +163,9 @@ const collapsedPosition = useMemo(
       style={{
         position: "fixed",
         inset: 0,
-        background: "#000",
+        background: "rgba(0,0,0,.55)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         opacity: backdropOpacity,
         pointerEvents: "auto",
         zIndex: 998,
@@ -182,12 +189,13 @@ const collapsedPosition = useMemo(
         bottom: 0,
         height: "95dvh",
         background: "#fff",
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
+        borderTopLeftRadius: 34,
+        borderTopRightRadius: 34,
         padding: "18px 20px 26px",
         overflowY: snapPoint === "expanded" ? "auto" : "hidden",
         zIndex: 999,
-        boxShadow: "0 -10px 40px rgba(0,0,0,.18)",
+        boxShadow:
+  "0 -24px 70px rgba(0,0,0,.22), 0 -4px 12px rgba(0,0,0,.08)",
       }}
     >
       <motion.div
