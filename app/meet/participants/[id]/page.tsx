@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useCurrentUser } from "../../../../lib/useCurrentUser";
 
 import {
     getMeetEvent,
     getMeetParticipants,
 } from "../../../../lib/meet/api";
 import MeetParticipantCard from "../../../../components/meet/MeetParticipantCard";
+import { createChatIfNotExists } from "../../../../lib/chat/api";
 
 export default function MeetParticipantsPage() {
 
     const { id } = useParams();
 
+    const router = useRouter();
+    const { user: currentUser } = useCurrentUser();
     const [loading, setLoading] = useState(true);
 
     const [event, setEvent] = useState<any>(null);
@@ -158,9 +162,24 @@ export default function MeetParticipantsPage() {
 
                         {event?.users && (
     <MeetParticipantCard
-        user={event.users}
-        organizer
-    />
+    user={event.users}
+    organizer
+    onProfile={() => router.push(`/user/${event.users.id}`)}
+    onChat={async () => {
+
+        if (!currentUser) return;
+
+        const chatId = await createChatIfNotExists(
+            currentUser.id,
+            event.users.id
+        );
+
+        if (chatId) {
+            router.push(`/chat/${chatId}`);
+        }
+
+    }}
+/>
 )}
 
                         {participants
@@ -170,9 +189,28 @@ export default function MeetParticipantsPage() {
     )
     .map((participant: any) => (
         <MeetParticipantCard
-            key={participant.users.id}
-            user={participant.users}
-        />
+    key={participant.users.id}
+    user={participant.users}
+
+    onProfile={() =>
+        router.push(`/user/${participant.users.id}`)
+    }
+
+    onChat={async () => {
+
+        if (!currentUser) return;
+
+        const chatId = await createChatIfNotExists(
+            currentUser.id,
+            participant.users.id
+        );
+
+        if (chatId) {
+            router.push(`/chat/${chatId}`);
+        }
+
+    }}
+/>
     ))}
 
 
