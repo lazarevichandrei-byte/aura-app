@@ -327,9 +327,9 @@ const isFull =
   router.push(`/meet/edit/${event.id}`);
 }}
         onParticipants={() => {
-          setManageOpen(false);
-          console.log("participants");
-        }}
+  setManageOpen(false);
+  router.push(`/meet/participants/${event.id}`);
+}}
         onDelete={async () => {
   setManageOpen(false);
 
