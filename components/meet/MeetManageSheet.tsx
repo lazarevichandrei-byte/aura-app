@@ -47,16 +47,18 @@ export default function MeetManageSheet({
 
       <div
         style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "#F8F8F8",
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          padding: 20,
-          zIndex: 1999,
-        }}
+  position: "fixed",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "#F8F8F8",
+  borderTopLeftRadius: 24,
+  borderTopRightRadius: 24,
+  padding: "20px 20px calc(20px + env(safe-area-inset-bottom))",
+  zIndex: 1999,
+  maxHeight: "85vh",
+  overflowY: "auto",
+}}
       >
         <div
           style={{
