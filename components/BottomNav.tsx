@@ -19,7 +19,13 @@ import {
   User
 } from "lucide-react";
 
-export default function BottomNav(){
+type Props = {
+  hidden?: boolean;
+};
+
+export default function BottomNav({
+  hidden = false,
+}: Props){
 
 const router = useRouter();
 const pathname = usePathname();
@@ -105,6 +111,10 @@ fontWeight:500,
 color: active ? "#2F80FF" : "#A7ADB8",
 cursor:"pointer"
 });
+
+if (hidden) {
+  return null;
+}
 
 return(
 <div
