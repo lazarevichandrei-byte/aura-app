@@ -210,42 +210,87 @@ if (loading) {
   style={{
     display: "flex",
     flexDirection: "column",
-    gap: 18,
-    marginTop: 24,
+    gap: 16,
+    marginTop: 12,
   }}
 >
-  <div>
-    <div style={{ fontWeight: 600, marginBottom: 8 }}>
-      Название
-    </div>
-
-    <input
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      style={inputStyle}
-    />
+  <div
+  style={{
+    background: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    border: "1px solid rgba(15,23,42,.05)",
+    boxShadow: "0 4px 12px rgba(15,23,42,.04)",
+  }}
+>
+  <div
+    style={{
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#6B7280",
+      marginBottom: 10,
+    }}
+  >
+    Название встречи
   </div>
 
-  <div>
-    <div style={{ fontWeight: 600, marginBottom: 8 }}>
-      Описание
-    </div>
+  <input
+    value={title}
+    onChange={(e) => setTitle(e.target.value)}
+    style={inputStyle}
+  />
+</div>
 
-    <textarea
-      value={description}
-      onChange={(e) => setDescription(e.target.value)}
-      style={{
-        ...inputStyle,
-        height: 120,
-        paddingTop: 14,
-        resize: "none",
-      }}
-    />
+  <div
+  style={{
+    background: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    border: "1px solid rgba(15,23,42,.05)",
+    boxShadow: "0 4px 12px rgba(15,23,42,.04)",
+  }}
+>
+  <div
+    style={{
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#6B7280",
+      marginBottom: 10,
+    }}
+  >
+    Описание
   </div>
 
-  <div>
-  <div style={{ fontWeight: 600, marginBottom: 8 }}>
-    📍 Где встречаемся
+  <textarea
+    value={description}
+    onChange={(e) => setDescription(e.target.value)}
+    style={{
+      ...inputStyle,
+      height: 120,
+      paddingTop: 14,
+      resize: "none",
+    }}
+  />
+</div>
+
+  <div
+  style={{
+    background: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    border: "1px solid rgba(15,23,42,.05)",
+    boxShadow: "0 4px 12px rgba(15,23,42,.04)",
+  }}
+>
+  <div
+    style={{
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#6B7280",
+      marginBottom: 10,
+    }}
+  >
+    Место встречи
   </div>
 
   <LocationCard
@@ -276,9 +321,24 @@ if (loading) {
   />
 </div>
 
-  <div>
-  <div style={{ fontWeight: 600, marginBottom: 8 }}>
-    Максимум участников
+  <div
+  style={{
+    background: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    border: "1px solid rgba(15,23,42,.05)",
+    boxShadow: "0 4px 12px rgba(15,23,42,.04)",
+  }}
+>
+  <div
+    style={{
+      fontSize: 13,
+      fontWeight: 600,
+      color: "#6B7280",
+      marginBottom: 10,
+    }}
+  >
+    Количество участников
   </div>
 
   <PeopleSelector
