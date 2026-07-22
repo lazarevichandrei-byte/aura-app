@@ -95,6 +95,12 @@ el.style.border =
 
 el.style.cursor = "pointer";
 
+el.innerHTML = `
+<span style="font-size:24px">
+${icon}
+</span>
+`;
+
 
 
     const marker = new maplibregl.Marker({
