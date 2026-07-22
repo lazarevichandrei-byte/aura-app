@@ -147,21 +147,33 @@ layoutId={event.id}
             </div>
 
             <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginTop: 10,
-                    color: "#697586",
-                }}
-            >
-                <Location
-                    size="18"
-                    color="#2AABEE"
-                />
+    style={{
+        marginTop: 10,
+    }}
+>
 
-                {event.place}
-            </div>
+    <span
+        style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 12px",
+            borderRadius: 999,
+            background: "#F4F8FC",
+            color: "#556274",
+            fontSize: 13,
+            fontWeight: 600,
+        }}
+    >
+        <Location
+            size="16"
+            color="#2AABEE"
+        />
+
+        {event.place}
+    </span>
+
+</div>
 
             <div
     style={{

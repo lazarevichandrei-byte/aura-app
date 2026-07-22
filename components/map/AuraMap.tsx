@@ -112,8 +112,7 @@ el.style.boxShadow =
 el.style.backdropFilter =
   "blur(10px)";
 
-el.style.transition =
-  "transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease";
+el.style.transition = "none";
 
 el.style.cursor = "pointer";
 
@@ -127,52 +126,13 @@ ${icon}
 
 el.onclick = () => {
 
-  if (map.current) {
-
-    map.current.flyTo({
-
-      center: [
-        event.longitude,
-        event.latitude - 0.0012
-      ],
-
-      duration: 700,
-
-      essential: true
-
-    });
-
-  }
-
-  setTimeout(() => {
-
-    onMarkerClick?.(event);
-
-  }, 220);
+  onMarkerClick?.(event);
 
 };
 
-el.onmouseenter = () => {
+el.onmouseenter = () => {};
 
-  el.style.transform = "scale(1.08)";
-
-  el.style.boxShadow =
-    "0 18px 34px rgba(0,0,0,.28)";
-};
-
-el.onmouseleave = () => {
-
-  if (
-    selectedEvent?.id === event.id
-  ) {
-    return;
-  }
-
-  el.style.transform = "scale(1)";
-
-  el.style.boxShadow =
-    "0 12px 28px rgba(0,0,0,.22)";
-};
+el.onmouseleave = () => {};
 
 el.innerHTML = `
 <span style="font-size:24px">

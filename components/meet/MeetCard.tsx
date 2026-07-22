@@ -67,20 +67,20 @@ const [deleteOpen, setDeleteOpen] = useState(false);
   return (
     <>
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          marginBottom: expanded ? 20 : 12,
-        }}
-      >
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: expanded ? 12 : 10,
+  }}
+>
         {organizerAvatar ? (
           <img
             src={organizerAvatar}
             alt={`Фото ${organizerName}`}
             style={{
-              width: expanded ? 52 : 44,
-              height: expanded ? 52 : 44,
+              width: expanded ? 46 : 42,
+              height: expanded ? 46 : 42,
               borderRadius: "50%",
               objectFit: "cover",
               flexShrink: 0,
@@ -108,8 +108,9 @@ const [deleteOpen, setDeleteOpen] = useState(false);
         <div>
           <div
             style={{
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: 700,
+              lineHeight: 1.2,
             }}
           >
             {organizerName}
@@ -118,9 +119,9 @@ const [deleteOpen, setDeleteOpen] = useState(false);
           {expanded && (
             <div
               style={{
-                fontSize: 14,
-                color: "#10B981",
-                marginTop: 2,
+                fontSize: 12,
+                 color: "#10B981",
+                 marginTop: 1,
               }}
             >
               ● Онлайн
@@ -132,8 +133,9 @@ const [deleteOpen, setDeleteOpen] = useState(false);
       <h2
         style={{
           margin: 0,
-          fontSize: expanded ? 22 : 20,
-          fontWeight: 700,
+          fontSize: expanded ? 20 : 19,
+fontWeight: 700,
+lineHeight: 1.25,
         }}
       >
         {event.title}
@@ -156,18 +158,45 @@ const [deleteOpen, setDeleteOpen] = useState(false);
       )}
 
       <div
-        style={{
-          display: "flex",
-          gap: 12,
-          flexWrap: "wrap",
-          marginTop: 12,
-          color: "#555",
-          fontSize: 14,
-        }}
-      >
-        <span>📍 {event.place}</span>
-        <span>📅 {eventDate}</span>
-      </div>
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10,
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "6px 10px",
+      background: "#F5F7FA",
+      borderRadius: 12,
+      fontSize: 13,
+      color: "#444",
+      fontWeight: 500,
+    }}
+  >
+    📍 {event.place}
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "6px 10px",
+      background: "#F5F7FA",
+      borderRadius: 12,
+      fontSize: 13,
+      color: "#444",
+      fontWeight: 500,
+    }}
+  >
+    📅 {eventDate}
+  </div>
+</div>
 
       {expanded && (
   <>
@@ -296,31 +325,50 @@ const [deleteOpen, setDeleteOpen] = useState(false);
   </button>
 )}
 
-          <button
-  onClick={() =>
-  router.push(`/user/${event.users?.id}`)
-}
-  style={buttonStyle}
->
-  👤 Посмотреть профиль
-</button>
-<button
-  onClick={async () => {
-    if (!currentUserId || !event.users?.id) return;
-
-    const chatId = await createChatIfNotExists(
-      currentUserId,
-      event.users.id
-    );
-
-    if (chatId) {
-      router.push(`/chat/${chatId}`);
-    }
+          <div
+  style={{
+    display: "flex",
+    gap: 10,
+    marginBottom: 14,
   }}
-  style={buttonStyle}
 >
-  💬 Написать организатору
-</button>
+  <button
+    onClick={() =>
+      router.push(`/user/${event.users?.id}`)
+    }
+    style={{
+      ...buttonStyle,
+      flex: 1,
+      marginBottom: 0,
+      height: 48,
+    }}
+  >
+    👤 Профиль
+  </button>
+
+  <button
+    onClick={async () => {
+      if (!currentUserId || !event.users?.id) return;
+
+      const chatId = await createChatIfNotExists(
+        currentUserId,
+        event.users.id
+      );
+
+      if (chatId) {
+        router.push(`/chat/${chatId}`);
+      }
+    }}
+    style={{
+      ...buttonStyle,
+      flex: 1,
+      marginBottom: 0,
+      height: 48,
+    }}
+  >
+    💬 Написать
+  </button>
+</div>
         </div>
       )}
 
