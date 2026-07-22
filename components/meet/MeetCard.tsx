@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
 
 import { useState } from "react";
+import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
 import DeleteMeetSheet from "./DeleteMeetSheet";
 type Props = {
@@ -52,29 +53,7 @@ const [deleteOpen, setDeleteOpen] = useState(false);
   minute: "2-digit",
 });
 
-const onlineStatus =
-  event.users?.show_online &&
-  event.users?.last_seen &&
-  Date.now() - new Date(event.users.last_seen).getTime() < 30000
-    ? {
-        text: "Онлайн",
-        color: "#10B981",
-      }
-    : event.users?.show_last_seen &&
-      event.users?.last_seen
-    ? {
-        text: `Был ${new Date(
-          event.users.last_seen
-        ).toLocaleTimeString("ru-RU", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}`,
-        color: "#9CA3AF",
-      }
-    : {
-        text: "",
-        color: "#9CA3AF",
-      };
+const onlineStatus = getOnlineStatus(event.users ?? {});
 
   const buttonStyle: CSSProperties = {
     width: "100%",

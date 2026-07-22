@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 
 import { sendMessageNotification } from "../../../lib/notifications/messages";
+import { getOnlineStatus } from "../../../lib/user/getOnlineStatus";
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -2480,6 +2481,8 @@ swipeOffset,
 showReplyIcon
 ]);
 
+const onlineStatus = getOnlineStatus(otherUser ?? {});
+
 if(!otherUser){
 
   return (
@@ -2662,32 +2665,9 @@ style={{
 >
 
 {
-isOffline
-? "нет соединения"
-
-: otherUser?.show_online &&
-otherUser?.last_seen &&
-(
-Date.now() -
-new Date(otherUser.last_seen).getTime()
-) < 30000
-
-? "online"
-
-: otherUser?.show_last_seen &&
-otherUser?.last_seen
-
-? `был ${new Date(
-otherUser.last_seen
-).toLocaleTimeString(
-"ru-RU",
-{
-hour:"2-digit",
-minute:"2-digit"
-}
-)}`
-
-: ""
+  isOffline
+    ? "нет соединения"
+    : onlineStatus.text
 }
 
 </div>
