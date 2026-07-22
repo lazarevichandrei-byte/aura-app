@@ -537,6 +537,7 @@ view === "list" ? (
 
   <AuraMap
   mode="view"
+  events={events}
   category={selectedCategory}
   selectedEvent={selectedEvent}
   onMarkerClick={(event) => {

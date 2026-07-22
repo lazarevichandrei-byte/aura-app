@@ -9,10 +9,11 @@ import {
 import maplibregl from "maplibre-gl";
 import { MAP_STYLE } from "../../lib/map/styles";
 import type { MeetEvent } from "../../lib/meet/types";
-import { loadMeetEvents } from "../../lib/meet/api";
+
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
 
 type Props = {
+  events?: MeetEvent[];
   mode?: "create" | "view";
 
   onCenterChanged?: (
@@ -35,8 +36,10 @@ export type AuraMapRef = {
   flyToUser: () => void;
 };
 
-const AuraMap = forwardRef<AuraMapRef, Props>(({
+const AuraMap = forwardRef
+<AuraMapRef, Props>(({
   mode = "create",
+  events: propsEvents = [],
   onCenterChanged,
   onMarkerClick,
   category,
@@ -55,7 +58,7 @@ const AuraMap = forwardRef<AuraMapRef, Props>(({
 const markerElements =
   useRef<Map<string, HTMLDivElement>>(new Map());
 
-const events =
+const eventsRef =
   useRef<MeetEvent[]>([]);
 
   function renderMarkers() {
@@ -68,7 +71,7 @@ markers.current = [];
 
 markerElements.current.clear();
 
-  for (const event of events.current) {
+  for (const event of eventsRef.current) {
 
   if (
     category &&
@@ -304,40 +307,13 @@ map.current?.setZoom(16);
 
 }));
 
-
 useEffect(() => {
-
-  async function load() {
-
-    try {
-
-      events.current = await loadMeetEvents();
-
-      renderMarkers();
-
-      console.log(
-        "Loaded meet events:",
-        events.current
-      );
-
-    } catch (e) {
-
-      console.error(
-        "Load meet events error:",
-        e
-      );
-
-    }
-
-  }
-
-  load();
-
-}, [onCenterChanged]);
-
-useEffect(() => {
+  eventsRef.current = propsEvents ?? [];
   renderMarkers();
-}, [category]);
+}, [propsEvents, category]);
+
+
+
 
 
 
