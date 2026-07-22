@@ -12,6 +12,9 @@ import {
 import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
 import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
+import MeetViewSwitcher from "../../components/meet/MeetViewSwitcher";
+import MeetFeedCard from "../../components/meet/MeetFeedCard";
+import MeetGridCard from "../../components/meet/MeetGridCard";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 
@@ -99,6 +102,8 @@ async function load(){
   const [tab, setTab] =
   useState("feed");
 
+  const [view, setView] = useState<"list" | "grid">("list");
+
   useEffect(() => {
 
   if (typeof window === "undefined") return;
@@ -119,7 +124,35 @@ async function load(){
 
 }, []);
 
-    const [selectedEvent, setSelectedEvent] =
+
+useEffect(() => {
+
+  if (typeof window === "undefined") return;
+
+  const saved =
+    localStorage.getItem("meet_view");
+
+  if (
+    saved === "list" ||
+    saved === "grid"
+  ) {
+    setView(saved);
+  }
+
+}, []);
+
+useEffect(() => {
+
+  if (typeof window === "undefined") return;
+
+  localStorage.setItem(
+    "meet_view",
+    view
+  );
+
+}, [view]);
+
+const [selectedEvent, setSelectedEvent] =
   useState<MeetEvent | null>(null);
 
 const [selectedCategory, setSelectedCategory] =
@@ -296,6 +329,11 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
 
 <>
 
+<MeetViewSwitcher
+    view={view}
+    onChange={setView}
+/>
+
 {loading && (
 
 <div
@@ -399,9 +437,13 @@ cursor:"pointer"
 
 <div
 style={{
-display:"flex",
-flexDirection:"column",
-gap:16
+display:"grid",
+gridTemplateColumns:
+view === "grid"
+? "repeat(2,minmax(0,1fr))"
+: "1fr",
+gap:16,
+alignItems:"start",
 }}
 >
 
@@ -421,127 +463,34 @@ gap:16
 
   return (
 
+view === "list" ? (
 
+<MeetFeedCard
+    key={event.id}
+    event={event}
+    isCreator={isCreator}
+    isParticipant={isParticipant}
+    isFull={isFull}
+    onClick={() => setSelectedEvent(event)}
+    onJoin={() => handleJoin(event.id)}
+/>
 
-    
+) : (
 
-<div
-  key={event.id}
-  onClick={() => setSelectedEvent(event)}
-  style={{
-    background: "#fff",
-    borderRadius: 22,
-    padding: 18,
-    cursor: "pointer",
-    boxShadow: "0 8px 20px rgba(0,0,0,.05)"
-  }}
->
+<MeetGridCard
+    key={event.id}
+    event={event}
+    isCreator={isCreator}
+    isParticipant={isParticipant}
+    isFull={isFull}
+    onClick={() => setSelectedEvent(event)}
+    onJoin={() => handleJoin(event.id)}
+/>
 
+)
 
+);
 
-<div
-style={{
-fontSize:18,
-fontWeight:700
-}}
->
-{event.title}
-</div>
-
-<div
-style={{
-marginTop:6,
-color:"#6B7280"
-}}
->
-📍 {event.place}
-</div>
-
-<div
-style={{
-marginTop:4,
-color:"#6B7280"
-}}
->
-📅 {new Date(event.starts_at).toLocaleString()}
-</div>
-
-<div
-style={{
-marginTop:10,
-color:"#555",
-lineHeight:1.5
-}}
->
-{event.description}
-</div>
-
-<div
-  style={{
-    marginTop: 14,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  }}
->
-  <div
-    style={{
-      color: "#6B7280",
-      fontWeight: 600,
-    }}
-  >
-    👥 {event.meet_participants?.length ?? 0}/{event.max_people}
-  </div>
-
-  {isCreator ? (
-    <div
-      style={{
-        color: "#2AABEE",
-        fontWeight: 700,
-      }}
-    >
-      👑 Моя встреча
-    </div>
-  ) : isParticipant ? (
-    <div
-      style={{
-        color: "#10B981",
-        fontWeight: 700,
-      }}
-    >
-      ✅ Вы участвуете
-    </div>
-  ) : isFull ? (
-    <div
-      style={{
-        color: "#EF4444",
-        fontWeight: 700,
-      }}
-    >
-      🚫 Нет мест
-    </div>
-  ) : (
-    <button
-      onClick={() => handleJoin(event.id)}
-      style={{
-        border: "none",
-        background:
-          "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-        color: "#fff",
-        padding: "10px 18px",
-        borderRadius: 12,
-        cursor: "pointer",
-        fontWeight: 600,
-      }}
-    >
-      Присоединиться
-    </button>
-  )}
-</div>
-
-</div>
-
-  );
 })}
 
 </div>
