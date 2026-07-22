@@ -565,14 +565,24 @@ lineHeight:1.5
   )}
 
   <div
-    style={{
-      position: "absolute",
-      top: 12,
-      left: 12,
-      right: 12,
-      zIndex: 1000,
-    }}
-  >
+  style={{
+    position: "absolute",
+    top: 12,
+    left: 12,
+    right: 12,
+
+    zIndex: selectedEvent ? 1 : 1000,
+
+    opacity: selectedEvent ? 0 : 1,
+
+    pointerEvents: selectedEvent
+      ? "none"
+      : "auto",
+
+    transition:
+      "opacity .25s ease",
+  }}
+>
 
     <div
       onClick={() =>
