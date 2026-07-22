@@ -106,6 +106,9 @@ const [selectedCategory, setSelectedCategory] =
 const [categoryMenuOpen, setCategoryMenuOpen] =
   useState(false);
 
+const [mapScale, setMapScale] =
+  useState(1);
+
   return (
 
     <div
@@ -536,19 +539,31 @@ lineHeight:1.5
 
 <div
   style={{
-    position: "relative",
-    height: "70vh",
-    borderRadius: 24,
-    overflow: "hidden",
-    boxShadow: "0 8px 20px rgba(0,0,0,.05)",
-  }}
+  position: "relative",
+  height: "70vh",
+  borderRadius: 24,
+  overflow: "hidden",
+  boxShadow: "0 8px 20px rgba(0,0,0,.05)",
+
+  transform: `scale(${mapScale})`,
+
+  transition:
+    "transform .45s cubic-bezier(.22,1,.36,1)",
+}}
 >
 
   <AuraMap
-    mode="view"
-    category={selectedCategory}
-    onMarkerClick={setSelectedEvent}
-  />
+  mode="view"
+  category={selectedCategory}
+  selectedEvent={selectedEvent}
+  onMarkerClick={(event) => {
+
+  setMapScale(0.97);
+
+  setSelectedEvent(event);
+
+}}
+/>
 
   {selectedEvent && (
     <div
@@ -703,7 +718,13 @@ lineHeight:1.5
   onJoin={handleJoin}
   onLeave={handleLeave}
   onDelete={handleDelete}
-  onClose={() => setSelectedEvent(null)}
+  onClose={() => {
+
+  setMapScale(1);
+
+  setSelectedEvent(null);
+
+}}
 />
 
       <BottomNav />
