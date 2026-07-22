@@ -106,8 +106,7 @@ const [selectedCategory, setSelectedCategory] =
 const [categoryMenuOpen, setCategoryMenuOpen] =
   useState(false);
 
-const [mapScale, setMapScale] =
-  useState(1);
+
 
   return (
 
@@ -545,10 +544,7 @@ lineHeight:1.5
   overflow: "hidden",
   boxShadow: "0 8px 20px rgba(0,0,0,.05)",
 
-  transform: `scale(${mapScale})`,
-
-  transition:
-    "transform .45s cubic-bezier(.22,1,.36,1)",
+  
 }}
 >
 
@@ -558,7 +554,7 @@ lineHeight:1.5
   selectedEvent={selectedEvent}
   onMarkerClick={(event) => {
 
-  setMapScale(0.97);
+  
 
   setSelectedEvent(event);
 
@@ -720,7 +716,7 @@ lineHeight:1.5
   onDelete={handleDelete}
   onClose={() => {
 
-  setMapScale(1);
+  
 
   setSelectedEvent(null);
 
