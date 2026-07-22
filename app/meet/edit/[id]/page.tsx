@@ -112,25 +112,18 @@ async function handleSave() {
 }
 
 async function handleDelete() {
-  const confirmed = window.confirm(
-    "Удалить встречу?\n\nЭто действие нельзя отменить."
-  );
-
-  if (!confirmed) {
-    return;
-  }
+  alert("handleDelete");
 
   try {
     await deleteMeetEvent(id as string);
+
+    alert("Удалено");
 
     router.replace("/meet");
   } catch (error) {
     console.error(error);
 
-alert(
-  (error as any)?.message ??
-  "Неизвестная ошибка"
-);
+    alert(JSON.stringify(error));
   }
 }
 
