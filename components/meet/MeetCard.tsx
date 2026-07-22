@@ -246,9 +246,54 @@ lineHeight: 1.25,
       )}
     </div>
 
-    <div style={{ marginBottom: 10 }}>
-      👥 {event.meet_participants?.length ?? 0} из {event.max_people} участников
+    <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+    marginBottom: 12,
+    padding: "10px 14px",
+    background: "#F8F9FB",
+    borderRadius: 14,
+    border: "1px solid #EEF1F4",
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 15,
+        fontWeight: 700,
+        color: "#111827",
+      }}
+    >
+      👥 {event.meet_participants?.length ?? 0} / {event.max_people}
     </div>
+
+    <div
+      style={{
+        marginTop: 2,
+        fontSize: 12,
+        color: "#6B7280",
+      }}
+    >
+      участников встречи
+    </div>
+  </div>
+
+  <div
+    style={{
+      fontSize: 12,
+      fontWeight: 600,
+      color: isFull ? "#EF4444" : "#10B981",
+      background: isFull ? "#FEE2E2" : "#DCFCE7",
+      padding: "5px 10px",
+      borderRadius: 999,
+    }}
+  >
+    {isFull ? "Мест нет" : "Есть места"}
+  </div>
+</div>
   </>
 )}
 
