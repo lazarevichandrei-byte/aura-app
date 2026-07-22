@@ -73,6 +73,19 @@ export default function MeetParticipantsPage() {
 
 }
 
+if (loading) {
+
+    return (
+        <PageWrapper>
+            <AuraLoader
+                fullscreen
+                text="Загрузка участников..."
+            />
+        </PageWrapper>
+    );
+
+}
+
     return (
 
     <PageWrapper>
@@ -142,8 +155,8 @@ export default function MeetParticipantsPage() {
                 color: "#7B8595",
             }}
         >
-            {participants.length} из {event.max_people} участников • Свободно{" "}
-            {event.max_people - participants.length}
+            {participants.length} из {event?.max_people ?? 0} участников • Свободно{" "}
+{(event?.max_people ?? 0) - participants.length}
         </div>
     </div>
 </motion.div>
@@ -152,6 +165,9 @@ export default function MeetParticipantsPage() {
     <MeetParticipantCard
     user={event.users}
     organizer
+    isCurrentUser={
+    currentUser?.id === event.users.id
+}
     onProfile={() => router.push(`/user/${event.users.id}`)}
     onChat={async () => {
 
@@ -179,6 +195,9 @@ export default function MeetParticipantsPage() {
         <MeetParticipantCard
     key={participant.users.id}
     user={participant.users}
+    isCurrentUser={
+        currentUser?.id === participant.users.id
+    }
 
     canRemove={
         currentUser?.id === event.creator_id

@@ -13,6 +13,7 @@ import { motion } from "motion/react";
 type Props = {
     user: any;
     organizer?: boolean;
+    isCurrentUser?: boolean;
     onProfile?: () => void;
     onChat?: () => void;
     onRemove?: () => void;
@@ -22,6 +23,7 @@ type Props = {
 export default function MeetParticipantCard({
     user,
     organizer = false,
+    isCurrentUser = false,
     onProfile,
     onChat,
     onRemove,
@@ -31,7 +33,7 @@ export default function MeetParticipantCard({
        <motion.div
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
-    whileTap={{ scale: 0.99 }}
+    whileTap={{ scale: 0.985 }}
     transition={{
         duration: .18
     }}
@@ -97,21 +99,45 @@ export default function MeetParticipantCard({
                     <div
                         style={{
                             display: "flex",
-                            justifyContent: "space-between",
+                            flexDirection: "column",
                             alignItems: "flex-start",
                         }}
                     >
                         <div
-                            style={{
-                                fontSize:18,
-                                fontWeight: 700,
-                                color: "#111827",
-                                lineHeight: 1.1,
-                            }}
-                        >
-                            {user.name}
-                            {user.age ? `, ${user.age}` : ""}
-                        </div>
+    style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+    }}
+>
+    <div
+        style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#111827",
+            lineHeight: 1.1,
+        }}
+    >
+        {user.name}
+        {user.age ? `, ${user.age}` : ""}
+    </div>
+
+    {isCurrentUser && (
+        <div
+            style={{
+                padding: "3px 8px",
+                borderRadius: 999,
+                background: "#E8F1FF",
+                color: "#2F80FF",
+                fontSize: 11,
+                fontWeight: 700,
+            }}
+        >
+            Вы
+        </div>
+    )}
+</div>
 
                         {organizer && (
     <div
@@ -193,47 +219,51 @@ export default function MeetParticipantCard({
     <User size={18} />
 </motion.button>
 
-                <motion.button
-    onClick={onChat}
-    whileHover={{ scale: 1.06 }}
-    whileTap={{ scale: 0.92 }}
-    transition={{ duration: 0.15 }}
-    style={{
-        width: 42,
-        height: 42,
-        borderRadius: "50%",
-        border: "none",
-        background: "#2F80FF",
-        color: "#fff",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        cursor: "pointer",
-    }}
->
-    <MessageCircle size={18} />
-</motion.button>
+                {!isCurrentUser && (
+    <motion.button
+        onClick={onChat}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ duration: 0.15 }}
+        style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            border: "none",
+            background: "#2F80FF",
+            color: "#fff",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
+        }}
+    >
+        <MessageCircle size={18} />
+    </motion.button>
+)}
 
-                <motion.button
-    onClick={onRemove}
-    whileHover={{ scale: 1.06 }}
-    whileTap={{ scale: 0.92 }}
-    transition={{ duration: 0.15 }}
-    style={{
-        width: 42,
-        height: 42,
-        borderRadius: "50%",
-        border: "none",
-        background: "#FFF1F2",
-        color: "#EF4444",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        cursor: "pointer",
-    }}
->
-    <UserMinus size={17} />
-</motion.button>
+                {canRemove && (
+    <motion.button
+        onClick={onRemove}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ duration: 0.15 }}
+        style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            border: "none",
+            background: "#FFF1F2",
+            color: "#EF4444",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
+        }}
+    >
+        <UserMinus size={17} />
+    </motion.button>
+)}
             </div>
         </motion.div>
     );
