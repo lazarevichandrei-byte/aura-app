@@ -88,7 +88,7 @@ export default function BottomSheet({
 
 maxHeight,
 
-height: maxHeight,
+height: "auto",
 
 overflowY: "auto",
 
