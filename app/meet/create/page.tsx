@@ -50,6 +50,9 @@ useState("");
 const [maxPeople,setMaxPeople] =
 useState(1);
 
+const [duration,setDuration] =
+useState("1h");
+
 const [loading,setLoading] =
 useState(false);
 
@@ -72,6 +75,7 @@ useEffect(() => {
     setDate(draft.date ?? "");
     setTime(draft.time ?? "");
     setMaxPeople(draft.maxPeople ?? 1);
+    setDuration(draft.duration ?? "1h");
   } catch {}
 }, []);
 
@@ -85,6 +89,7 @@ useEffect(() => {
       date,
       time,
       maxPeople,
+      duration,
     })
   );
 }, [
@@ -94,6 +99,7 @@ useEffect(() => {
   date,
   time,
   maxPeople,
+duration,
 ]);
 
 useEffect(() => {
@@ -506,6 +512,60 @@ value={maxPeople}
 onChange={setMaxPeople}
 
 />
+
+<div
+  style={{
+    ...labelStyle,
+    marginTop: 24,
+  }}
+>
+⏱️ Встреча доступна
+</div>
+
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 10,
+  }}
+>
+
+{[
+  { id: "30m", label: "30 минут" },
+  { id: "1h", label: "1 час" },
+  { id: "2h", label: "2 часа" },
+  { id: "day", label: "До конца дня" },
+].map(item => (
+
+<div
+  key={item.id}
+  onClick={() => setDuration(item.id)}
+  style={{
+    height: 48,
+    borderRadius: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: ".15s",
+    fontWeight: 600,
+    background:
+      duration === item.id
+        ? "#2F80FF"
+        : "#fff",
+    color:
+      duration === item.id
+        ? "#fff"
+        : "#222",
+    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+  }}
+>
+  {item.label}
+</div>
+
+))}
+
+</div>
 
         {/* Кнопка */}
 
