@@ -7,12 +7,14 @@ type Props = {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
+  maxHeight?: string;
 };
 
 export default function BottomSheet({
   open,
   onClose,
-  children
+  children,
+  maxHeight = "65vh",
 }: Props) {
 
   const [visible, setVisible] = useState(false);
@@ -84,7 +86,7 @@ export default function BottomSheet({
 
           paddingBottom: 34,
 
-maxHeight: "65vh",
+maxHeight,
 
 height: "auto",
 
