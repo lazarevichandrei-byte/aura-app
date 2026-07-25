@@ -37,7 +37,7 @@ export default function CategoryBottomSheet({
     <BottomSheet
   open={open}
   onClose={onClose}
-  maxHeight="92vh"
+  maxHeight="100vh"
 >
 
 <div
