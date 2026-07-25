@@ -4,14 +4,12 @@ type Props = {
   place: string;
   city: string;
   onMapClick: () => void;
-  onCurrentLocationClick: () => void;
 };
 
 export default function LocationCard({
   place,
   city,
   onMapClick,
-  onCurrentLocationClick
 }: Props) {
 
   if (place) {
@@ -72,114 +70,62 @@ export default function LocationCard({
   <div
     onClick={onMapClick}
     style={{
-      background:"#fff",
-      borderRadius:18,
+      background: "#fff",
+      borderRadius: 18,
+      padding: 18,
       cursor: "pointer",
-      boxShadow:"0 4px 14px rgba(0,0,0,.05)"
+      boxShadow: "0 4px 14px rgba(0,0,0,.05)",
     }}
   >
 
-      <div
-        style={{
-          display:"flex"
-        }}
-      >
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
 
-        {/* Карта */}
+      <div>
 
         <div
-          onClick={onMapClick}
           style={{
-            flex:1,
-            padding:"16px",
-            cursor:"pointer"
+            fontSize: 18,
+            fontWeight: 700,
           }}
         >
-
-          <div
-            style={{
-              fontSize:26
-            }}
-          >
-            🗺
-          </div>
-
-          <div
-            style={{
-              marginTop:8,
-              fontWeight:700,
-              fontSize:15
-            }}
-          >
-            На карте
-          </div>
-
-          <div
-            style={{
-              marginTop:4,
-              color:"#7B8595",
-              fontSize:12,
-              lineHeight:1.4
-            }}
-          >
-            Выбрать место
-          </div>
-
+          🗺️ Выберите место
         </div>
 
         <div
           style={{
-            width:1,
-            background:"#EEF2F6"
-          }}
-        />
-
-        {/* GPS */}
-
-        <div
-          onClick={onCurrentLocationClick}
-          style={{
-            flex:1,
-            padding:"16px",
-            cursor:"pointer"
+            marginTop: 6,
+            color: "#7B8595",
+            fontSize: 14,
+            lineHeight: 1.45,
           }}
         >
-
-          <div
-            style={{
-              fontSize:26
-            }}
-          >
-            📡
-          </div>
-
-          <div
-            style={{
-              marginTop:8,
-              fontWeight:700,
-              fontSize:15
-            }}
-          >
-            Моё место
-          </div>
-
-          <div
-            style={{
-              marginTop:4,
-              color:"#7B8595",
-              fontSize:12,
-              lineHeight:1.4
-            }}
-          >
-            GPS автоматически
-          </div>
-
+          Нажмите, чтобы открыть карту
+          <br />
+          и отметить место встречи
         </div>
 
       </div>
 
+      <div
+        style={{
+          fontSize: 24,
+          color: "#2F80FF",
+          fontWeight: 700,
+        }}
+      >
+        ›
+      </div>
+
     </div>
 
-  );
+  </div>
+
+);
 
 }
