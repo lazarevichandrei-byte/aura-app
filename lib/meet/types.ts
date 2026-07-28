@@ -20,7 +20,11 @@ export interface MeetEvent {
 
   starts_at: string;
 
-  max_people: number;
+duration: "30m" | "1h" | "2h" | "day";
+
+expires_at: string | null;
+
+max_people: number;
 
   is_premium: boolean;
 

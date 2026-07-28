@@ -3,7 +3,7 @@ import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
 import DeleteMeetSheet from "./DeleteMeetSheet";
@@ -54,6 +54,37 @@ const [deleteOpen, setDeleteOpen] = useState(false);
 });
 
 const onlineStatus = getOnlineStatus(event.users ?? {});
+
+const [now, setNow] = useState(Date.now());
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setNow(Date.now());
+  }, 60000);
+
+  return () => clearInterval(timer);
+}, []);
+
+const expiresAt = event.expires_at
+  ? new Date(event.expires_at).getTime()
+  : 0;
+
+const remaining = Math.max(0, expiresAt - now);
+
+const totalMinutes = Math.floor(remaining / 60000);
+
+const hours = Math.floor(totalMinutes / 60);
+const minutes = totalMinutes % 60;
+
+let remainingText = "";
+
+if (totalMinutes <= 0) {
+  remainingText = "Встреча завершена";
+} else if (hours > 0) {
+  remainingText = `⏳ Осталось ${hours} ч ${minutes} мин`;
+} else {
+  remainingText = `⏳ Осталось ${minutes} мин`;
+}
 
   const buttonStyle: CSSProperties = {
     width: "100%",
@@ -198,6 +229,28 @@ lineHeight: 1.25,
     }}
   >
     📅 {eventDate}
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "6px 10px",
+      background:
+        totalMinutes <= 10
+          ? "#FEE2E2"
+          : "#ECFDF5",
+      color:
+        totalMinutes <= 10
+          ? "#DC2626"
+          : "#059669",
+      borderRadius: 12,
+      fontSize: 13,
+      fontWeight: 700,
+    }}
+  >
+    {remainingText}
   </div>
 </div>
 

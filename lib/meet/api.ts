@@ -10,6 +10,7 @@ export async function createMeetEvent({
   latitude,
   longitude,
   starts_at,
+  duration,
   max_people
 }: {
   creator_id: string;
@@ -21,9 +22,32 @@ export async function createMeetEvent({
   latitude: number | null;
   longitude: number | null;
   starts_at: string;
+  duration: "30m" | "1h" | "2h" | "day";
   max_people: number;
 }) {
-  const { data, error } =
+  const start = new Date(starts_at);
+
+let expires = new Date(start);
+
+switch (duration) {
+  case "30m":
+    expires.setMinutes(expires.getMinutes() + 30);
+    break;
+
+  case "1h":
+    expires.setHours(expires.getHours() + 1);
+    break;
+
+  case "2h":
+    expires.setHours(expires.getHours() + 2);
+    break;
+
+  case "day":
+    expires.setHours(23, 59, 59, 999);
+    break;
+}
+
+const { data, error } =
     await supabase
       .from("meet_events")
       .insert({
@@ -36,6 +60,8 @@ export async function createMeetEvent({
         latitude,
         longitude,
         starts_at,
+        duration,
+        expires_at: expires.toISOString(),
         max_people
       })
       .select()
@@ -77,9 +103,10 @@ meet_participants(
 )
       `)
       .eq("is_active", true)
-      .order("starts_at", {
-        ascending: true
-      });
+.gt("expires_at", new Date().toISOString())
+.order("starts_at", {
+  ascending: true
+});
 
   if (error) {
     throw error;

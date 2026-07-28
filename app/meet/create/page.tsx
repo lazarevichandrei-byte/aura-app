@@ -50,8 +50,9 @@ useState("");
 const [maxPeople,setMaxPeople] =
 useState(1);
 
-const [duration,setDuration] =
-useState("1h");
+const [duration, setDuration] = useState<
+  "30m" | "1h" | "2h" | "day"
+>("1h");
 
 const [loading,setLoading] =
 useState(false);
@@ -75,7 +76,9 @@ useEffect(() => {
     setDate(draft.date ?? "");
     setTime(draft.time ?? "");
     setMaxPeople(draft.maxPeople ?? 1);
-    setDuration(draft.duration ?? "1h");
+    setDuration(
+  (draft.duration as "30m" | "1h" | "2h" | "day") ?? "1h"
+);
   } catch {}
 }, []);
 
@@ -198,10 +201,12 @@ useEffect(() => {
 
       latitude,
 
-longitude,
+      longitude,
 
       starts_at:
         `${date}T${time}:00`,
+
+      duration,
 
       max_people:maxPeople
 
@@ -231,6 +236,13 @@ Hint: ${err.hint}
 }
 
 }
+
+const DURATION_OPTIONS = [
+  { id: "30m", label: "30 минут" },
+  { id: "1h", label: "1 час" },
+  { id: "2h", label: "2 часа" },
+  { id: "day", label: "До конца дня" },
+] as const;
 
   return (
 
@@ -443,12 +455,7 @@ style={inputStyle}
   }}
 >
 
-{[
-  { id: "30m", label: "30 минут" },
-  { id: "1h", label: "1 час" },
-  { id: "2h", label: "2 часа" },
-  { id: "day", label: "До конца дня" },
-].map(item => (
+{DURATION_OPTIONS.map(item => (
 
 <div
   key={item.id}
