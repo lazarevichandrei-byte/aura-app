@@ -124,6 +124,21 @@ export async function joinMeetEvent(
   eventId: string,
   userId: string
 ) {
+  const { data: existing, error: checkError } = await supabase
+    .from("meet_participants")
+    .select("event_id")
+    .eq("event_id", eventId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (checkError) {
+    throw checkError;
+  }
+
+  if (existing) {
+    return;
+  }
+
   const { error } = await supabase
     .from("meet_participants")
     .insert({
@@ -357,9 +372,10 @@ export async function loadMeetJoinRequests(
       )
     `)
     .eq("event_id", eventId)
-    .order("created_at", {
-      ascending: true,
-    });
+    .eq("status", "pending")
+.order("created_at", {
+  ascending: true,
+});
 
   if (error) {
     throw error;
