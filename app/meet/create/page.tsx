@@ -104,15 +104,18 @@ useEffect(() => {
   joinType,
 })
   );
-}, [
+}, 
+[
   title,
   description,
   category,
   date,
   time,
   maxPeople,
-duration,
-]);
+  duration,
+  joinType,
+]
+);
 
 useEffect(() => {
   const raw = sessionStorage.getItem("meet_location");
@@ -217,7 +220,9 @@ useEffect(() => {
 
       duration,
 
-      max_people:maxPeople
+      join_type: joinType,
+
+      max_people: maxPeople
 
     });
 
@@ -454,6 +459,75 @@ style={inputStyle}
   }}
 >
 ⏱️ Встреча доступна
+</div>
+
+<div
+  style={{
+    ...labelStyle,
+    marginTop: 24,
+  }}
+>
+Тип участия
+</div>
+
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 10,
+  }}
+>
+
+<div
+  onClick={() => setJoinType("open")}
+  style={{
+    height: 52,
+    borderRadius: 16,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    cursor: "pointer",
+    fontWeight: 600,
+    transition: ".15s",
+    background:
+      joinType === "open"
+        ? "#2F80FF"
+        : "#fff",
+    color:
+      joinType === "open"
+        ? "#fff"
+        : "#222",
+    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+  }}
+>
+🌍 Открытая
+</div>
+
+<div
+  onClick={() => setJoinType("approval")}
+  style={{
+    height: 52,
+    borderRadius: 16,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    cursor: "pointer",
+    fontWeight: 600,
+    transition: ".15s",
+    background:
+      joinType === "approval"
+        ? "#2F80FF"
+        : "#fff",
+    color:
+      joinType === "approval"
+        ? "#fff"
+        : "#222",
+    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+  }}
+>
+📨 По заявкам
+</div>
+
 </div>
 
 <div
