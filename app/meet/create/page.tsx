@@ -426,49 +426,6 @@ style={inputStyle}
 
 </div>
 
-        <div
-style={{
-...labelStyle,
-marginTop:24
-}}
->
-Где встречаемся
-</div>
-
-<LocationCard
-  place={place}
-  city={city}
-  onMapClick={() => {
-    router.push("/meet/location");
-  }}
-/>
-
-        {/* Участники */}
-
-        <div
-
-style={{
-
-...labelStyle,
-
-marginTop:24
-
-}}
-
->
-
-Количество участников
-
-</div>
-
-<PeopleSelector
-
-value={maxPeople}
-
-onChange={setMaxPeople}
-
-/>
-
 <div
   style={{
     ...labelStyle,
@@ -522,6 +479,52 @@ onChange={setMaxPeople}
 ))}
 
 </div>
+
+
+        <div
+style={{
+...labelStyle,
+marginTop:24
+}}
+>
+Где встречаемся
+</div>
+
+<LocationCard
+  place={place}
+  city={city}
+  onMapClick={() => {
+    router.push("/meet/location");
+  }}
+/>
+
+        {/* Участники */}
+
+        <div
+
+style={{
+
+...labelStyle,
+
+marginTop:24
+
+}}
+
+>
+
+Количество участников
+
+</div>
+
+<PeopleSelector
+
+value={maxPeople}
+
+onChange={setMaxPeople}
+
+/>
+
+
 
         {/* Кнопка */}
 
