@@ -11,6 +11,7 @@ export async function createMeetEvent({
   longitude,
   starts_at,
   duration,
+  join_type,
   max_people
 }: {
   creator_id: string;
@@ -23,7 +24,8 @@ export async function createMeetEvent({
   longitude: number | null;
   starts_at: string;
   duration: "30m" | "1h" | "2h" | "day";
-  max_people: number;
+join_type: "open" | "approval";
+max_people: number;
 }) {
   const start = new Date(starts_at);
 
@@ -60,9 +62,10 @@ const { data, error } =
         latitude,
         longitude,
         starts_at,
-        duration,
-        expires_at: expires.toISOString(),
-        max_people
+duration,
+join_type,
+expires_at: expires.toISOString(),
+max_people
       })
       .select()
       .single();
@@ -282,3 +285,125 @@ export async function getMeetParticipants(
   return data;
 }
 
+
+export async function sendJoinRequest(
+  eventId: string,
+  userId: string
+) {
+  const { error } = await supabase
+    .from("meet_join_requests")
+    .insert({
+      event_id: eventId,
+      user_id: userId,
+    });
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function cancelJoinRequest(
+  eventId: string,
+  userId: string
+) {
+  const { error } = await supabase
+    .from("meet_join_requests")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("user_id", userId)
+    .eq("status", "pending");
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function getJoinRequest(
+  eventId: string,
+  userId: string
+) {
+  const { data, error } = await supabase
+    .from("meet_join_requests")
+    .select("*")
+    .eq("event_id", eventId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function loadMeetJoinRequests(
+  eventId: string
+) {
+  const { data, error } = await supabase
+    .from("meet_join_requests")
+    .select(`
+      *,
+      users(
+        id,
+        name,
+        age,
+        city,
+        avatar_url,
+        photos,
+        is_online,
+        last_seen,
+        show_online,
+        show_last_seen
+      )
+    `)
+    .eq("event_id", eventId)
+    .order("created_at", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function approveJoinRequest(
+  requestId: string
+) {
+  const { data, error } = await supabase
+    .from("meet_join_requests")
+    .update({
+      status: "approved",
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", requestId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function rejectJoinRequest(
+  requestId: string
+) {
+  const { data, error } = await supabase
+    .from("meet_join_requests")
+    .update({
+      status: "rejected",
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", requestId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}

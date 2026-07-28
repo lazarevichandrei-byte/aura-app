@@ -9,6 +9,7 @@ type Props = {
   onClose: () => void;
   onEdit: () => void;
   onParticipants: () => void;
+  onRequests: () => void;
   onDelete: () => void;
 };
 
@@ -17,6 +18,7 @@ export default function MeetManageSheet({
   onClose,
   onEdit,
   onParticipants,
+  onRequests,
   onDelete,
 }: Props) {
   
@@ -193,6 +195,41 @@ export default function MeetManageSheet({
   </div>
 
  
+</motion.button>
+
+<motion.button
+  whileTap={{ scale: 0.98 }}
+  onClick={onRequests}
+  style={{
+    ...itemStyle,
+    height: 74,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderRadius: 18,
+  }}
+>
+  <div>
+    <div
+      style={{
+        fontSize: 17,
+        fontWeight: 700,
+        color: "#111827",
+      }}
+    >
+      📨 Заявки
+    </div>
+
+    <div
+      style={{
+        marginTop: 4,
+        fontSize: 13,
+        color: "#6B7280",
+      }}
+    >
+      Просмотреть ожидающие заявки
+    </div>
+  </div>
 </motion.button>
 
 <div

@@ -4,6 +4,12 @@ import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
 
 import { useState, useEffect } from "react";
+
+import {
+  sendJoinRequest,
+  cancelJoinRequest,
+  getJoinRequest,
+} from "../../lib/meet/api";
 import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
 import DeleteMeetSheet from "./DeleteMeetSheet";
@@ -44,6 +50,9 @@ const isFull =
 
   const [manageOpen, setManageOpen] = useState(false);
 const [deleteOpen, setDeleteOpen] = useState(false);
+
+const [joinRequest, setJoinRequest] = useState<any>(null);
+const [loadingRequest, setLoadingRequest] = useState(false);
   
 
   const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
@@ -71,12 +80,39 @@ const expiresAt = event.expires_at
 
 const remaining = Math.max(0, expiresAt - now);
 
+useEffect(() => {
+  if (!currentUserId || isParticipant) return;
+
+  getJoinRequest(event.id, currentUserId)
+    .then(setJoinRequest)
+    .catch(console.error);
+}, [
+  currentUserId,
+  event.id,
+  isParticipant,
+]);
+
 const totalMinutes = Math.floor(remaining / 60000);
 
 const hours = Math.floor(totalMinutes / 60);
 const minutes = totalMinutes % 60;
 
+
+const isApproval =
+  event.join_type === "approval";
+
+const hasPendingRequest =
+  joinRequest?.status === "pending";
+
+const hasRejectedRequest =
+  joinRequest?.status === "rejected";
+
+const hasApprovedRequest =
+  joinRequest?.status === "approved";
+
 let remainingText = "";
+
+
 
 if (totalMinutes <= 0) {
   remainingText = "Встреча завершена";
@@ -373,122 +409,207 @@ lineHeight: 1.25,
             paddingTop: 24,
           }}
         >
-          {isCreator ? (
+          
+{isCreator ? (
   <div
-  onClick={() => setManageOpen(true)}
-  style={{
-    ...buttonStyle,
-    height: 56,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "rgba(42,171,238,.15)",
-    color: "#2AABEE",
-    border: "1px solid rgba(42,171,238,.35)",
-    borderRadius: 16,
-    marginBottom: 16,
-    fontWeight: 600,
-    cursor: "pointer",
-  }}
->
-  ⚙️ Управление встречей
-</div>
-) : (
-  <button
-    onClick={() =>
-      isParticipant
-        ? onLeave(event.id)
-        : onJoin(event.id)
-    }
-    disabled={!isParticipant && isFull}
+    onClick={() => setManageOpen(true)}
     style={{
       ...buttonStyle,
       height: 56,
-      border: "none",
-      background: isParticipant
-        ? "#EF4444"
-        : "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-      color: "#fff",
-      fontSize: 17,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "rgba(42,171,238,.15)",
+      color: "#2AABEE",
+      border: "1px solid rgba(42,171,238,.35)",
+      borderRadius: 16,
       marginBottom: 16,
-      opacity: !isParticipant && isFull ? 0.6 : 1,
-      cursor:
-        !isParticipant && isFull
-          ? "not-allowed"
-          : "pointer",
+      fontWeight: 600,
+      cursor: "pointer",
     }}
   >
-    {isParticipant
-      ? "🚪 Покинуть встречу"
-      : isFull
-      ? "🚫 Нет мест"
-      : " Присоединиться"}
-  </button>
-)}
+    ⚙️ Управление встречей
+  </div>
+) : (
+  <>
+    <button
+      onClick={async () => {
+        if (loadingRequest) return;
 
-          <div
-  style={{
-    display: "flex",
-    gap: 10,
-    marginBottom: 14,
-  }}
->
-  <button
-    onClick={() =>
-      router.push(`/user/${event.users?.id}`)
-    }
-    style={{
-      ...buttonStyle,
-      flex: 1,
-      marginBottom: 0,
-      height: 48,
-    }}
-  >
-    👤 Профиль
-  </button>
+        if (isParticipant) {
+          await onLeave(event.id);
+          return;
+        }
 
-  <button
-    onClick={async () => {
-      if (!currentUserId || !event.users?.id) return;
+        if (isFull) return;
 
-      const chatId = await createChatIfNotExists(
-        currentUserId,
-        event.users.id
-      );
+        if (!isApproval) {
+          await onJoin(event.id);
+          return;
+        }
 
-      if (chatId) {
-        router.push(`/chat/${chatId}`);
+        if (hasPendingRequest) {
+          setLoadingRequest(true);
+
+          try {
+            await cancelJoinRequest(
+              event.id,
+              currentUserId
+            );
+
+            setJoinRequest(null);
+          } finally {
+            setLoadingRequest(false);
+          }
+
+          return;
+        }
+
+        setLoadingRequest(true);
+
+        try {
+          await sendJoinRequest(
+            event.id,
+            currentUserId
+          );
+
+          const request =
+            await getJoinRequest(
+              event.id,
+              currentUserId
+            );
+
+          setJoinRequest(request);
+        } finally {
+          setLoadingRequest(false);
+        }
+      }}
+      disabled={
+        (!isParticipant && isFull) ||
+        loadingRequest
       }
-    }}
-    style={{
-      ...buttonStyle,
-      flex: 1,
-      marginBottom: 0,
-      height: 48,
-    }}
-  >
-    💬 Написать
-  </button>
-</div>
+      style={{
+        ...buttonStyle,
+        height: 56,
+        border: "none",
+        background: isParticipant
+          ? "#EF4444"
+          : hasPendingRequest
+          ? "#F59E0B"
+          : "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+        color: "#fff",
+        fontSize: 17,
+        marginBottom: 16,
+        opacity:
+          (!isParticipant && isFull) ||
+          loadingRequest
+            ? 0.6
+            : 1,
+        cursor:
+          (!isParticipant && isFull) ||
+          loadingRequest
+            ? "not-allowed"
+            : "pointer",
+      }}
+    >
+      {isParticipant
+        ? "🚪 Покинуть встречу"
+        : isFull
+        ? "🚫 Нет мест"
+        : isApproval
+        ? hasPendingRequest
+          ? "❌ Отменить заявку"
+          : hasRejectedRequest
+          ? "📨 Отправить заявку повторно"
+          : "📨 Отправить заявку"
+        : "🤝 Присоединиться"}
+    </button>
+
+    {isApproval && hasPendingRequest && (
+      <div
+        style={{
+          marginTop: -6,
+          marginBottom: 16,
+          textAlign: "center",
+          color: "#D97706",
+          fontSize: 14,
+          fontWeight: 600,
+        }}
+      >
+        ⏳ Заявка отправлена. Ожидайте решения организатора.
+      </div>
+    )}
+
+        <div
+      style={{
+        display: "flex",
+        gap: 10,
+        marginBottom: 14,
+      }}
+    >
+      <button
+        onClick={() =>
+          router.push(`/user/${event.users?.id}`)
+        }
+        style={{
+          ...buttonStyle,
+          flex: 1,
+          marginBottom: 0,
+          height: 48,
+        }}
+      >
+        👤 Профиль
+      </button>
+
+      <button
+        onClick={async () => {
+          if (!currentUserId || !event.users?.id) return;
+
+          const chatId =
+            await createChatIfNotExists(
+              currentUserId,
+              event.users.id
+            );
+
+          if (chatId) {
+            router.push(`/chat/${chatId}`);
+          }
+        }}
+        style={{
+          ...buttonStyle,
+          flex: 1,
+          marginBottom: 0,
+          height: 48,
+        }}
+      >
+        💬 Написать
+      </button>
+    </div>
+  </>
+)}
         </div>
       )}
 
       <MeetManageSheet
-        open={manageOpen}
-        onClose={() => setManageOpen(false)}
-        onEdit={() => {
-          setManageOpen(false);
-          router.push(`/meet/edit/${event.id}?tab=map`);
-        }}
-        onParticipants={() => {
-          setManageOpen(false);
-          router.push(`/meet/participants/${event.id}?tab=map`);
-        }}
-        onDelete={() => {
-          setManageOpen(false);
-          setDeleteOpen(true);
-        }}
-      />
+  open={manageOpen}
+  onClose={() => setManageOpen(false)}
+  onEdit={() => {
+    setManageOpen(false);
+    router.push(`/meet/edit/${event.id}?tab=map`);
+  }}
+  onParticipants={() => {
+    setManageOpen(false);
+    router.push(`/meet/participants/${event.id}?tab=map`);
+  }}
+  onRequests={() => {
+    setManageOpen(false);
+    router.push(`/meet/requests/${event.id}?tab=map`);
+  }}
+  onDelete={() => {
+    setManageOpen(false);
+    setDeleteOpen(true);
+  }}
+/>
 
       <DeleteMeetSheet
         open={deleteOpen}

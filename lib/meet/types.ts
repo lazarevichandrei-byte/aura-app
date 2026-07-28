@@ -22,6 +22,8 @@ export interface MeetEvent {
 
 duration: "30m" | "1h" | "2h" | "day";
 
+join_type: "open" | "approval";
+
 expires_at: string | null;
 
 max_people: number;

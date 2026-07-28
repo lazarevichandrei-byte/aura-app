@@ -54,6 +54,10 @@ const [duration, setDuration] = useState<
   "30m" | "1h" | "2h" | "day"
 >("1h");
 
+const [joinType, setJoinType] = useState<
+  "open" | "approval"
+>("open");
+
 const [loading,setLoading] =
 useState(false);
 
@@ -79,6 +83,10 @@ useEffect(() => {
     setDuration(
   (draft.duration as "30m" | "1h" | "2h" | "day") ?? "1h"
 );
+
+setJoinType(
+  (draft.joinType as "open" | "approval") ?? "open"
+);
   } catch {}
 }, []);
 
@@ -86,14 +94,15 @@ useEffect(() => {
   sessionStorage.setItem(
     "meet_draft",
     JSON.stringify({
-      title,
-      description,
-      category,
-      date,
-      time,
-      maxPeople,
-      duration,
-    })
+  title,
+  description,
+  category,
+  date,
+  time,
+  maxPeople,
+  duration,
+  joinType,
+})
   );
 }, [
   title,
