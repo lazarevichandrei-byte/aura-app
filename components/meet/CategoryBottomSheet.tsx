@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  animate,
+  useMotionValue,
+} from "motion/react";
 
-import BottomSheet from "../BottomSheet";
+import {
+  useCallback,
+  useRef,
+} from "react";
 
 import {
   CATEGORY_GROUPS,
@@ -24,6 +32,51 @@ export default function CategoryBottomSheet({
   onSelect,
 }: Props) {
 
+    const SHEET_HEIGHT = 0.92;
+
+const OPEN_POSITION = 0.50;
+
+const y = useMotionValue(
+  typeof window === "undefined"
+    ? 0
+    : window.innerHeight
+);
+
+const opened = useRef(false);
+
+const getClosedPosition = useCallback(
+  () => window.innerHeight * SHEET_HEIGHT,
+  []
+);
+
+const getOpenedPosition = useCallback(
+  () => window.innerHeight * OPEN_POSITION,
+  []
+);
+
+useEffect(() => {
+  if (!open) {
+    opened.current = false;
+    return;
+  }
+
+  if (!opened.current) {
+    opened.current = true;
+
+    y.set(getClosedPosition());
+
+    animate(
+      y,
+      getOpenedPosition(),
+      {
+        type: "spring",
+        stiffness: 320,
+        damping: 32,
+      }
+    );
+  }
+}, [open, getClosedPosition, getOpenedPosition, y]);
+
   const [selectedGroup, setSelectedGroup] =
     useState<string | null>(null);
 
@@ -33,13 +86,86 @@ export default function CategoryBottomSheet({
   }
 }, [open]);
 
-  return (
-    <BottomSheet
-  open={open}
-  onClose={onClose}
-  maxHeight="92vh"
-  initialOffset="-42vh"
+  if (!open) return null;
+
+return (
+<>
+  <motion.div
+    onClick={onClose}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,.45)",
+      backdropFilter: "blur(6px)",
+      zIndex: 9998,
+    }}
+  />
+
+  <motion.section
+    style={{
+      y,
+      position: "fixed",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: "92dvh",
+      background: "#fff",
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
+      padding: "20px",
+      overflow: "hidden",
+      zIndex: 9999,
+      boxShadow:
+        "0 -12px 40px rgba(0,0,0,.18)",
+    }}
+  >
+
+
+    <motion.div
+  drag="y"
+  dragElastic={0.08}
+  dragMomentum={false}
+  dragConstraints={{
+    top: 0,
+    bottom: getClosedPosition(),
+  }}
+  onPanEnd={(_, info) => {
+    if (
+      info.velocity.y > 900 ||
+      y.get() > window.innerHeight * 0.72
+    ) {
+      onClose();
+      return;
+    }
+
+    animate(y, getOpenedPosition(), {
+      type: "spring",
+      stiffness: 320,
+      damping: 32,
+    });
+  }}
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 34,
+    marginBottom: 8,
+    cursor: "grab",
+    touchAction: "none",
+  }}
 >
+  <div
+    style={{
+      width: 54,
+      height: 6,
+      borderRadius: 999,
+      background: "#D6D6D6",
+    }}
+  />
+</motion.div>
 
 <div
   style={{
@@ -254,8 +380,8 @@ export default function CategoryBottomSheet({
       
     
 </div>
-</BottomSheet>
-
-  );
+  </motion.section>
+</>
+);
 }
 
