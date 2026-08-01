@@ -8,8 +8,6 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   maxHeight?: string;
-
-  initialOffset?: string;
 };
 
 export default function BottomSheet({
@@ -21,11 +19,9 @@ export default function BottomSheet({
 
   const [visible, setVisible] = useState(false);
 
-  const [startY, setStartY] = useState<number | null>(null);
-
   useEffect(() => {
 
-  if (open) {
+    if (open) {
 
   selection();
 
@@ -37,36 +33,7 @@ export default function BottomSheet({
 
 }
 
-}, [open]);
-
-const handleTouchStart = (
-  e: React.TouchEvent<HTMLDivElement>
-) => {
-
-  setStartY(e.touches[0].clientY);
-
-};
-
-const handleTouchMove = () => {};
-
-const handleTouchEnd = (
-  e: React.TouchEvent<HTMLDivElement>
-) => {
-
-  if (startY === null) return;
-
-  const diff =
-    e.changedTouches[0].clientY - startY;
-
-  if (diff > 80) {
-
-    onClose();
-
-  }
-
-  setStartY(null);
-
-};
+  }, [open]);
 
   if (!open) return null;
 
@@ -98,12 +65,6 @@ const handleTouchEnd = (
       <div
 
         onClick={(e) => e.stopPropagation()}
-
-        onTouchStart={handleTouchStart}
-
-        onTouchMove={handleTouchMove}
-
-        onTouchEnd={handleTouchEnd}
 
         style={{
 
