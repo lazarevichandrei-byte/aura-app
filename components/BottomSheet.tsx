@@ -22,21 +22,70 @@ export default function BottomSheet({
 
   const [visible, setVisible] = useState(false);
 
+  const [translateY, setTranslateY] = useState(0);
+
+const [startY, setStartY] = useState<number | null>(null);
+
   useEffect(() => {
 
-    if (open) {
+  if (open) {
 
-  selection();
+    selection();
 
-  setVisible(true);
+    setVisible(true);
 
-} else {
+    setTranslateY(0);
 
-  setVisible(false);
+  } else {
 
-}
+    setVisible(false);
 
-  }, [open]);
+    setTranslateY(0);
+
+  }
+
+}, [open]);
+
+const handleTouchStart = (
+  e: React.TouchEvent<HTMLDivElement>
+) => {
+
+  setStartY(e.touches[0].clientY);
+
+};
+
+const handleTouchMove = (
+  e: React.TouchEvent<HTMLDivElement>
+) => {
+
+  if (startY === null) return;
+
+  const diff =
+    e.touches[0].clientY - startY;
+
+  if (diff > 0) {
+
+    setTranslateY(diff);
+
+  }
+
+};
+
+const handleTouchEnd = () => {
+
+  if (translateY > 80) {
+
+    onClose();
+
+  } else {
+
+    setTranslateY(0);
+
+  }
+
+  setStartY(null);
+
+};
 
   if (!open) return null;
 
@@ -68,6 +117,12 @@ export default function BottomSheet({
       <div
 
         onClick={(e) => e.stopPropagation()}
+
+        onTouchStart={handleTouchStart}
+
+        onTouchMove={handleTouchMove}
+
+        onTouchEnd={handleTouchEnd}
 
         style={{
 
@@ -102,11 +157,13 @@ boxSizing: "border-box",
 justifyContent: "flex-start",
 
 transform: visible
-  ? "translateY(0)"
+  ? `translateY(${translateY}px)`
   : "translateY(100%)",
 
 transition:
-  "transform .25s ease",
+  startY === null
+    ? "transform .25s ease"
+    : "none",
 
 boxShadow:
   "0 -10px 40px rgba(0,0,0,.15)"
