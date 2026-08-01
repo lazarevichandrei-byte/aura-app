@@ -1,17 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  animate,
-  useMotionValue,
-} from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 
-import {
-  useCallback,
-  useRef,
-} from "react";
+import BottomSheet from "../BottomSheet";
 
 import {
   CATEGORY_GROUPS,
@@ -32,54 +24,6 @@ export default function CategoryBottomSheet({
   onSelect,
 }: Props) {
 
-
-    const SHEET_HEIGHT = 0.95;
-
-const OPEN_POSITION = 0.5;
-
-const y = useMotionValue(
-  typeof window === "undefined"
-    ? 0
-    : window.innerHeight
-);
-
-const opened = useRef(false);
-
-const getClosedPosition = useCallback(() => {
-  if (typeof window === "undefined") return 0;
-
-  return window.innerHeight * SHEET_HEIGHT;
-}, []);
-
-const getOpenedPosition = useCallback(() => {
-  if (typeof window === "undefined") return 0;
-
-  return window.innerHeight * OPEN_POSITION;
-}, []);
-
-useEffect(() => {
-  if (!open) {
-    opened.current = false;
-    return;
-  }
-
-  if (!opened.current) {
-    opened.current = true;
-
-    y.set(getClosedPosition());
-
-    animate(
-      y,
-      getOpenedPosition(),
-      {
-        type: "spring",
-        stiffness: 320,
-        damping: 32,
-      }
-    );
-  }
-}, [open]);
-
   const [selectedGroup, setSelectedGroup] =
     useState<string | null>(null);
 
@@ -90,67 +34,11 @@ useEffect(() => {
 }, [open]);
 
   return (
-    <>
-  <motion.div
-    onClick={onClose}
-    animate={{
-      opacity: open ? 1 : 0,
-    }}
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,.45)",
-      backdropFilter: "blur(6px)",
-      zIndex: 9998,
-    }}
-  />
-
-  <motion.section
-     initial={false}
-  drag="y"
-  dragElastic={0.08}
-    dragMomentum={false}
-    dragConstraints={{
-  top: getOpenedPosition(),
-  bottom: getClosedPosition(),
-}}
-    onPanEnd={(_, info) => {
-      const viewport =
-  typeof window === "undefined"
-    ? 0
-    : window.innerHeight;
-
-if (
-  info.velocity.y > 900 ||
-  y.get() > viewport * 0.72
-) {
-        onClose();
-        return;
-      }
-
-      animate(y, getOpenedPosition(), {
-        type: "spring",
-        stiffness: 320,
-        damping: 32,
-      });
-    }}
-    style={{
-      y,
-      position: "fixed",
-      left: 0,
-      right: 0,
-      bottom: 0,
-      height: "95dvh",
-      background: "#fff",
-      borderTopLeftRadius: 30,
-      borderTopRightRadius: 30,
-      padding: "20px",
-      overflow: "hidden",
-      zIndex: 9999,
-      boxShadow:
-        "0 -12px 40px rgba(0,0,0,.18)",
-    }}
-  >
+    <BottomSheet
+  open={open}
+  onClose={onClose}
+  maxHeight="92vh"
+>
 
 <div
   style={{
@@ -365,8 +253,7 @@ if (
       
     
 </div>
-</motion.section>
-</>
+</BottomSheet>
 
   );
 }
