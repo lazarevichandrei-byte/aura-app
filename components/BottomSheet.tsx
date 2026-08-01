@@ -8,6 +8,8 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   maxHeight?: string;
+
+  initialOffset?: string;
 };
 
 export default function BottomSheet({
@@ -15,6 +17,7 @@ export default function BottomSheet({
   onClose,
   children,
   maxHeight = "65vh",
+  initialOffset = "0px",
 }: Props) {
 
   const [visible, setVisible] = useState(false);
@@ -99,7 +102,7 @@ boxSizing: "border-box",
 justifyContent: "flex-start",
 
 transform: visible
-  ? "translateY(0)"
+  ? `translateY(${initialOffset})`
   : "translateY(100%)",
 
 transition:
