@@ -102,7 +102,7 @@ boxSizing: "border-box",
 justifyContent: "flex-start",
 
 transform: visible
-  ? `translateY(${initialOffset})`
+  ? "translateY(0)"
   : "translateY(100%)",
 
 transition:
