@@ -60,22 +60,8 @@ useEffect(() => {
     return;
   }
 
-  if (!opened.current) {
-    opened.current = true;
-
-    y.set(getClosedPosition());
-
-    animate(
-      y,
-      getOpenedPosition(),
-      {
-        type: "spring",
-        stiffness: 320,
-        damping: 32,
-      }
-    );
-  }
-}, [open, getClosedPosition, getOpenedPosition, y]);
+  opened.current = true;
+}, [open]);
 
   const [selectedGroup, setSelectedGroup] =
     useState<string | null>(null);
@@ -105,6 +91,17 @@ return (
   />
 
   <motion.section
+    initial={false}
+    animate={{
+      y: open
+        ? getOpenedPosition()
+        : getClosedPosition(),
+    }}
+    transition={{
+      type: "spring",
+      stiffness: 320,
+      damping: 32,
+    }}
     style={{
       y,
       position: "fixed",
