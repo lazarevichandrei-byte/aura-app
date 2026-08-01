@@ -84,17 +84,17 @@ export default function BottomSheet({
 
           padding: 24,
 
-          paddingBottom: 34,
-
-height: maxHeight,
+paddingBottom: 34,
 
 maxHeight,
 
-overflowY: "auto",
+overflow: "hidden",
 
 display: "flex",
 
 flexDirection: "column",
+
+boxSizing: "border-box",
 
 justifyContent: "flex-start",
 
