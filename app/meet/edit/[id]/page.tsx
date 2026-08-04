@@ -14,12 +14,14 @@ import {
 } from "../../../../lib/meet/api";
 import LocationCard from "../../../../components/meet/LocationCard";
 import PeopleSelector from "../../../../components/meet/PeopleSelector";
+import { useNotification } from "../../../../components/NotificationContext";
 
 
 export default function EditMeetPage() {
   const { id } = useParams();
 
   const router = useRouter();
+  const { error: showError } = useNotification();
 
 const [loading, setLoading] = useState(true);
 
@@ -113,7 +115,7 @@ async function handleSave() {
     router.back();
   } catch (error) {
     console.error(error);
-    alert("Не удалось сохранить изменения.");
+    showError("Не удалось сохранить изменения", "Попробуйте ещё раз.");
   }
 }
 

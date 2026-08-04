@@ -17,10 +17,12 @@ import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
 import CategoryPicker from "../../../components/meet/CategoryPicker";
 import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
+import { useNotification } from "../../../components/NotificationContext";
 export default function CreateMeetPage() {
     
 
   const router = useRouter();
+  const { error: showError } = useNotification();
   
 
   const [title,setTitle] =
@@ -154,7 +156,7 @@ useEffect(() => {
     !date ||
     !time
   ){
-    alert("Заполните обязательные поля");
+    showError("Заполните данные", "Укажите название, дату и время встречи.");
     return;
   }
 
@@ -173,7 +175,7 @@ useEffect(() => {
 
     if(!telegramId){
 
-      alert("Ошибка Telegram");
+      showError("Ошибка Telegram", "Не удалось определить пользователя.");
 
       return;
 
@@ -191,7 +193,7 @@ useEffect(() => {
 
     if(!user){
 
-      alert("Пользователь не найден");
+      showError("Пользователь не найден", "Откройте приложение через Telegram ещё раз.");
 
       return;
 
@@ -236,16 +238,13 @@ router.replace("/meet");
   console.error("CREATE MEET ERROR:", err);
   console.dir(err);
 
-  if (err) {
-    alert(`
-Message: ${err.message}
-Code: ${err.code}
-Details: ${err.details}
-Hint: ${err.hint}
-`);
-  } else {
-    alert("Неизвестная ошибка");
-  }
+  showError(
+    "Не удалось создать встречу",
+    "Попробуйте ещё раз немного позже."
+  );
+
+} finally {
+  setLoading(false);
 
 }
 

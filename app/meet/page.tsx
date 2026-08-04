@@ -18,10 +18,12 @@ import MeetFeedCard from "../../components/meet/MeetFeedCard";
 import MeetGridCard from "../../components/meet/MeetGridCard";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useCurrentUser } from "../../lib/useCurrentUser";
+import { useNotification } from "../../components/NotificationContext";
 
 
 export default function MeetPage() {
     const router = useRouter();
+    const { error: showError } = useNotification();
 
 
     const { user: currentUser } = useCurrentUser();
@@ -76,6 +78,7 @@ async function handleJoin(eventId: string) {
   } catch (e) {
 
     console.error(e);
+    showError("Не удалось присоединиться", "Попробуйте ещё раз.");
 
     await load();
 
@@ -115,6 +118,7 @@ async function handleLeave(eventId: string) {
   } catch (e) {
 
     console.error(e);
+    showError("Не удалось покинуть встречу", "Попробуйте ещё раз.");
 
     await load();
 
@@ -132,7 +136,7 @@ async function handleDelete(eventId: string) {
     setSelectedEvent(null);
   } catch (error) {
     console.error(error);
-    alert("Не удалось удалить встречу.");
+    showError("Не удалось удалить встречу", "Попробуйте ещё раз.");
   }
 }
 

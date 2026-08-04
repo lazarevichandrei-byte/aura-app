@@ -1,18 +1,24 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft2 } from "iconsax-react";
 import {
   loadMeetJoinRequests,
   approveJoinRequest,
   rejectJoinRequest,
   joinMeetEvent,
 } from "../../../../lib/meet/api";
+import { useNotification } from "../../../../components/NotificationContext";
+import PageWrapper from "../../../../components/PageWrapper";
 export default function MeetRequestsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
+  const { error: showError } = useNotification();
 
 const [requests, setRequests] = useState<any[]>([]);
 const [loading, setLoading] = useState(true);
@@ -44,7 +50,7 @@ async function approve(request: any) {
     await refresh();
   } catch (e) {
     console.error(e);
-    alert("Не удалось одобрить заявку");
+    showError("Не удалось одобрить заявку", "Попробуйте ещё раз.");
   }
 }
 
@@ -55,25 +61,54 @@ async function reject(request: any) {
     await refresh();
   } catch (e) {
     console.error(e);
-    alert("Не удалось отклонить заявку");
+    showError("Не удалось отклонить заявку", "Попробуйте ещё раз.");
   }
 }
 
   return (
-    <div
+    <PageWrapper>
+    <main
       style={{
+        minHeight: "100vh",
+        background: "#F5F7FB",
         padding: 20,
       }}
     >
+      <header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Назад"
+          onClick={() => router.back()}
+          style={{
+            width: 40,
+            height: 40,
+            display: "grid",
+            placeItems: "center",
+            borderRadius: "50%",
+            background: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          <ArrowLeft2 size="24" color="#2F80FF" />
+        </button>
+
       <h1
         style={{
           fontSize: 26,
           fontWeight: 700,
-          marginBottom: 12,
+          margin: 0,
         }}
       >
         📨 Заявки
       </h1>
+      </header>
 
       <div
         style={{
@@ -191,6 +226,7 @@ async function reject(request: any) {
     </div>
   ))
 )}
-    </div>
+    </main>
+    </PageWrapper>
   );
 }

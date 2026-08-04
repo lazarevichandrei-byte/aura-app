@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import BottomSheet from "../BottomSheet";
 
@@ -27,17 +27,17 @@ export default function CategoryBottomSheet({
   const [selectedGroup, setSelectedGroup] =
     useState<string | null>(null);
 
-    useEffect(() => {
-  if (open) {
+  const closeSheet = () => {
     setSelectedGroup(null);
-  }
-}, [open]);
+    onClose();
+  };
 
   return (
-    <BottomSheet
+  <BottomSheet
   open={open}
-  onClose={onClose}
-  maxHeight="92vh"
+  onClose={closeSheet}
+  height="50dvh"
+  maxHeight="50dvh"
 >
 
 <div
@@ -189,7 +189,7 @@ export default function CategoryBottomSheet({
 
     setSelectedGroup(null);
 
-    onClose();
+    closeSheet();
 
   }}
   style={{
@@ -257,4 +257,3 @@ export default function CategoryBottomSheet({
 
   );
 }
-

@@ -11,6 +11,7 @@ import { MAP_STYLE } from "../../lib/map/styles";
 import type { MeetEvent } from "../../lib/meet/types";
 
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
+import { useNotification } from "../NotificationContext";
 
 type Props = {
   events?: MeetEvent[];
@@ -45,6 +46,7 @@ const AuraMap = forwardRef
   category,
   selectedEvent
 }, ref) => {
+  const { error: showError } = useNotification();
 
   const mapContainer =
     useRef<HTMLDivElement>(null);
@@ -279,7 +281,7 @@ map.current?.setZoom(16);
 
   flyToUser() {
   if (!navigator.geolocation) {
-    alert("Геолокация не поддерживается");
+    showError("Геолокация недоступна", "Ваше устройство не поддерживает геолокацию.");
     return;
   }
 
@@ -295,7 +297,7 @@ map.current?.setZoom(16);
     },
     (error) => {
       console.error(error);
-      alert("Не удалось определить местоположение.");
+      showError("Не удалось определить местоположение", "Проверьте разрешение на геолокацию.");
     },
     {
       enableHighAccuracy: true,

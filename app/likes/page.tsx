@@ -6,9 +6,11 @@ import { useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { sendMatchNotification } from "../../lib/notifications/matches";
 import AuraLoader from "../../components/AuraLoader";
+import { useNotification } from "../../components/NotificationContext";
 export default function LikesPage(){
 
 const router = useRouter();
+const { info } = useNotification();
 
 
 const [myId,setMyId] = useState<string | null>(null);
@@ -334,7 +336,7 @@ people.map((user, index) => (
 key={user.id}
 
 onClick={()=>{
-alert("Потом откроем профиль");
+info("Профиль скоро появится", "Переход к профилю будет добавлен в следующем обновлении.");
 }}
 
 style={{
@@ -827,4 +829,3 @@ transform:translateY(0);
 );
 
 }
-
