@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useDragControls } from "motion/react";
 import { selection } from "../lib/haptic";
@@ -16,10 +16,15 @@ type Props = {
   children: ReactNode;
   maxHeight?: string;
   height?: string;
+  snapHeights?: {
+    collapsed: number;
+    expanded: number;
+  };
 };
 
 const CLOSE_DISTANCE = 96;
 const CLOSE_VELOCITY = 650;
+const SNAP_DISTANCE = 56;
 
 function getTelegramWebApp(): TelegramWebApp | undefined {
   return (
@@ -33,8 +38,23 @@ export default function BottomSheet({
   children,
   maxHeight = "65dvh",
   height,
+  snapHeights,
 }: Props) {
   const dragControls = useDragControls();
+  const [snapPoint, setSnapPoint] = useState<"collapsed" | "expanded">(
+    "collapsed"
+  );
+  const [viewportHeight, setViewportHeight] = useState(
+    typeof window === "undefined" ? 0 : window.innerHeight
+  );
+
+  const isExpandable = Boolean(snapHeights);
+  const expandedHeight = snapHeights?.expanded ?? 0;
+  const collapsedOffset = snapHeights
+    ? viewportHeight * (snapHeights.expanded - snapHeights.collapsed)
+    : 0;
+  const targetY =
+    isExpandable && snapPoint === "collapsed" ? collapsedOffset : 0;
 
   useEffect(() => {
     if (!open) return;
@@ -51,10 +71,17 @@ export default function BottomSheet({
     };
   }, [open]);
 
+  useEffect(() => {
+    const updateViewportHeight = () => setViewportHeight(window.innerHeight);
+
+    window.addEventListener("resize", updateViewportHeight);
+    return () => window.removeEventListener("resize", updateViewportHeight);
+  }, []);
+
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={() => setSnapPoint("collapsed")}>
       {open && (
         <motion.div
           role="dialog"
@@ -78,7 +105,7 @@ export default function BottomSheet({
         >
           <motion.div
             initial={{ y: "100%" }}
-            animate={{ y: 0 }}
+            animate={{ y: targetY }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 360, damping: 32 }}
             drag="y"
@@ -88,9 +115,37 @@ export default function BottomSheet({
             dragElastic={0.12}
             dragMomentum={false}
             onDragEnd={(_, info) => {
+              if (!isExpandable) {
+                if (
+                  info.offset.y > CLOSE_DISTANCE ||
+                  info.velocity.y > CLOSE_VELOCITY
+                ) {
+                  onClose();
+                }
+                return;
+              }
+
+              const isPullingUp =
+                info.offset.y < -SNAP_DISTANCE ||
+                info.velocity.y < -CLOSE_VELOCITY;
+              const isPullingDown =
+                info.offset.y > SNAP_DISTANCE ||
+                info.velocity.y > CLOSE_VELOCITY;
+
+              if (isPullingUp) {
+                setSnapPoint("expanded");
+                return;
+              }
+
+              if (isPullingDown && snapPoint === "expanded") {
+                setSnapPoint("collapsed");
+                return;
+              }
+
               if (
-                info.offset.y > CLOSE_DISTANCE ||
-                info.velocity.y > CLOSE_VELOCITY
+                isPullingDown &&
+                (info.offset.y > CLOSE_DISTANCE ||
+                  info.velocity.y > CLOSE_VELOCITY)
               ) {
                 onClose();
               }
@@ -98,8 +153,8 @@ export default function BottomSheet({
             onClick={(event) => event.stopPropagation()}
             style={{
               width: "100%",
-              maxHeight,
-              height,
+              maxHeight: isExpandable ? `${expandedHeight * 100}dvh` : maxHeight,
+              height: isExpandable ? `${expandedHeight * 100}dvh` : height,
               background: "#FFFFFF",
               borderTopLeftRadius: 28,
               borderTopRightRadius: 28,

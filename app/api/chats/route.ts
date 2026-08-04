@@ -60,29 +60,31 @@ export async function POST(req: Request){
       { ascending:false }
     );
 
-const chats = await Promise.all(
+    const otherUserIds = [...new Set(
+      (chatsRaw || []).map((chat) =>
+        chat.user1_id === user.id ? chat.user2_id : chat.user1_id
+      )
+    )];
 
-  (chatsRaw || []).map(async (chat) => {
+    const { data: otherUsers } = otherUserIds.length
+      ? await supabaseAdmin
+          .from("users")
+          .select("id, name, avatar_url")
+          .in("id", otherUserIds)
+      : { data: [] };
+
+    const usersById = new Map(
+      (otherUsers || []).map((otherUser) => [otherUser.id, otherUser])
+    );
+
+    const chats = (chatsRaw || []).map((chat) => {
 
     const otherUserId =
       chat.user1_id === user.id
         ? chat.user2_id
         : chat.user1_id;
 
-    const { data: otherUser } =
-      await supabaseAdmin
-        .from("users")
-        .select(`
-  id,
-  name,
-  avatar_url
-`)
-        .eq("id", otherUserId)
-        .single();
-
-        console.log("CHAT:", chat.id);
-console.log("OTHER USER ID:", otherUserId);
-console.log("OTHER USER:", otherUser);
+    const otherUser = usersById.get(otherUserId);
 
     return {
       ...chat,
@@ -94,14 +96,7 @@ console.log("OTHER USER:", otherUser);
   otherUser?.avatar_url || "/girl1.jpg"
     };
 
-  })
-
-);
-
-        console.log("USER ID:", user.id);
-console.log("CHATS:", chats);
-
-    console.log("FINAL CHATS:", chats);
+  });
     return NextResponse.json({
       ok:true,
       chats

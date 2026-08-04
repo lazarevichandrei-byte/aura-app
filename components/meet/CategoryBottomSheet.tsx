@@ -36,8 +36,7 @@ export default function CategoryBottomSheet({
   <BottomSheet
   open={open}
   onClose={closeSheet}
-  height="50dvh"
-  maxHeight="50dvh"
+  snapHeights={{ collapsed: 0.5, expanded: 0.92 }}
 >
 
 <div

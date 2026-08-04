@@ -8,8 +8,8 @@ import {
   useRouter,
   useSearchParams
 } from "next/navigation";
-import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../../components/PageWrapper";
+import PageHeader from "../../../components/PageHeader";
 import { MEET_CATEGORIES } from "../../../lib/meet/categories";
 import { supabase } from "../../../lib/supabase";
 import { createMeetEvent } from "../../../lib/meet/api";
@@ -270,46 +270,7 @@ const DURATION_OPTIONS = [
         }}
       >
 
-        {/* HEADER */}
-
-        <div
-          style={{
-            display:"flex",
-            alignItems:"center",
-            marginBottom:28
-          }}
-        >
-
-          <div
-
-            onClick={()=>router.back()}
-
-            style={{
-              cursor:"pointer",
-              display:"flex",
-              alignItems:"center"
-            }}
-
-          >
-
-            <ArrowLeft2
-              size="28"
-              color="#2F80FF"
-            />
-
-          </div>
-
-          <div
-            style={{
-              marginLeft:14,
-              fontSize:24,
-              fontWeight:700
-            }}
-          >
-            Создать встречу
-          </div>
-
-        </div>
+        <PageHeader title="Создать встречу" onBack={() => router.back()} />
 
         {/* Название встречи */}
 
@@ -331,7 +292,7 @@ style={inputStyle}
 <div
   style={{
     ...labelStyle,
-    marginTop: 24,
+    marginTop: 16,
   }}
 >
   Категория
@@ -361,7 +322,7 @@ style={inputStyle}
         <div
           style={{
             ...labelStyle,
-            marginTop:24
+            marginTop:16
           }}
         >
           О встрече
@@ -393,7 +354,7 @@ paddingTop:14
 style={{
 display:"flex",
 gap:12,
-marginTop:24
+marginTop:16
 }}
 >
 
@@ -454,7 +415,7 @@ style={inputStyle}
 <div
   style={{
     ...labelStyle,
-    marginTop: 24,
+    marginTop: 16,
   }}
 >
 ⏱️ Встреча доступна
@@ -462,11 +423,41 @@ style={inputStyle}
 
 <div
   style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 10,
+  }}
+>
+  {DURATION_OPTIONS.map((item) => (
+    <div
+      key={item.id}
+      onClick={() => setDuration(item.id)}
+      style={{
+        height: 48,
+        borderRadius: 14,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        transition: ".15s",
+        fontWeight: 600,
+        background: duration === item.id ? "#2F80FF" : "#fff",
+        color: duration === item.id ? "#fff" : "#222",
+        boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+      }}
+    >
+      {item.label}
+    </div>
+  ))}
+</div>
+
+<div
+  style={{
     ...labelStyle,
-    marginTop: 24,
+    marginTop: 16,
   }}
 >
-Тип участия
+  Тип участия
 </div>
 
 <div
@@ -476,104 +467,50 @@ style={inputStyle}
     gap: 10,
   }}
 >
+  <div
+    onClick={() => setJoinType("open")}
+    style={{
+      height: 52,
+      borderRadius: 16,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      cursor: "pointer",
+      fontWeight: 600,
+      transition: ".15s",
+      background: joinType === "open" ? "#2F80FF" : "#fff",
+      color: joinType === "open" ? "#fff" : "#222",
+      boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+    }}
+  >
+    🌍 Открытая
+  </div>
 
-<div
-  onClick={() => setJoinType("open")}
-  style={{
-    height: 52,
-    borderRadius: 16,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    cursor: "pointer",
-    fontWeight: 600,
-    transition: ".15s",
-    background:
-      joinType === "open"
-        ? "#2F80FF"
-        : "#fff",
-    color:
-      joinType === "open"
-        ? "#fff"
-        : "#222",
-    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-  }}
->
-🌍 Открытая
-</div>
-
-<div
-  onClick={() => setJoinType("approval")}
-  style={{
-    height: 52,
-    borderRadius: 16,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    cursor: "pointer",
-    fontWeight: 600,
-    transition: ".15s",
-    background:
-      joinType === "approval"
-        ? "#2F80FF"
-        : "#fff",
-    color:
-      joinType === "approval"
-        ? "#fff"
-        : "#222",
-    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-  }}
->
-📨 По заявкам
-</div>
-
-</div>
-
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 10,
-  }}
->
-
-{DURATION_OPTIONS.map(item => (
-
-<div
-  key={item.id}
-  onClick={() => setDuration(item.id)}
-  style={{
-    height: 48,
-    borderRadius: 14,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    transition: ".15s",
-    fontWeight: 600,
-    background:
-      duration === item.id
-        ? "#2F80FF"
-        : "#fff",
-    color:
-      duration === item.id
-        ? "#fff"
-        : "#222",
-    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-  }}
->
-  {item.label}
-</div>
-
-))}
-
+  <div
+    onClick={() => setJoinType("approval")}
+    style={{
+      height: 52,
+      borderRadius: 16,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      cursor: "pointer",
+      fontWeight: 600,
+      transition: ".15s",
+      background: joinType === "approval" ? "#2F80FF" : "#fff",
+      color: joinType === "approval" ? "#fff" : "#222",
+      boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+    }}
+  >
+    📨 По заявкам
+  </div>
 </div>
 
 
         <div
 style={{
 ...labelStyle,
-marginTop:24
+marginTop:16
 }}
 >
 Где встречаемся
@@ -595,7 +532,7 @@ style={{
 
 ...labelStyle,
 
-marginTop:24
+marginTop:16
 
 }}
 
@@ -623,7 +560,7 @@ onChange={setMaxPeople}
 
   style={{
 
-            marginTop:34,
+            marginTop:24,
 
             height:56,
 

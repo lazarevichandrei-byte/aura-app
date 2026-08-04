@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
-import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
+import PageHeader from "../../components/PageHeader";
 import { selection } from "../../lib/haptic";
 
 export default function PrivacyPage() {
@@ -143,42 +143,7 @@ if (
         }}
       >
 
-        <div
-          style={{
-            display:"flex",
-            alignItems:"center",
-            marginBottom:24
-          }}
-        >
-
-          <div
-            onClick={()=>router.back()}
-            style={{
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              paddingRight:10,
-              cursor:"pointer"
-            }}
-          >
-            <ArrowLeft2
-              size="28"
-              color="#2E7BFF"
-              variant="Outline"
-            />
-          </div>
-
-          <div
-            style={{
-              marginLeft:14,
-              fontSize:24,
-              fontWeight:700
-            }}
-          >
-            Конфиденциальность
-          </div>
-
-        </div>
+        <PageHeader title="Конфиденциальность" onBack={() => router.back()} />
 
         <p
 style={{

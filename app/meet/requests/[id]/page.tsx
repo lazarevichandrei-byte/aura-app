@@ -2,7 +2,6 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft2 } from "iconsax-react";
 import {
   loadMeetJoinRequests,
   approveJoinRequest,
@@ -11,6 +10,7 @@ import {
 } from "../../../../lib/meet/api";
 import { useNotification } from "../../../../components/NotificationContext";
 import PageWrapper from "../../../../components/PageWrapper";
+import PageHeader from "../../../../components/PageHeader";
 export default function MeetRequestsPage({
   params,
 }: {
@@ -18,7 +18,7 @@ export default function MeetRequestsPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const { error: showError } = useNotification();
+  const { error: showError, success } = useNotification();
 
 const [requests, setRequests] = useState<any[]>([]);
 const [loading, setLoading] = useState(true);
@@ -48,6 +48,7 @@ async function approve(request: any) {
     );
 
     await refresh();
+    success("Заявка одобрена", "Пользователь добавлен к участникам встречи.");
   } catch (e) {
     console.error(e);
     showError("Не удалось одобрить заявку", "Попробуйте ещё раз.");
@@ -59,6 +60,7 @@ async function reject(request: any) {
     await rejectJoinRequest(request.id);
 
     await refresh();
+    success("Заявка отклонена", "Пользователь не был добавлен к встрече.");
   } catch (e) {
     console.error(e);
     showError("Не удалось отклонить заявку", "Попробуйте ещё раз.");
@@ -74,60 +76,7 @@ async function reject(request: any) {
         padding: 20,
       }}
     >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 24,
-        }}
-      >
-        <button
-          type="button"
-          aria-label="Назад"
-          onClick={() => router.back()}
-          style={{
-            width: 40,
-            height: 40,
-            display: "grid",
-            placeItems: "center",
-            borderRadius: "50%",
-            background: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          <ArrowLeft2 size="24" color="#2F80FF" />
-        </button>
-
-      <h1
-        style={{
-          fontSize: 26,
-          fontWeight: 700,
-          margin: 0,
-        }}
-      >
-        📨 Заявки
-      </h1>
-      </header>
-
-      <div
-        style={{
-          color: "#6B7280",
-          fontSize: 15,
-        }}
-      >
-        ID встречи:
-      </div>
-
-     <div
-  style={{
-    marginTop: 6,
-    fontWeight: 600,
-    marginBottom: 24,
-  }}
->
-  {id}
-</div>
+      <PageHeader title="Заявки" onBack={() => router.back()} />
 
 {loading ? (
   <div>Загрузка...</div>
@@ -170,17 +119,6 @@ async function reject(request: any) {
       >
         {request.users?.city} • {request.users?.age} лет
       </div>
-
-      <div
-  style={{
-    marginTop: 10,
-    fontSize: 13,
-    color: "#F59E0B",
-    fontWeight: 600,
-  }}
->
-  Статус: {request.status}
-</div>
 
 {request.status === "pending" && (
   <div

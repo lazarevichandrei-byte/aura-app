@@ -2,6 +2,7 @@
 
 import React,{
 useEffect,
+useMemo,
 useState,
 useRef
 } from "react";
@@ -11,6 +12,9 @@ import { joinChatPresence } from "../../lib/presence";
 import BottomNav from "../../components/BottomNav";
 import AuraLoader from "../../components/AuraLoader";
 import { createChatIfNotExists } from "../../lib/chat/api";
+import { useCurrentUser } from "../../lib/useCurrentUser";
+
+const MAX_LIST_PRESENCE_CHATS = 20;
 
 
 const ChatCard = React.memo(
@@ -187,6 +191,7 @@ export default function Chats(){
 
 
 const router = useRouter();
+const { user: currentUser } = useCurrentUser();
 
 
 
@@ -207,7 +212,7 @@ useRef<any>(null);
 const [typingChats,setTypingChats] =
 useState<any>({});
 
-const [myId,setMyId] = useState<string | null>(null);
+const myId = currentUser?.id ?? null;
 
 const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
@@ -215,13 +220,19 @@ useEffect(()=>{
 },[]);
 
 
+const presenceChatIds = useMemo(
+  () => chats.slice(0, MAX_LIST_PRESENCE_CHATS).map((chat) => chat.id).sort(),
+  [chats]
+);
+const presenceKey = presenceChatIds.join("|");
+
 useEffect(() => {
-  if (!chats?.length) return;
+  if (!presenceChatIds.length) return;
 
-  chats.forEach((chat) => {
-    if (channelsRef.current[chat.id]) return;
+  presenceChatIds.forEach((chatId) => {
+    if (channelsRef.current[chatId]) return;
 
-    const channel = joinChatPresence(chat.id, "list");
+    const channel = joinChatPresence(chatId, "list");
 
     channel.on("presence", { event: "sync" }, () => {
       const state = channel.presenceState();
@@ -238,13 +249,13 @@ useEffect(() => {
 
       setTypingChats((prev: any) => ({
         ...prev,
-        [chat.id]: isTyping,
+        [chatId]: isTyping,
       }));
     });
 
     channel.subscribe();
 
-    channelsRef.current[chat.id] = channel;
+    channelsRef.current[chatId] = channel;
   });
 
   return () => {
@@ -253,51 +264,7 @@ useEffect(() => {
     });
     channelsRef.current = {};
   };
-}, [chats]);
-
-
-
-useEffect(()=>{
-
-  async function loadMe(){
-
-    const tg =
-      (window as any)?.Telegram?.WebApp;
-
-    if(!tg?.initData){
-      return;
-    }
-
-    const res = await fetch(
-      "/api/auth/telegram",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-          initData: tg.initData
-        })
-      }
-    );
-
-    const result = await res.json();
-
-    if(!result?.ok || !result?.user){
-      return;
-    }
-
-    setMyId(result.user.id);
-    localStorage.setItem(
-  "aura_user_id",
-  result.user.id
-);
-
-  }
-
-  loadMe();
-
-},[]);
+}, [presenceKey]);
 
 
 useEffect(() => {
@@ -369,12 +336,31 @@ useEffect(()=>{
       {
         event:"*",
         schema:"public",
-        table:"chats"
+        table:"chats",
+        filter:`user1_id=eq.${myId}`,
       },
-      ()=>{
-
-        loadChats();
-
+      () => {
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = window.setTimeout(
+          () => loadChats(false),
+          250
+        );
+      }
+    )
+    .on(
+      "postgres_changes",
+      {
+        event:"*",
+        schema:"public",
+        table:"chats",
+        filter:`user2_id=eq.${myId}`,
+      },
+      () => {
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = window.setTimeout(
+          () => loadChats(false),
+          250
+        );
       }
     )
     .subscribe();
@@ -382,6 +368,7 @@ useEffect(()=>{
   return ()=>{
 
     supabase.removeChannel(channel);
+    window.clearTimeout(reloadTimer.current);
 
   };
 
@@ -416,9 +403,11 @@ const sortedChats = [...filteredChats].sort((a, b) => {
 
 
 
-async function loadChats(){
+async function loadChats(showLoader = true){
 
-  setLoading(true);
+  if (showLoader) {
+    setLoading(true);
+  }
 
   try{
 
@@ -454,7 +443,9 @@ async function loadChats(){
 
   } finally {
 
-    setLoading(false);
+    if (showLoader) {
+      setLoading(false);
+    }
 
   }
 
