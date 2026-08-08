@@ -1,5 +1,10 @@
 import { supabase } from "../supabase";
 
+import {
+  createMeetChatIfNotExists,
+  addUserToMeetChat,
+} from "../chat/api";
+
 export async function createMeetEvent({
   creator_id,
   title,
@@ -71,10 +76,31 @@ max_people
       .single();
 
   if (error) {
-    throw error;
-  }
+  throw error;
+}
 
-  return data;
+const chatId =
+  await createMeetChatIfNotExists(data.id);
+
+if (!chatId) {
+  throw new Error(
+    "Не удалось создать чат встречи"
+  );
+}
+
+const added =
+  await addUserToMeetChat(
+    chatId,
+    creator_id
+  );
+
+if (!added) {
+  throw new Error(
+    "Не удалось добавить создателя встречи в чат"
+  );
+}
+
+return data;
 }
 
 export async function loadMeetEvents() {
@@ -139,32 +165,74 @@ export async function joinMeetEvent(
     return;
   }
 
-  const { error } = await supabase
-    .from("meet_participants")
-    .insert({
-      event_id: eventId,
-      user_id: userId,
-    });
+ const { error } = await supabase
+  .from("meet_participants")
+  .insert({
+    event_id: eventId,
+    user_id: userId,
+  });
 
-  if (error) {
-    throw error;
-  }
+if (error) {
+  throw error;
+}
+
+const chatId =
+  await createMeetChatIfNotExists(
+    eventId
+  );
+
+if (!chatId) {
+  throw new Error(
+    "Не удалось получить чат встречи"
+  );
+}
+
+const added =
+  await addUserToMeetChat(
+    chatId,
+    userId
+  );
+
+if (!added) {
+  throw new Error(
+    "Не удалось добавить пользователя в чат встречи"
+  );
+}
 }
 
 export async function leaveMeetEvent(
   eventId: string,
   userId: string
 ) {
-  const { error } = await supabase
-    .from("meet_participants")
-    .delete()
-    .eq("event_id", eventId)
-    .eq("user_id", userId);
+const { error } = await supabase
+  .from("meet_participants")
+  .delete()
+  .eq("event_id", eventId)
+  .eq("user_id", userId);
 
-  if (error) {
-    throw error;
+if (error) {
+  throw error;
+}
+
+const { data: chat } =
+  await supabase
+    .from("chats")
+    .select("id")
+    .eq("event_id", eventId)
+    .maybeSingle();
+
+if (chat) {
+  const { error: chatError } =
+    await supabase
+      .from("chat_participants")
+      .delete()
+      .eq("chat_id", chat.id)
+      .eq("user_id", userId);
+
+  if (chatError) {
+    throw chatError;
   }
-  
+}
 }
 export async function getMeetEvent(eventId: string) {
   const { data, error } = await supabase
