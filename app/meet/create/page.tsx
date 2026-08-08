@@ -233,14 +233,17 @@ sessionStorage.removeItem("meet_location");
 
 router.replace("/meet");
 
-  }catch (err: any) {
+  } catch (err: any) {
 
   console.error("CREATE MEET ERROR:", err);
-  console.dir(err);
+  console.error("CREATE MEET ERROR MESSAGE:", err?.message);
+  console.error("CREATE MEET ERROR DETAILS:", err?.details);
+  console.error("CREATE MEET ERROR HINT:", err?.hint);
+  console.error("CREATE MEET ERROR CODE:", err?.code);
 
   showError(
-    "Не удалось создать встречу",
-    "Попробуйте ещё раз немного позже."
+    "Ошибка создания",
+    err?.message || "Неизвестная ошибка"
   );
 
 } finally {
