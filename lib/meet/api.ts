@@ -455,18 +455,88 @@ export async function loadMeetJoinRequests(
 export async function approveJoinRequest(
   requestId: string
 ) {
-  const { data, error } = await supabase
-    .from("meet_join_requests")
-    .update({
-      status: "approved",
-      reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", requestId)
-    .select()
-    .single();
+  // Получаем заявку, чтобы узнать встречу и пользователя
+  const { data: request, error: requestError } =
+    await supabase
+      .from("meet_join_requests")
+      .select("id, event_id, user_id, status")
+      .eq("id", requestId)
+      .single();
+
+  if (requestError) {
+    throw requestError;
+  }
+
+  if (request.status !== "pending") {
+    return request;
+  }
+
+  // Одобряем заявку
+  const { data, error } =
+    await supabase
+      .from("meet_join_requests")
+      .update({
+        status: "approved",
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", requestId)
+      .select()
+      .single();
 
   if (error) {
     throw error;
+  }
+
+  // Добавляем пользователя в участников встречи
+  const { data: existingParticipant, error: participantCheckError } =
+    await supabase
+      .from("meet_participants")
+      .select("event_id")
+      .eq("event_id", request.event_id)
+      .eq("user_id", request.user_id)
+      .maybeSingle();
+
+  if (participantCheckError) {
+    throw participantCheckError;
+  }
+
+  if (!existingParticipant) {
+    const { error: participantError } =
+      await supabase
+        .from("meet_participants")
+        .insert({
+          event_id: request.event_id,
+          user_id: request.user_id,
+        });
+
+    if (participantError) {
+      throw participantError;
+    }
+  }
+
+  // Получаем или создаём чат встречи
+  const chatId =
+    await createMeetChatIfNotExists(
+      request.event_id
+    );
+
+  if (!chatId) {
+    throw new Error(
+      "Не удалось получить чат встречи"
+    );
+  }
+
+  // Добавляем пользователя в чат встречи
+  const added =
+    await addUserToMeetChat(
+      chatId,
+      request.user_id
+    );
+
+  if (!added) {
+    throw new Error(
+      "Не удалось добавить пользователя в чат встречи"
+    );
   }
 
   return data;
