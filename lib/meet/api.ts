@@ -79,27 +79,6 @@ max_people
   throw error;
 }
 
-const chatId =
-  await createMeetChatIfNotExists(data.id);
-
-if (!chatId) {
-  throw new Error(
-    "Не удалось создать чат встречи"
-  );
-}
-
-const added =
-  await addUserToMeetChat(
-    chatId,
-    creator_id
-  );
-
-if (!added) {
-  throw new Error(
-    "Не удалось добавить создателя встречи в чат"
-  );
-}
-
 return data;
 }
 
