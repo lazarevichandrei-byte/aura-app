@@ -102,20 +102,52 @@ marginLeft:14
 }}>
 
 <div style={{
-fontWeight:
-chat.unread_count
-?700
-:600
+  fontWeight: chat.unread_count ? 700 : 600,
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
 }}>
-{chat.name || "Без имени"}
+  {chat.is_meet_chat && (
+    <span
+      style={{
+        fontSize: 14,
+        lineHeight: 1,
+      }}
+    >
+      📍
+    </span>
+  )}
+
+  <span>
+    {chat.is_meet_chat
+      ? chat.event_title || "Встреча"
+      : chat.name || "Без имени"}
+  </span>
 </div>
 
-<div style={{
-fontSize:13,
-color: typing ? "#2F80FF" : "#8A8F9B",
-marginTop:2
-}}>
-{typing ? "печатает..." : chat.last_message || ""}
+{chat.is_meet_chat && (
+  <div
+    style={{
+      fontSize: 11,
+      fontWeight: 600,
+      color: "#2F80FF",
+      marginTop: 2,
+    }}
+  >
+    Встреча
+  </div>
+)}
+
+<div
+  style={{
+    fontSize: 13,
+    color: typing ? "#2F80FF" : "#8A8F9B",
+    marginTop: chat.is_meet_chat ? 3 : 2,
+  }}
+>
+  {typing
+    ? "печатает..."
+    : chat.last_message || ""}
 </div>
 
 </div>
