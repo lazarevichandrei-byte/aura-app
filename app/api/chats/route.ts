@@ -48,17 +48,81 @@ export async function POST(req: Request){
 
     }
 
-    const { data: chatsRaw } =
+   const { data: personalChats } =
   await supabaseAdmin
     .from("chats")
     .select("*")
     .or(
       `user1_id.eq.${user.id},user2_id.eq.${user.id}`
-    )
-    .order(
-      "last_message_at",
-      { ascending:false }
     );
+
+const { data: participantRows } =
+  await supabaseAdmin
+    .from("chat_participants")
+    .select("chat_id")
+    .eq("user_id", user.id);
+
+const meetChatIds = [
+  ...new Set(
+    (participantRows || []).map(
+      (row) => row.chat_id
+    )
+  )
+];
+
+const { data: meetChats } =
+  meetChatIds.length
+    ? await supabaseAdmin
+        .from("chats")
+        .select("*")
+        .in("id", meetChatIds)
+        .not("event_id", "is", null)
+    : { data: [] };
+
+const chatsRaw = [
+  ...(personalChats || []),
+  ...(meetChats || [])
+]
+  .filter(
+    (chat, index, array) =>
+      array.findIndex(
+        (item) => item.id === chat.id
+      ) === index
+  )
+  .sort(
+    (a, b) =>
+      new Date(
+        b.last_message_at || 0
+      ).getTime() -
+      new Date(
+        a.last_message_at || 0
+      ).getTime()
+  );
+
+
+  const meetEventIds = [
+  ...new Set(
+    (chatsRaw || [])
+      .filter((chat) => chat.event_id)
+      .map((chat) => chat.event_id)
+  )
+];
+
+const { data: meetEvents } =
+  meetEventIds.length
+    ? await supabaseAdmin
+        .from("meet_events")
+        .select(
+          "id, title, category, city, place, starts_at"
+        )
+        .in("id", meetEventIds)
+    : { data: [] };
+
+const meetEventsById = new Map(
+  (meetEvents || []).map(
+    (event) => [event.id, event]
+  )
+);
 
     const otherUserIds = [...new Set(
       (chatsRaw || []).map((chat) =>
@@ -79,24 +143,68 @@ export async function POST(req: Request){
 
     const chats = (chatsRaw || []).map((chat) => {
 
-    const otherUserId =
-      chat.user1_id === user.id
-        ? chat.user2_id
-        : chat.user1_id;
+  const isMeetChat =
+    Boolean(chat.event_id);
 
-    const otherUser = usersById.get(otherUserId);
+  if (isMeetChat) {
+
+    const event =
+      meetEventsById.get(
+        chat.event_id
+      );
 
     return {
       ...chat,
 
+      is_meet_chat: true,
+
+      event_id: chat.event_id,
+
+      event_title:
+        event?.title || "Встреча",
+
+      event_category:
+        event?.category || null,
+
+      event_city:
+        event?.city || null,
+
+      event_place:
+        event?.place || null,
+
+      event_starts_at:
+        event?.starts_at || null,
+
       name:
-        otherUser?.name || "Без имени",
+        event?.title || "Встреча",
 
       avatar:
-  otherUser?.avatar_url || "/girl1.jpg"
+        "/girl1.jpg"
     };
+  }
 
-  });
+  const otherUserId =
+    chat.user1_id === user.id
+      ? chat.user2_id
+      : chat.user1_id;
+
+  const otherUser =
+    usersById.get(otherUserId);
+
+  return {
+    ...chat,
+
+    is_meet_chat: false,
+
+    name:
+      otherUser?.name || "Без имени",
+
+    avatar:
+      otherUser?.avatar_url ||
+      "/girl1.jpg"
+  };
+
+});
     return NextResponse.json({
       ok:true,
       chats
