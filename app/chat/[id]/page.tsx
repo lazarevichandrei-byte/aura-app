@@ -51,6 +51,9 @@ const [messages,setMessages] = useState<any[]>([]);
 const [otherUser,setOtherUser] =
 useState<any>(null);
 
+const [meetEvent,setMeetEvent] =
+useState<any>(null);
+
 const [hasMore,setHasMore] =
 useState(true);
 
@@ -696,30 +699,65 @@ unread_count:0
 
 async function fetchChatUser(){
 
-const { data: chat } = await supabase
-.from("chats")
-.select("*")
-.eq("id", chatId)
-.single();
+  const { data: chat } = await supabase
+    .from("chats")
+    .select("*")
+    .eq("id", chatId)
+    .single();
 
+  if(!chat || userId === null) return;
 
+  // =========================
+  // ЧАТ ВСТРЕЧИ
+  // =========================
 
-if(!chat || userId === null) return;
+  if(chat.event_id){
 
-const otherId =
-chat.user1_id === userId
-? chat.user2_id
-: chat.user1_id;
+    const { data: event } = await supabase
+      .from("meet_events")
+      .select(`
+        id,
+        title,
+        description,
+        category,
+        city,
+        place,
+        starts_at,
+        max_people,
+        creator_id
+      `)
+      .eq("id", chat.event_id)
+      .single();
 
-const { data:user } = await supabase
-.from("users")
-.select("*")
-.eq("id", otherId)
-.single();
+    if(event){
+      setMeetEvent(event);
+    }
 
-if(user){
-setOtherUser(user);
-}
+    // Для чата встречи обычный пользователь
+    // в шапке не нужен
+    setOtherUser(null);
+
+    return;
+  }
+
+  // =========================
+  // ОБЫЧНЫЙ ЧАТ
+  // =========================
+
+  const otherId =
+    chat.user1_id === userId
+      ? chat.user2_id
+      : chat.user1_id;
+
+  const { data:user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", otherId)
+    .single();
+
+  if(user){
+    setOtherUser(user);
+  }
 
 }
 
@@ -1243,7 +1281,7 @@ useEffect(()=>{
 
   if(
     !messages.length ||
-    !otherUser ||
+    (!otherUser && !meetEvent) ||
     !firstLoadRef.current
   ){
     return;
@@ -1260,41 +1298,40 @@ useEffect(()=>{
     el.scrollTop =
       el.scrollHeight;
 
-      lastScrollTopRef.current =
-  el.scrollTop;
+    lastScrollTopRef.current =
+      el.scrollTop;
 
-isNearBottomRef.current =
-  true;
+    isNearBottomRef.current =
+      true;
 
-  if(
-  el &&
-  el.scrollHeight >
-    el.clientHeight
-){
+    if(
+      el &&
+      el.scrollHeight >
+        el.clientHeight
+    ){
 
-  const distanceFromTop =
+      const distanceFromTop =
+        el.scrollHeight
+        -
+        el.clientHeight
+        -
+        el.scrollTop;
 
-    el.scrollHeight
-    -
-    el.clientHeight
-    -
-    el.scrollTop;
+      if(distanceFromTop < 1400){
 
-  if(distanceFromTop < 1400){
+        loadOlderMessages();
 
-    loadOlderMessages();
+      }
 
-  }
+    }
 
-}
-
-  el.dispatchEvent(
-  new Event("scroll")
-);
+    el.dispatchEvent(
+      new Event("scroll")
+    );
 
   });
 
-},[messages,otherUser]);
+},[messages,otherUser,meetEvent]);
 
 
 
@@ -2483,7 +2520,7 @@ showReplyIcon
 
 const onlineStatus = getOnlineStatus(otherUser ?? {});
 
-if(!otherUser){
+if(!otherUser && !meetEvent){
 
   return (
 
@@ -2617,92 +2654,151 @@ cursor:"pointer"
 </div>
 
 <div
-style={{
-marginLeft:14,
-display:"flex",
-alignItems:"center",
-gap:14
-}}
+  style={{
+    marginLeft:14,
+    display:"flex",
+    alignItems:"center",
+    gap:12,
+    minWidth:0
+  }}
 >
 
-<img
-src={
-  otherUser?.avatar_url ||
-  "/placeholder.jpg"
-}
-alt="user"
-style={{
-  width:36,
-  height:36,
-  borderRadius:"50%",
-  objectFit:"cover"
-}}
-/>
+  {meetEvent ? (
 
-<div
-style={{
-  display:"flex",
-  flexDirection:"column",
-  lineHeight:1.1
-}}
->
+    <>
+      <div
+        style={{
+          width:38,
+          height:38,
+          borderRadius:"50%",
+          background:"#EEF4FF",
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center",
+          flexShrink:0,
+          fontSize:18
+        }}
+      >
+        📍
+      </div>
 
-<div
-style={{
-  fontSize:17,
-  fontWeight:600
-}}
->
-{otherUser?.name || "Пользователь"}
+      <div
+        style={{
+          display:"flex",
+          flexDirection:"column",
+          minWidth:0,
+          lineHeight:1.1
+        }}
+      >
+
+        <div
+          style={{
+            fontSize:16,
+            fontWeight:600,
+            whiteSpace:"nowrap",
+            overflow:"hidden",
+            textOverflow:"ellipsis",
+            maxWidth:220
+          }}
+        >
+          {meetEvent.title || "Встреча"}
+        </div>
+
+        <div
+          style={{
+            fontSize:12,
+            color:"#2E7BFF",
+            marginTop:4,
+            fontWeight:500
+          }}
+        >
+          Встреча
+        </div>
+
+      </div>
+    </>
+
+  ) : (
+
+    <>
+      <img
+        src={
+          otherUser?.avatar_url ||
+          "/placeholder.jpg"
+        }
+        alt="user"
+        style={{
+          width:36,
+          height:36,
+          borderRadius:"50%",
+          objectFit:"cover"
+        }}
+      />
+
+      <div
+        style={{
+          display:"flex",
+          flexDirection:"column",
+          lineHeight:1.1
+        }}
+      >
+
+        <div
+          style={{
+            fontSize:17,
+            fontWeight:600
+          }}
+        >
+          {otherUser?.name || "Пользователь"}
+        </div>
+
+        <div
+          style={{
+            fontSize:12,
+            color:"#7A8699",
+            marginTop:2
+          }}
+        >
+          {
+            isOffline
+              ? "нет соединения"
+              : onlineStatus.text
+          }
+        </div>
+
+        {typingUser && (
+
+          <div
+            style={{
+              display:"flex",
+              alignItems:"center",
+              gap:4,
+              marginTop:4,
+              height:10
+            }}
+          >
+
+            <div className="typing-dot" />
+            <div className="typing-dot" />
+            <div className="typing-dot" />
+
+          </div>
+
+        )}
+
+      </div>
+    </>
+
+  )}
+
 </div>
 
-<div
-style={{
-  fontSize:12,
-  color:"#7A8699",
-  marginTop:2
-}}
->
-
-{
-  isOffline
-    ? "нет соединения"
-    : onlineStatus.text
-}
-
 </div>
 
 
 
 
 
-
-{typingUser && (
-
-<div
-style={{
-  display:"flex",
-  alignItems:"center",
-  gap:4,
-  marginTop:4,
-  height:10
-}}
->
-
-<div className="typing-dot" />
-<div className="typing-dot" />
-<div className="typing-dot" />
-
-</div>
-
-)}
-
-</div>
-
-
-</div>
-
-</div>
 
 
 
