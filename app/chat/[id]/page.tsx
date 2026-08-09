@@ -52,10 +52,13 @@ const [otherUser,setOtherUser] =
 useState<any>(null);
 
 const [meetEvent,setMeetEvent] =
-useState<any>(null);
+  useState<any>(null);
+
+const [chatLoaded,setChatLoaded] =
+  useState(false);
 
 const [hasMore,setHasMore] =
-useState(true);
+  useState(true);
 
 
 
@@ -698,6 +701,7 @@ unread_count:0
 
 
 async function fetchChatUser(){
+  
 
   const { data: chat } = await supabase
     .from("chats")
@@ -814,6 +818,8 @@ useEffect(()=>{
     fetchMessages(),
     fetchChatUser()
   ]);
+
+  setChatLoaded(true);
 
 }
 

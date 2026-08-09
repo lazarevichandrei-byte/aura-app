@@ -18,14 +18,23 @@ export async function POST(req: Request){
       );
     }
 
-    const validation = validateTelegramInitData(initData);
+    const validation =
+  validateTelegramInitData(initData);
 
-    if (validation.ok === false) {
-      return NextResponse.json(
-        { ok: false, error: validation.error },
-        { status: validation.error === "BOT_TOKEN_MISSING" ? 500 : 403 }
-      );
+if (validation.ok === false) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: validation.error,
+    },
+    {
+      status:
+        validation.error === "BOT_TOKEN_MISSING"
+          ? 500
+          : 403,
     }
+  );
+}
 
     const telegramId = validation.user.id;
 

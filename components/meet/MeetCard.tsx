@@ -540,51 +540,53 @@ lineHeight: 1.25,
       </div>
     )}
 
-        <div
+       <div
+  style={{
+    display: "flex",
+    gap: 10,
+    marginBottom: 14,
+  }}
+>
+  <button
+    onClick={() =>
+      router.push(`/user/${event.users?.id}`)
+    }
+    style={{
+      ...buttonStyle,
+      flex: 1,
+      marginBottom: 0,
+      height: 48,
+    }}
+  >
+    👤 Профиль
+  </button>
+
+  {(isParticipant || hasApprovedRequest) && (
+    <button
+      onClick={async () => {
+        if (!currentUserId || !event.users?.id) return;
+
+        const chatId =
+          await createChatIfNotExists(
+            currentUserId,
+            event.users.id
+          );
+
+        if (chatId) {
+          router.push(`/chat/${chatId}`);
+        }
+      }}
       style={{
-        display: "flex",
-        gap: 10,
-        marginBottom: 14,
+        ...buttonStyle,
+        flex: 1,
+        marginBottom: 0,
+        height: 48,
       }}
     >
-      <button
-        onClick={() =>
-          router.push(`/user/${event.users?.id}`)
-        }
-        style={{
-          ...buttonStyle,
-          flex: 1,
-          marginBottom: 0,
-          height: 48,
-        }}
-      >
-        👤 Профиль
-      </button>
-
-      <button
-        onClick={async () => {
-          if (!currentUserId || !event.users?.id) return;
-
-          const chatId =
-            await createChatIfNotExists(
-              currentUserId,
-              event.users.id
-            );
-
-          if (chatId) {
-            router.push(`/chat/${chatId}`);
-          }
-        }}
-        style={{
-          ...buttonStyle,
-          flex: 1,
-          marginBottom: 0,
-          height: 48,
-        }}
-      >
-        💬 Написать
-      </button>
-    </div>
+      💬 Написать
+    </button>
+  )}
+</div>
   </>
 )}
         </div>
