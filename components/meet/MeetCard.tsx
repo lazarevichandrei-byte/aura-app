@@ -574,12 +574,18 @@ lineHeight: 1.25,
           .maybeSingle();
 
           console.log(
-  "MEET CHAT DEBUG:",
-  {
-    eventId: event.id,
-    chat,
-    error,
-  }
+  "MEET CHAT DEBUG EVENT ID:",
+  event.id
+);
+
+console.log(
+  "MEET CHAT DEBUG CHAT:",
+  chat
+);
+
+console.log(
+  "MEET CHAT DEBUG ERROR:",
+  error
 );
 
       if (error) {
