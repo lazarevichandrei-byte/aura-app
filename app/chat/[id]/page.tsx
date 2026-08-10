@@ -814,12 +814,11 @@ useEffect(()=>{
 
   setOnline();
 
-  await Promise.all([
-    fetchMessages(),
-    fetchChatUser()
-  ]);
-
   setChatLoaded(true);
+
+  fetchMessages();
+
+  fetchChatUser();
 
 }
 
