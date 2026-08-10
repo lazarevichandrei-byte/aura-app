@@ -2525,7 +2525,7 @@ showReplyIcon
 
 const onlineStatus = getOnlineStatus(otherUser ?? {});
 
-if(!otherUser && !meetEvent){
+if(!chatLoaded && !otherUser && !meetEvent){
 
   return (
 
