@@ -579,8 +579,8 @@ lineHeight: 1.25,
 );
 
 console.log(
-  "MEET CHAT DEBUG CHAT:",
-  chat
+  "MEET CHAT ID:",
+  chat?.id ?? "CHAT_NOT_FOUND"
 );
 
 console.log(
