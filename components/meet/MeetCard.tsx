@@ -573,6 +573,15 @@ lineHeight: 1.25,
           .eq("event_id", event.id)
           .maybeSingle();
 
+          console.log(
+  "MEET CHAT DEBUG:",
+  {
+    eventId: event.id,
+    chat,
+    error,
+  }
+);
+
       if (error) {
         console.error(
           "MEET CHAT LOAD ERROR:",
