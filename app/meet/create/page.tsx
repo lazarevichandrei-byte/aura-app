@@ -18,6 +18,7 @@ import LocationCard from "../../../components/meet/LocationCard";
 import CategoryPicker from "../../../components/meet/CategoryPicker";
 import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
 import { useNotification } from "../../../components/NotificationContext";
+import { localMeetDateTimeToIso, localToday } from "../../../lib/meet/time";
 export default function CreateMeetPage() {
     
 
@@ -151,12 +152,18 @@ useEffect(() => {
 
   if(loading) return;
 
-  if(
-    !title ||
-    !date ||
-    !time
-  ){
-    showError("Заполните данные", "Укажите название, дату и время встречи.");
+  if(!title || !date || !time){
+    showError("Заполните данные", "Укажите дату и время встречи.");
+    return;
+  }
+
+  const startsAt = localMeetDateTimeToIso(date, time);
+  if (!startsAt) {
+    showError("Некорректная дата", "Проверьте дату и время встречи.");
+    return;
+  }
+  if (new Date(startsAt).getTime() <= Date.now()) {
+    showError("Время уже прошло", "Выберите время позже текущего.");
     return;
   }
 
@@ -217,8 +224,7 @@ useEffect(() => {
 
       longitude,
 
-      starts_at:
-        `${date}T${time}:00`,
+      starts_at: startsAt,
 
       duration,
 
@@ -385,6 +391,7 @@ flex:1
 <input
 
 type="date"
+min={localToday()}
 
 value={date}
 

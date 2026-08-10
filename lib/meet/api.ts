@@ -1,4 +1,5 @@
 import { supabase } from "../supabase";
+import { calculateMeetExpiration } from "./time";
 
 async function updateMeetMembership(action: string, values: Record<string, string>) {
   const initData = (window as any)?.Telegram?.WebApp?.initData;
@@ -40,27 +41,7 @@ export async function createMeetEvent({
 join_type: "open" | "approval";
 max_people: number;
 }) {
-  const start = new Date(starts_at);
-
-let expires = new Date(start);
-
-switch (duration) {
-  case "30m":
-    expires.setMinutes(expires.getMinutes() + 30);
-    break;
-
-  case "1h":
-    expires.setHours(expires.getHours() + 1);
-    break;
-
-  case "2h":
-    expires.setHours(expires.getHours() + 2);
-    break;
-
-  case "day":
-    expires.setHours(23, 59, 59, 999);
-    break;
-}
+const expiresAt = calculateMeetExpiration(starts_at, duration);
 
 const { data, error } =
     await supabase
@@ -77,7 +58,7 @@ const { data, error } =
         starts_at,
 duration,
 join_type,
-expires_at: expires.toISOString(),
+expires_at: expiresAt,
 max_people
       })
       .select()
@@ -185,12 +166,17 @@ export async function updateMeetEvent(
   latitude: number | null;
   longitude: number | null;
   starts_at: string;
+  duration?: "30m" | "1h" | "2h" | "day";
   max_people: number;
 }
 ) {
+  const duration = values.duration ?? "1h";
   const { data, error } = await supabase
     .from("meet_events")
-    .update(values)
+    .update({
+      ...values,
+      expires_at: calculateMeetExpiration(values.starts_at, duration),
+    })
     .eq("id", eventId)
     .select()
     .single();

@@ -702,17 +702,26 @@ unread_count:0
 
 
 async function fetchChatUser(){
-  
-
-  const { data: chat, error: chatError } = await supabase
-    .from("chats")
-    .select("*")
-    .eq("id", chatId)
-    .single();
-
-  if(chatError || !chat || userId === null) {
-    console.error("CHAT LOAD ERROR:", chatError);
-    throw new Error("Чат не найден");
+  const initData = (window as any)?.Telegram?.WebApp?.initData;
+  if (!initData || userId === null) throw new Error("Не удалось подтвердить пользователя Telegram");
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, chatId }),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) {
+    console.error("CHAT BOOTSTRAP ERROR:", { chatId, currentUserId: userId, stage: "bootstrap", error: result.error });
+    throw new Error(result.error === "CHAT_ACCESS_DENIED" ? "Нет доступа к этому чату" : "Чат не найден");
+  }
+  const chat = result.chat;
+  const initialMessages = [...(result.messages || [])].reverse();
+  setMessages(initialMessages);
+  messageIdsRef.current = new Set(initialMessages.map((message: any) => String(message.id)));
+  setHasMore((result.messages || []).length === PAGE_SIZE);
+  if (initialMessages.length) {
+    oldestMessageRef.current = initialMessages[0].created_at;
+    latestMessageDateRef.current = initialMessages[initialMessages.length - 1].created_at;
   }
 
   // =========================
@@ -721,27 +730,7 @@ async function fetchChatUser(){
 
   if(chat.event_id){
 
-    const { data: event, error: eventError } = await supabase
-      .from("meet_events")
-      .select(`
-        id,
-        title,
-        description,
-        category,
-        city,
-        place,
-        starts_at,
-        max_people,
-        creator_id
-      `)
-      .eq("id", chat.event_id)
-      .single();
-
-    if(eventError || !event) {
-      console.error("MEET CHAT EVENT LOAD ERROR:", eventError);
-      throw new Error("Встреча не найдена");
-    }
-    setMeetEvent(event);
+    setMeetEvent(result.event);
 
     // Для чата встречи обычный пользователь
     // в шапке не нужен
@@ -754,22 +743,11 @@ async function fetchChatUser(){
   // ОБЫЧНЫЙ ЧАТ
   // =========================
 
-  const otherId =
-    chat.user1_id === userId
-      ? chat.user2_id
-      : chat.user1_id;
-
-  const { data:user, error: userError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", otherId)
-    .single();
-
-  if(userError || !user) {
-    console.error("CHAT USER LOAD ERROR:", userError);
+  if(!result.otherUser) {
+    console.error("CHAT USER LOAD ERROR:", { chatId, currentUserId: userId, stage: "other-user" });
     throw new Error("Собеседник не найден");
   }
-  setOtherUser(user);
+  setOtherUser(result.otherUser);
 
 }
 
@@ -822,7 +800,7 @@ useEffect(()=>{
     setChatLoaded(false);
     setChatLoadError(null);
     try {
-      await Promise.all([setOnline(), fetchMessages(), fetchChatUser()]);
+      await Promise.all([setOnline(), fetchChatUser()]);
     } catch (error) {
       console.error("CHAT INITIALIZATION ERROR:", error);
       setChatLoadError(error instanceof Error ? error.message : "Не удалось загрузить чат");
@@ -1709,23 +1687,44 @@ await updateTyping(false);
 
 
 setSending(true);
-const { data, error } =
-await supabase
-.from("messages")
-.insert({
-chat_id:chatId,
-sender_id:userId,
-body:text,
-message_type:"text",
-
-reply_to_id:
-replyTo?.id || null,
-
-reply_preview:
-replyTo?.body || null
-})
-.select()
-.single();
+let data: any = null;
+let error: any = null;
+if (meetEvent) {
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        initData: (window as any)?.Telegram?.WebApp?.initData,
+        chatId,
+        action: "send",
+        body: text,
+        replyToId: replyTo?.id || null,
+        replyPreview: replyTo?.body || null,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "MESSAGE_SEND_FAILED");
+    data = result.message;
+  } catch (sendError) {
+    error = sendError;
+  }
+} else {
+  const result = await supabase
+    .from("messages")
+    .insert({
+      chat_id:chatId,
+      sender_id:userId,
+      body:text,
+      message_type:"text",
+      reply_to_id: replyTo?.id || null,
+      reply_preview: replyTo?.body || null
+    })
+    .select()
+    .single();
+  data = result.data;
+  error = result.error;
+}
 
 
 if(error){
@@ -3555,5 +3554,3 @@ WebkitTapHighlightColor:"transparent"
 )
 
 }   
-
-

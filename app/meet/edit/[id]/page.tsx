@@ -15,6 +15,7 @@ import {
 import LocationCard from "../../../../components/meet/LocationCard";
 import PeopleSelector from "../../../../components/meet/PeopleSelector";
 import { useNotification } from "../../../../components/NotificationContext";
+import { localMeetDateTimeToIso, localToday, meetIsoToLocalInputs } from "../../../../lib/meet/time";
 
 
 export default function EditMeetPage() {
@@ -37,7 +38,9 @@ const [latitude, setLatitude] =
 const [longitude, setLongitude] =
   useState<number | null>(null);
 
-const [startsAt, setStartsAt] = useState("");
+const [date, setDate] = useState("");
+const [time, setTime] = useState("");
+const [duration, setDuration] = useState<"30m" | "1h" | "2h" | "day">("1h");
 
 const [maxPeople, setMaxPeople] = useState(1);
 
@@ -92,7 +95,10 @@ async function load() {
   setLatitude(event.latitude);
   setLongitude(event.longitude);
 }
-  setStartsAt(event.starts_at);
+  const localStartsAt = meetIsoToLocalInputs(event.starts_at);
+  setDate(localStartsAt.date);
+  setTime(localStartsAt.time);
+  setDuration(event.duration ?? "1h");
   setMaxPeople(event.max_people);
 
   setLoading(false);
@@ -100,6 +106,15 @@ async function load() {
 
 async function handleSave() {
   try {
+    const startsAt = localMeetDateTimeToIso(date, time);
+    if (!startsAt) {
+      showError("Некорректная дата", "Укажите дату и время встречи.");
+      return;
+    }
+    if (new Date(startsAt).getTime() <= Date.now()) {
+      showError("Время уже прошло", "Выберите время позже текущего.");
+      return;
+    }
     await updateMeetEvent(id as string, {
   title,
   description,
@@ -109,6 +124,7 @@ async function handleSave() {
   latitude,
   longitude,
   starts_at: startsAt,
+  duration,
   max_people: maxPeople,
 });
 
@@ -329,6 +345,17 @@ if (loading) {
     value={maxPeople}
     onChange={setMaxPeople}
   />
+</div>
+
+<div style={{display:"flex",gap:12}}>
+  <div style={{flex:1}}>
+    <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Дата</div>
+    <input type="date" min={localToday()} value={date} onChange={(event)=>setDate(event.target.value)} style={inputStyle} />
+  </div>
+  <div style={{flex:1}}>
+    <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Время</div>
+    <input type="time" value={time} onChange={(event)=>setTime(event.target.value)} style={inputStyle} />
+  </div>
 </div>
 
   <button
