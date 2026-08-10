@@ -3,7 +3,7 @@ import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import {
   sendJoinRequest,
@@ -13,6 +13,7 @@ import {
 import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
 import DeleteMeetSheet from "./DeleteMeetSheet";
+import { useNotification } from "../NotificationContext";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -32,6 +33,11 @@ export default function MeetCard({
 }: Props) {
 
   const router = useRouter();
+  const { success, warning } = useNotification();
+  const realtimeNotificationRef = useRef({ success, warning });
+  useEffect(() => {
+    realtimeNotificationRef.current = { success, warning };
+  }, [success, warning]);
 
   const organizerName = event.users?.name || "Организатор";
   const organizerAvatar = event.users?.avatar_url;
@@ -110,6 +116,38 @@ const hasRejectedRequest =
 
 const hasApprovedRequest =
   joinRequest?.status === "approved";
+
+useEffect(() => {
+  if (!currentUserId || !isApproval || isCreator) return;
+  let ready = false;
+  const channel = supabase
+    .channel(`meet-request-${event.id}-${currentUserId}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "meet_join_requests",
+      filter: `event_id=eq.${event.id}`,
+    }, (payload: any) => {
+      const row = payload.new || payload.old;
+      if (row?.user_id !== currentUserId) return;
+      if (payload.eventType === "DELETE") {
+        setJoinRequest(null);
+        return;
+      }
+      setJoinRequest(payload.new);
+      if (ready && payload.eventType === "UPDATE") {
+        if (payload.new?.status === "approved") realtimeNotificationRef.current.success("Заявка принята", "Теперь вам доступен чат встречи.");
+        if (payload.new?.status === "rejected") realtimeNotificationRef.current.warning("Заявка отклонена", "Вы можете отправить заявку повторно.");
+      }
+    })
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") ready = true;
+    });
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
+}, [currentUserId, event.id, isApproval, isCreator]);
 
 let remainingText = "";
 
@@ -541,6 +579,18 @@ lineHeight: 1.25,
       </div>
     )}
 
+    {isApproval && hasApprovedRequest && isParticipant && (
+      <div style={{marginTop:-6,marginBottom:16,textAlign:"center",color:"#059669",fontSize:14,fontWeight:700}}>
+        ✅ Вы участник встречи
+      </div>
+    )}
+
+    {isApproval && hasRejectedRequest && !isParticipant && (
+      <div style={{marginTop:-6,marginBottom:16,textAlign:"center",color:"#DC2626",fontSize:14,fontWeight:600}}>
+        Заявка отклонена
+      </div>
+    )}
+
        <div
   style={{
     display: "flex",
@@ -598,7 +648,7 @@ lineHeight: 1.25,
       height: 48,
     }}
   >
-    💬 Написать
+    💬 Чат встречи
   </button>
 )}
 </div>

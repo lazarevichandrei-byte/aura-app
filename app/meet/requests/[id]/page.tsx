@@ -10,6 +10,7 @@ import {
 import { useNotification } from "../../../../components/NotificationContext";
 import PageWrapper from "../../../../components/PageWrapper";
 import PageHeader from "../../../../components/PageHeader";
+import { supabase } from "../../../../lib/supabase";
 export default function MeetRequestsPage({
   params,
 }: {
@@ -37,27 +38,45 @@ useEffect(() => {
   refresh();
 }, [id]);
 
+useEffect(() => {
+  const channel = supabase
+    .channel(`meet-requests-${id}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "meet_join_requests",
+      filter: `event_id=eq.${id}`,
+    }, () => {
+      void loadMeetJoinRequests(id).then(setRequests).catch((error) => console.error("REQUESTS REALTIME ERROR:", error));
+    })
+    .subscribe();
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
+}, [id]);
+
 async function approve(request: any) {
+  setRequests((current) => current.filter((item) => item.id !== request.id));
   try {
     await approveJoinRequest(request.id);
-
-    await refresh();
     success("Заявка одобрена", "Пользователь добавлен к участникам встречи.");
   } catch (e) {
     console.error(e);
     showError("Не удалось одобрить заявку", "Попробуйте ещё раз.");
+    await refresh();
   }
 }
 
 async function reject(request: any) {
+  setRequests((current) => current.filter((item) => item.id !== request.id));
   try {
     await rejectJoinRequest(request.id);
-
-    await refresh();
     success("Заявка отклонена", "Пользователь не был добавлен к встрече.");
   } catch (e) {
     console.error(e);
     showError("Не удалось отклонить заявку", "Попробуйте ещё раз.");
+    await refresh();
   }
 }
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
 import BottomNav from "../../components/BottomNav";
 import {
   loadMeetEvents,
+  loadMeetEventCard,
   joinMeetEvent,
   leaveMeetEvent,
   deleteMeetEvent,
@@ -19,11 +20,16 @@ import MeetGridCard from "../../components/meet/MeetGridCard";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 import { useNotification } from "../../components/NotificationContext";
+import { supabase } from "../../lib/supabase";
 
 
 export default function MeetPage() {
     const router = useRouter();
     const { error: showError, success } = useNotification();
+    const realtimeSuccessRef = useRef(success);
+    useEffect(() => {
+      realtimeSuccessRef.current = success;
+    }, [success]);
 
 
     const { user: currentUser } = useCurrentUser();
@@ -33,6 +39,70 @@ useState<any[]>([]);
 
 const [loading,setLoading] =
 useState(true);
+const eventsRef = useRef<any[]>([]);
+const realtimeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+useEffect(() => {
+  eventsRef.current = events;
+}, [events]);
+
+const sortAndFilterEvents = useCallback((items: any[]) => {
+  const now = Date.now();
+  return items
+    .filter((event) => event.is_active && new Date(event.expires_at).getTime() > now)
+    .sort((left, right) => new Date(left.starts_at).getTime() - new Date(right.starts_at).getTime());
+}, []);
+
+const syncEvent = useCallback(async (eventId: string) => {
+  try {
+    const event = await loadMeetEventCard(eventId);
+    setEvents((current) => {
+      if (!event || !event.is_active || new Date(event.expires_at).getTime() <= Date.now()) {
+        return current.filter((item) => item.id !== eventId);
+      }
+      const exists = current.some((item) => item.id === eventId);
+      return sortAndFilterEvents(exists
+        ? current.map((item) => item.id === eventId ? event : item)
+        : [...current, event]);
+    });
+    setSelectedEvent((current) => current?.id === eventId ? event : current);
+  } catch (error) {
+    console.error("MEET REALTIME SYNC ERROR:", { eventId, error });
+  }
+}, [sortAndFilterEvents]);
+
+useEffect(() => {
+  const channel = supabase
+    .channel("meet-realtime-main")
+    .on("postgres_changes", { event: "*", schema: "public", table: "meet_events" }, (payload: any) => {
+      const eventId = payload.new?.id || payload.old?.id;
+      if (!eventId) return;
+      if (payload.eventType === "DELETE") {
+        setEvents((current) => current.filter((event) => event.id !== eventId));
+        setSelectedEvent((current) => current?.id === eventId ? null : current);
+        return;
+      }
+      void syncEvent(eventId);
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "meet_participants" }, (payload: any) => {
+      const eventId = payload.new?.event_id || payload.old?.event_id;
+      if (eventId) void syncEvent(eventId);
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "meet_join_requests" }, (payload: any) => {
+      const eventId = payload.new?.event_id || payload.old?.event_id;
+      if (eventId) void syncEvent(eventId);
+      if (payload.eventType === "INSERT") {
+        const event = eventsRef.current.find((item) => item.id === eventId);
+        if (event?.creator_id === currentUser?.id) realtimeSuccessRef.current("Новая заявка", `На встречу «${event.title}» пришла заявка.`);
+      }
+    })
+    .subscribe();
+
+  return () => {
+    if (realtimeTimerRef.current) clearTimeout(realtimeTimerRef.current);
+    void supabase.removeChannel(channel);
+  };
+}, [currentUser?.id, syncEvent]);
 
 useEffect(()=>{
 
@@ -67,13 +137,7 @@ async function handleJoin(eventId: string) {
 
     await joinMeetEvent(eventId, currentUser.id);
 
-    const updated = (await loadMeetEvents()) ?? [];
-
-    setEvents(updated);
-
-    setSelectedEvent(
-      updated.find((e: MeetEvent) => e.id === eventId) ?? null
-    );
+    await syncEvent(eventId);
     success("Вы присоединились", "Теперь вам доступен общий чат встречи.");
 
   } catch (e) {
@@ -108,13 +172,7 @@ async function handleLeave(eventId: string) {
 
     await leaveMeetEvent(eventId, currentUser.id);
 
-    const updated = await loadMeetEvents();
-
-    setEvents(updated || []);
-
-    setSelectedEvent(
-      updated.find((e: MeetEvent) => e.id === eventId) ?? null
-    );
+    await syncEvent(eventId);
     success("Вы покинули встречу", "Доступ к общему чату закрыт.");
 
   } catch (e) {
@@ -232,7 +290,7 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
       style={{
         minHeight: "100vh",
         background: "#F5F7FB",
-        paddingBottom: "110px"
+        paddingBottom: "calc(90px + env(safe-area-inset-bottom, 0px))"
       }}
     >
 

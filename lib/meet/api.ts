@@ -114,6 +114,22 @@ meet_join_requests(status)
   return data;
 }
 
+export async function loadMeetEventCard(eventId: string) {
+  const { data, error } = await supabase
+    .from("meet_events")
+    .select(`
+      *,
+      users(id,name,age,city,avatar_url,photos,is_online,last_seen,show_online,show_last_seen),
+      meet_participants(joined_at,users(id,name,avatar_url,photos)),
+      meet_join_requests(status)
+    `)
+    .eq("id", eventId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
 // 👇 ДОБАВИТЬ ОТСЮДА
 
 export async function joinMeetEvent(
