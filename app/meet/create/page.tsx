@@ -22,7 +22,7 @@ export default function CreateMeetPage() {
     
 
   const router = useRouter();
-  const { error: showError } = useNotification();
+  const { error: showError, success } = useNotification();
   
 
   const [title,setTitle] =
@@ -131,7 +131,7 @@ useEffect(() => {
     const data = JSON.parse(raw);
 
     setPlace(data.title || "");
-    setCity(data.address || "");
+    setCity(data.city || data.address || "");
     setLatitude(data.lat ?? null);
     setLongitude(data.lng ?? null);
 
@@ -199,7 +199,7 @@ useEffect(() => {
 
     }
 
-    await createMeetEvent({
+    const event = await createMeetEvent({
 
       creator_id:user.id,
 
@@ -228,8 +228,19 @@ useEffect(() => {
 
     });
 
+    const chatResponse = await fetch("/api/meet/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tg.initData, eventId: event.id }),
+    });
+    const chatResult = await chatResponse.json();
+    if (!chatResponse.ok || !chatResult.ok) {
+      throw new Error("Встреча создана, но чат не удалось подготовить");
+    }
+
     sessionStorage.removeItem("meet_draft");
 sessionStorage.removeItem("meet_location");
+success("Встреча создана", "Общий чат встречи готов.");
 
 router.replace("/meet");
 

@@ -62,6 +62,9 @@ const markerElements =
 
 const eventsRef =
   useRef<MeetEvent[]>([]);
+const categoryRef = useRef(category);
+const onCenterChangedRef = useRef(onCenterChanged);
+const onMarkerClickRef = useRef(onMarkerClick);
 
   function renderMarkers() {
 
@@ -76,8 +79,8 @@ markerElements.current.clear();
   for (const event of eventsRef.current) {
 
   if (
-    category &&
-    event.category !== category
+    categoryRef.current &&
+    event.category !== categoryRef.current
   ) {
     continue;
   }
@@ -131,7 +134,7 @@ ${icon}
 
 el.onclick = () => {
 
-  onMarkerClick?.(event);
+  onMarkerClickRef.current?.(event);
 
 };
 
@@ -147,6 +150,8 @@ ${icon}
 
 
 markerElements.current.set(event.id, el);
+
+    if (!Number.isFinite(event.longitude) || !Number.isFinite(event.latitude)) continue;
 
     const marker = new maplibregl.Marker({
       element: el,
@@ -199,7 +204,7 @@ markerElements.current.set(event.id, el);
 
   const center = map.current.getCenter();
 
-  onCenterChanged?.(
+  onCenterChangedRef.current?.(
     center.lat,
     center.lng
   );
@@ -310,9 +315,12 @@ map.current?.setZoom(16);
 }));
 
 useEffect(() => {
+  categoryRef.current = category;
+  onCenterChangedRef.current = onCenterChanged;
+  onMarkerClickRef.current = onMarkerClick;
   eventsRef.current = propsEvents ?? [];
   renderMarkers();
-}, [propsEvents, category]);
+}, [propsEvents, category, onCenterChanged, onMarkerClick]);
 
 
 

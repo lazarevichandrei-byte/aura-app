@@ -30,7 +30,7 @@ export default function MapControls({
 
   right:16,
 
-  bottom:130,
+  bottom:"calc(154px + env(safe-area-inset-bottom, 0px))",
 
   display:"flex",
 
@@ -48,18 +48,21 @@ export default function MapControls({
 
       <CircleButton
         onClick={onLocation}
+        ariaLabel="Моя геолокация"
       >
         ◎
       </CircleButton>
 
       <CircleButton
         onClick={onZoomIn}
+        ariaLabel="Приблизить карту"
       >
         ＋
       </CircleButton>
 
       <CircleButton
         onClick={onZoomOut}
+        ariaLabel="Отдалить карту"
       >
         －
       </CircleButton>
@@ -74,13 +77,17 @@ function CircleButton({
 
   children,
 
-  onClick
+  onClick,
 
-}:any){
+  ariaLabel
+
+}:{ children: React.ReactNode; onClick: () => void; ariaLabel: string }){
 
   return(
 
-    <div
+    <button
+      type="button"
+      aria-label={ariaLabel}
 
       onClick={onClick}
 
@@ -115,6 +122,8 @@ function CircleButton({
 
   border:"1px solid rgba(255,255,255,.7)",
 
+  padding:0,
+
   boxShadow:"0 10px 28px rgba(0,0,0,.12)",
 
   transition:"all .2s ease"
@@ -125,7 +134,7 @@ function CircleButton({
 
       {children}
 
-    </div>
+    </button>
 
   );
 

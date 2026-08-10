@@ -1,12 +1,14 @@
 export async function reverseGeocode(
   lat: number,
-  lng: number
+  lng: number,
+  signal?: AbortSignal
 ) {
   try {
     const key = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
     const res = await fetch(
-      `https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${key}`
+      `https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${key}`,
+      { signal }
     );
 
     const data = await res.json();
@@ -14,11 +16,16 @@ export async function reverseGeocode(
     if (!data.features?.length) {
       return {
         title: "",
-        address: ""
+        address: "",
+        city: ""
       };
     }
 
     const place = data.features[0];
+    const context = place.context ?? [];
+    const cityFeature = context.find((item: any) =>
+      ["municipality", "place", "locality"].some((type) => item.id?.startsWith(`${type}.`))
+    );
 
     return {
       title:
@@ -27,14 +34,17 @@ export async function reverseGeocode(
         "Неизвестное место",
 
       address:
-        place.place_name || ""
+        place.place_name || "",
+      city: cityFeature?.text || ""
     };
 
-  } catch {
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
 
     return {
       title: "",
-      address: ""
+      address: "",
+      city: ""
     };
 
   }

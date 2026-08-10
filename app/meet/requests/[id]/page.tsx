@@ -6,7 +6,6 @@ import {
   loadMeetJoinRequests,
   approveJoinRequest,
   rejectJoinRequest,
-  joinMeetEvent,
 } from "../../../../lib/meet/api";
 import { useNotification } from "../../../../components/NotificationContext";
 import PageWrapper from "../../../../components/PageWrapper";
@@ -41,11 +40,6 @@ useEffect(() => {
 async function approve(request: any) {
   try {
     await approveJoinRequest(request.id);
-
-    await joinMeetEvent(
-      request.event_id,
-      request.user_id
-    );
 
     await refresh();
     success("Заявка одобрена", "Пользователь добавлен к участникам встречи.");

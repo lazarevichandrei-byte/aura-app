@@ -1,9 +1,17 @@
 import { supabase } from "../supabase";
 
-import {
-  createMeetChatIfNotExists,
-  addUserToMeetChat,
-} from "../chat/api";
+async function updateMeetMembership(action: string, values: Record<string, string>) {
+  const initData = (window as any)?.Telegram?.WebApp?.initData;
+  if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
+
+  const response = await fetch("/api/meet/membership", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, action, ...values }),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) throw new Error(result.error || "Операция не выполнена");
+}
 
 export async function createMeetEvent({
   creator_id,
@@ -129,89 +137,14 @@ export async function joinMeetEvent(
   eventId: string,
   userId: string
 ) {
-  const { data: existing, error: checkError } = await supabase
-    .from("meet_participants")
-    .select("event_id")
-    .eq("event_id", eventId)
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (checkError) {
-    throw checkError;
-  }
-
-  if (existing) {
-    return;
-  }
-
- const { error } = await supabase
-  .from("meet_participants")
-  .insert({
-    event_id: eventId,
-    user_id: userId,
-  });
-
-if (error) {
-  throw error;
-}
-
-const chatId =
-  await createMeetChatIfNotExists(
-    eventId
-  );
-
-if (!chatId) {
-  throw new Error(
-    "Не удалось получить чат встречи"
-  );
-}
-
-const added =
-  await addUserToMeetChat(
-    chatId,
-    userId
-  );
-
-if (!added) {
-  throw new Error(
-    "Не удалось добавить пользователя в чат встречи"
-  );
-}
+  await updateMeetMembership("join", { eventId, userId });
 }
 
 export async function leaveMeetEvent(
   eventId: string,
   userId: string
 ) {
-const { error } = await supabase
-  .from("meet_participants")
-  .delete()
-  .eq("event_id", eventId)
-  .eq("user_id", userId);
-
-if (error) {
-  throw error;
-}
-
-const { data: chat } =
-  await supabase
-    .from("chats")
-    .select("id")
-    .eq("event_id", eventId)
-    .maybeSingle();
-
-if (chat) {
-  const { error: chatError } =
-    await supabase
-      .from("chat_participants")
-      .delete()
-      .eq("chat_id", chat.id)
-      .eq("user_id", userId);
-
-  if (chatError) {
-    throw chatError;
-  }
-}
+  await updateMeetMembership("leave", { eventId, userId });
 }
 export async function getMeetEvent(eventId: string) {
   const { data, error } = await supabase
@@ -434,109 +367,11 @@ export async function loadMeetJoinRequests(
 export async function approveJoinRequest(
   requestId: string
 ) {
-  // Получаем заявку, чтобы узнать встречу и пользователя
-  const { data: request, error: requestError } =
-    await supabase
-      .from("meet_join_requests")
-      .select("id, event_id, user_id, status")
-      .eq("id", requestId)
-      .single();
-
-  if (requestError) {
-    throw requestError;
-  }
-
-  if (request.status !== "pending") {
-    return request;
-  }
-
-  // Одобряем заявку
-  const { data, error } =
-    await supabase
-      .from("meet_join_requests")
-      .update({
-        status: "approved",
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", requestId)
-      .select()
-      .single();
-
-  if (error) {
-    throw error;
-  }
-
-  // Добавляем пользователя в участников встречи
-  const { data: existingParticipant, error: participantCheckError } =
-    await supabase
-      .from("meet_participants")
-      .select("event_id")
-      .eq("event_id", request.event_id)
-      .eq("user_id", request.user_id)
-      .maybeSingle();
-
-  if (participantCheckError) {
-    throw participantCheckError;
-  }
-
-  if (!existingParticipant) {
-    const { error: participantError } =
-      await supabase
-        .from("meet_participants")
-        .insert({
-          event_id: request.event_id,
-          user_id: request.user_id,
-        });
-
-    if (participantError) {
-      throw participantError;
-    }
-  }
-
-  // Получаем или создаём чат встречи
-  const chatId =
-    await createMeetChatIfNotExists(
-      request.event_id
-    );
-
-  if (!chatId) {
-    throw new Error(
-      "Не удалось получить чат встречи"
-    );
-  }
-
-  // Добавляем пользователя в чат встречи
-  const added =
-    await addUserToMeetChat(
-      chatId,
-      request.user_id
-    );
-
-  if (!added) {
-    throw new Error(
-      "Не удалось добавить пользователя в чат встречи"
-    );
-  }
-
-  return data;
+  await updateMeetMembership("approve", { requestId });
 }
 
 export async function rejectJoinRequest(
   requestId: string
 ) {
-  const { data, error } = await supabase
-    .from("meet_join_requests")
-    .update({
-      status: "rejected",
-      reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", requestId)
-    .select()
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
+  await updateMeetMembership("reject", { requestId });
 }

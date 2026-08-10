@@ -56,6 +56,7 @@ const [meetEvent,setMeetEvent] =
 
 const [chatLoaded,setChatLoaded] =
   useState(false);
+const [chatLoadError,setChatLoadError] = useState<string | null>(null);
 
 const [hasMore,setHasMore] =
   useState(true);
@@ -703,13 +704,16 @@ unread_count:0
 async function fetchChatUser(){
   
 
-  const { data: chat } = await supabase
+  const { data: chat, error: chatError } = await supabase
     .from("chats")
     .select("*")
     .eq("id", chatId)
     .single();
 
-  if(!chat || userId === null) return;
+  if(chatError || !chat || userId === null) {
+    console.error("CHAT LOAD ERROR:", chatError);
+    throw new Error("Чат не найден");
+  }
 
   // =========================
   // ЧАТ ВСТРЕЧИ
@@ -717,7 +721,7 @@ async function fetchChatUser(){
 
   if(chat.event_id){
 
-    const { data: event } = await supabase
+    const { data: event, error: eventError } = await supabase
       .from("meet_events")
       .select(`
         id,
@@ -733,9 +737,11 @@ async function fetchChatUser(){
       .eq("id", chat.event_id)
       .single();
 
-    if(event){
-      setMeetEvent(event);
+    if(eventError || !event) {
+      console.error("MEET CHAT EVENT LOAD ERROR:", eventError);
+      throw new Error("Встреча не найдена");
     }
+    setMeetEvent(event);
 
     // Для чата встречи обычный пользователь
     // в шапке не нужен
@@ -753,15 +759,17 @@ async function fetchChatUser(){
       ? chat.user2_id
       : chat.user1_id;
 
-  const { data:user } = await supabase
+  const { data:user, error: userError } = await supabase
     .from("users")
     .select("*")
     .eq("id", otherId)
     .single();
 
-  if(user){
-    setOtherUser(user);
+  if(userError || !user) {
+    console.error("CHAT USER LOAD ERROR:", userError);
+    throw new Error("Собеседник не найден");
   }
+  setOtherUser(user);
 
 }
 
@@ -811,14 +819,16 @@ useEffect(()=>{
   }
 
   async function loadChat(){
-
-  setOnline();
-
-  setChatLoaded(true);
-
-  fetchMessages();
-
-  fetchChatUser();
+    setChatLoaded(false);
+    setChatLoadError(null);
+    try {
+      await Promise.all([setOnline(), fetchMessages(), fetchChatUser()]);
+    } catch (error) {
+      console.error("CHAT INITIALIZATION ERROR:", error);
+      setChatLoadError(error instanceof Error ? error.message : "Не удалось загрузить чат");
+    } finally {
+      setChatLoaded(true);
+    }
 
 }
 
@@ -2589,6 +2599,18 @@ if(!chatLoaded && !otherUser && !meetEvent){
 
 }
 
+if(chatLoadError){
+  return (
+    <div style={{minHeight:"100dvh",display:"grid",placeItems:"center",padding:24,textAlign:"center",background:"#fff"}}>
+      <div>
+        <div style={{fontSize:18,fontWeight:700}}>Не удалось открыть чат</div>
+        <div style={{marginTop:8,color:"#7A8699"}}>{chatLoadError}</div>
+        <button onClick={()=>router.back()} style={{marginTop:20,height:44,padding:"0 22px",border:0,borderRadius:14,background:"#2E7BFF",color:"#fff",fontWeight:600}}>Назад</button>
+      </div>
+    </div>
+  );
+}
+
 
 
 return(
@@ -3533,6 +3555,5 @@ WebkitTapHighlightColor:"transparent"
 )
 
 }   
-
 
 

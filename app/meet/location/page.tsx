@@ -13,8 +13,6 @@ import PageWrapper from "../../../components/PageWrapper";
 import AuraMap, {
   AuraMapRef
 } from "../../../components/map/AuraMap";
-import MapSearch from "../../../components/map/MapSearch";
-import MapCategories from "../../../components/map/MapCategories";
 import MapControls from "../../../components/map/MapControls";
 import PlaceBottomCard from "../../../components/map/PlaceBottomCard";
 import { reverseGeocode } from "../../../lib/map/reverseGeocode";
@@ -25,9 +23,6 @@ export default function MeetLocationPage() {
   const mapRef =
   useRef<AuraMapRef>(null);
 
-  const [search,setSearch] =
-    useState("");
-
     const [center, setCenter] = useState({
   lat: 53.9023,
   lng: 27.5615
@@ -35,28 +30,32 @@ export default function MeetLocationPage() {
 
 const [place, setPlace] = useState({
   title: "",
-  address: ""
+  address: "",
+  city: ""
 });
 
 useEffect(() => {
 
-  let cancelled = false;
+  const controller = new AbortController();
 
   const timer = setTimeout(async () => {
-
-    const result = await reverseGeocode(
-      center.lat,
-      center.lng
-    );
-
-    if (!cancelled) {
+    try {
+      const result = await reverseGeocode(
+        center.lat,
+        center.lng,
+        controller.signal
+      );
       setPlace(result);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        console.error("REVERSE GEOCODING ERROR:", error);
+      }
     }
 
   }, 350);
 
   return () => {
-    cancelled = true;
+    controller.abort();
     clearTimeout(timer);
   };
 
@@ -119,6 +118,7 @@ useEffect(() => {
   const data = {
   title: place.title,
   address: place.address,
+  city: place.city,
   lat: center.lat,
   lng: center.lng
 };
@@ -218,16 +218,6 @@ borderRadius:18,
             </div>
 
           </div>
-
-          <MapSearch
-
-            value={search}
-
-            onChange={setSearch}
-
-          />
-
-          <MapCategories/>
 
         </div>
 

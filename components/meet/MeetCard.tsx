@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
-import { createChatIfNotExists } from "../../lib/chat/api";
 import { supabase } from "../../lib/supabase";
 
 import { useState, useEffect } from "react";
@@ -572,21 +571,6 @@ lineHeight: 1.25,
           .select("id")
           .eq("event_id", event.id)
           .maybeSingle();
-
-          console.log(
-  "MEET CHAT DEBUG EVENT ID:",
-  event.id
-);
-
-console.log(
-  "MEET CHAT ID:",
-  chat?.id ?? "CHAT_NOT_FOUND"
-);
-
-console.log(
-  "MEET CHAT DEBUG ERROR:",
-  error
-);
 
       if (error) {
         console.error(

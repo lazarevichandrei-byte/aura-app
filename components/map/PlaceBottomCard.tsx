@@ -24,7 +24,7 @@ export default function PlaceBottomCard({
 
   right:16,
 
-  bottom:16,
+  bottom:"calc(16px + env(safe-area-inset-bottom, 0px))",
 
   zIndex:30,
 
