@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { createChatIfNotExists } from "../../lib/chat/api";
+import { supabase } from "../../lib/supabase";
 
 import { useState, useEffect } from "react";
 
@@ -561,31 +562,45 @@ lineHeight: 1.25,
     👤 Профиль
   </button>
 
-  {(isParticipant || hasApprovedRequest) && (
-    <button
-      onClick={async () => {
-        if (!currentUserId || !event.users?.id) return;
+  {(isParticipant || isCreator) && (
+  <button
+    onClick={async () => {
 
-        const chatId =
-          await createChatIfNotExists(
-            currentUserId,
-            event.users.id
-          );
+      const { data: chat, error } =
+        await supabase
+          .from("chats")
+          .select("id")
+          .eq("event_id", event.id)
+          .maybeSingle();
 
-        if (chatId) {
-          router.push(`/chat/${chatId}`);
-        }
-      }}
-      style={{
-        ...buttonStyle,
-        flex: 1,
-        marginBottom: 0,
-        height: 48,
-      }}
-    >
-      💬 Написать
-    </button>
-  )}
+      if (error) {
+        console.error(
+          "MEET CHAT LOAD ERROR:",
+          error
+        );
+        return;
+      }
+
+      if (!chat) {
+        console.error(
+          "MEET CHAT NOT FOUND:",
+          event.id
+        );
+        return;
+      }
+
+      router.push(`/chat/${chat.id}`);
+    }}
+    style={{
+      ...buttonStyle,
+      flex: 1,
+      marginBottom: 0,
+      height: 48,
+    }}
+  >
+    💬 Написать
+  </button>
+)}
 </div>
   </>
 )}
