@@ -45,8 +45,9 @@ export default function MeetCard({
 const isFull =
   (event.meet_participants?.length ?? 0) >= event.max_people;
 
-  const isCreator =
+const isCreator =
   currentUserId === event.users?.id;
+const pendingRequests = (event.meet_join_requests ?? []).filter((request) => request.status === "pending").length;
 
   const [manageOpen, setManageOpen] = useState(false);
 const [deleteOpen, setDeleteOpen] = useState(false);
@@ -428,7 +429,7 @@ lineHeight: 1.25,
       cursor: "pointer",
     }}
   >
-    ⚙️ Управление встречей
+    ⚙️ Управление встречей{pendingRequests > 0 ? ` · Заявки ${pendingRequests}` : ""}
   </div>
 ) : (
   <>
@@ -621,6 +622,12 @@ lineHeight: 1.25,
     setManageOpen(false);
     router.push(`/meet/requests/${event.id}?tab=map`);
   }}
+  onChat={async () => {
+    const { data: chat } = await supabase.from("chats").select("id").eq("event_id", event.id).maybeSingle();
+    if (chat) router.push(`/chat/${chat.id}`);
+  }}
+  pendingRequests={pendingRequests}
+  showRequests={event.join_type === "approval"}
   onDelete={() => {
     setManageOpen(false);
     setDeleteOpen(true);

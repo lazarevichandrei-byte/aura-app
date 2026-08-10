@@ -9,7 +9,10 @@ type Props = {
   onEdit: () => void;
   onParticipants: () => void;
   onRequests: () => void;
+  onChat: () => void;
   onDelete: () => void;
+  pendingRequests?: number;
+  showRequests?: boolean;
 };
 
 const actions = [
@@ -36,12 +39,16 @@ export default function MeetManageSheet({
   onEdit,
   onParticipants,
   onRequests,
+  onChat,
   onDelete,
+  pendingRequests = 0,
+  showRequests = true,
 }: Props) {
   const handlers = {
     edit: onEdit,
     participants: onParticipants,
     requests: onRequests,
+    chat: onChat,
   };
 
   return (
@@ -73,7 +80,9 @@ export default function MeetManageSheet({
         </div>
       </div>
 
-      {actions.map((action) => (
+      {[...actions, { title: "💬 Общий чат", description: "Открыть чат встречи", key: "chat" as const }]
+        .filter((action) => action.key !== "requests" || showRequests)
+        .map((action) => (
         <motion.button
           key={action.key}
           whileTap={{ scale: 0.98 }}
@@ -97,7 +106,7 @@ export default function MeetManageSheet({
               color: "#111827",
             }}
           >
-            {action.title}
+            {action.title}{action.key === "requests" && pendingRequests > 0 ? ` · ${pendingRequests}` : ""}
           </div>
 
           <div

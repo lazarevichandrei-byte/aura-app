@@ -174,7 +174,7 @@ export async function POST(req: Request) {
       error: participantCheckError,
     } = await supabaseAdmin
       .from("chat_participants")
-      .select("id")
+      .select("chat_id")
       .eq("chat_id", chat.id)
       .eq("user_id", user.id)
       .maybeSingle();

@@ -23,7 +23,7 @@ import { useNotification } from "../../components/NotificationContext";
 
 export default function MeetPage() {
     const router = useRouter();
-    const { error: showError } = useNotification();
+    const { error: showError, success } = useNotification();
 
 
     const { user: currentUser } = useCurrentUser();
@@ -74,6 +74,7 @@ async function handleJoin(eventId: string) {
     setSelectedEvent(
       updated.find((e: MeetEvent) => e.id === eventId) ?? null
     );
+    success("Вы присоединились", "Теперь вам доступен общий чат встречи.");
 
   } catch (e) {
 
@@ -114,6 +115,7 @@ async function handleLeave(eventId: string) {
     setSelectedEvent(
       updated.find((e: MeetEvent) => e.id === eventId) ?? null
     );
+    success("Вы покинули встречу", "Доступ к общему чату закрыт.");
 
   } catch (e) {
 
@@ -134,6 +136,7 @@ async function handleDelete(eventId: string) {
     );
 
     setSelectedEvent(null);
+    success("Встреча удалена", "Встреча и связанный чат удалены.");
   } catch (error) {
     console.error(error);
     showError("Не удалось удалить встречу", "Попробуйте ещё раз.");

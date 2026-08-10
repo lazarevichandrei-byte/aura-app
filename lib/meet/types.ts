@@ -57,4 +57,6 @@ meet_participants?: {
   };
 }[];
 
+meet_join_requests?: { status: "pending" | "approved" | "rejected" }[];
+
 }

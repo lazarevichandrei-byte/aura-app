@@ -6,7 +6,10 @@ export const runtime = "nodejs";
 
 async function getAuthenticatedUser(initData: string) {
   const validation = validateTelegramInitData(initData);
-  if (!validation.ok) return null;
+  if (!validation.ok) {
+    console.error("MEET MEMBERSHIP AUTH ERROR:", { hasInitData: Boolean(initData), error: "error" in validation ? validation.error : "INVALID_INIT_DATA" });
+    return null;
+  }
 
   const { data } = await supabaseAdmin
     .from("users")
@@ -48,16 +51,21 @@ async function getOrCreateMeetChat(eventId: string) {
 
 async function addParticipant(eventId: string, userId: string) {
   const chatId = await getOrCreateMeetChat(eventId);
+  const { data: meetParticipant, error: meetCheckError } = await supabaseAdmin
+    .from("meet_participants").select("event_id").eq("event_id", eventId).eq("user_id", userId).maybeSingle();
+  if (meetCheckError) throw meetCheckError;
+  if (!meetParticipant) {
+    const { error } = await supabaseAdmin.from("meet_participants").insert({ event_id: eventId, user_id: userId });
+    if (error) throw error;
+  }
 
-  const { error: meetError } = await supabaseAdmin
-    .from("meet_participants")
-    .upsert({ event_id: eventId, user_id: userId }, { onConflict: "event_id,user_id" });
-  if (meetError) throw meetError;
-
-  const { error: chatError } = await supabaseAdmin
-    .from("chat_participants")
-    .upsert({ chat_id: chatId, user_id: userId }, { onConflict: "chat_id,user_id" });
-  if (chatError) throw chatError;
+  const { data: chatParticipant, error: chatCheckError } = await supabaseAdmin
+    .from("chat_participants").select("chat_id").eq("chat_id", chatId).eq("user_id", userId).maybeSingle();
+  if (chatCheckError) throw chatCheckError;
+  if (!chatParticipant) {
+    const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chatId, user_id: userId });
+    if (error) throw error;
+  }
 }
 
 export async function POST(request: Request) {
@@ -72,7 +80,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 403 });
     }
 
-    if (action === "join" || action === "leave") {
+    if (action === "join" || action === "leave" || action === "request" || action === "cancel-request") {
       const { data: event } = await supabaseAdmin
         .from("meet_events")
         .select("id, creator_id, join_type, is_active, expires_at")
@@ -81,7 +89,26 @@ export async function POST(request: Request) {
 
       if (!event) return NextResponse.json({ ok: false, error: "MEET_NOT_FOUND" }, { status: 404 });
 
-      if (action === "join") {
+      if (action === "request") {
+        if (event.join_type !== "approval" || !event.is_active || new Date(event.expires_at) <= new Date()) {
+          return NextResponse.json({ ok: false, error: "REQUEST_NOT_ALLOWED" }, { status: 403 });
+        }
+        const { data: existingRequest, error: requestCheckError } = await supabaseAdmin
+          .from("meet_join_requests").select("id,status").eq("event_id", event.id).eq("user_id", user.id).maybeSingle();
+        if (requestCheckError) throw requestCheckError;
+        if (existingRequest) {
+          if (existingRequest.status !== "pending") {
+            const { error } = await supabaseAdmin.from("meet_join_requests").update({ status: "pending", reviewed_at: null }).eq("id", existingRequest.id);
+            if (error) throw error;
+          }
+        } else {
+          const { error } = await supabaseAdmin.from("meet_join_requests").insert({ event_id: event.id, user_id: user.id });
+          if (error) throw error;
+        }
+      } else if (action === "cancel-request") {
+        const { error } = await supabaseAdmin.from("meet_join_requests").delete().eq("event_id", event.id).eq("user_id", user.id).eq("status", "pending");
+        if (error) throw error;
+      } else if (action === "join") {
         if (event.join_type !== "open" || !event.is_active || new Date(event.expires_at) <= new Date()) {
           return NextResponse.json({ ok: false, error: "JOIN_NOT_ALLOWED" }, { status: 403 });
         }
@@ -112,14 +139,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ ok: false, error: "NOT_EVENT_CREATOR" }, { status: 403 });
       }
 
-      if (joinRequest.status === "pending") {
-        const status = action === "approve" ? "approved" : "rejected";
+      if (action === "approve" && (joinRequest.status === "pending" || joinRequest.status === "approved")) {
+        await addParticipant(joinRequest.event_id, joinRequest.user_id);
         const { error } = await supabaseAdmin
           .from("meet_join_requests")
-          .update({ status, reviewed_at: new Date().toISOString() })
+          .update({ status: "approved", reviewed_at: new Date().toISOString() })
           .eq("id", joinRequest.id);
         if (error) throw error;
-        if (action === "approve") await addParticipant(joinRequest.event_id, joinRequest.user_id);
+      } else if (action === "reject" && joinRequest.status === "pending") {
+        const { error } = await supabaseAdmin
+          .from("meet_join_requests")
+          .update({ status: "rejected", reviewed_at: new Date().toISOString() })
+          .eq("id", joinRequest.id);
+        if (error) throw error;
       }
     } else {
       return NextResponse.json({ ok: false, error: "UNKNOWN_ACTION" }, { status: 400 });

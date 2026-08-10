@@ -1,8 +1,9 @@
 import { supabase } from "../supabase";
 import { calculateMeetExpiration } from "./time";
+import { getTelegramInitData } from "../telegram-init-data";
 
 async function updateMeetMembership(action: string, values: Record<string, string>) {
-  const initData = (window as any)?.Telegram?.WebApp?.initData;
+  const initData = await getTelegramInitData();
   if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
 
   const response = await fetch("/api/meet/membership", {
@@ -97,7 +98,8 @@ meet_participants(
     avatar_url,
     photos
   )
-)
+),
+meet_join_requests(status)
       `)
       .eq("is_active", true)
 .gt("expires_at", new Date().toISOString())
@@ -190,33 +192,15 @@ export async function updateMeetEvent(
 export async function deleteMeetEvent(
   eventId: string
 ) {
-  
-
-  const participants = await supabase
-  .from("meet_participants")
-  .delete()
-  .eq("event_id", eventId);
-
-
-
-const event = await supabase
-  .from("meet_events")
-  .delete()
-  .eq("id", eventId)
-  .select();
-
-
-
-if (participants.error) {
-  throw participants.error;
-}
-
-if (event.error) {
-  throw event.error;
-}
-
-return event.data;
-  
+  const initData = await getTelegramInitData();
+  if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
+  const response = await fetch("/api/meet/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, eventId }),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) throw new Error(result.error || "DELETE_FAILED");
 }
 
 export async function removeMeetParticipant(
@@ -271,32 +255,14 @@ export async function sendJoinRequest(
   eventId: string,
   userId: string
 ) {
-  const { error } = await supabase
-    .from("meet_join_requests")
-    .insert({
-      event_id: eventId,
-      user_id: userId,
-    });
-
-  if (error) {
-    throw error;
-  }
+  await updateMeetMembership("request", { eventId, userId });
 }
 
 export async function cancelJoinRequest(
   eventId: string,
   userId: string
 ) {
-  const { error } = await supabase
-    .from("meet_join_requests")
-    .delete()
-    .eq("event_id", eventId)
-    .eq("user_id", userId)
-    .eq("status", "pending");
-
-  if (error) {
-    throw error;
-  }
+  await updateMeetMembership("cancel-request", { eventId, userId });
 }
 
 export async function getJoinRequest(

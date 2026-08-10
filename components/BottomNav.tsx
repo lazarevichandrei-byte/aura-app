@@ -123,12 +123,12 @@ position:"fixed",
 bottom:0,
 left:0,
 right:0,
-height:82,
+height:"calc(74px + env(safe-area-inset-bottom, 0px))",
 background:"#fff",
 borderTop:"1px solid #ECECEC",
 display:"flex",
 alignItems:"center",
-paddingBottom:8,
+paddingBottom:"env(safe-area-inset-bottom, 0px)",
 zIndex:999
 }}
 >

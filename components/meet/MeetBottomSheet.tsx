@@ -191,7 +191,7 @@ const collapsedPosition = useMemo(
         background: "#fff",
         borderTopLeftRadius: 34,
         borderTopRightRadius: 34,
-        padding: "18px 20px 26px",
+        padding: "18px 20px calc(112px + env(safe-area-inset-bottom, 0px))",
         overflowY: snapPoint === "expanded" ? "auto" : "hidden",
         zIndex: 999,
         boxShadow:

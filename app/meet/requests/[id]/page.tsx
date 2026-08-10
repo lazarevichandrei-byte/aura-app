@@ -104,6 +104,9 @@ async function reject(request: any) {
         {request.users?.name ?? "Пользователь"}
       </div>
 
+      <div style={{display:"flex",alignItems:"center",gap:12}}>
+        <img src={request.users?.avatar_url || request.users?.photos?.[0] || "/placeholder.jpg"} alt="" style={{width:48,height:48,borderRadius:"50%",objectFit:"cover"}} />
+        <div>
       <div
         style={{
           marginTop: 4,
@@ -112,6 +115,9 @@ async function reject(request: any) {
         }}
       >
         {request.users?.city} • {request.users?.age} лет
+      </div>
+      <button onClick={()=>router.push(`/user/${request.user_id}`)} style={{marginTop:8,padding:0,border:0,background:"transparent",color:"#2F80FF",fontWeight:600}}>Открыть профиль</button>
+        </div>
       </div>
 
 {request.status === "pending" && (

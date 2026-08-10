@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, message });
     }
 
-    const [{ data: messages, error: messagesError }, eventResult, otherUserResult] = await Promise.all([
+    const [{ data: messages, error: messagesError }, eventResult, otherUserResult, participantsResult] = await Promise.all([
       supabaseAdmin.from("messages").select("*").eq("chat_id", chat.id).order("created_at", { ascending: false }).limit(30),
       chat.event_id
         ? supabaseAdmin.from("meet_events").select("id,title,description,category,city,place,starts_at,max_people,creator_id").eq("id", chat.event_id).single()
@@ -69,6 +69,9 @@ export async function POST(request: Request) {
       !chat.event_id
         ? supabaseAdmin.from("users").select("*").eq("id", chat.user1_id === user.id ? chat.user2_id : chat.user1_id).single()
         : Promise.resolve({ data: null, error: null }),
+      chat.event_id
+        ? supabaseAdmin.from("chat_participants").select("chat_id", { count: "exact", head: true }).eq("chat_id", chat.id)
+        : Promise.resolve({ count: null, error: null }),
     ]);
     if (messagesError) throw messagesError;
     if (chat.event_id && !eventResult.data) {
@@ -76,7 +79,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "MEET_NOT_FOUND" }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: true, chat, event: eventResult.data, otherUser: otherUserResult.data, messages: messages ?? [] });
+    return NextResponse.json({ ok: true, chat, event: eventResult.data, participantCount: participantsResult.count, otherUser: otherUserResult.data, messages: messages ?? [] });
   } catch (error) {
     console.error("CHAT API ERROR:", error);
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });

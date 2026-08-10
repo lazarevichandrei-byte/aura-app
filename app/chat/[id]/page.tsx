@@ -30,6 +30,7 @@ import {
 
 import { sendMessageNotification } from "../../../lib/notifications/messages";
 import { getOnlineStatus } from "../../../lib/user/getOnlineStatus";
+import { getTelegramInitData } from "../../../lib/telegram-init-data";
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -702,7 +703,7 @@ unread_count:0
 
 
 async function fetchChatUser(){
-  const initData = (window as any)?.Telegram?.WebApp?.initData;
+  const initData = await getTelegramInitData();
   if (!initData || userId === null) throw new Error("Не удалось подтвердить пользователя Telegram");
   const response = await fetch("/api/chat", {
     method: "POST",
@@ -730,7 +731,7 @@ async function fetchChatUser(){
 
   if(chat.event_id){
 
-    setMeetEvent(result.event);
+    setMeetEvent({ ...result.event, participantCount: result.participantCount });
 
     // Для чата встречи обычный пользователь
     // в шапке не нужен
@@ -1695,7 +1696,7 @@ if (meetEvent) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        initData: (window as any)?.Telegram?.WebApp?.initData,
+        initData: await getTelegramInitData(),
         chatId,
         action: "send",
         body: text,
@@ -2738,7 +2739,7 @@ cursor:"pointer"
             fontWeight:500
           }}
         >
-          Встреча
+          Встреча{meetEvent.participantCount ? ` · ${meetEvent.participantCount} участников` : ""}
         </div>
 
       </div>

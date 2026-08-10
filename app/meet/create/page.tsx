@@ -11,14 +11,13 @@ import {
 import PageWrapper from "../../../components/PageWrapper";
 import PageHeader from "../../../components/PageHeader";
 import { MEET_CATEGORIES } from "../../../lib/meet/categories";
-import { supabase } from "../../../lib/supabase";
-import { createMeetEvent } from "../../../lib/meet/api";
 import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
 import CategoryPicker from "../../../components/meet/CategoryPicker";
 import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
 import { useNotification } from "../../../components/NotificationContext";
 import { localMeetDateTimeToIso, localToday } from "../../../lib/meet/time";
+import { getTelegramInitData } from "../../../lib/telegram-init-data";
 export default function CreateMeetPage() {
     
 
@@ -171,81 +170,41 @@ useEffect(() => {
 
   try{
 
-    const tg =
-      (window as any)
-      ?.Telegram
-      ?.WebApp;
-
-    const telegramId =
-      tg?.initDataUnsafe
-      ?.user?.id;
-
-    if(!telegramId){
-
-      showError("Ошибка Telegram", "Не удалось определить пользователя.");
-
-      return;
-
+    const initData = await getTelegramInitData();
+    if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
+    let eventId = sessionStorage.getItem("meet_create_event_id");
+    if (!eventId) {
+      eventId = crypto.randomUUID();
+      sessionStorage.setItem("meet_create_event_id", eventId);
     }
 
-    const { data:user } =
-      await supabase
-        .from("users")
-        .select("id")
-        .eq(
-          "telegram_id",
-          telegramId
-        )
-        .single();
-
-    if(!user){
-
-      showError("Пользователь не найден", "Откройте приложение через Telegram ещё раз.");
-
-      return;
-
-    }
-
-    const event = await createMeetEvent({
-
-      creator_id:user.id,
-
-      title,
-
-      description,
-
-      category,
-
-      city,
-
-      place,
-
-      latitude,
-
-      longitude,
-
-      starts_at: startsAt,
-
-      duration,
-
-      join_type: joinType,
-
-      max_people: maxPeople
-
-    });
-
-    const chatResponse = await fetch("/api/meet/chat", {
+    const response = await fetch("/api/meet/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tg.initData, eventId: event.id }),
+      body: JSON.stringify({
+        initData,
+        eventId,
+        values: {
+      title,
+      description,
+      category,
+      city,
+      place,
+      latitude,
+      longitude,
+      starts_at: startsAt,
+      duration,
+      join_type: joinType,
+      max_people: maxPeople,
+        },
+      }),
     });
-    const chatResult = await chatResponse.json();
-    if (!chatResponse.ok || !chatResult.ok) {
-      throw new Error("Встреча создана, но чат не удалось подготовить");
-    }
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "Не удалось создать встречу");
 
     sessionStorage.removeItem("meet_draft");
 sessionStorage.removeItem("meet_location");
+sessionStorage.removeItem("meet_create_event_id");
 success("Встреча создана", "Общий чат встречи готов.");
 
 router.replace("/meet");
