@@ -48,9 +48,72 @@ export async function POST(request: Request) {
           p_user_id: user.id,
         }
       );
-      if (bootstrapError) throw bootstrapError;
+      if (bootstrapError) {
+        console.error("CHAT MEET RPC ERROR:", {
+          chatId: chat.id,
+          userId: user.id,
+          code: bootstrapError.code,
+          message: bootstrapError.message,
+        });
+
+        if (bootstrapError.code !== "PGRST202") {
+          return NextResponse.json(
+            { ok: false, error: "MEET_BOOTSTRAP_FAILED" },
+            { status: 500 }
+          );
+        }
+
+        const { data: participants, error: participantError } = await supabaseAdmin
+          .from("chat_participants")
+          .select("user_id")
+          .eq("chat_id", chat.id);
+        if (participantError) throw participantError;
+        const isMember = Boolean(
+          participants?.some((participant) => participant.user_id === user.id)
+        );
+        if (!isMember) {
+          return NextResponse.json(
+            { ok: false, error: "CHAT_ACCESS_DENIED" },
+            { status: 403 }
+          );
+        }
+
+        const [eventResult, messagesResult] = await Promise.all([
+          supabaseAdmin
+            .from("meet_events")
+            .select("id,title,category")
+            .eq("id", chat.event_id)
+            .single(),
+          supabaseAdmin
+            .from("messages")
+            .select("*")
+            .eq("chat_id", chat.id)
+            .order("created_at", { ascending: false })
+            .limit(30),
+        ]);
+        if (eventResult.error || !eventResult.data) {
+          return NextResponse.json(
+            { ok: false, error: "MEET_NOT_FOUND" },
+            { status: 404 }
+          );
+        }
+        if (messagesResult.error) throw messagesResult.error;
+
+        return NextResponse.json({
+          ok: true,
+          currentUserId: user.id,
+          chat,
+          event: eventResult.data,
+          participantCount: participants?.length ?? 0,
+          otherUser: null,
+          messages: messagesResult.data ?? [],
+        });
+      }
       if (!bootstrap) {
-        return NextResponse.json({ ok: false, error: "CHAT_NOT_FOUND" }, { status: 404 });
+        return NextResponse.json(
+          { ok: false, error: "MEET_BOOTSTRAP_FAILED" },
+          { status: 500 }
+        );
       }
       if (!bootstrap.is_member) {
         console.error("CHAT API ACCESS DENIED:", { chatId, eventId: chat.event_id, userId: user.id });

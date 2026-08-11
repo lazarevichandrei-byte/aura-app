@@ -719,7 +719,13 @@ async function fetchChatUser(){
   const result = await response.json();
   if (!response.ok || !result.ok) {
     console.error("CHAT BOOTSTRAP ERROR:", { chatId, currentUserId: userId, stage: "bootstrap", error: result.error });
-    throw new Error(result.error === "CHAT_ACCESS_DENIED" ? "Нет доступа к этому чату" : "Чат не найден");
+    if(result.error === "CHAT_ACCESS_DENIED"){
+      throw new Error("Нет доступа к этому чату");
+    }
+    if(result.error === "CHAT_NOT_FOUND"){
+      throw new Error("Чат не найден");
+    }
+    throw new Error("Не удалось загрузить чат");
   }
   if(result.currentUserId){
     setUserId(result.currentUserId);
