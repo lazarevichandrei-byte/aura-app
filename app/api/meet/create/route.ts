@@ -6,18 +6,21 @@ import { calculateMeetExpiration } from "../../../../lib/meet/time";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  let step = "parse-request";
   try {
     const { initData, eventId, values } = await request.json();
     if (!initData || !eventId || !values) {
       return NextResponse.json({ ok: false, error: "MISSING_DATA" }, { status: 400 });
     }
 
+    step = "validate-telegram";
     const validation = validateTelegramInitData(initData);
     if (validation.ok === false) {
       console.error("MEET CREATE AUTH ERROR:", { hasInitData: Boolean(initData), eventId, error: validation.error });
       return NextResponse.json({ ok: false, error: validation.error }, { status: 403 });
     }
 
+    step = "load-user";
     const { data: user } = await supabaseAdmin.from("users").select("id").eq("telegram_id", validation.user.id).single();
     if (!user) return NextResponse.json({ ok: false, error: "USER_NOT_FOUND" }, { status: 404 });
 
@@ -26,6 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "INVALID_START_TIME" }, { status: 400 });
     }
 
+    step = "ensure-event";
     let { data: event, error: eventError } = await supabaseAdmin
       .from("meet_events")
       .select("id, creator_id")
@@ -59,6 +63,7 @@ export async function POST(request: Request) {
     if (eventError || !event) throw eventError ?? new Error("EVENT_CREATE_FAILED");
     if (event.creator_id !== user.id) return NextResponse.json({ ok: false, error: "EVENT_ID_CONFLICT" }, { status: 409 });
 
+    step = "ensure-chat";
     let { data: chat, error: chatError } = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).maybeSingle();
     if (!chat) {
       const result = await supabaseAdmin.from("chats").insert({
@@ -70,6 +75,7 @@ export async function POST(request: Request) {
     }
     if (chatError || !chat) throw chatError ?? new Error("CHAT_CREATE_FAILED");
 
+    step = "ensure-chat-participant";
     const { data: participant, error: participantCheckError } = await supabaseAdmin
       .from("chat_participants")
       .select("chat_id")
@@ -84,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });
   } catch (error: any) {
-    console.error("MEET CREATE API ERROR:", { step: "orchestration", code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
+    console.error("MEET CREATE API ERROR:", { step, code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
     return NextResponse.json({ ok: false, error: "CREATE_FAILED", message: "Не удалось создать встречу. Попробуйте ещё раз." }, { status: 500 });
   }
 }

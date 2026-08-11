@@ -12,9 +12,9 @@ import {
 } from "../../lib/meet/api";
 import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
-import DeleteMeetSheet from "./DeleteMeetSheet";
 import { useNotification } from "../NotificationContext";
 import { getMeetGuests } from "../../lib/meet/participants";
+import MeetDeleteSlider from "./MeetDeleteSlider";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -58,7 +58,6 @@ const isCreator =
 const pendingRequests = (event.meet_join_requests ?? []).filter((request) => request.status === "pending").length;
 
   const [manageOpen, setManageOpen] = useState(false);
-const [deleteOpen, setDeleteOpen] = useState(false);
 
 const [joinRequest, setJoinRequest] = useState<any>(null);
 const [loadingRequest, setLoadingRequest] = useState(false);
@@ -472,24 +471,9 @@ lineHeight: 1.25,
   >
     ⚙️ Управление встречей{pendingRequests > 0 ? ` · Заявки ${pendingRequests}` : ""}
   </div>
-  <button
-    type="button"
-    onClick={() => setDeleteOpen(true)}
-    style={{
-      width:"100%",
-      height:44,
-      border:"1px solid #FECACA",
-      borderRadius:14,
-      background:"transparent",
-      color:"#DC2626",
-      fontSize:14,
-      fontWeight:600,
-      cursor:"pointer",
-      marginBottom:16,
-    }}
-  >
-    Удалить встречу
-  </button>
+  <div style={{marginBottom:16}}>
+    <MeetDeleteSlider onDelete={() => onDelete(event.id)} />
+  </div>
   </>
 ) : (
   <>
@@ -702,14 +686,6 @@ lineHeight: 1.25,
   showRequests={event.join_type === "approval"}
 />
 
-      <DeleteMeetSheet
-        open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={async () => {
-  setDeleteOpen(false);
-  await onDelete(event.id);
-}}
-      />
     </>
   );
 }

@@ -14,6 +14,7 @@ type Props = {
     isFull: boolean;
     onClick: () => void;
     onJoin: () => void;
+    requestStatus?: "pending" | "approved" | "rejected" | null;
 };
 
 export default function MeetGridCard({
@@ -23,6 +24,7 @@ export default function MeetGridCard({
     isFull,
     onClick,
     onJoin,
+    requestStatus,
 }: Props) {
 
     return (
@@ -164,6 +166,10 @@ layoutId={event.id}
                         Участвую
                     </button>
 
+                ) : requestStatus === "pending" ? (
+
+                    <button disabled style={{width:"100%",height:40,borderRadius:12,border:"none",background:"#FFF7ED",color:"#D97706",fontWeight:700}}>⏳ Рассмотрение</button>
+
                 ) : isFull ? (
 
                     <button
@@ -203,7 +209,7 @@ layoutId={event.id}
                             cursor: "pointer",
                         }}
                     >
-                        {event.join_type === "approval" ? "Заявка" : "Вступить"}
+                        {event.join_type === "approval" && requestStatus === "rejected" ? "Повторить" : event.join_type === "approval" ? "Заявка" : "Вступить"}
                     </button>
 
                 )}

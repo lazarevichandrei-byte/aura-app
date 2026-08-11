@@ -99,7 +99,7 @@ meet_participants(
     photos
   )
 ),
-meet_join_requests(status)
+meet_join_requests(user_id,status)
       `)
       .eq("is_active", true)
 .gt("expires_at", new Date().toISOString())
@@ -121,7 +121,7 @@ export async function loadMeetEventCard(eventId: string) {
       *,
       users(id,name,age,city,avatar_url,photos,is_online,last_seen,show_online,show_last_seen),
       meet_participants(joined_at,users(id,name,avatar_url,photos)),
-      meet_join_requests(status)
+      meet_join_requests(user_id,status)
     `)
     .eq("id", eventId)
     .maybeSingle();

@@ -217,6 +217,7 @@ async function handleDelete(eventId: string) {
   } catch (error) {
     console.error(error);
     showError("Не удалось удалить встречу", "Попробуйте ещё раз.");
+    throw error;
   }
 }
 
@@ -240,7 +241,7 @@ async function load(){
 }
 
   const [tab, setTab] =
-  useState("feed");
+  useState("map");
 
   const [view, setView] = useState<"list" | "grid">("list");
 
@@ -256,8 +257,7 @@ async function load(){
 
   if (
     value === "map" ||
-    value === "feed" ||
-    value === "ai"
+    value === "feed"
   ) {
     setTab(value);
   }
@@ -404,11 +404,6 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
             id: "feed",
             title: "📋 Лента"
           },
-          {
-            id: "ai",
-            title: "✨ AI"
-          }
-
         ].map(item => (
 
           <div
@@ -608,6 +603,9 @@ duration:.28,
 
   const isFull =
     getMeetGuestCount(event) >= event.max_people;
+  const requestStatus = event.meet_join_requests?.find(
+    (request: any) => request.user_id === currentUser?.id
+  )?.status ?? null;
 
   return (
 
@@ -621,6 +619,7 @@ view === "list" ? (
     isFull={isFull}
     onClick={() => setSelectedEvent(event)}
     onJoin={() => handleCardAction(event)}
+    requestStatus={requestStatus}
 />
 
 ) : (
@@ -633,6 +632,7 @@ view === "list" ? (
     isFull={isFull}
     onClick={() => setSelectedEvent(event)}
     onJoin={() => handleCardAction(event)}
+    requestStatus={requestStatus}
 />
 
 )

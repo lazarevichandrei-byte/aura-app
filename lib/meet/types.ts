@@ -57,6 +57,6 @@ meet_participants?: {
   };
 }[];
 
-meet_join_requests?: { status: "pending" | "approved" | "rejected" }[];
+meet_join_requests?: { user_id: string; status: "pending" | "approved" | "rejected" }[];
 
 }

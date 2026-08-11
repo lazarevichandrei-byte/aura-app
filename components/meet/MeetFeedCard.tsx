@@ -17,6 +17,7 @@ type Props = {
     isFull: boolean;
     onClick: () => void;
     onJoin: () => void;
+    requestStatus?: "pending" | "approved" | "rejected" | null;
 };
 
 export default function MeetFeedCard({
@@ -26,6 +27,7 @@ export default function MeetFeedCard({
     isFull,
     onClick,
     onJoin,
+    requestStatus,
 }: Props) {
   const guests = getMeetGuests(event);
 
@@ -327,6 +329,10 @@ layoutId={event.id}
                         Вы участвуете
                     </div>
 
+                ) : requestStatus === "pending" ? (
+
+                    <div style={{color:"#D97706",fontWeight:700}}>⏳ На рассмотрении</div>
+
                 ) : isFull ? (
 
                     <div
@@ -366,7 +372,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                      {event.join_type === "approval" ? "Подать заявку" : "Вступить"}
+                      {event.join_type === "approval" && requestStatus === "rejected" ? "Подать заявку повторно" : event.join_type === "approval" ? "Подать заявку" : "Вступить"}
                     </motion.button>
 
                 )}
