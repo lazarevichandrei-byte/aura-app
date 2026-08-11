@@ -85,32 +85,45 @@ export async function POST(request: Request) {
     }
     if (chatError || !chat) throw chatError ?? new Error("CHAT_CREATE_FAILED");
 
-    step = "ensure-chat-participant";
+    step = "creator-participant-lookup";
     const { data: participant, error: participantCheckError } = await supabaseAdmin
       .from("chat_participants")
-      .select("chat_id")
+      .select("chat_id,user_id")
       .eq("chat_id", chat.id)
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle();
     if (participantCheckError) throw participantCheckError;
+
+    let participantInsertError = null;
     if (!participant) {
-      const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chat.id, user_id: user.id });
-      if (error && error.code !== "23505") {
-        const verification = await supabaseAdmin
-          .from("chat_participants")
-          .select("chat_id")
-          .eq("chat_id", chat.id)
-          .eq("user_id", user.id)
-          .limit(1)
-          .maybeSingle();
-        if (verification.error || !verification.data) throw error;
-      }
+      step = "creator-participant-insert";
+      const insertResult = await supabaseAdmin
+        .from("chat_participants")
+        .insert({ chat_id: chat.id, user_id: user.id });
+      participantInsertError = insertResult.error;
+    }
+
+    step = "creator-participant-verify";
+    const verification = await supabaseAdmin
+      .from("chat_participants")
+      .select("chat_id,user_id")
+      .eq("chat_id", chat.id)
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+    if (verification.error) throw verification.error;
+    if (!verification.data) {
+      if (participantInsertError) throw participantInsertError;
+      throw new Error("CREATOR_PARTICIPANT_NOT_FOUND");
     }
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });
   } catch (error: any) {
     console.error("MEET CREATE API ERROR:", { step, code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
-    return NextResponse.json({ ok: false, error: "CREATE_FAILED", message: "Не удалось создать встречу. Попробуйте ещё раз." }, { status: 500 });
+    const responseError = step.startsWith("creator-participant")
+      ? "CREATOR_PARTICIPANT_FAILED"
+      : "CREATE_FAILED";
+    return NextResponse.json({ ok: false, error: responseError, message: "Не удалось создать встречу. Попробуйте ещё раз." }, { status: 500 });
   }
 }
