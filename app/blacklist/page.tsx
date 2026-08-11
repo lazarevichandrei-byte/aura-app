@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabase";
 import PageWrapper from "../../components/PageWrapper";
 import { selection } from "../../lib/haptic";
+import { getTelegramInitData } from "../../lib/telegram-init-data";
 
 export default function BlacklistPage(){
 
@@ -20,75 +20,36 @@ export default function BlacklistPage(){
 
   async function loadBlocked(){
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
+  const initData = await getTelegramInitData();
+  if(!initData) return;
 
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId) return;
-
-  const { data: me } =
-    await supabase
-      .from("users")
-      .select("id")
-      .eq("telegram_id", telegramId)
-      .single();
-
-  if(!me) return;
-
-  const { data: blocked } =
-    await supabase
-      .from("blocked_users")
-      .select("*")
-      .eq("user_id", me.id);
-
-  if(!blocked?.length){
-    setUsers([]);
-    return;
+  const response = await fetch("/api/blocked-users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, action: "list" })
+  });
+  const result = await response.json().catch(() => null);
+  if(response.ok && result?.ok){
+    setUsers(result.blockedUsers ?? []);
   }
-
-  const ids =
-    blocked.map(
-      (b:any) => b.blocked_user_id
-    );
-
-  const { data: usersData } =
-    await supabase
-      .from("users")
-      .select(`
-        id,
-        name,
-        avatar_url,
-        city
-      `)
-      .in("id", ids);
-
-  const result =
-    blocked.map((block:any) => ({
-      ...block,
-      blocked_user:
-        usersData?.find(
-          (u:any)=>
-            u.id === block.blocked_user_id
-        )
-    }));
-
-  setUsers(result);
 }
 
   async function unblock(
-  blockId:string
+  blockedUserId:string
 ){
 
   selection();
 
-  await supabase
-      .from("blocked_users")
-      .delete()
-      .eq("id", blockId);
+  const initData = await getTelegramInitData();
+  if(!initData) return;
 
-    loadBlocked();
+  const response = await fetch("/api/blocked-users", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, blockedUserId })
+  });
+
+  if(response.ok) loadBlocked();
   }
 
   return(
@@ -255,7 +216,7 @@ export default function BlacklistPage(){
 
               <button
                 onClick={()=>
-                  unblock(item.id)
+                  unblock(item.blocked_user_id)
                 }
                 style={{
                   background:"#FF4D4F",

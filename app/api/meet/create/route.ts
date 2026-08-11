@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     if (event.creator_id !== user.id) return NextResponse.json({ ok: false, error: "EVENT_ID_CONFLICT" }, { status: 409 });
 
     step = "ensure-chat";
-    let { data: chat, error: chatError } = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).maybeSingle();
+    let { data: chat, error: chatError } = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).limit(1).maybeSingle();
     if (!chat) {
       const result = await supabaseAdmin.from("chats").insert({
         event_id: event.id, user1_id: null, user2_id: null, last_message: "",
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       chat = result.data;
       chatError = result.error;
       if (chatError?.code === "23505") {
-        const retry = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).maybeSingle();
+        const retry = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).limit(1).maybeSingle();
         chat = retry.data;
         chatError = retry.error;
       }
@@ -91,11 +91,21 @@ export async function POST(request: Request) {
       .select("chat_id")
       .eq("chat_id", chat.id)
       .eq("user_id", user.id)
+      .limit(1)
       .maybeSingle();
     if (participantCheckError) throw participantCheckError;
     if (!participant) {
       const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chat.id, user_id: user.id });
-      if (error && error.code !== "23505") throw error;
+      if (error && error.code !== "23505") {
+        const verification = await supabaseAdmin
+          .from("chat_participants")
+          .select("chat_id")
+          .eq("chat_id", chat.id)
+          .eq("user_id", user.id)
+          .limit(1)
+          .maybeSingle();
+        if (verification.error || !verification.data) throw error;
+      }
     }
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });

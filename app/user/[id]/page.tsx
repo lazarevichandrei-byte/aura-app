@@ -7,12 +7,14 @@ import { ArrowLeft2 } from "iconsax-react";
 import { useNotification } from "../../../components/NotificationContext";
 import BottomSheet from "../../../components/BottomSheet";
 import UserProfileSkeleton from "../../../components/UserProfileSkeleton";
+import { getTelegramInitData } from "../../../lib/telegram-init-data";
 export default function UserProfilePage() {
 
   const params = useParams();
   const router = useRouter();
   const {
   success,
+  error,
   warning
 } = useNotification();
 
@@ -44,34 +46,6 @@ useState(0);
 
     
 
-    async function blockUser(){
-
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId) return;
-
-  const { data: me } =
-    await supabase
-      .from("users")
-      .select("id")
-      .eq("telegram_id", telegramId)
-      .single();
-
-  if(!me) return;
-
-  await supabase
-    .from("blocked_users")
-    
-
-  router.push("/home");
-}
-
-
-
     const { data } = await supabase
       .from("users")
       .select("*")
@@ -85,24 +59,6 @@ useState(0);
   }
 
 async function submitReport(){
-
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId) return;
-
-  const { data: me } =
-    await supabase
-      .from("users")
-      .select("id")
-      .eq("telegram_id", telegramId)
-      .single();
-
-  if(!me) return;
-
   if(!reportReason){
 
   warning(
@@ -114,13 +70,22 @@ async function submitReport(){
 
 }
 
-  await supabase
-    .from("reports")
-    .insert({
-      reporter_id: me.id,
-      reported_user_id: user.id,
-      reason: reportReason
-    });
+  const initData = await getTelegramInitData();
+  if(!initData){
+    error("Ошибка", "Не удалось подтвердить пользователя Telegram");
+    return;
+  }
+
+  const response = await fetch("/api/reports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, targetUserId: user.id, reason: reportReason })
+  });
+  const result = await response.json().catch(() => null);
+  if(!response.ok || !result?.ok){
+    error("Ошибка", "Не удалось отправить жалобу");
+    return;
+  }
 
   setShowReportModal(false);
   setReportReason("");
@@ -135,30 +100,22 @@ async function submitReport(){
   return <UserProfileSkeleton />;
 }
   async function blockUser(){
+  const initData = await getTelegramInitData();
+  if(!initData){
+    error("Ошибка", "Не удалось подтвердить пользователя Telegram");
+    return;
+  }
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId) return;
-
-  const { data: me } =
-    await supabase
-      .from("users")
-      .select("id")
-      .eq("telegram_id", telegramId)
-      .single();
-
-  if(!me) return;
-
-await supabase
-  .from("blocked_users")
-  .insert({
-    user_id: me.id,
-    blocked_user_id: user.id
+  const response = await fetch("/api/blocked-users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, action: "block", blockedUserId: user.id })
   });
+  const result = await response.json().catch(() => null);
+  if(!response.ok || !result?.ok){
+    error("Ошибка", "Не удалось заблокировать пользователя");
+    return;
+  }
 
   router.push("/home");
 }

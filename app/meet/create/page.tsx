@@ -167,6 +167,7 @@ useEffect(() => {
   }
 
   setLoading(true);
+  let operationCompleted = false;
 
   try{
 
@@ -201,13 +202,17 @@ useEffect(() => {
     });
     const result = await response.json();
     if (!response.ok || !result.ok) throw new Error(result.message || "Не удалось создать встречу. Попробуйте ещё раз.");
+    operationCompleted = true;
 
-    sessionStorage.removeItem("meet_draft");
-sessionStorage.removeItem("meet_location");
-sessionStorage.removeItem("meet_create_event_id");
-success("Встреча создана", "Общий чат встречи готов.");
-
-router.replace("/meet");
+    try {
+      sessionStorage.removeItem("meet_draft");
+      sessionStorage.removeItem("meet_location");
+      sessionStorage.removeItem("meet_create_event_id");
+    } catch (cleanupError) {
+      console.error("MEET CREATE CLEANUP ERROR:", cleanupError);
+    }
+    success("Встреча создана", "Общий чат встречи готов.");
+    router.replace("/meet");
 
   } catch (err: any) {
 
@@ -217,10 +222,12 @@ router.replace("/meet");
   console.error("CREATE MEET ERROR HINT:", err?.hint);
   console.error("CREATE MEET ERROR CODE:", err?.code);
 
-  showError(
-    "Ошибка создания",
-    err?.message || "Неизвестная ошибка"
-  );
+  if (!operationCompleted) {
+    showError(
+      "Ошибка создания",
+      err?.message || "Неизвестная ошибка"
+    );
+  }
 
 } finally {
   setLoading(false);

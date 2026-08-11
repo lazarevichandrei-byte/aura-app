@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft2 } from "iconsax-react";
-import { supabase } from "../../lib/supabase";
 import PageWrapper from "../../components/PageWrapper";
 import { useNotification } from "../../components/NotificationContext";
+import { getTelegramInitData } from "../../lib/telegram-init-data";
 
 export default function SupportPage() {
 
@@ -28,16 +28,6 @@ useState(false);
 
 async function sendTicket(){
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId){
-    return;
-  }
-
   if(!message.trim()){
 
   warning(
@@ -51,27 +41,26 @@ async function sendTicket(){
 
   setSending(true);
 
-  const { error: rpcError } =
-    await supabase
-      .from("support_tickets")
-      .insert({
-        telegram_id: telegramId,
-        category,
-        message
-      });
+  try {
+    const initData = await getTelegramInitData();
+    if(!initData) throw new Error("TELEGRAM_AUTH_REQUIRED");
 
-  setSending(false);
-
-  if(rpcError){
-
-  error(
-    "Ошибка",
-    "Не удалось отправить сообщение"
-  );
-
-  return;
-
-}
+    const response = await fetch("/api/support", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData, category, message })
+    });
+    const result = await response.json().catch(() => null);
+    if(!response.ok || !result?.ok) throw new Error(result?.error || "SUPPORT_FAILED");
+  } catch {
+    error(
+      "Ошибка",
+      "Не удалось отправить сообщение"
+    );
+    return;
+  } finally {
+    setSending(false);
+  }
 
   success(
   "Отправлено",
