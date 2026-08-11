@@ -45,6 +45,11 @@ async function getOrCreateMeetChat(eventId: string) {
     .select("id")
     .single();
 
+  if (error?.code === "23505") {
+    const retry = await supabaseAdmin.from("chats").select("id").eq("event_id", eventId).maybeSingle();
+    if (retry.error || !retry.data) throw retry.error ?? new Error("CHAT_CREATE_FAILED");
+    return retry.data.id;
+  }
   if (error || !data) throw error ?? new Error("CHAT_CREATE_FAILED");
   return data.id;
 }
@@ -58,6 +63,7 @@ async function addParticipant(eventId: string, userId: string) {
   const { data: meetParticipant, error: meetCheckError } = await supabaseAdmin
     .from("meet_participants").select("event_id").eq("event_id", eventId).eq("user_id", userId).maybeSingle();
   if (meetCheckError) throw meetCheckError;
+  let addedMeetParticipant = false;
   if (!meetParticipant) {
     const { count, error: countError } = await supabaseAdmin
       .from("meet_participants")
@@ -67,16 +73,25 @@ async function addParticipant(eventId: string, userId: string) {
     if (countError) throw countError;
     if ((count ?? 0) >= event.max_people) throw new Error("MEET_FULL");
     const { error } = await supabaseAdmin.from("meet_participants").insert({ event_id: eventId, user_id: userId });
-    if (error) throw error;
+    if (error && error.code !== "23505") throw error;
+    addedMeetParticipant = !error;
   }
 
-  const chatId = await getOrCreateMeetChat(eventId);
-  const { data: chatParticipant, error: chatCheckError } = await supabaseAdmin
-    .from("chat_participants").select("chat_id").eq("chat_id", chatId).eq("user_id", userId).maybeSingle();
-  if (chatCheckError) throw chatCheckError;
-  if (!chatParticipant) {
-    const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chatId, user_id: userId });
-    if (error) throw error;
+  try {
+    const chatId = await getOrCreateMeetChat(eventId);
+    const { data: chatParticipant, error: chatCheckError } = await supabaseAdmin
+      .from("chat_participants").select("chat_id").eq("chat_id", chatId).eq("user_id", userId).maybeSingle();
+    if (chatCheckError) throw chatCheckError;
+    if (!chatParticipant) {
+      const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chatId, user_id: userId });
+      if (error && error.code !== "23505") throw error;
+    }
+  } catch (error) {
+    if (addedMeetParticipant) {
+      const rollback = await supabaseAdmin.from("meet_participants").delete().eq("event_id", eventId).eq("user_id", userId);
+      if (rollback.error) console.error("MEET JOIN ROLLBACK ERROR:", { eventId, userId, code: rollback.error.code, message: rollback.error.message });
+    }
+    throw error;
   }
 }
 
@@ -115,7 +130,7 @@ export async function POST(request: Request) {
           }
         } else {
           const { error } = await supabaseAdmin.from("meet_join_requests").insert({ event_id: event.id, user_id: user.id });
-          if (error) throw error;
+          if (error && error.code !== "23505") throw error;
         }
       } else if (action === "cancel-request") {
         const { error } = await supabaseAdmin.from("meet_join_requests").delete().eq("event_id", event.id).eq("user_id", user.id).eq("status", "pending");

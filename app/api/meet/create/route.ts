@@ -59,6 +59,11 @@ export async function POST(request: Request) {
         .single();
       event = result.data;
       eventError = result.error;
+      if (eventError?.code === "23505") {
+        const retry = await supabaseAdmin.from("meet_events").select("id,creator_id").eq("id", eventId).maybeSingle();
+        event = retry.data;
+        eventError = retry.error;
+      }
     }
     if (eventError || !event) throw eventError ?? new Error("EVENT_CREATE_FAILED");
     if (event.creator_id !== user.id) return NextResponse.json({ ok: false, error: "EVENT_ID_CONFLICT" }, { status: 409 });
@@ -72,6 +77,11 @@ export async function POST(request: Request) {
       }).select("id").single();
       chat = result.data;
       chatError = result.error;
+      if (chatError?.code === "23505") {
+        const retry = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).maybeSingle();
+        chat = retry.data;
+        chatError = retry.error;
+      }
     }
     if (chatError || !chat) throw chatError ?? new Error("CHAT_CREATE_FAILED");
 
@@ -85,7 +95,7 @@ export async function POST(request: Request) {
     if (participantCheckError) throw participantCheckError;
     if (!participant) {
       const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chat.id, user_id: user.id });
-      if (error) throw error;
+      if (error && error.code !== "23505") throw error;
     }
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });

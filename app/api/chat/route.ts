@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 
     const validation = validateTelegramInitData(initData);
     if (validation.ok === false) {
+      console.error("CHAT API AUTH ERROR:", { stage: "validate-telegram", chatId, initDataPresent: Boolean(initData), error: validation.error });
       return NextResponse.json({ ok: false, error: validation.error }, { status: 403 });
     }
 
@@ -21,7 +22,10 @@ export async function POST(request: Request) {
       .select("id")
       .eq("telegram_id", validation.user.id)
       .single();
-    if (!user) return NextResponse.json({ ok: false, error: "USER_NOT_FOUND" }, { status: 404 });
+    if (!user) {
+      console.error("CHAT API USER ERROR:", { stage: "load-user", chatId, telegramId: validation.user.id });
+      return NextResponse.json({ ok: false, error: "USER_NOT_FOUND" }, { status: 404 });
+    }
 
     const { data: chat, error: chatError } = await supabaseAdmin
       .from("chats")
