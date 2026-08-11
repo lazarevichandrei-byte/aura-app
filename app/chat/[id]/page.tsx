@@ -150,6 +150,9 @@ useState(false);
 const firstLoadRef =
 useRef(true);
 
+const bootstrapChatIdRef =
+useRef<string | null>(null);
+
 const lastScrollTopRef =
 useRef(0);
 
@@ -861,7 +864,10 @@ resendFailedMessages();
 
 }
 
-  loadChat();
+  if(bootstrapChatIdRef.current !== chatId){
+    bootstrapChatIdRef.current = chatId;
+    loadChat();
+  }
 
   document.addEventListener(
     "visibilitychange",

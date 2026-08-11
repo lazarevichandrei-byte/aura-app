@@ -49,6 +49,8 @@ return 0;
 
 useEffect(()=>{
 
+router.prefetch("/chats");
+
 loadUnread();
 
 const channel =

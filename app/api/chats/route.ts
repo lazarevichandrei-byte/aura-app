@@ -18,8 +18,7 @@ export async function POST(req: Request){
       );
     }
 
-    const validation =
-  validateTelegramInitData(initData);
+    const validation = validateTelegramInitData(initData);
 
 if (validation.ok === false) {
   return NextResponse.json(
@@ -38,10 +37,9 @@ if (validation.ok === false) {
 
     const telegramId = validation.user.id;
 
-    const { data:user } =
-      await supabaseAdmin
+    const { data:user } = await supabaseAdmin
         .from("users")
-        .select("*")
+        .select("id")
         .eq(
           "telegram_id",
           telegramId
@@ -57,36 +55,21 @@ if (validation.ok === false) {
 
     }
 
-   const { data: personalChats } =
-  await supabaseAdmin
-    .from("chats")
-    .select("*")
-    .or(
-      `user1_id.eq.${user.id},user2_id.eq.${user.id}`
-    );
+   const [{ data: personalChats }, { data: participantRows }] = await Promise.all([
+     supabaseAdmin
+       .from("chats")
+       .select("id,event_id,user1_id,user2_id,last_message,last_message_at,unread_count,has_messages,liked_by,is_new_match")
+       .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`),
+     supabaseAdmin
+       .from("chat_participants")
+       .select("chat_id,chats!inner(id,event_id,user1_id,user2_id,last_message,last_message_at,unread_count,has_messages,liked_by,is_new_match)")
+       .eq("user_id", user.id)
+       .not("chats.event_id", "is", null),
+   ]);
 
-const { data: participantRows } =
-  await supabaseAdmin
-    .from("chat_participants")
-    .select("chat_id")
-    .eq("user_id", user.id);
-
-const meetChatIds = [
-  ...new Set(
-    (participantRows || []).map(
-      (row) => row.chat_id
-    )
-  )
-];
-
-const { data: meetChats } =
-  meetChatIds.length
-    ? await supabaseAdmin
-        .from("chats")
-        .select("*")
-        .in("id", meetChatIds)
-        .not("event_id", "is", null)
-    : { data: [] };
+const meetChats = (participantRows || [])
+  .map((row: any) => Array.isArray(row.chats) ? row.chats[0] : row.chats)
+  .filter(Boolean);
 
 const chatsRaw = [
   ...(personalChats || []),
@@ -117,34 +100,34 @@ const chatsRaw = [
   )
 ];
 
-const { data: meetEvents } =
-  meetEventIds.length
-    ? await supabaseAdmin
-        .from("meet_events")
-        .select(
-          "id, title, category, city, place, starts_at"
-        )
-        .in("id", meetEventIds)
-    : { data: [] };
-
-const meetEventsById = new Map(
-  (meetEvents || []).map(
-    (event) => [event.id, event]
-  )
-);
-
     const otherUserIds = [...new Set(
       (chatsRaw || []).map((chat) =>
         chat.user1_id === user.id ? chat.user2_id : chat.user1_id
-      )
+      ).filter(Boolean)
     )];
 
-    const { data: otherUsers } = otherUserIds.length
-      ? await supabaseAdmin
-          .from("users")
-          .select("id, name, avatar_url")
-          .in("id", otherUserIds)
-      : { data: [] };
+    const [meetEventsResult, otherUsersResult] = await Promise.all([
+      meetEventIds.length
+        ? supabaseAdmin
+            .from("meet_events")
+            .select("id,title,category")
+            .in("id", meetEventIds)
+        : Promise.resolve({ data: [] }),
+      otherUserIds.length
+        ? supabaseAdmin
+            .from("users")
+            .select("id,name,avatar_url")
+            .in("id", otherUserIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+    const meetEvents = meetEventsResult.data;
+    const otherUsers = otherUsersResult.data;
+
+    const meetEventsById = new Map(
+      (meetEvents || []).map(
+        (event) => [event.id, event]
+      )
+    );
 
     const usersById = new Map(
       (otherUsers || []).map((otherUser) => [otherUser.id, otherUser])
@@ -174,15 +157,6 @@ const meetEventsById = new Map(
 
       event_category:
         event?.category || null,
-
-      event_city:
-        event?.city || null,
-
-      event_place:
-        event?.place || null,
-
-      event_starts_at:
-        event?.starts_at || null,
 
       name:
         event?.title || "Встреча",
