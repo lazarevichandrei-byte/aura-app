@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { initData, chatId, action = "load", body, replyToId, replyPreview } = await request.json();
+    const { initData, chatId, action = "load", text, body, replyToId, replyPreview } = await request.json();
     if (!initData || !chatId) {
       return NextResponse.json({ ok: false, error: "MISSING_DATA" }, { status: 400 });
     }
@@ -26,7 +26,6 @@ export async function POST(request: Request) {
       console.error("CHAT API USER ERROR:", { stage: "load-user", chatId, telegramId: validation.user.id });
       return NextResponse.json({ ok: false, error: "USER_NOT_FOUND" }, { status: 404 });
     }
-
     const { data: chat, error: chatError } = await supabaseAdmin
       .from("chats")
       .select("*")
@@ -55,16 +54,37 @@ export async function POST(request: Request) {
     }
 
     if (action === "send") {
-      if (typeof body !== "string" || !body.trim()) {
+      const messageText = typeof text === "string" ? text : body;
+      if (typeof messageText !== "string" || !messageText.trim()) {
         return NextResponse.json({ ok: false, error: "EMPTY_MESSAGE" }, { status: 400 });
       }
       const { data: message, error } = await supabaseAdmin
         .from("messages")
-        .insert({ chat_id: chat.id, sender_id: user.id, body: body.trim(), message_type: "text", reply_to_id: replyToId || null, reply_preview: replyPreview || null })
+        .insert({ chat_id: chat.id, sender_id: user.id, body: messageText.trim(), message_type: "text", reply_to_id: replyToId || null, reply_preview: replyPreview || null })
         .select()
         .single();
       if (error) throw error;
-      return NextResponse.json({ ok: true, message });
+
+      const { error: metadataError } = await supabaseAdmin
+        .from("chats")
+        .update({
+          last_message: message.body,
+          last_message_at: message.created_at,
+          has_messages: true,
+        })
+        .eq("id", chat.id);
+      if (metadataError) {
+        console.error("MESSAGE METADATA ERROR:", {
+          chatId: chat.id,
+          internalUserId: user.id,
+          code: metadataError.code,
+          message: metadataError.message,
+          details: metadataError.details,
+          hint: metadataError.hint,
+        });
+      }
+
+      return NextResponse.json({ ok: true, message, currentUserId: user.id });
     }
 
     const [{ data: messages, error: messagesError }, eventResult, otherUserResult, participantsResult] = await Promise.all([
@@ -85,9 +105,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "MEET_NOT_FOUND" }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: true, chat, event: eventResult.data, participantCount: participantsResult.count, otherUser: otherUserResult.data, messages: messages ?? [] });
-  } catch (error) {
-    console.error("CHAT API ERROR:", error);
+    return NextResponse.json({ ok: true, currentUserId: user.id, chat, event: eventResult.data, participantCount: participantsResult.count, otherUser: otherUserResult.data, messages: messages ?? [] });
+  } catch (error: any) {
+    console.error("CHAT API ERROR:", {
+      code: error?.code,
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+    });
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
   }
 }

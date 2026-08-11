@@ -31,6 +31,7 @@ import {
 import { sendMessageNotification } from "../../../lib/notifications/messages";
 import { getOnlineStatus } from "../../../lib/user/getOnlineStatus";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
+import { useNotification } from "../../../components/NotificationContext";
 import MeetCategoryAvatar from "../../../components/meet/MeetCategoryAvatar";
 
 import { MessageBubble }
@@ -40,6 +41,7 @@ export default function ChatPage(){
 
 const router = useRouter();
 const params = useParams();
+const { error: showNotificationError } = useNotification();
 
 const chatId =
 params.id as string;
@@ -715,6 +717,9 @@ async function fetchChatUser(){
   if (!response.ok || !result.ok) {
     console.error("CHAT BOOTSTRAP ERROR:", { chatId, currentUserId: userId, stage: "bootstrap", error: result.error });
     throw new Error(result.error === "CHAT_ACCESS_DENIED" ? "Нет доступа к этому чату" : "Чат не найден");
+  }
+  if(result.currentUserId){
+    setUserId(result.currentUserId);
   }
   const chat = result.chat;
   const initialMessages = [...(result.messages || [])].reverse();
@@ -1464,29 +1469,13 @@ async function processOfflineQueue(){
   offlineQueueRef.current = [];
 
   for(const item of queued){
-
-    const { error } =
-    await supabase
-      .from("messages")
-      .insert({
-
-        chat_id:chatId,
-
-        sender_id:userId,
-
-        body:item.body,
-
-        message_type:"text",
-
-        reply_to_id:
-          item.replyTo?.id || null,
-
-        reply_preview:
-          item.replyTo?.body || null
-
-      });
-
-    if(error){
+    try {
+      await sendChatMessage(
+        item.body,
+        item.replyTo?.id || null,
+        item.replyTo?.body || null
+      );
+    } catch {
 
       offlineQueueRef.current.push(
         item
@@ -1498,13 +1487,39 @@ async function processOfflineQueue(){
 
 }
 
+async function sendChatMessage(
+  text:string,
+  replyToId:string | null,
+  replyPreview:string | null
+){
+  const initData = await getTelegramInitData();
+  if(!initData) throw new Error("TELEGRAM_AUTH_REQUIRED");
+
+  const response = await fetch("/api/chat", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      initData,
+      chatId,
+      action:"send",
+      text,
+      replyToId,
+      replyPreview
+    })
+  });
+  const result = await response.json().catch(() => null);
+  if(!response.ok || !result?.ok){
+    throw new Error(result?.error || "MESSAGE_SEND_FAILED");
+  }
+  if(result.currentUserId && userId === null){
+    setUserId(result.currentUserId);
+  }
+  return result.message;
+}
+
 async function resendMessage(
   failedMsg:any
 ){
-
-  if(userId === null){
-    return;
-  }
 
   setMessages(prev =>
 
@@ -1521,30 +1536,14 @@ async function resendMessage(
 
   );
 
-  const { data,error } =
-  await supabase
-    .from("messages")
-    .insert({
-
-      chat_id:chatId,
-
-      sender_id:userId,
-
-      body:failedMsg.body,
-
-      message_type:"text",
-
-      reply_to_id:
-        failedMsg.reply_to_id || null,
-
-      reply_preview:
-        failedMsg.reply_preview || null
-
-    })
-    .select()
-    .single();
-
-  if(error){
+  let data:any = null;
+  try {
+    data = await sendChatMessage(
+      failedMsg.body,
+      failedMsg.reply_to_id || null,
+      failedMsg.reply_preview || null
+    );
+  } catch {
 
     setMessages(prev =>
 
@@ -1589,6 +1588,7 @@ async function resendMessage(
 async function sendMessage(){
 
   if(userId === null){
+    showNotificationError("Ошибка", "Не удалось определить отправителя сообщения");
     return;
   }
 
@@ -1613,6 +1613,7 @@ if(!navigator.onLine){
 }
 
 const text = newMessage;
+const messageReply = replyTo;
 
 const optimisticId =
   `temp-${Date.now()}`;
@@ -1691,41 +1692,14 @@ await updateTyping(false);
 setSending(true);
 let data: any = null;
 let error: any = null;
-if (meetEvent) {
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        initData: await getTelegramInitData(),
-        chatId,
-        action: "send",
-        body: text,
-        replyToId: replyTo?.id || null,
-        replyPreview: replyTo?.body || null,
-      }),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.ok) throw new Error(result.error || "MESSAGE_SEND_FAILED");
-    data = result.message;
-  } catch (sendError) {
-    error = sendError;
-  }
-} else {
-  const result = await supabase
-    .from("messages")
-    .insert({
-      chat_id:chatId,
-      sender_id:userId,
-      body:text,
-      message_type:"text",
-      reply_to_id: replyTo?.id || null,
-      reply_preview: replyTo?.body || null
-    })
-    .select()
-    .single();
-  data = result.data;
-  error = result.error;
+try {
+  data = await sendChatMessage(
+    text,
+    messageReply?.id || null,
+    messageReply?.body || null
+  );
+} catch (sendError) {
+  error = sendError;
 }
 
 
@@ -1746,6 +1720,8 @@ if(error){
 
   );
 
+  setNewMessage(text);
+  showNotificationError("Ошибка", "Не удалось отправить сообщение");
   setSending(false);
 
   return;
@@ -1804,23 +1780,6 @@ if (receiverId) {
 }
 
 
-
-const { data: chatData } = await supabase
-  .from("chats")
-  .select("unread_count")
-  .eq("id",chatId)
-  .single();
-
-const { error: updateError } = await supabase
-.from("chats")
-.update({
-  last_message: text,
-  last_message_at: new Date().toISOString(),
-  has_messages: true,
-  unread_count:
-    (chatData?.unread_count || 0) + 1
-})
-.eq("id", chatId);
 
 window.dispatchEvent(
 
