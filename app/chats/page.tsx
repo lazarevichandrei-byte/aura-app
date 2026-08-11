@@ -13,6 +13,7 @@ import BottomNav from "../../components/BottomNav";
 import AuraLoader from "../../components/AuraLoader";
 import { createChatIfNotExists } from "../../lib/chat/api";
 import { useCurrentUser } from "../../lib/useCurrentUser";
+import MeetCategoryAvatar from "../../components/meet/MeetCategoryAvatar";
 
 const MAX_LIST_PRESENCE_CHATS = 20;
 
@@ -84,17 +85,25 @@ cursor:"pointer"
 }}
 >
 
-<img
-loading="lazy"
-decoding="async"
-src={chat.avatar || "/girl1.jpg"}
-style={{
-width:60,
-height:60,
-borderRadius:"50%",
-objectFit:"cover"
-}}
-/>
+{chat.is_meet_chat ? (
+  <MeetCategoryAvatar category={chat.event_category} size={60} />
+) : (
+  chat.avatar ? (
+    <img
+      loading="lazy"
+      decoding="async"
+      src={chat.avatar}
+      style={{
+        width:60,
+        height:60,
+        borderRadius:"50%",
+        objectFit:"cover"
+      }}
+    />
+  ) : (
+    <div style={{width:60,height:60,borderRadius:"50%",background:"#EEF1F4",display:"grid",placeItems:"center",fontSize:26,flexShrink:0}}>👤</div>
+  )
+)}
 
 <div style={{
 flex:1,
@@ -761,15 +770,19 @@ console.log("UPDATE ERROR:", error);
               : "2px solid #E6EBF3",
           }}
         >
-          <img
-            src={chat.avatar || "/girl1.jpg"}
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
-          />
+          {chat.avatar ? (
+            <img
+              src={chat.avatar}
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div style={{width:"100%",height:"100%",borderRadius:"50%",background:"#EEF1F4",display:"grid",placeItems:"center",fontSize:28}}>👤</div>
+          )}
 
           <div
             style={{

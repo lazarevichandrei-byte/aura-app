@@ -31,6 +31,7 @@ import {
 import { sendMessageNotification } from "../../../lib/notifications/messages";
 import { getOnlineStatus } from "../../../lib/user/getOnlineStatus";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
+import MeetCategoryAvatar from "../../../components/meet/MeetCategoryAvatar";
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -704,7 +705,7 @@ unread_count:0
 
 async function fetchChatUser(){
   const initData = await getTelegramInitData();
-  if (!initData || userId === null) throw new Error("Не удалось подтвердить пользователя Telegram");
+  if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -2693,21 +2694,7 @@ cursor:"pointer"
   {meetEvent ? (
 
     <>
-      <div
-        style={{
-          width:38,
-          height:38,
-          borderRadius:"50%",
-          background:"#EEF4FF",
-          display:"flex",
-          alignItems:"center",
-          justifyContent:"center",
-          flexShrink:0,
-          fontSize:18
-        }}
-      >
-        📍
-      </div>
+      <MeetCategoryAvatar category={meetEvent.category} size={38} />
 
       <div
         style={{
@@ -2748,19 +2735,20 @@ cursor:"pointer"
   ) : (
 
     <>
-      <img
-        src={
-          otherUser?.avatar_url ||
-          "/placeholder.jpg"
-        }
-        alt="user"
-        style={{
-          width:36,
-          height:36,
-          borderRadius:"50%",
-          objectFit:"cover"
-        }}
-      />
+      {otherUser?.avatar_url ? (
+        <img
+          src={otherUser.avatar_url}
+          alt="user"
+          style={{
+            width:36,
+            height:36,
+            borderRadius:"50%",
+            objectFit:"cover"
+          }}
+        />
+      ) : (
+        <div style={{width:36,height:36,borderRadius:"50%",background:"#EEF1F4",display:"grid",placeItems:"center",fontSize:18}}>👤</div>
+      )}
 
       <div
         style={{

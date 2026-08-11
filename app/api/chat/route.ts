@@ -39,12 +39,14 @@ export async function POST(request: Request) {
 
     let allowed = chat.user1_id === user.id || chat.user2_id === user.id;
     if (chat.event_id) {
-      const { data: participant } = await supabaseAdmin
+      const { data: participant, error: participantError } = await supabaseAdmin
         .from("chat_participants")
-        .select("chat_id")
+        .select("chat_id,user_id")
         .eq("chat_id", chat.id)
         .eq("user_id", user.id)
+        .limit(1)
         .maybeSingle();
+      if (participantError) throw participantError;
       allowed = Boolean(participant);
     }
     if (!allowed) {

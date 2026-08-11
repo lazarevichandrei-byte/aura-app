@@ -187,8 +187,10 @@ const meetEventsById = new Map(
       name:
         event?.title || "Встреча",
 
-      avatar:
-        "/girl1.jpg"
+      avatar: null,
+
+      category_avatar:
+        event?.category || "other"
     };
   }
 
@@ -209,8 +211,7 @@ const meetEventsById = new Map(
       otherUser?.name || "Без имени",
 
     avatar:
-      otherUser?.avatar_url ||
-      "/girl1.jpg"
+      otherUser?.avatar_url || null
   };
 
 });
