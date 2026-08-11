@@ -203,7 +203,7 @@ layoutId={event.id}
                             cursor: "pointer",
                         }}
                     >
-                        Вступить
+                        {event.join_type === "approval" ? "Заявка" : "Вступить"}
                     </button>
 
                 )}

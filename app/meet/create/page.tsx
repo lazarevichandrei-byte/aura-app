@@ -200,7 +200,7 @@ useEffect(() => {
       }),
     });
     const result = await response.json();
-    if (!response.ok || !result.ok) throw new Error(result.error || "Не удалось создать встречу");
+    if (!response.ok || !result.ok) throw new Error(result.message || "Не удалось создать встречу. Попробуйте ещё раз.");
 
     sessionStorage.removeItem("meet_draft");
 sessionStorage.removeItem("meet_location");

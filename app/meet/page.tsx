@@ -10,6 +10,7 @@ import {
   joinMeetEvent,
   leaveMeetEvent,
   deleteMeetEvent,
+  sendJoinRequest,
 } from "../../lib/meet/api";
 import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
@@ -21,6 +22,7 @@ import type { MeetEvent } from "../../lib/meet/types";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 import { useNotification } from "../../components/NotificationContext";
 import { supabase } from "../../lib/supabase";
+import { getMeetGuestCount } from "../../lib/meet/participants";
 
 
 export default function MeetPage() {
@@ -147,6 +149,23 @@ async function handleJoin(eventId: string) {
 
     await load();
 
+  }
+}
+
+async function handleCardAction(event: MeetEvent) {
+  if (!currentUser) return;
+  if (event.join_type === "open") {
+    await handleJoin(event.id);
+    return;
+  }
+  try {
+    await sendJoinRequest(event.id, currentUser.id);
+    await syncEvent(event.id);
+    success("Заявка отправлена", "Организатор увидит вашу заявку.");
+    setSelectedEvent((current) => current?.id === event.id ? { ...current } : current);
+  } catch (error) {
+    console.error("MEET REQUEST ERROR:", error);
+    showError("Не удалось отправить заявку", "Попробуйте ещё раз.");
   }
 }
 
@@ -588,7 +607,7 @@ duration:.28,
     currentUser?.id === event.users?.id;
 
   const isFull =
-    (event.meet_participants?.length ?? 0) >= event.max_people;
+    getMeetGuestCount(event) >= event.max_people;
 
   return (
 
@@ -601,7 +620,7 @@ view === "list" ? (
     isParticipant={isParticipant}
     isFull={isFull}
     onClick={() => setSelectedEvent(event)}
-    onJoin={() => handleJoin(event.id)}
+    onJoin={() => handleCardAction(event)}
 />
 
 ) : (
@@ -613,7 +632,7 @@ view === "list" ? (
     isParticipant={isParticipant}
     isFull={isFull}
     onClick={() => setSelectedEvent(event)}
-    onJoin={() => handleJoin(event.id)}
+    onJoin={() => handleCardAction(event)}
 />
 
 )

@@ -50,15 +50,27 @@ async function getOrCreateMeetChat(eventId: string) {
 }
 
 async function addParticipant(eventId: string, userId: string) {
-  const chatId = await getOrCreateMeetChat(eventId);
+  const { data: event, error: eventError } = await supabaseAdmin
+    .from("meet_events").select("creator_id,max_people").eq("id", eventId).single();
+  if (eventError || !event) throw eventError ?? new Error("MEET_NOT_FOUND");
+  if (event.creator_id === userId) return;
+
   const { data: meetParticipant, error: meetCheckError } = await supabaseAdmin
     .from("meet_participants").select("event_id").eq("event_id", eventId).eq("user_id", userId).maybeSingle();
   if (meetCheckError) throw meetCheckError;
   if (!meetParticipant) {
+    const { count, error: countError } = await supabaseAdmin
+      .from("meet_participants")
+      .select("user_id", { count: "exact", head: true })
+      .eq("event_id", eventId)
+      .neq("user_id", event.creator_id);
+    if (countError) throw countError;
+    if ((count ?? 0) >= event.max_people) throw new Error("MEET_FULL");
     const { error } = await supabaseAdmin.from("meet_participants").insert({ event_id: eventId, user_id: userId });
     if (error) throw error;
   }
 
+  const chatId = await getOrCreateMeetChat(eventId);
   const { data: chatParticipant, error: chatCheckError } = await supabaseAdmin
     .from("chat_participants").select("chat_id").eq("chat_id", chatId).eq("user_id", userId).maybeSingle();
   if (chatCheckError) throw chatCheckError;

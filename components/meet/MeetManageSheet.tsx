@@ -10,7 +10,6 @@ type Props = {
   onParticipants: () => void;
   onRequests: () => void;
   onChat: () => void;
-  onDelete: () => void;
   pendingRequests?: number;
   showRequests?: boolean;
 };
@@ -40,7 +39,6 @@ export default function MeetManageSheet({
   onParticipants,
   onRequests,
   onChat,
-  onDelete,
   pendingRequests = 0,
   showRequests = true,
 }: Props) {
@@ -121,48 +119,6 @@ export default function MeetManageSheet({
         </motion.button>
       ))}
 
-      <div
-        style={{
-          margin: "10px 0 18px",
-          height: 1,
-          background: "#ECECEC",
-        }}
-      />
-
-      <motion.button
-        whileTap={{ scale: 0.98 }}
-        onClick={onDelete}
-        style={{
-          width: "100%",
-          height: 74,
-          border: "1px solid #FECACA",
-          background: "#FFF5F5",
-          borderRadius: 18,
-          padding: "0 18px",
-          cursor: "pointer",
-          textAlign: "left",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 17,
-            fontWeight: 700,
-            color: "#DC2626",
-          }}
-        >
-          🗑️ Удалить встречу
-        </div>
-
-        <div
-          style={{
-            marginTop: 4,
-            fontSize: 13,
-            color: "#EF4444",
-          }}
-        >
-          Это действие нельзя отменить
-        </div>
-      </motion.button>
     </BottomSheet>
   );
 }

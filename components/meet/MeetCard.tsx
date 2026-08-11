@@ -14,6 +14,7 @@ import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
 import DeleteMeetSheet from "./DeleteMeetSheet";
 import { useNotification } from "../NotificationContext";
+import { getMeetGuests } from "../../lib/meet/participants";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -41,6 +42,7 @@ export default function MeetCard({
 
   const organizerName = event.users?.name || "Организатор";
   const organizerAvatar = event.users?.avatar_url;
+  const guests = getMeetGuests(event);
 
   const isParticipant =
     !!currentUserId &&
@@ -49,7 +51,7 @@ export default function MeetCard({
     );
 
 const isFull =
-  (event.meet_participants?.length ?? 0) >= event.max_people;
+  guests.length >= event.max_people;
 
 const isCreator =
   currentUserId === event.users?.id;
@@ -340,7 +342,7 @@ lineHeight: 1.25,
         marginBottom: 8,
       }}
     >
-      {event.meet_participants?.slice(0, 5).map((participant, index) => (
+      {guests.slice(0, 5).map((participant, index) => (
         <img
           key={participant.users.id}
           src={participant.users.avatar_url || "/avatar-placeholder.png"}
@@ -357,7 +359,7 @@ lineHeight: 1.25,
         />
       ))}
 
-      {(event.meet_participants?.length ?? 0) > 5 && (
+      {guests.length > 5 && (
         <div
           style={{
             width: 38,
@@ -372,7 +374,7 @@ lineHeight: 1.25,
             border: "2px solid #fff",
           }}
         >
-          +{(event.meet_participants?.length ?? 0) - 5}
+          +{guests.length - 5}
         </div>
       )}
     </div>
@@ -398,7 +400,7 @@ lineHeight: 1.25,
         color: "#111827",
       }}
     >
-      👥 {event.meet_participants?.length ?? 0} / {event.max_people}
+      👥 {guests.length} / {event.max_people}
     </div>
 
     <div
@@ -450,6 +452,7 @@ lineHeight: 1.25,
         >
           
 {isCreator ? (
+  <>
   <div
     onClick={() => setManageOpen(true)}
     style={{
@@ -469,6 +472,25 @@ lineHeight: 1.25,
   >
     ⚙️ Управление встречей{pendingRequests > 0 ? ` · Заявки ${pendingRequests}` : ""}
   </div>
+  <button
+    type="button"
+    onClick={() => setDeleteOpen(true)}
+    style={{
+      width:"100%",
+      height:44,
+      border:"1px solid #FECACA",
+      borderRadius:14,
+      background:"transparent",
+      color:"#DC2626",
+      fontSize:14,
+      fontWeight:600,
+      cursor:"pointer",
+      marginBottom:16,
+    }}
+  >
+    Удалить встречу
+  </button>
+  </>
 ) : (
   <>
     <button
@@ -678,10 +700,6 @@ lineHeight: 1.25,
   }}
   pendingRequests={pendingRequests}
   showRequests={event.join_type === "approval"}
-  onDelete={() => {
-    setManageOpen(false);
-    setDeleteOpen(true);
-  }}
 />
 
       <DeleteMeetSheet

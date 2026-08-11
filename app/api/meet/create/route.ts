@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });
   } catch (error: any) {
-    console.error("MEET CREATE API ERROR:", { code: error?.code, message: error?.message });
-    return NextResponse.json({ ok: false, error: "CREATE_FAILED" }, { status: 500 });
+    console.error("MEET CREATE API ERROR:", { step: "orchestration", code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
+    return NextResponse.json({ ok: false, error: "CREATE_FAILED", message: "Не удалось создать встречу. Попробуйте ещё раз." }, { status: 500 });
   }
 }

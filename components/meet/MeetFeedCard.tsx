@@ -8,6 +8,7 @@ import {
     People,
 } from "iconsax-react";
 import type { MeetEvent } from "../../lib/meet/types";
+import { getMeetGuests } from "../../lib/meet/participants";
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
 type Props = {
     event: MeetEvent;
@@ -26,6 +27,7 @@ export default function MeetFeedCard({
     onClick,
     onJoin,
 }: Props) {
+  const guests = getMeetGuests(event);
 
     return (
 
@@ -254,7 +256,7 @@ layoutId={event.id}
         }}
     >
 
-        {(event.meet_participants ?? [])
+        {guests
             .slice(0, 4)
             .map((participant: any, index: number) => (
 
@@ -295,7 +297,7 @@ layoutId={event.id}
             color="#2AABEE"
         />
 
-        {event.meet_participants?.length ?? 0}
+        {guests.length}
         /
         {event.max_people}
 
@@ -364,7 +366,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                      Вступить
+                      {event.join_type === "approval" ? "Подать заявку" : "Вступить"}
                     </motion.button>
 
                 )}

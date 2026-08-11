@@ -168,8 +168,8 @@ if (loading) {
                 color: "#7B8595",
             }}
         >
-            {participants.length} из {event?.max_people ?? 0} участников • Свободно{" "}
-{(event?.max_people ?? 0) - participants.length}
+            {participants.filter((participant: any) => participant.users.id !== event?.creator_id).length} из {event?.max_people ?? 0} участников • Свободно{" "}
+{Math.max(0, (event?.max_people ?? 0) - participants.filter((participant: any) => participant.users.id !== event?.creator_id).length)}
         </div>
     </div>
 </motion.div>
