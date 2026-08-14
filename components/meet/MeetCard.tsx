@@ -15,6 +15,7 @@ import MeetManageSheet from "./MeetManageSheet";
 import { useNotification } from "../NotificationContext";
 import { getMeetGuests } from "../../lib/meet/participants";
 import MeetDeleteSlider from "./MeetDeleteSlider";
+import { meetCountdown } from "../../lib/meet/time";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -82,11 +83,7 @@ useEffect(() => {
   return () => clearInterval(timer);
 }, []);
 
-const expiresAt = event.expires_at
-  ? new Date(event.expires_at).getTime()
-  : 0;
-
-const remaining = Math.max(0, expiresAt - now);
+const countdown = meetCountdown(event.starts_at, event.expires_at, now);
 
 useEffect(() => {
   if (!currentUserId || isParticipant) return;
@@ -99,12 +96,6 @@ useEffect(() => {
   event.id,
   isParticipant,
 ]);
-
-const totalMinutes = Math.floor(remaining / 60000);
-
-const hours = Math.floor(totalMinutes / 60);
-const minutes = totalMinutes % 60;
-
 
 const isApproval =
   event.join_type === "approval";
@@ -149,18 +140,6 @@ useEffect(() => {
     void supabase.removeChannel(channel);
   };
 }, [currentUserId, event.id, isApproval, isCreator]);
-
-let remainingText = "";
-
-
-
-if (totalMinutes <= 0) {
-  remainingText = "Встреча завершена";
-} else if (hours > 0) {
-  remainingText = `⏳ Осталось ${hours} ч ${minutes} мин`;
-} else {
-  remainingText = `⏳ Осталось ${minutes} мин`;
-}
 
   const buttonStyle: CSSProperties = {
     width: "100%",
@@ -314,11 +293,11 @@ lineHeight: 1.25,
       gap: 6,
       padding: "6px 10px",
       background:
-        totalMinutes <= 10
+        countdown.urgent
           ? "#FEE2E2"
           : "#ECFDF5",
       color:
-        totalMinutes <= 10
+        countdown.urgent
           ? "#DC2626"
           : "#059669",
       borderRadius: 12,
@@ -326,7 +305,7 @@ lineHeight: 1.25,
       fontWeight: 700,
     }}
   >
-    {remainingText}
+    ⏳ {countdown.text}
   </div>
 </div>
 

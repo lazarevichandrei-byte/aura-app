@@ -15,8 +15,10 @@ import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
 import CategoryPicker from "../../../components/meet/CategoryPicker";
 import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
+import MeetTimePicker from "../../../components/meet/MeetTimePicker";
+import MeetDurationSelector from "../../../components/meet/MeetDurationSelector";
 import { useNotification } from "../../../components/NotificationContext";
-import { localMeetDateTimeToIso, localToday } from "../../../lib/meet/time";
+import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, nextMeetTimeSuggestion, type MeetDuration } from "../../../lib/meet/time";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
 export default function CreateMeetPage() {
     
@@ -52,9 +54,7 @@ useState("");
 const [maxPeople,setMaxPeople] =
 useState(1);
 
-const [duration, setDuration] = useState<
-  "30m" | "1h" | "2h" | "day"
->("1h");
+const [duration, setDuration] = useState<MeetDuration>("1h");
 
 const [joinType, setJoinType] = useState<
   "open" | "approval"
@@ -65,13 +65,19 @@ useState(false);
 
   const [category,setCategory] = useState("coffee");
 
-  const [categorySheetOpen, setCategorySheetOpen] =
+const [categorySheetOpen, setCategorySheetOpen] =
 useState(false);
+const [timePickerOpen, setTimePickerOpen] = useState(false);
 
 useEffect(() => {
   const raw = sessionStorage.getItem("meet_draft");
 
-  if (!raw) return;
+  if (!raw) {
+    const suggestion = nextMeetTimeSuggestion();
+    setDate(suggestion.date);
+    setTime(suggestion.time);
+    return;
+  }
 
   try {
     const draft = JSON.parse(raw);
@@ -79,11 +85,12 @@ useEffect(() => {
     setTitle(draft.title ?? "");
     setDescription(draft.description ?? "");
     setCategory(draft.category ?? "coffee");
-    setDate(draft.date ?? "");
-    setTime(draft.time ?? "");
+    const suggestion = nextMeetTimeSuggestion();
+    setDate(draft.date || suggestion.date);
+    setTime(draft.time || suggestion.time);
     setMaxPeople(draft.maxPeople ?? 1);
     setDuration(
-  (draft.duration as "30m" | "1h" | "2h" | "day") ?? "1h"
+  (draft.duration as MeetDuration) ?? "1h"
 );
 
 setJoinType(
@@ -161,8 +168,8 @@ useEffect(() => {
     showError("Некорректная дата", "Проверьте дату и время встречи.");
     return;
   }
-  if (new Date(startsAt).getTime() <= Date.now()) {
-    showError("Время уже прошло", "Выберите время позже текущего.");
+  if (!isMeetStartSafelyFuture(startsAt)) {
+    showError("Некорректное время", "Выберите время позже текущего.");
     return;
   }
 
@@ -235,13 +242,6 @@ useEffect(() => {
 }
 
 }
-
-const DURATION_OPTIONS = [
-  { id: "30m", label: "30 минут" },
-  { id: "1h", label: "1 час" },
-  { id: "2h", label: "2 часа" },
-  { id: "day", label: "До конца дня" },
-] as const;
 
   return (
 
@@ -381,18 +381,15 @@ flex:1
 🕒 Время
 </div>
 
-<input
+<button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",color:time?"#111":"#8A94A3",cursor:"pointer"}}>
+  {time || "Выберите время"}
+</button>
 
-type="time"
-
-value={time}
-
-onChange={(e)=>
-setTime(e.target.value)
-}
-
-style={inputStyle}
-
+<MeetTimePicker
+  open={timePickerOpen}
+  value={time}
+  onClose={() => setTimePickerOpen(false)}
+  onChange={setTime}
 />
 
 </div>
@@ -405,38 +402,10 @@ style={inputStyle}
     marginTop: 16,
   }}
 >
-⏱️ Встреча доступна
+⏱️ Продолжительность
 </div>
 
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 10,
-  }}
->
-  {DURATION_OPTIONS.map((item) => (
-    <div
-      key={item.id}
-      onClick={() => setDuration(item.id)}
-      style={{
-        height: 48,
-        borderRadius: 14,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-        transition: ".15s",
-        fontWeight: 600,
-        background: duration === item.id ? "#2F80FF" : "#fff",
-        color: duration === item.id ? "#fff" : "#222",
-        boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-      }}
-    >
-      {item.label}
-    </div>
-  ))}
-</div>
+<MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
 
 <div
   style={{

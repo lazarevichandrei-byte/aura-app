@@ -14,8 +14,13 @@ import {
 } from "../../../../lib/meet/api";
 import LocationCard from "../../../../components/meet/LocationCard";
 import PeopleSelector from "../../../../components/meet/PeopleSelector";
+import CategoryPicker from "../../../../components/meet/CategoryPicker";
+import CategoryBottomSheet from "../../../../components/meet/CategoryBottomSheet";
+import MeetTimePicker from "../../../../components/meet/MeetTimePicker";
+import MeetDurationSelector from "../../../../components/meet/MeetDurationSelector";
 import { useNotification } from "../../../../components/NotificationContext";
-import { localMeetDateTimeToIso, localToday, meetIsoToLocalInputs } from "../../../../lib/meet/time";
+import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, meetIsoToLocalInputs, type MeetDuration } from "../../../../lib/meet/time";
+import { MEET_CATEGORIES } from "../../../../lib/meet/categories";
 
 
 export default function EditMeetPage() {
@@ -40,7 +45,9 @@ const [longitude, setLongitude] =
 
 const [date, setDate] = useState("");
 const [time, setTime] = useState("");
-const [duration, setDuration] = useState<"30m" | "1h" | "2h" | "day">("1h");
+const [duration, setDuration] = useState<MeetDuration>("1h");
+const [categorySheetOpen, setCategorySheetOpen] = useState(false);
+const [timePickerOpen, setTimePickerOpen] = useState(false);
 
 const [maxPeople, setMaxPeople] = useState(1);
 
@@ -111,8 +118,8 @@ async function handleSave() {
       showError("Некорректная дата", "Укажите дату и время встречи.");
       return;
     }
-    if (new Date(startsAt).getTime() <= Date.now()) {
-      showError("Время уже прошло", "Выберите время позже текущего.");
+    if (!isMeetStartSafelyFuture(startsAt)) {
+      showError("Некорректное время", "Выберите время позже текущего.");
       return;
     }
     await updateMeetEvent(id as string, {
@@ -261,6 +268,31 @@ if (loading) {
 </div>
 
   <div
+    style={{
+      background: "#fff",
+      borderRadius: 18,
+      padding: 18,
+      border: "1px solid rgba(15,23,42,.05)",
+      boxShadow: "0 4px 12px rgba(15,23,42,.04)",
+    }}
+  >
+    <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Категория</div>
+    <CategoryPicker
+      value={MEET_CATEGORIES.find((item) => item.id === category) ?? null}
+      onClick={() => setCategorySheetOpen(true)}
+    />
+    <CategoryBottomSheet
+      open={categorySheetOpen}
+      value={category}
+      onClose={() => setCategorySheetOpen(false)}
+      onSelect={(nextCategory) => {
+        setCategory(nextCategory);
+        setCategorySheetOpen(false);
+      }}
+    />
+  </div>
+
+  <div
   style={{
     background: "#fff",
     borderRadius: 18,
@@ -354,8 +386,14 @@ if (loading) {
   </div>
   <div style={{flex:1}}>
     <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Время</div>
-    <input type="time" value={time} onChange={(event)=>setTime(event.target.value)} style={inputStyle} />
+    <button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",cursor:"pointer"}}>{time || "Выберите время"}</button>
+    <MeetTimePicker open={timePickerOpen} value={time} onClose={() => setTimePickerOpen(false)} onChange={setTime} />
   </div>
+</div>
+
+<div>
+  <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Продолжительность</div>
+  <MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
 </div>
 
   <button
