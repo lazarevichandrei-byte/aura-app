@@ -18,6 +18,7 @@ import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
 import MeetViewSwitcher from "../../components/meet/MeetViewSwitcher";
 import MeetFeedCard from "../../components/meet/MeetFeedCard";
 import MeetGridCard from "../../components/meet/MeetGridCard";
+import CategoryBottomSheet from "../../components/meet/CategoryBottomSheet";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 import { useNotification } from "../../components/NotificationContext";
@@ -757,82 +758,20 @@ view === "list" ? (
       </span>
     </div>
 
-    <div
-  onClick={(e) => e.stopPropagation()}
-  style={{
-    marginTop: 8,
-    borderRadius: 16,
-    background: "rgba(255,255,255,.88)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    boxShadow: "0 12px 28px rgba(0,0,0,.15)",
-
-    maxHeight: categoryMenuOpen ? 260 : 0,
-    opacity: categoryMenuOpen ? 1 : 0,
-
-    transform: categoryMenuOpen
-      ? "translateY(0)"
-      : "translateY(-10px)",
-
-    transition:
-      "all .28s cubic-bezier(.22,.61,.36,1)",
-
-    pointerEvents: categoryMenuOpen
-      ? "auto"
-      : "none",
-
-    overflow: "hidden",
-    overflowY: "auto",
-  }}
->
-
-        <div
-          onClick={() => {
-            setSelectedCategory(null);
-            setCategoryMenuOpen(false);
-          }}
-          style={{
-            padding: "11px 14px",
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
-          ✓ Все
-        </div>
-
-        {MEET_CATEGORIES.map((item) => (
-
-          <div
-            key={item.id}
-            onClick={() => {
-              setSelectedCategory(item.id);
-              setCategoryMenuOpen(false);
-            }}
-            style={{
-              padding: "11px 14px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              cursor: "pointer",
-              background:
-                selectedCategory === item.id
-                  ? "rgba(47,128,255,.08)"
-                  : "transparent",
-            }}
-          >
-            <span>{item.icon}</span>
-            <span>{item.name}</span>
-          </div>
-
-        ))}
-
-      </div>
-
-    
-
   </div>
 
 </div>
+
+<CategoryBottomSheet
+  open={categoryMenuOpen}
+  value={selectedCategory}
+  allowAll
+  onClose={() => setCategoryMenuOpen(false)}
+  onSelect={(categoryId) => {
+    setSelectedCategory(categoryId);
+    setCategoryMenuOpen(false);
+  }}
+/>
 
 </>
 

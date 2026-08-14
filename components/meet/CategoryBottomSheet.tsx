@@ -1,135 +1,216 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MEET_CATEGORIES } from "../../lib/meet/categories";
+import { AnimatePresence, motion } from "motion/react";
+import BottomSheet from "../BottomSheet";
+import { CATEGORY_GROUPS, MEET_CATEGORIES } from "../../lib/meet/categories";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  value: string;
-  onSelect: (id: string) => void;
+  value: string | null;
+  onSelect: (id: string | null) => void;
+  allowAll?: boolean;
 };
 
-export default function CategoryBottomSheet({ open, onClose, value, onSelect }: Props) {
-  const [rendered, setRendered] = useState(open);
-  const [closing, setClosing] = useState(false);
+export default function CategoryBottomSheet({
+  open,
+  onClose,
+  value,
+  onSelect,
+  allowAll = false,
+}: Props) {
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open) {
-      setRendered(true);
-      setClosing(false);
-      return;
-    }
-    if (!rendered) return;
-    setClosing(true);
-    const timer = window.setTimeout(() => {
-      setRendered(false);
-      setClosing(false);
-    }, 240);
-    return () => window.clearTimeout(timer);
-  }, [open, rendered]);
-
-  useEffect(() => {
-    if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
+    if (open) setSelectedGroup(null);
   }, [open]);
 
-  if (!rendered) return null;
+  const closeSheet = () => {
+    setSelectedGroup(null);
+    onClose();
+  };
+
+  const selectCategory = (categoryId: string | null) => {
+    onSelect(categoryId);
+    closeSheet();
+  };
+
+  const selectedGroupName = CATEGORY_GROUPS.find(
+    (group) => group.id === selectedGroup
+  )?.name;
 
   return (
-    <div style={overlayStyle} role="dialog" aria-modal="true" aria-label="Выберите категорию">
-      <style>{`@keyframes meetBackdropIn{from{opacity:0}to{opacity:1}}@keyframes meetBackdropOut{from{opacity:1}to{opacity:0}}@keyframes meetSheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes meetSheetOut{from{transform:translateY(0)}to{transform:translateY(100%)}}`}</style>
-      <button aria-label="Закрыть" onClick={onClose} style={{...backdropStyle,animation:closing?"meetBackdropOut .24s ease both":"meetBackdropIn .24s ease both"}} />
-      <div style={{...sheetStyle,animation:closing?"meetSheetOut .24s ease-in both":"meetSheetIn .26s ease-out both"}}>
-        <div style={handleStyle} />
-        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 18 }}>
-          Выберите категорию
-        </div>
-        <div style={gridStyle}>
-          {MEET_CATEGORIES.map((item) => {
-            const selected = value === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onSelect(item.id)}
-                style={{
-                  ...categoryStyle,
-                  color: selected ? "#1D63D8" : "#20242C",
-                  background: selected ? "#EAF2FF" : "#F7F8FA",
-                  borderColor: selected ? "#2F80FF" : "transparent",
-                }}
+    <BottomSheet open={open} onClose={closeSheet} height="min(72dvh, 640px)">
+      <div style={contentStyle}>
+        <div style={headerStyle}>
+          {selectedGroup && (
+            <button
+              type="button"
+              aria-label="Назад к группам категорий"
+              onClick={() => setSelectedGroup(null)}
+              style={backButtonStyle}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <span style={{ fontSize: 25, lineHeight: 1 }}>{item.icon}</span>
-                <span style={{ fontSize: 12, fontWeight: selected ? 700 : 600 }}>
-                  {item.name}
-                </span>
-              </button>
-            );
-          })}
+                <path d="M15 18L9 12L15 6" />
+              </svg>
+            </button>
+          )}
+
+          <div style={titleStyle}>
+            {selectedGroupName ?? "Выберите категорию"}
+          </div>
         </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          {!selectedGroup ? (
+            <motion.div
+              key="groups"
+              initial={{ x: -40, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -40, opacity: 0 }}
+              transition={{ duration: 0.22 }}
+            >
+              {allowAll && (
+                <CategoryRow
+                  icon="🔍"
+                  name="Все категории"
+                  selected={value === null}
+                  onClick={() => selectCategory(null)}
+                />
+              )}
+
+              {CATEGORY_GROUPS.map((group) => (
+                <CategoryRow
+                  key={group.id}
+                  icon={group.icon}
+                  name={group.name}
+                  trailing="›"
+                  onClick={() => setSelectedGroup(group.id)}
+                />
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="categories"
+              initial={{ x: 40, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 40, opacity: 0 }}
+              transition={{ duration: 0.22 }}
+            >
+              {MEET_CATEGORIES.filter(
+                (category) => category.group === selectedGroup
+              ).map((category) => (
+                <CategoryRow
+                  key={category.id}
+                  icon={category.icon}
+                  name={category.name}
+                  selected={value === category.id}
+                  onClick={() => selectCategory(category.id)}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
 
-const overlayStyle = {
-  position: "fixed" as const,
-  inset: 0,
-  zIndex: 10000,
-  display: "flex",
-  alignItems: "flex-end",
-};
+function CategoryRow({
+  icon,
+  name,
+  selected = false,
+  trailing,
+  onClick,
+}: {
+  icon: string;
+  name: string;
+  selected?: boolean;
+  trailing?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{ ...rowStyle, background: selected ? "#EEF5FF" : "transparent" }}
+    >
+      <span style={rowLabelStyle}>
+        <span style={{ fontSize: 22 }}>{icon}</span>
+        <span>{name}</span>
+      </span>
+      <span style={trailingStyle}>{selected ? "✓" : trailing}</span>
+    </button>
+  );
+}
 
-const backdropStyle = {
-  position: "absolute" as const,
-  inset: 0,
-  border: 0,
-  padding: 0,
-  background: "rgba(15,23,42,.46)",
-};
-
-const sheetStyle = {
-  position: "relative" as const,
-  width: "100%",
-  height: "min(68dvh, 620px)",
-  boxSizing: "border-box" as const,
-  borderRadius: "26px 26px 0 0",
-  padding: "10px 18px calc(18px + env(safe-area-inset-bottom, 0px))",
-  background: "#fff",
-  overflow: "hidden",
-};
-
-const handleStyle = {
-  width: 42,
-  height: 4,
-  borderRadius: 4,
-  background: "#D7DCE4",
-  margin: "0 auto 18px",
-};
-
-const gridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-  gap: 9,
-  maxHeight: "calc(100% - 55px)",
+const contentStyle = {
+  flex: 1,
   overflowY: "auto" as const,
   overscrollBehavior: "contain" as const,
-  paddingBottom: 8,
+  paddingBottom: 16,
 };
 
-const categoryStyle = {
-  minHeight: 76,
-  border: "1px solid transparent",
-  borderRadius: 16,
+const headerStyle = {
   display: "flex",
-  flexDirection: "column" as const,
+  alignItems: "center",
+  gap: 10,
+  minHeight: 34,
+  marginBottom: 14,
+};
+
+const titleStyle = { fontSize: 20, fontWeight: 700 };
+
+const backButtonStyle = {
+  width: 34,
+  height: 34,
+  padding: 0,
+  border: 0,
+  borderRadius: "50%",
+  display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 8,
+  color: "#2F80FF",
+  background: "transparent",
   cursor: "pointer",
+};
+
+const rowStyle = {
+  width: "100%",
+  height: 56,
+  padding: "0 8px",
+  border: 0,
+  borderBottom: "1px solid #F1F3F6",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  color: "#20242C",
+  cursor: "pointer",
+  textAlign: "left" as const,
+};
+
+const rowLabelStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  fontSize: 16,
+  fontWeight: 500,
+};
+
+const trailingStyle = {
+  minWidth: 20,
+  color: "#2F80FF",
+  fontSize: 20,
+  fontWeight: 700,
+  textAlign: "center" as const,
 };
