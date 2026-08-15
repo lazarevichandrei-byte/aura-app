@@ -9,6 +9,46 @@ export async function ensureMeetChatParticipant(chatId: string, userId: string) 
     }
   );
 
+  if (error?.code === "PGRST202" || error?.code === "42883") {
+    const { error: participantError } = await supabaseAdmin
+      .from("chat_participants")
+      .insert({ chat_id: chatId, user_id: userId });
+    if (participantError && participantError.code !== "23505") {
+      throw participantError;
+    }
+
+    const { data: latestMessage, error: latestMessageError } = await supabaseAdmin
+      .from("messages")
+      .select("id,created_at")
+      .eq("chat_id", chatId)
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (latestMessageError) throw latestMessageError;
+
+    const { error: readStateError } = await supabaseAdmin
+      .from("chat_read_state")
+      .upsert({
+        chat_id: chatId,
+        user_id: userId,
+        last_read_at: latestMessage?.created_at || new Date().toISOString(),
+        last_read_message_id: latestMessage?.id || null,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: "chat_id,user_id",
+        ignoreDuplicates: true,
+      });
+    if (readStateError && readStateError.code !== "PGRST205" && readStateError.code !== "42P01") {
+      throw readStateError;
+    }
+
+    return {
+      participantAdded: !participantError,
+      readStateInitialized: !readStateError,
+    };
+  }
+
   if (error) throw error;
 
   const result = Array.isArray(data) ? data[0] : data;

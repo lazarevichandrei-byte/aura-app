@@ -8,6 +8,8 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   let step = "parse-request";
+  let createdEventId: string | null = null;
+  let createdChatId: string | null = null;
   try {
     const { initData, eventId, values } = await request.json();
     if (!initData || !eventId || !values) {
@@ -60,6 +62,9 @@ export async function POST(request: Request) {
         .single();
       event = result.data;
       eventError = result.error;
+      if (!eventError && event) {
+        createdEventId = event.id;
+      }
       if (eventError?.code === "23505") {
         const retry = await supabaseAdmin.from("meet_events").select("id,creator_id").eq("id", eventId).maybeSingle();
         event = retry.data;
@@ -78,6 +83,9 @@ export async function POST(request: Request) {
       }).select("id").single();
       chat = result.data;
       chatError = result.error;
+      if (!chatError && chat) {
+        createdChatId = chat.id;
+      }
       if (chatError?.code === "23505") {
         const retry = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).limit(1).maybeSingle();
         chat = retry.data;
@@ -125,6 +133,37 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });
   } catch (error: any) {
+    if (createdChatId) {
+      const rollbackParticipants = await supabaseAdmin
+        .from("chat_participants")
+        .delete()
+        .eq("chat_id", createdChatId);
+      if (rollbackParticipants.error) {
+        console.error("MEET CREATE PARTICIPANTS ROLLBACK ERROR:", {
+          chatId: createdChatId,
+          code: rollbackParticipants.error.code,
+          message: rollbackParticipants.error.message,
+        });
+      }
+      const rollbackChat = await supabaseAdmin.from("chats").delete().eq("id", createdChatId);
+      if (rollbackChat.error) {
+        console.error("MEET CREATE CHAT ROLLBACK ERROR:", {
+          chatId: createdChatId,
+          code: rollbackChat.error.code,
+          message: rollbackChat.error.message,
+        });
+      }
+    }
+    if (createdEventId) {
+      const rollbackEvent = await supabaseAdmin.from("meet_events").delete().eq("id", createdEventId);
+      if (rollbackEvent.error) {
+        console.error("MEET CREATE EVENT ROLLBACK ERROR:", {
+          eventId: createdEventId,
+          code: rollbackEvent.error.code,
+          message: rollbackEvent.error.message,
+        });
+      }
+    }
     console.error("MEET CREATE API ERROR:", { step, code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
     const responseError = step.startsWith("creator-participant")
       ? "CREATOR_PARTICIPANT_FAILED"
