@@ -37,11 +37,13 @@ export default function MeetJoinRequestCard({
   const profile = request.users;
   const avatar = profile?.avatar_url || profile?.photos?.[0] || null;
   const name = profile?.name || "Пользователь";
+  const profileId = profile?.id || request.user_id;
+  const openProfile = () => router.push(`/user/${profileId}`);
 
   return (
     <article style={{ ...cardStyle, margin: compact ? "0 0 10px" : "14px 4px" }}>
       {!compact && <div style={eyebrowStyle}>👤 Новая заявка на встречу</div>}
-      <div style={profileRowStyle}>
+      <button type="button" onClick={openProfile} style={profileRowStyle} aria-label={`Открыть профиль: ${name}`}>
         {avatar ? (
           <img src={avatar} alt="" style={avatarStyle} />
         ) : (
@@ -54,9 +56,9 @@ export default function MeetJoinRequestCard({
           {profile?.city && <div style={metaStyle}>{profile.city}</div>}
           {!compact && <div style={{ ...metaStyle, marginTop: 5 }}>Хочет присоединиться к встрече</div>}
         </div>
-      </div>
+      </button>
 
-      <button type="button" onClick={() => router.push(`/user/${request.user_id}`)} style={profileButtonStyle}>
+      <button type="button" onClick={openProfile} style={profileButtonStyle}>
         Профиль
       </button>
       <div style={actionsStyle}>
@@ -73,7 +75,7 @@ export default function MeetJoinRequestCard({
 
 const cardStyle = { padding: 16, borderRadius: 20, border: "1px solid #DCE8FF", background: "linear-gradient(180deg,#F8FBFF 0%,#F2F7FF 100%)", boxShadow: "0 6px 18px rgba(47,128,255,.08)" };
 const eyebrowStyle = { marginBottom: 12, color: "#2F80FF", fontSize: 13, fontWeight: 700 };
-const profileRowStyle = { display: "flex", alignItems: "center", gap: 12 };
+const profileRowStyle = { width: "100%", padding: 0, border: 0, background: "transparent", color: "inherit", textAlign: "left" as const, display: "flex", alignItems: "center", gap: 12, cursor: "pointer" };
 const avatarStyle = { width: 48, height: 48, borderRadius: "50%", objectFit: "cover" as const, flexShrink: 0 };
 const metaStyle = { marginTop: 2, color: "#7A8699", fontSize: 13 };
 const profileButtonStyle = { marginTop: 12, padding: 0, border: 0, background: "transparent", color: "#2F80FF", fontSize: 13, fontWeight: 700, cursor: "pointer" };

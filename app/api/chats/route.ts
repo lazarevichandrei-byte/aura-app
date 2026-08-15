@@ -87,6 +87,26 @@ const chatsRaw = [
       new Date(a.last_message_at || a.created_at || 0).getTime()
   );
 
+    const chatIds = chatsRaw.map((chat) => chat.id);
+    const { data: unreadMessages, error: unreadMessagesError } = chatIds.length
+      ? await supabaseAdmin
+          .from("messages")
+          .select("chat_id")
+          .in("chat_id", chatIds)
+          .eq("is_read", false)
+          .neq("sender_id", user.id)
+      : { data: [], error: null };
+
+    if (unreadMessagesError) throw unreadMessagesError;
+
+    const unreadByChat = new Map<string, number>();
+    for (const message of unreadMessages || []) {
+      unreadByChat.set(
+        message.chat_id,
+        (unreadByChat.get(message.chat_id) ?? 0) + 1
+      );
+    }
+
 
   const meetEventIds = [
   ...new Set(
@@ -168,6 +188,7 @@ const chatsRaw = [
 
     return {
       ...chat,
+      unread_count: unreadByChat.get(chat.id) ?? 0,
 
       is_meet_chat: true,
 
@@ -208,6 +229,7 @@ const chatsRaw = [
 
   return {
     ...chat,
+    unread_count: unreadByChat.get(chat.id) ?? 0,
 
     is_meet_chat: false,
 

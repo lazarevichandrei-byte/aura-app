@@ -739,7 +739,7 @@ if(firstUnread){
 }
 
 
-await supabase
+const { error: markReadError } = await supabase
 .from("messages")
 .update({
 is_read:true
@@ -748,6 +748,15 @@ is_read:true
 .eq("is_read",false)
 .neq("sender_id",userId);
 
+if(!markReadError){
+
+setMessages((current)=>
+  current.map((message:any)=>
+    message.sender_id !== userId
+      ? {...message,is_read:true}
+      : message
+  )
+);
 
 await supabase
 .from("chats")
@@ -755,6 +764,8 @@ await supabase
 unread_count:0
 })
 .eq("id",chatId);
+
+}
 
 
 
@@ -1296,6 +1307,11 @@ latestMessageDateRef.current =
         is_read:true
       })
       .in("id",ids);
+
+    await supabase
+      .from("chats")
+      .update({unread_count:0})
+      .eq("id",chatId);
 
   },250);
 

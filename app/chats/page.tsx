@@ -88,7 +88,9 @@ transition:
 opacity: 1,
 
 animation:
-`chatAppear .28s ease ${index * 35}ms both`,
+chat.unread_count > 0
+  ? `chatAppear .28s ease ${index * 35}ms both, unreadChatGlow 1.6s ease-out ${index * 35}ms`
+  : `chatAppear .28s ease ${index * 35}ms both`,
 
 cursor:"pointer"
 }}
@@ -252,6 +254,11 @@ to{
 opacity:1;
 transform:translateY(0);
 }
+}
+@keyframes unreadChatGlow{
+0%{box-shadow:0 0 0 rgba(47,128,255,0)}
+35%{box-shadow:0 5px 18px rgba(47,128,255,.15)}
+100%{box-shadow:0 4px 14px rgba(47,128,255,.08)}
 }
 `}</style>
 
