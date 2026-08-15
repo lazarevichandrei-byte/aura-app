@@ -49,10 +49,26 @@ useEffect(() => {
     }, () => {
       void loadMeetJoinRequests(id).then(setRequests).catch((error) => console.error("REQUESTS REALTIME ERROR:", error));
     })
-    .subscribe();
+    .subscribe((status) => {
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        void refresh();
+      }
+    });
 
   return () => {
     void supabase.removeChannel(channel);
+  };
+}, [id]);
+
+useEffect(() => {
+  const reconcile = () => {
+    if (!document.hidden) void refresh();
+  };
+  document.addEventListener("visibilitychange", reconcile);
+  window.addEventListener("online", reconcile);
+  return () => {
+    document.removeEventListener("visibilitychange", reconcile);
+    window.removeEventListener("online", reconcile);
   };
 }, [id]);
 

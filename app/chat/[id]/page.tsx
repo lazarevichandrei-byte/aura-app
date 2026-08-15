@@ -900,6 +900,9 @@ useEffect(() => {
     })
     .subscribe((status) => {
       if (status === "SUBSCRIBED") ready = true;
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        void refreshPendingRequests();
+      }
     });
 
   return () => {
@@ -1004,6 +1007,7 @@ function handleVisibility(){
     clearTimeout(offlineTimer);
 
     setOnline();
+void recoverMissedMessages();
 resendFailedMessages();
 
   }
@@ -1154,6 +1158,42 @@ useEffect(()=>{
 };
 
 },[otherUser?.id]);
+
+useEffect(()=>{
+
+if(!chatId || userId === null) return;
+
+const membershipChannel = supabase
+  .channel(`chat-membership-${chatId}-${userId}`)
+  .on(
+    "postgres_changes",
+    {
+      event:"DELETE",
+      schema:"public",
+      table:"chat_participants",
+      filter:`chat_id=eq.${chatId}`,
+    },
+    async ()=>{
+      const { data: membership } = await supabase
+        .from("chat_participants")
+        .select("chat_id")
+        .eq("chat_id",chatId)
+        .eq("user_id",userId)
+        .maybeSingle();
+      if(!membership) router.replace("/chats");
+    }
+  )
+  .subscribe((status)=>{
+    if(status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+      void fetchChatUser().catch(()=>router.replace("/chats"));
+    }
+  });
+
+return ()=>{
+  void supabase.removeChannel(membershipChannel);
+};
+
+},[chatId,userId,router]);
 
 useEffect(()=>{
 

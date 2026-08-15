@@ -119,13 +119,29 @@ useEffect(() => {
         if (event?.creator_id === currentUser?.id) realtimeSuccessRef.current("Новая заявка", `На встречу «${event.title}» пришла заявка.`);
       }
     })
-    .subscribe();
+    .subscribe((status) => {
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        void load();
+      }
+    });
 
   return () => {
     if (realtimeTimerRef.current) clearTimeout(realtimeTimerRef.current);
     void supabase.removeChannel(channel);
   };
 }, [currentUser?.id, syncEvent]);
+
+useEffect(() => {
+  const reconcile = () => {
+    if (!document.hidden) void load();
+  };
+  document.addEventListener("visibilitychange", reconcile);
+  window.addEventListener("online", reconcile);
+  return () => {
+    document.removeEventListener("visibilitychange", reconcile);
+    window.removeEventListener("online", reconcile);
+  };
+}, []);
 
 useEffect(()=>{
 

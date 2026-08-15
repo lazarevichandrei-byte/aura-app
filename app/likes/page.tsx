@@ -62,10 +62,38 @@ useEffect(() => {
 
 }, [myId]);
 
+useEffect(() => {
+  if (!myId) return;
+  const reconcile = () => void loadLikes(myId,false);
+  const channel = supabase
+    .channel(`likes-${myId}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "likes",
+      filter: `to_user_id=eq.${myId}`,
+    }, reconcile)
+    .subscribe((status) => {
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") reconcile();
+    });
+
+  const handleResume = () => {
+    if (!document.hidden) reconcile();
+  };
+  document.addEventListener("visibilitychange", handleResume);
+  window.addEventListener("online", handleResume);
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleResume);
+    window.removeEventListener("online", handleResume);
+    void supabase.removeChannel(channel);
+  };
+}, [myId]);
 
 
-async function loadLikes(userId:string){
-  setLoading(true);
+
+async function loadLikes(userId:string,showLoader=true){
+  if(showLoader) setLoading(true);
 
   const { data: likes, error } = await supabase
     .from("likes")

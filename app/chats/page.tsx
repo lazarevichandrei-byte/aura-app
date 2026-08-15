@@ -398,7 +398,12 @@ useEffect(() => {
       }
     );
   });
-  channel.subscribe();
+  channel.subscribe((status) => {
+    if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+      window.clearTimeout(reloadTimer.current);
+      reloadTimer.current = window.setTimeout(() => loadChats(false), 250);
+    }
+  });
 
   return () => {
     void supabase.removeChannel(channel);
@@ -504,7 +509,12 @@ useEffect(()=>{
         );
       }
     )
-    .subscribe();
+    .subscribe((status) => {
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = window.setTimeout(() => loadChats(false), 250);
+      }
+    });
 
   return ()=>{
 
@@ -514,6 +524,49 @@ useEffect(()=>{
   };
 
 },[myId]);
+
+useEffect(()=>{
+  if(!myId) return;
+
+  const channel = supabase
+    .channel(`chat-memberships-${myId}`)
+    .on(
+      "postgres_changes",
+      {
+        event:"*",
+        schema:"public",
+        table:"chat_participants",
+        filter:`user_id=eq.${myId}`,
+      },
+      ()=>{
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = window.setTimeout(()=>loadChats(false),150);
+      }
+    )
+    .subscribe((status)=>{
+      if(status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = window.setTimeout(()=>loadChats(false),150);
+      }
+    });
+
+  return ()=>{
+    void supabase.removeChannel(channel);
+    window.clearTimeout(reloadTimer.current);
+  };
+},[myId]);
+
+useEffect(()=>{
+  const reconcile = ()=>{
+    if(!document.hidden) void loadChats(false);
+  };
+  document.addEventListener("visibilitychange",reconcile);
+  window.addEventListener("online",reconcile);
+  return ()=>{
+    document.removeEventListener("visibilitychange",reconcile);
+    window.removeEventListener("online",reconcile);
+  };
+},[]);
 
 const creatorMeetEventIds = useMemo(
   () => chats

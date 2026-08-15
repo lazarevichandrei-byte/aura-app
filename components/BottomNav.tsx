@@ -14,6 +14,7 @@ import { supabase }
 from "../lib/supabase";
 import { getTelegramInitData }
 from "../lib/telegram-init-data";
+import { useCurrentUser } from "../lib/useCurrentUser";
 import {
   Home,
   MapPinned,
@@ -31,6 +32,7 @@ export default function BottomNav({
 
 const router = useRouter();
 const pathname = usePathname();
+const { user: currentUser } = useCurrentUser();
 
 const [unread,setUnread] =
 useState(
@@ -55,7 +57,7 @@ router.prefetch("/chats");
 
 loadUnread();
 
-const channel =
+let channel =
 supabase
 .channel("nav-unread")
 .on(
@@ -68,22 +70,47 @@ table:"chats"
 ()=>{
 loadUnread();
 }
-)
-.subscribe();
+);
+
+if(currentUser?.id){
+channel = channel.on(
+  "postgres_changes",
+  {
+    event:"*",
+    schema:"public",
+    table:"chat_participants",
+    filter:`user_id=eq.${currentUser.id}`
+  },
+  ()=>{loadUnread();}
+);
+}
+
+channel.subscribe((status)=>{
+if(status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+loadUnread();
+}
+});
 
 const handleReadStateUpdated = ()=>{
   void loadUnread();
 };
 window.addEventListener("chat-read-state-updated",handleReadStateUpdated);
+const handleResume = ()=>{
+  if(!document.hidden) void loadUnread();
+};
+document.addEventListener("visibilitychange",handleResume);
+window.addEventListener("online",handleResume);
 
 return ()=>{
 window.removeEventListener("chat-read-state-updated",handleReadStateUpdated);
+document.removeEventListener("visibilitychange",handleResume);
+window.removeEventListener("online",handleResume);
 supabase.removeChannel(
 channel
 );
 };
 
-},[]);
+},[currentUser?.id]);
 
 
 async function loadUnread(){
