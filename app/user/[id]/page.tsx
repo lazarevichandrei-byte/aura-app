@@ -9,6 +9,7 @@ import BottomSheet from "../../../components/BottomSheet";
 import UserProfileSkeleton from "../../../components/UserProfileSkeleton";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
 import {useI18n} from "../../../components/I18nProvider";
+import {interestLabel} from "../../../lib/i18n/interests";
 export default function UserProfilePage() {
 
   const params = useParams();
@@ -430,7 +431,7 @@ async function submitReport(){
         {user.interests?.length > 0 && <section style={profileSectionStyle}>
           <h2 style={sectionTitleStyle}>{t("profile.interests")}</h2>
           <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
-            {user.interests.map((item:string)=><span key={item} style={interestChipStyle}>{item}</span>)}
+            {user.interests.map((item:string)=><span key={item} style={interestChipStyle}>{interestLabel(item,t)}</span>)}
           </div>
         </section>}
 

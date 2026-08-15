@@ -24,6 +24,7 @@ import {
 import { sendNotification } from "../../lib/notifications/index";
 import { NotificationType } from "../../lib/constants/notificationTypes";
 import {useI18n} from "../../components/I18nProvider";
+import {interestLabel} from "../../lib/i18n/interests";
 
 
 
@@ -857,7 +858,7 @@ currentUser.last_seen
           fontSize:"11.5px"
         }}
       >
-        {tag}
+        {interestLabel(tag,t)}
       </div>
     )
   )}

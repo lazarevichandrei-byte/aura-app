@@ -1,3 +1,5 @@
+import {generatedDictionaries} from "./generated";
+
 export const en = {
   "common.loading":"Loading…", "common.search":"Search", "common.cancel":"Cancel", "common.save":"Save",
   "navigation.home":"Home", "navigation.meet":"Meet", "navigation.chats":"Chats", "navigation.profile":"Profile",
@@ -133,6 +135,10 @@ export const en = {
   "meet.endsAt":"Ends at {time}", "meet.endsOn":"Ends {date}", "meet.startsIn":"Starts in: {time}", "meet.endsIn":"Ends in: {time}", "meet.timeMissing":"Time not specified",
   "settings.notificationsHint":"Likes, messages, matches and news", "settings.blacklistHint":"Manage blocked users", "meet.resizeCard":"Drag to resize meeting card",
   "legal.termsTitle":"Terms of Use", "legal.termsSubtitle":"Rules for using AURA.", "legal.privacyTitle":"Privacy Policy", "legal.privacySubtitle":"Information about data storage and processing.",
+  "interests.travel":"Travel", "interests.music":"Music", "interests.sport":"Sport", "interests.cinema":"Cinema",
+  "interests.games":"Games", "interests.business":"Business", "interests.food":"Food", "interests.yoga":"Yoga",
+  "interests.cars":"Cars", "interests.books":"Books", "interests.technology":"Technology", "interests.art":"Art",
+  "interests.dance":"Dancing", "interests.nature":"Nature",
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -274,18 +280,48 @@ const ru:Dictionary = {
   "meet.endsAt":"Закончится в {time}", "meet.endsOn":"Закончится {date}", "meet.startsIn":"До встречи: {time}", "meet.endsIn":"До окончания: {time}", "meet.timeMissing":"Время не указано",
   "settings.notificationsHint":"Лайки, сообщения, матчи и новости", "settings.blacklistHint":"Управление заблокированными пользователями", "meet.resizeCard":"Потяните, чтобы изменить размер карточки встречи",
   "legal.termsTitle":"Условия использования", "legal.termsSubtitle":"Правила использования приложения AURA.", "legal.privacyTitle":"Политика конфиденциальности", "legal.privacySubtitle":"Информация о хранении и обработке данных.",
+  "interests.travel":"Путешествия", "interests.music":"Музыка", "interests.sport":"Спорт", "interests.cinema":"Кино",
+  "interests.games":"Игры", "interests.business":"Бизнес", "interests.food":"Еда", "interests.yoga":"Йога",
+  "interests.cars":"Авто", "interests.books":"Книги", "interests.technology":"Технологии", "interests.art":"Искусство",
+  "interests.dance":"Танцы", "interests.nature":"Природа",
 };
 
-const be:Dictionary = {...en,"navigation.home":"Галоўная","navigation.meet":"Сустрэчы","navigation.chats":"Чаты","navigation.profile":"Профіль","settings.title":"Налады","settings.language":"Мова","profile.about":"Пра сябе","profile.interests":"Інтарэсы","profile.location":"Месцазнаходжанне"};
-const uk:Dictionary = {...en,"navigation.home":"Головна","navigation.meet":"Зустрічі","navigation.chats":"Чати","navigation.profile":"Профіль","settings.title":"Налаштування","settings.language":"Мова","profile.about":"Про себе","profile.interests":"Інтереси","profile.location":"Розташування"};
+const beReviewed:DictionaryOverride = {"common.save":"Захаваць","navigation.home":"Галоўная","navigation.meet":"Сустрэчы","navigation.chats":"Чаты","navigation.profile":"Профіль","settings.title":"Налады","settings.language":"Мова","settings.appearance":"Выгляд","settings.notifications":"Апавяшчэнні","account.edit":"Рэдагаваць профіль","account.privacy":"Прыватнасць","account.support":"Падтрымка","profile.about":"Пра сябе","profile.interests":"Інтарэсы","profile.location":"Месцазнаходжанне"};
+const ukReviewed:DictionaryOverride = {
+  "common.loading":"Завантаження…","common.search":"Пошук","common.cancel":"Скасувати","common.save":"Зберегти","common.saving":"Збереження…","common.saved":"Збережено ✓","common.delete":"Видалити","common.back":"Назад","common.close":"Закрити","common.retry":"Повторити","common.continue":"Продовжити","common.error":"Помилка","common.notSpecified":"Не вказано",
+  "navigation.home":"Головна","navigation.meet":"Зустрічі","navigation.chats":"Чати","navigation.profile":"Профіль",
+  "settings.title":"Налаштування","settings.subtitle":"Персоналізуйте застосунок для себе.","settings.appearance":"Оформлення","settings.language":"Мова","settings.notifications":"Сповіщення","settings.notificationsHint":"Вподобання, повідомлення, збіги та новини","settings.blacklist":"Заблоковані користувачі","settings.blacklistHint":"Керування заблокованими користувачами",
+  "theme.system":"Системне","theme.systemHint":"Як на вашому пристрої","theme.light":"Світле","theme.lightHint":"Завжди світле","theme.dark":"Темне","theme.darkHint":"Завжди темне","language.current":"Поточна мова",
+  "account.loading":"Завантаження профілю…","account.userPhoto":"Фото користувача {name}","account.unnamed":"Без імені","account.years":"{age} років","account.edit":"Редагувати профіль","account.settings":"Налаштування","account.privacy":"Конфіденційність","account.support":"Підтримка","account.terms":"Умови використання","account.privacyPolicy":"Політика конфіденційності","account.delete":"Видалити обліковий запис","account.deleteTitle":"Видалити обліковий запис?","account.deleteText":"Без вас застосунок стане трохи сумнішим.","account.deleteHint":"Якщо щось не працює, зверніться до підтримки ❤️","account.deleted":"Обліковий запис видалено","account.deletedText":"Дякуємо, що були з нами ❤️","account.userNotFound":"Користувача не знайдено",
+  "profile.title":"Профіль","profile.name":"Ім’я","profile.age":"Вік","profile.gender":"Я","profile.woman":"Жінка","profile.man":"Чоловік","profile.lookingFor":"Шукаю","profile.boy":"Чоловіка","profile.girl":"Жінку","profile.anyone":"Будь-кого","profile.about":"Про себе","profile.interests":"Інтереси","profile.location":"Розташування","profile.photos":"фото","profile.updateLocation":"Оновити","profile.searchRadius":"Радіус пошуку","profile.kilometers":"{count} км","profile.radiusHint":"Буде показано людей у радіусі {count} км","profile.radiusToggle":"Показувати профілі в обраному радіусі","profile.bio":"Про себе","profile.complete":"Заповнити профіль","profile.required":"Вкажіть ім’я та місто","profile.locationUpdated":"Розташування оновлено","profile.locationFailed":"Не вдалося визначити розташування","profile.cityDetected":"Місто визначено","profile.cityFailed":"Координати отримано, але місто визначити не вдалося",
+  "legal.termsTitle":"Умови використання","legal.termsSubtitle":"Правила використання AURA.","legal.privacyTitle":"Політика конфіденційності","legal.privacySubtitle":"Інформація про зберігання та обробку даних.",
+  "interests.travel":"Подорожі","interests.music":"Музика","interests.sport":"Спорт","interests.cinema":"Кіно","interests.games":"Ігри","interests.business":"Бізнес","interests.food":"Їжа","interests.yoga":"Йога","interests.cars":"Авто","interests.books":"Книги","interests.technology":"Технології","interests.art":"Мистецтво","interests.dance":"Танці","interests.nature":"Природа"
+};
+
+const tierOneReviewed:Record<string,DictionaryOverride>={
+  pl:{"navigation.home":"Główna","navigation.meet":"Spotkania","navigation.chats":"Czaty","account.support":"Pomoc","meet.create":"Utwórz spotkanie"},
+  de:{"navigation.home":"Start","navigation.meet":"Treffen","account.support":"Hilfe","meet.create":"Treffen erstellen","chat.offline":"nicht online"},
+  fr:{"navigation.meet":"Rencontres","account.support":"Assistance","meet.create":"Créer une rencontre"},
+  es:{"navigation.meet":"Encuentros","navigation.chats":"Chats","meet.create":"Crear encuentro"},
+  pt:{"navigation.meet":"Encontros","navigation.chats":"Conversas","meet.create":"Criar encontro"},
+  ja:{"navigation.meet":"出会い","meet.create":"出会いを作成"},
+  ko:{"navigation.meet":"모임","meet.create":"모임 만들기"},
+  "zh-CN":{"navigation.meet":"见面","navigation.profile":"个人资料","meet.create":"创建见面"},
+  "zh-TW":{"navigation.meet":"見面","navigation.profile":"個人檔案","meet.create":"建立見面"},
+  cs:{"chat.offline":"offline režim"},da:{"chat.offline":"ikke online"},fi:{"profile.mainPhoto":"Pääkuva"},
+  it:{"account.privacy":"Riservatezza"},nl:{"account.privacy":"Privacybescherming","chat.offline":"niet online","map.zoomIn":"Inzoomen"},
+  no:{"meet.feed":"Oversikt","chat.offline":"ikke pålogget"},ro:{"chat.offline":"deconectat"},
+  sk:{"meet.feed":"Prehľad","chat.offline":"odpojený"},
+  sv:{"profile.block":"Blockera","profile.man":"Manlig","profile.boy":"Manlig","profile.mainPhoto":"Huvudbild","chat.offline":"inte online"},
+};
 
 const core:Record<string,DictionaryOverride> = {
-  pl:{"navigation.home":"Główna","navigation.meet":"Spotkania","navigation.chats":"Czaty","navigation.profile":"Profil","settings.title":"Ustawienia","settings.language":"Język","settings.appearance":"Wygląd"},
-  de:{"navigation.home":"Start","navigation.meet":"Treffen","navigation.chats":"Chats","navigation.profile":"Profil","settings.title":"Einstellungen","settings.language":"Sprache","settings.appearance":"Darstellung"},
-  fr:{"navigation.home":"Accueil","navigation.meet":"Rencontres","navigation.chats":"Discussions","navigation.profile":"Profil","settings.title":"Paramètres","settings.language":"Langue","settings.appearance":"Apparence"},
-  es:{"navigation.home":"Inicio","navigation.meet":"Encuentros","navigation.chats":"Chats","navigation.profile":"Perfil","settings.title":"Ajustes","settings.language":"Idioma","settings.appearance":"Apariencia"},
+  pl:{"common.save":"Zapisz","navigation.home":"Główna","navigation.meet":"Spotkania","navigation.chats":"Czaty","navigation.profile":"Profil","settings.title":"Ustawienia","settings.language":"Język","settings.appearance":"Wygląd","settings.notifications":"Powiadomienia","account.edit":"Edytuj profil","account.privacy":"Prywatność","account.support":"Pomoc","profile.location":"Lokalizacja","profile.interests":"Zainteresowania"},
+  de:{"common.save":"Speichern","navigation.home":"Start","navigation.meet":"Treffen","navigation.chats":"Chats","navigation.profile":"Profil","settings.title":"Einstellungen","settings.language":"Sprache","settings.appearance":"Darstellung","settings.notifications":"Benachrichtigungen","account.edit":"Profil bearbeiten","account.privacy":"Datenschutz","account.support":"Support","profile.location":"Standort","profile.interests":"Interessen"},
+  fr:{"common.save":"Enregistrer","navigation.home":"Accueil","navigation.meet":"Rencontres","navigation.chats":"Discussions","navigation.profile":"Profil","settings.title":"Paramètres","settings.language":"Langue","settings.appearance":"Apparence","settings.notifications":"Notifications","account.edit":"Modifier le profil","account.privacy":"Confidentialité","account.support":"Assistance","profile.location":"Localisation","profile.interests":"Centres d’intérêt"},
+  es:{"common.save":"Guardar","navigation.home":"Inicio","navigation.meet":"Encuentros","navigation.chats":"Chats","navigation.profile":"Perfil","settings.title":"Ajustes","settings.language":"Idioma","settings.appearance":"Apariencia","settings.notifications":"Notificaciones","account.edit":"Editar perfil","account.privacy":"Privacidad","account.support":"Soporte","profile.location":"Ubicación","profile.interests":"Intereses"},
   it:{"navigation.home":"Home","navigation.meet":"Incontri","navigation.chats":"Chat","navigation.profile":"Profilo","settings.title":"Impostazioni","settings.language":"Lingua","settings.appearance":"Aspetto"},
-  pt:{"navigation.home":"Início","navigation.meet":"Encontros","navigation.chats":"Conversas","navigation.profile":"Perfil","settings.title":"Definições","settings.language":"Idioma","settings.appearance":"Aparência"},
+  pt:{"common.save":"Guardar","navigation.home":"Início","navigation.meet":"Encontros","navigation.chats":"Conversas","navigation.profile":"Perfil","settings.title":"Definições","settings.language":"Idioma","settings.appearance":"Aparência","settings.notifications":"Notificações","account.edit":"Editar perfil","account.privacy":"Privacidade","account.support":"Suporte","profile.location":"Localização","profile.interests":"Interesses"},
   nl:{"navigation.home":"Home","navigation.meet":"Ontmoeten","navigation.chats":"Chats","navigation.profile":"Profiel","settings.title":"Instellingen","settings.language":"Taal","settings.appearance":"Weergave"},
   cs:{"navigation.home":"Domů","navigation.meet":"Setkání","navigation.chats":"Chaty","navigation.profile":"Profil","settings.title":"Nastavení","settings.language":"Jazyk","settings.appearance":"Vzhled"},
   sk:{"navigation.home":"Domov","navigation.meet":"Stretnutia","navigation.chats":"Chaty","navigation.profile":"Profil","settings.title":"Nastavenia","settings.language":"Jazyk","settings.appearance":"Vzhľad"},
@@ -304,21 +340,22 @@ const core:Record<string,DictionaryOverride> = {
   da:{"navigation.home":"Hjem","navigation.meet":"Møder","navigation.chats":"Chats","navigation.profile":"Profil","settings.title":"Indstillinger","settings.language":"Sprog","settings.appearance":"Udseende"},
   fi:{"navigation.home":"Koti","navigation.meet":"Tapaamiset","navigation.chats":"Keskustelut","navigation.profile":"Profiili","settings.title":"Asetukset","settings.language":"Kieli","settings.appearance":"Ulkoasu"},
   tr:{"navigation.home":"Ana Sayfa","navigation.meet":"Buluşmalar","navigation.chats":"Sohbetler","navigation.profile":"Profil","settings.title":"Ayarlar","settings.language":"Dil","settings.appearance":"Görünüm"},
-  ar:{"navigation.home":"الرئيسية","navigation.meet":"اللقاءات","navigation.chats":"الدردشات","navigation.profile":"الملف","settings.title":"الإعدادات","settings.language":"اللغة","settings.appearance":"المظهر"},
+  ar:{"common.save":"حفظ","navigation.home":"الرئيسية","navigation.meet":"اللقاءات","navigation.chats":"الدردشات","navigation.profile":"الملف","settings.title":"الإعدادات","settings.language":"اللغة","settings.appearance":"المظهر","settings.notifications":"الإشعارات","account.edit":"تعديل الملف الشخصي","account.privacy":"الخصوصية","account.support":"الدعم","profile.location":"الموقع","profile.interests":"الاهتمامات"},
   he:{"navigation.home":"בית","navigation.meet":"מפגשים","navigation.chats":"שיחות","navigation.profile":"פרופיל","settings.title":"הגדרות","settings.language":"שפה","settings.appearance":"מראה"},
   fa:{"navigation.home":"خانه","navigation.meet":"دیدارها","navigation.chats":"گفتگوها","navigation.profile":"نمایه","settings.title":"تنظیمات","settings.language":"زبان","settings.appearance":"ظاهر"},
   hi:{"navigation.home":"होम","navigation.meet":"मुलाकातें","navigation.chats":"चैट","navigation.profile":"प्रोफ़ाइल","settings.title":"सेटिंग्स","settings.language":"भाषा","settings.appearance":"रूप"},
   id:{"navigation.home":"Beranda","navigation.meet":"Pertemuan","navigation.chats":"Obrolan","navigation.profile":"Profil","settings.title":"Pengaturan","settings.language":"Bahasa","settings.appearance":"Tampilan"},
   ms:{"navigation.home":"Utama","navigation.meet":"Pertemuan","navigation.chats":"Sembang","navigation.profile":"Profil","settings.title":"Tetapan","settings.language":"Bahasa","settings.appearance":"Paparan"},
   ko:{"navigation.home":"홈","navigation.meet":"모임","navigation.chats":"채팅","navigation.profile":"프로필","settings.title":"설정","settings.language":"언어","settings.appearance":"화면"},
-  ja:{"navigation.home":"ホーム","navigation.meet":"ミート","navigation.chats":"チャット","navigation.profile":"プロフィール","settings.title":"設定","settings.language":"言語","settings.appearance":"外観"},
-  "zh-CN":{"navigation.home":"首页","navigation.meet":"见面","navigation.chats":"聊天","navigation.profile":"个人资料","settings.title":"设置","settings.language":"语言","settings.appearance":"外观"},
+  ja:{"common.save":"保存","navigation.home":"ホーム","navigation.meet":"ミート","navigation.chats":"チャット","navigation.profile":"プロフィール","settings.title":"設定","settings.language":"言語","settings.appearance":"外観","settings.notifications":"通知","account.edit":"プロフィールを編集","account.privacy":"プライバシー","account.support":"サポート","profile.location":"場所","profile.interests":"興味"},
+  "zh-CN":{"common.save":"保存","navigation.home":"首页","navigation.meet":"见面","navigation.chats":"聊天","navigation.profile":"个人资料","settings.title":"设置","settings.language":"语言","settings.appearance":"外观","settings.notifications":"通知","account.edit":"编辑个人资料","account.privacy":"隐私","account.support":"支持","profile.location":"位置","profile.interests":"兴趣"},
   "zh-TW":{"navigation.home":"首頁","navigation.meet":"見面","navigation.chats":"聊天","navigation.profile":"個人檔案","settings.title":"設定","settings.language":"語言","settings.appearance":"外觀"},
   vi:{"navigation.home":"Trang chủ","navigation.meet":"Gặp mặt","navigation.chats":"Trò chuyện","navigation.profile":"Hồ sơ","settings.title":"Cài đặt","settings.language":"Ngôn ngữ","settings.appearance":"Giao diện"},
   th:{"navigation.home":"หน้าหลัก","navigation.meet":"นัดพบ","navigation.chats":"แชท","navigation.profile":"โปรไฟล์","settings.title":"การตั้งค่า","settings.language":"ภาษา","settings.appearance":"รูปลักษณ์"},
 };
 
-export const DICTIONARIES:Record<string,Dictionary> = {en,ru,be,uk,...Object.fromEntries(Object.entries(core).map(([locale,overrides])=>[locale,{...en,...overrides}]))};
+const reviewedGenerated=Object.fromEntries(Object.entries(generatedDictionaries).map(([locale,dictionary])=>[locale,{...dictionary,...tierOneReviewed[locale]}]));
+export const DICTIONARIES:Record<string,Dictionary> = {en,...reviewedGenerated,be:{...generatedDictionaries.be,...beReviewed},uk:{...generatedDictionaries.uk,...ukReviewed},ru};
 
 export function dictionaryFor(locale:string):Dictionary{
   return DICTIONARIES[locale] || en;

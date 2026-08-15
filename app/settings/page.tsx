@@ -13,7 +13,7 @@ import {
 
 import BottomSheet from "../../components/BottomSheet";
 import { useTheme } from "../../components/ThemeProvider";
-import {useI18n} from "../../components/I18nProvider";
+import {hasManualLocalePreference,useI18n} from "../../components/I18nProvider";
 import LanguagePickerSheet from "../../components/LanguagePickerSheet";
 import {LOCALE_BY_CODE} from "../../lib/i18n/locales";
 
@@ -56,7 +56,7 @@ show_last_seen
     const savedTheme = data.theme;
     if(savedTheme === "system" || savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
 
-    if(data.language) setLocale(data.language,false);
+    if(data.language && !hasManualLocalePreference()) setLocale(data.language,false);
 
     setShowOnline(
       data.show_online ?? true

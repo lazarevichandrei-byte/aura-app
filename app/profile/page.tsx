@@ -8,6 +8,7 @@ import { useNotification } from "../../components/NotificationContext";
 import AuraLoader from "../../components/AuraLoader";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
 import {useI18n} from "../../components/I18nProvider";
+import { INTERESTS, interestId, interestLabel } from "../../lib/i18n/interests";
 
 
 const Cropper:any = dynamic(
@@ -16,25 +17,8 @@ const Cropper:any = dynamic(
 );
 import { supabase } from "../../lib/supabase";
 
-const BASE_INTERESTS = [
- "Путешествия",
- "Музыка",
- "Спорт",
- "Кино"
-];
-
-const EXTRA_INTERESTS = [
- "Игры",
- "Бизнес",
- "Еда",
- "Йога",
- "Авто",
- "Книги",
- "Технологии",
- "Искусство",
- "Танцы",
- "Природа"
-];
+const BASE_INTERESTS = INTERESTS.slice(0,4).map((item)=>item.legacy);
+const EXTRA_INTERESTS = INTERESTS.slice(4).map((item)=>item.legacy);
 
 export default function Profile() {
   const {t,locale}=useI18n();
@@ -596,14 +580,11 @@ setTimeout(()=>{
 
 
   const toggle = (item: string) => {
-
-
-    
-    setSelected((prev) =>
-      prev.includes(item)
-        ? prev.filter((i) => i !== item)
-        : [...prev, item]
-    );
+    setSelected((previous) => {
+      const targetId=interestId(item);
+      const active=previous.some((value)=>interestId(value)===targetId);
+      return active?previous.filter((value)=>interestId(value)!==targetId):[...previous,item];
+    });
   };
     const handleSubmit = async () => {
       
@@ -1086,11 +1067,11 @@ warning(
         <div style={styles.block}>
           <p style={styles.label}>{t("profile.interests")}</p>
           <div style={styles.tags}>
-            {[...base, ...(showMore ? extra : [])].map((t) => {
-              const active = selected.includes(t);
+            {[...base, ...(showMore ? extra : [])].map((interest) => {
+              const active = selected.some((value)=>interestId(value)===interestId(interest));
               return (
-                <span key={t} onClick={() => toggle(t)} style={{...styles.tag,...(active && styles.tagActive)}}>
-                  {t}
+                <span key={interest} onClick={() => toggle(interest)} style={{...styles.tag,...(active && styles.tagActive)}}>
+                  {interestLabel(interest,t)}
                 </span>
               );
             })}

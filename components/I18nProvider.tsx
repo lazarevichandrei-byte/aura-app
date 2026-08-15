@@ -3,10 +3,13 @@
 import {createContext,ReactNode,useContext,useEffect,useMemo,useState} from "react";
 import {dictionaryFor,TranslationKey} from "../lib/i18n/dictionary";
 import {DEFAULT_LOCALE,LOCALE_BY_CODE,normalizeLocale} from "../lib/i18n/locales";
-import {assertDictionariesComplete} from "../lib/i18n/validate";
+import {assertDictionariesComplete,dictionaryAudit} from "../lib/i18n/validate";
 
 const STORAGE_KEY="aura-language";
 const MANUAL_KEY="aura-language-manual";
+const reportedFallbacks=new Set<string>();
+
+export function hasManualLocalePreference(){return typeof window!=="undefined"&&localStorage.getItem(MANUAL_KEY)==="1";}
 
 type TranslationParams=Record<string,string|number>;
 type I18nContextValue={locale:string;intlLocale:string;direction:"ltr"|"rtl";setLocale:(locale:string,manual?:boolean)=>void;t:(key:TranslationKey,params?:TranslationParams)=>string};
@@ -39,13 +42,20 @@ export default function I18nProvider({children}:{children:ReactNode}){
   },[locale,metadata.code,metadata.direction]);
 
   useEffect(()=>{
-    if(process.env.NODE_ENV !== "production") assertDictionariesComplete();
+    if(process.env.NODE_ENV !== "production"){
+      assertDictionariesComplete();
+      console.info("[I18N_AUDIT]",dictionaryAudit().map(({locale,totalKeys,missing,extra,suspiciousSameAsEnglish,coreSuspiciousSameAsEnglish,sameAsEnglishPercentage})=>({locale,totalKeys,missing:missing.length,extra:extra.length,suspiciousSameAsEnglish:suspiciousSameAsEnglish.length,coreSuspiciousSameAsEnglish:coreSuspiciousSameAsEnglish.length,sameAsEnglishPercentage})));
+    }
   },[]);
 
   const value=useMemo(()=>({locale,intlLocale:metadata.intlLocale,direction:metadata.direction,setLocale,t:(key:TranslationKey,params?:TranslationParams)=>{
     const localized=dictionaryFor(locale)[key];
     const fallback=dictionaryFor(DEFAULT_LOCALE)[key];
     if(!localized && process.env.NODE_ENV !== "production") console.warn(`[i18n] Missing ${locale}:${key}`);
+    if(process.env.NODE_ENV !== "production"&&locale!==DEFAULT_LOCALE&&localized===fallback){
+      const signature=`${locale}:${key}`;
+      if(!reportedFallbacks.has(signature)){reportedFallbacks.add(signature);console.warn(`[I18N_FALLBACK] locale=${locale} key=${key}`);}
+    }
     const template=localized || fallback || key;
     return params ? template.replace(/\{(\w+)\}/g,(match,name)=>params[name] === undefined ? match : String(params[name])) : template;
   }}),[locale,metadata.direction,metadata.intlLocale]);
