@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
+import { ensureMeetChatParticipant } from "../../../../lib/server/meet-chat-participant";
 
 export const runtime = "nodejs";
 
@@ -79,13 +80,7 @@ async function addParticipant(eventId: string, userId: string) {
 
   try {
     const chatId = await getOrCreateMeetChat(eventId);
-    const { data: chatParticipant, error: chatCheckError } = await supabaseAdmin
-      .from("chat_participants").select("chat_id").eq("chat_id", chatId).eq("user_id", userId).maybeSingle();
-    if (chatCheckError) throw chatCheckError;
-    if (!chatParticipant) {
-      const { error } = await supabaseAdmin.from("chat_participants").insert({ chat_id: chatId, user_id: userId });
-      if (error && error.code !== "23505") throw error;
-    }
+    await ensureMeetChatParticipant(chatId, userId);
   } catch (error) {
     if (addedMeetParticipant) {
       const rollback = await supabaseAdmin.from("meet_participants").delete().eq("event_id", eventId).eq("user_id", userId);

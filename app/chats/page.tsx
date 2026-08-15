@@ -452,6 +452,20 @@ useEffect(() => {
 
 }, []);
 
+useEffect(() => {
+  const handleReadStateUpdated = (event:Event) => {
+    const detail = (event as CustomEvent<{chatId?:string}>).detail;
+    if(!detail?.chatId) return;
+    setChats((current)=>current.map((chat)=>
+      chat.id === detail.chatId
+        ? {...chat,unread_count:0}
+        : chat
+    ));
+  };
+  window.addEventListener("chat-read-state-updated",handleReadStateUpdated);
+  return ()=>window.removeEventListener("chat-read-state-updated",handleReadStateUpdated);
+},[]);
+
 useEffect(()=>{
 
   if(!myId) return;

@@ -71,7 +71,13 @@ loadUnread();
 )
 .subscribe();
 
+const handleReadStateUpdated = ()=>{
+  void loadUnread();
+};
+window.addEventListener("chat-read-state-updated",handleReadStateUpdated);
+
 return ()=>{
+window.removeEventListener("chat-read-state-updated",handleReadStateUpdated);
 supabase.removeChannel(
 channel
 );

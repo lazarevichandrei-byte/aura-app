@@ -88,23 +88,18 @@ const chatsRaw = [
   );
 
     const chatIds = chatsRaw.map((chat) => chat.id);
-    const { data: unreadMessages, error: unreadMessagesError } = chatIds.length
-      ? await supabaseAdmin
-          .from("messages")
-          .select("chat_id")
-          .in("chat_id", chatIds)
-          .eq("is_read", false)
-          .neq("sender_id", user.id)
+    const { data: unreadRows, error: unreadError } = chatIds.length
+      ? await supabaseAdmin.rpc("get_chat_unread_counts", {
+          p_user_id: user.id,
+          p_chat_ids: chatIds,
+        })
       : { data: [], error: null };
 
-    if (unreadMessagesError) throw unreadMessagesError;
+    if (unreadError) throw unreadError;
 
     const unreadByChat = new Map<string, number>();
-    for (const message of unreadMessages || []) {
-      unreadByChat.set(
-        message.chat_id,
-        (unreadByChat.get(message.chat_id) ?? 0) + 1
-      );
+    for (const row of unreadRows || []) {
+      unreadByChat.set(row.chat_id, Number(row.unread_count) || 0);
     }
 
 

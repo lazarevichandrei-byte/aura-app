@@ -34,7 +34,7 @@ async function loadPendingMeetRequests(eventId: string, userId: string) {
 
 export async function POST(request: Request) {
   try {
-    const { initData, chatId, action = "load", text, body, replyToId, replyPreview } = await request.json();
+    const { initData, chatId, action = "load", text, body, replyToId, replyPreview, readThroughMessageId } = await request.json();
     if (!initData || !chatId) {
       return NextResponse.json({ ok: false, error: "MISSING_DATA" }, { status: 400 });
     }
@@ -200,6 +200,33 @@ export async function POST(request: Request) {
     if (!allowed) {
       console.error("CHAT API ACCESS DENIED:", { chatId, eventId: chat.event_id, userId: user.id });
       return NextResponse.json({ ok: false, error: "CHAT_ACCESS_DENIED" }, { status: 403 });
+    }
+
+    if (action === "mark_read") {
+      if (typeof readThroughMessageId !== "string" || !readThroughMessageId) {
+        return NextResponse.json({ ok: false, error: "MISSING_READ_CURSOR" }, { status: 400 });
+      }
+
+      const { data: savedCursor, error: readStateError } = await supabaseAdmin.rpc(
+        "mark_chat_read",
+        {
+          p_chat_id: chat.id,
+          p_user_id: user.id,
+          p_message_id: readThroughMessageId,
+        }
+      );
+      if (readStateError) throw readStateError;
+      const cursor = Array.isArray(savedCursor) ? savedCursor[0] : savedCursor;
+      if (!cursor) {
+        return NextResponse.json({ ok: false, error: "READ_CURSOR_NOT_FOUND" }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        ok: true,
+        chatId: chat.id,
+        lastReadAt: cursor.last_read_at,
+        lastReadMessageId: cursor.last_read_message_id,
+      });
     }
 
     if (action === "send") {

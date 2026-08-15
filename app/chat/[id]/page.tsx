@@ -206,9 +206,6 @@ useRef<NodeListOf<Element> | null>(
 const scrollBottomFrame =
 useRef<number | null>(null);
 
-const pendingReadMessages =
-useRef<string[]>([]);
-
 const offlineQueueRef =
 useRef<any[]>([]);
 
@@ -739,32 +736,9 @@ if(firstUnread){
 }
 
 
-const { error: markReadError } = await supabase
-.from("messages")
-.update({
-is_read:true
-})
-.eq("chat_id",chatId)
-.eq("is_read",false)
-.neq("sender_id",userId);
-
-if(!markReadError){
-
-setMessages((current)=>
-  current.map((message:any)=>
-    message.sender_id !== userId
-      ? {...message,is_read:true}
-      : message
-  )
-);
-
-await supabase
-.from("chats")
-.update({
-unread_count:0
-})
-.eq("id",chatId);
-
+const latestLoadedMessage = reversed[reversed.length - 1];
+if(latestLoadedMessage){
+  await markChatRead(String(latestLoadedMessage.id));
 }
 
 
@@ -773,6 +747,36 @@ unread_count:0
 
 }
 
+}
+
+async function markChatRead(readThroughMessageId:string){
+  const initData = await getTelegramInitData();
+  if(!initData) return false;
+
+  const response = await fetch("/api/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      initData,
+      chatId,
+      action:"mark_read",
+      readThroughMessageId
+    })
+  });
+  const result = await response.json();
+  if(!response.ok || !result?.ok){
+    console.error("CHAT MARK READ ERROR:",{
+      chatId,
+      readThroughMessageId,
+      error:result?.error
+    });
+    return false;
+  }
+
+  window.dispatchEvent(new CustomEvent("chat-read-state-updated",{
+    detail:{chatId}
+  }));
+  return true;
 }
 
 
@@ -809,6 +813,7 @@ async function fetchChatUser(){
   if (initialMessages.length) {
     oldestMessageRef.current = initialMessages[0].created_at;
     latestMessageDateRef.current = initialMessages[initialMessages.length - 1].created_at;
+    await markChatRead(String(initialMessages[initialMessages.length - 1].id));
   }
 
   // =========================
@@ -1280,10 +1285,6 @@ latestMessageDateRef.current =
 
   if(newMsg.sender_id !== userId){
 
-  pendingReadMessages.current.push(
-    newMsg.id
-  );
-
   if(readTimeout.current){
 
     clearTimeout(
@@ -1294,24 +1295,7 @@ latestMessageDateRef.current =
 
   readTimeout.current =
   setTimeout(async ()=>{
-
-    const ids = [
-      ...pendingReadMessages.current
-    ];
-
-    pendingReadMessages.current = [];
-
-    await supabase
-      .from("messages")
-      .update({
-        is_read:true
-      })
-      .in("id",ids);
-
-    await supabase
-      .from("chats")
-      .update({unread_count:0})
-      .eq("id",chatId);
+    await markChatRead(String(newMsg.id));
 
   },250);
 

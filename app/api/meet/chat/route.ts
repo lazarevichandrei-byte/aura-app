@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
+import { ensureMeetChatParticipant } from "../../../../lib/server/meet-chat-participant";
 
 export const runtime = "nodejs";
 
@@ -197,16 +198,9 @@ export async function POST(req: Request) {
     }
 
     if (!existingParticipant) {
-      const {
-        error: participantError,
-      } = await supabaseAdmin
-        .from("chat_participants")
-        .insert({
-          chat_id: chat.id,
-          user_id: user.id,
-        });
-
-      if (participantError) {
+      try {
+        await ensureMeetChatParticipant(chat.id, user.id);
+      } catch (participantError) {
         console.error(
           "MEET CHAT PARTICIPANT ADD ERROR:",
           participantError
@@ -222,6 +216,8 @@ export async function POST(req: Request) {
           }
         );
       }
+    } else {
+      await ensureMeetChatParticipant(chat.id, user.id);
     }
 
     return NextResponse.json({

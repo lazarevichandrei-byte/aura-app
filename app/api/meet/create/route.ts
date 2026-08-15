@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 import { calculateMeetExpiration } from "../../../../lib/meet/time";
+import { ensureMeetChatParticipant } from "../../../../lib/server/meet-chat-participant";
 
 export const runtime = "nodejs";
 
@@ -98,10 +99,14 @@ export async function POST(request: Request) {
     let participantInsertError = null;
     if (!participant) {
       step = "creator-participant-insert";
-      const insertResult = await supabaseAdmin
-        .from("chat_participants")
-        .insert({ chat_id: chat.id, user_id: user.id });
-      participantInsertError = insertResult.error;
+      try {
+        await ensureMeetChatParticipant(chat.id, user.id);
+      } catch (error) {
+        participantInsertError = error;
+      }
+    } else {
+      step = "creator-read-state-ensure";
+      await ensureMeetChatParticipant(chat.id, user.id);
     }
 
     step = "creator-participant-verify";
