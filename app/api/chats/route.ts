@@ -110,7 +110,7 @@ const chatsRaw = [
       meetEventIds.length
         ? supabaseAdmin
             .from("meet_events")
-            .select("id,title,category,creator_id")
+            .select("id,title,category,creator_id,is_active,expires_at")
             .in("id", meetEventIds)
         : Promise.resolve({ data: [] }),
       otherUserIds.length
@@ -123,8 +123,12 @@ const chatsRaw = [
     const meetEvents = meetEventsResult.data;
     const otherUsers = otherUsersResult.data;
 
+    const now = Date.now();
+    const activeMeetEvents = (meetEvents || []).filter(
+      (event) => event.is_active && new Date(event.expires_at).getTime() > now
+    );
     const meetEventsById = new Map(
-      (meetEvents || []).map(
+      activeMeetEvents.map(
         (event) => [event.id, event]
       )
     );
@@ -133,7 +137,7 @@ const chatsRaw = [
       (otherUsers || []).map((otherUser) => [otherUser.id, otherUser])
     );
 
-    const creatorEventIds = (meetEvents || [])
+    const creatorEventIds = activeMeetEvents
       .filter((event) => event.creator_id === user.id)
       .map((event) => event.id);
     const { data: pendingRequestRows, error: pendingRequestError } = creatorEventIds.length
@@ -152,7 +156,9 @@ const chatsRaw = [
       );
     }
 
-    const chats = (chatsRaw || []).map((chat) => {
+    const chats = (chatsRaw || [])
+      .filter((chat) => !chat.event_id || meetEventsById.has(chat.event_id))
+      .map((chat) => {
 
   const isMeetChat =
     Boolean(chat.event_id);
@@ -176,6 +182,8 @@ const chatsRaw = [
 
       event_category:
         event?.category || null,
+
+      event_expires_at: event?.expires_at,
 
       name:
         event?.title || "Встреча",

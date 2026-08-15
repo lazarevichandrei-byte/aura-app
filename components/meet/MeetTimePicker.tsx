@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   open: boolean;
@@ -87,7 +88,9 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
     </div>
   );
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div style={timeOverlayStyle} role="dialog" aria-modal="true" aria-label="Время встречи">
       <style>{`@keyframes meetBackdropIn{from{opacity:0}to{opacity:1}}@keyframes meetBackdropOut{from{opacity:1}to{opacity:0}}@keyframes meetSheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes meetSheetOut{from{transform:translateY(0)}to{transform:translateY(100%)}}`}</style>
       <button aria-label="Закрыть" onClick={onClose} style={{...timeBackdropStyle,animation:closing?"meetBackdropOut .24s ease both":"meetBackdropIn .24s ease both"}} />
@@ -105,7 +108,8 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
           <button type="button" onClick={() => { onChange(`${hour}:${minute}`); onClose(); }} style={doneStyle}>Готово</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

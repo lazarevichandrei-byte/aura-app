@@ -68,6 +68,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "CHAT_NOT_FOUND" }, { status: 404 });
     }
 
+    let activeMeetEvent: { id: string; is_active: boolean; expires_at: string } | null = null;
+    if (chat.event_id) {
+      const { data: event, error: eventError } = await supabaseAdmin
+        .from("meet_events")
+        .select("id,is_active,expires_at")
+        .eq("id", chat.event_id)
+        .maybeSingle();
+      if (eventError) throw eventError;
+      if (!event || !event.is_active || new Date(event.expires_at).getTime() <= Date.now()) {
+        return NextResponse.json({ ok: false, error: "MEET_EXPIRED" }, { status: 410 });
+      }
+      activeMeetEvent = event;
+    }
+
     if (action === "requests") {
       if (!chat.event_id) {
         return NextResponse.json({ ok: false, error: "NOT_MEET_CHAT" }, { status: 400 });
@@ -140,7 +154,7 @@ export async function POST(request: Request) {
           ok: true,
           currentUserId: user.id,
           chat,
-          event: eventResult.data,
+          event: { ...eventResult.data, expires_at: activeMeetEvent?.expires_at },
           participantCount: participants?.length ?? 0,
           otherUser: null,
           messages: messagesResult.data ?? [],
@@ -166,7 +180,7 @@ export async function POST(request: Request) {
         ok: true,
         currentUserId: user.id,
         chat: bootstrap.chat,
-        event: bootstrap.event,
+        event: { ...bootstrap.event, expires_at: activeMeetEvent?.expires_at },
         participantCount: bootstrap.participant_count,
         otherUser: null,
         messages: bootstrap.messages ?? [],

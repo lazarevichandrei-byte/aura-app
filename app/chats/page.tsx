@@ -273,6 +273,25 @@ useState<any>({});
 
 const myId = currentUser?.id ?? null;
 
+useEffect(() => {
+  const nearestExpiration = chats.reduce<number | null>((nearest, chat) => {
+    if (!chat.is_meet_chat || !chat.event_expires_at) return nearest;
+    const expiresAt = new Date(chat.event_expires_at).getTime();
+    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return nearest;
+    return nearest === null || expiresAt < nearest ? expiresAt : nearest;
+  }, null);
+  if (nearestExpiration === null) return;
+
+  const timer = window.setTimeout(() => {
+    const now = Date.now();
+    setChats((current) => current.filter(
+      (chat) => !chat.is_meet_chat || !chat.event_expires_at || new Date(chat.event_expires_at).getTime() > now
+    ));
+  }, Math.max(0, nearestExpiration - Date.now() + 50));
+
+  return () => window.clearTimeout(timer);
+}, [chats]);
+
 const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
   loadChats();

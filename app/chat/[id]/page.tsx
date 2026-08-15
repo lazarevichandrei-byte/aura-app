@@ -69,6 +69,19 @@ const [chatLoaded,setChatLoaded] =
   useState(false);
 const [chatLoadError,setChatLoadError] = useState<string | null>(null);
 
+useEffect(() => {
+  if (!meetEvent?.expires_at) return;
+  const expiresAt = new Date(meetEvent.expires_at).getTime();
+  if (!Number.isFinite(expiresAt)) return;
+  const expire = () => setChatLoadError("Встреча завершена");
+  if (expiresAt <= Date.now()) {
+    expire();
+    return;
+  }
+  const timer = window.setTimeout(expire, expiresAt - Date.now() + 50);
+  return () => window.clearTimeout(timer);
+}, [meetEvent?.expires_at]);
+
 const [hasMore,setHasMore] =
   useState(true);
 
@@ -731,6 +744,9 @@ async function fetchChatUser(){
     }
     if(result.error === "CHAT_NOT_FOUND"){
       throw new Error("Чат не найден");
+    }
+    if(result.error === "MEET_EXPIRED"){
+      throw new Error("Встреча завершена");
     }
     throw new Error("Не удалось загрузить чат");
   }
@@ -2648,7 +2664,12 @@ if(chatLoadError){
       <div>
         <div style={{fontSize:18,fontWeight:700}}>Не удалось открыть чат</div>
         <div style={{marginTop:8,color:"#7A8699"}}>{chatLoadError}</div>
-        <button onClick={()=>router.back()} style={{marginTop:20,height:44,padding:"0 22px",border:0,borderRadius:14,background:"#2E7BFF",color:"#fff",fontWeight:600}}>Назад</button>
+        <button
+          onClick={() => chatLoadError === "Встреча завершена" ? router.replace("/chats") : router.back()}
+          style={{marginTop:20,height:44,padding:"0 22px",border:0,borderRadius:14,background:"#2E7BFF",color:"#fff",fontWeight:600}}
+        >
+          {chatLoadError === "Встреча завершена" ? "К списку чатов" : "Назад"}
+        </button>
       </div>
     </div>
   );

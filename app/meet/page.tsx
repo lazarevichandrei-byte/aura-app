@@ -52,6 +52,23 @@ useEffect(() => {
   eventsRef.current = events;
 }, [events]);
 
+useEffect(() => {
+  const nearestExpiration = events.reduce<number | null>((nearest, event) => {
+    const expiresAt = new Date(event.expires_at).getTime();
+    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return nearest;
+    return nearest === null || expiresAt < nearest ? expiresAt : nearest;
+  }, null);
+  if (nearestExpiration === null) return;
+
+  const timer = window.setTimeout(() => {
+    const now = Date.now();
+    setEvents((current) => current.filter((event) => new Date(event.expires_at).getTime() > now));
+    setSelectedEvent((current) => current && new Date(current.expires_at).getTime() <= now ? null : current);
+  }, Math.max(0, nearestExpiration - Date.now() + 50));
+
+  return () => window.clearTimeout(timer);
+}, [events]);
+
 const sortAndFilterEvents = useCallback((items: any[]) => {
   const now = Date.now();
   return items
