@@ -21,11 +21,13 @@ import { useNotification } from "../../../components/NotificationContext";
 import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, nextMeetTimeSuggestion, type MeetDuration } from "../../../lib/meet/time";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
 import { consumeMeetLocation, prepareMeetLocation } from "../../../lib/meet/locationStore";
+import {useI18n} from "../../../components/I18nProvider";
 export default function CreateMeetPage() {
     
 
   const router = useRouter();
   const { error: showError, success } = useNotification();
+  const {t}=useI18n();
   
 
   const [title,setTitle] =
@@ -160,17 +162,17 @@ useEffect(() => {
   if(loading) return;
 
   if(!title || !date || !time){
-    showError("Заполните данные", "Укажите дату и время встречи.");
+    showError(t("meet.invalidData"), t("meet.requiredDate"));
     return;
   }
 
   const startsAt = localMeetDateTimeToIso(date, time);
   if (!startsAt) {
-    showError("Некорректная дата", "Проверьте дату и время встречи.");
+    showError(t("meet.invalidDate"), t("meet.invalidDateText"));
     return;
   }
   if (!isMeetStartSafelyFuture(startsAt)) {
-    showError("Некорректное время", "Выберите время позже текущего.");
+    showError(t("meet.invalidTime"), t("meet.invalidTimeText"));
     return;
   }
 
@@ -180,7 +182,7 @@ useEffect(() => {
   try{
 
     const initData = await getTelegramInitData();
-    if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
+    if (!initData) throw new Error(t("meet.telegramFailed"));
     let eventId = sessionStorage.getItem("meet_create_event_id");
     if (!eventId) {
       eventId = crypto.randomUUID();
@@ -209,7 +211,7 @@ useEffect(() => {
       }),
     });
     const result = await response.json();
-    if (!response.ok || !result.ok) throw new Error(result.message || "Не удалось создать встречу. Попробуйте ещё раз.");
+    if (!response.ok || !result.ok) throw new Error(result.message || t("meet.createFailed"));
     operationCompleted = true;
 
     try {
@@ -219,7 +221,7 @@ useEffect(() => {
     } catch (cleanupError) {
       console.error("MEET CREATE CLEANUP ERROR:", cleanupError);
     }
-    success("Встреча создана", "Общий чат встречи готов.");
+    success(t("meet.created"), t("meet.chatReady"));
     router.replace("/meet");
 
   } catch (err: any) {
@@ -232,8 +234,8 @@ useEffect(() => {
 
   if (!operationCompleted) {
     showError(
-      "Ошибка создания",
-      err?.message || "Неизвестная ошибка"
+      t("meet.createError"),
+      err?.message || t("meet.unknownError")
     );
   }
 
@@ -258,12 +260,12 @@ useEffect(() => {
         }}
       >
 
-        <PageHeader title="Создать встречу" onBack={() => router.back()} />
+        <PageHeader title={t("meet.create")} onBack={() => router.back()} />
 
         {/* Название встречи */}
 
         <div style={labelStyle}>
-          Название встречи
+          {t("meet.name")}
         </div>
 
         <input
@@ -271,7 +273,7 @@ value={title}
 onChange={(e)=>
 setTitle(e.target.value)
 }
-placeholder="Например: Вечерний кофе ☕"
+placeholder={t("meet.namePlaceholder")}
 style={inputStyle}
 />
 
@@ -283,7 +285,7 @@ style={inputStyle}
     marginTop: 16,
   }}
 >
-  Категория
+  {t("category.label")}
 </div>
 
 <CategoryPicker
@@ -313,7 +315,7 @@ style={inputStyle}
             marginTop:16
           }}
         >
-          О встрече
+          {t("meet.description")}
         </div>
 
         <textarea
@@ -324,9 +326,7 @@ onChange={(e)=>
 setDescription(e.target.value)
 }
 
-placeholder={`Например:
-Выпьем кофе,погуляем
-и познакомимся ☕`}
+placeholder={t("meet.descriptionPlaceholder")}
 
 style={{
 ...inputStyle,
@@ -353,7 +353,7 @@ flex:1
 >
 
 <div style={labelStyle}>
-📅 Дата
+📅 {t("meet.date")}
 </div>
 
 <input
@@ -380,11 +380,11 @@ flex:1
 >
 
 <div style={labelStyle}>
-🕒 Время
+🕒 {t("meet.time")}
 </div>
 
 <button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",color:time?"var(--text-primary)":"var(--text-muted)",cursor:"pointer"}}>
-  {time || "Выберите время"}
+  {time || t("meet.chooseTime")}
 </button>
 
 <MeetTimePicker
@@ -404,7 +404,7 @@ flex:1
     marginTop: 16,
   }}
 >
-⏱️ Продолжительность
+⏱️ {t("meet.duration")}
 </div>
 
 <MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
@@ -415,7 +415,7 @@ flex:1
     marginTop: 16,
   }}
 >
-  Тип участия
+  {t("meet.joinType")}
 </div>
 
 <div
@@ -441,7 +441,7 @@ flex:1
       boxShadow: "0 2px 8px rgba(0,0,0,.04)",
     }}
   >
-    🌍 Открытая
+    🌍 {t("meet.open")}
   </div>
 
   <div
@@ -460,7 +460,7 @@ flex:1
       boxShadow: "0 2px 8px rgba(0,0,0,.04)",
     }}
   >
-    📨 По заявкам
+    📨 {t("meet.approval")}
   </div>
 </div>
 
@@ -471,7 +471,7 @@ style={{
 marginTop:16
 }}
 >
-Где встречаемся
+{t("meet.place")}
 </div>
 
 <LocationCard
@@ -504,7 +504,7 @@ marginTop:16
 
 >
 
-Количество участников
+{t("meet.capacity")}
 
 </div>
 
@@ -551,8 +551,8 @@ onChange={setMaxPeople}
         >
           {
 loading
-? "⏳ Создаем..."
-: "🚀 Создать встречу"
+? `⏳ ${t("meet.creating")}`
+: `🚀 ${t("meet.create")}`
 }
         </div>
 

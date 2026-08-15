@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   onDelete: () => Promise<void>;
 };
 
 export default function MeetDeleteSlider({ onDelete }: Props) {
+  const {t}=useI18n();
   const trackRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -35,7 +37,7 @@ export default function MeetDeleteSlider({ onDelete }: Props) {
     <div
       ref={trackRef}
       role="slider"
-      aria-label="Свайпните вправо, чтобы удалить встречу"
+      aria-label={t("meet.deleteSwipeAria")}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(offset / Math.max(1, (trackRef.current?.clientWidth ?? 58) - 58) * 100)}
@@ -43,7 +45,7 @@ export default function MeetDeleteSlider({ onDelete }: Props) {
       style={{position:"relative",width:"100%",height:54,borderRadius:16,background:"var(--danger-soft)",overflow:"hidden",touchAction:"none",opacity:deleting?.7:1}}
     >
       <div style={{position:"absolute",inset:0,display:"grid",placeItems:"center",color:"#B91C1C",fontSize:14,fontWeight:700,pointerEvents:"none"}}>
-        {deleting ? "Удаляем встречу…" : "Свайпните вправо, чтобы удалить →"}
+        {deleting ? t("meet.deleting") : t("meet.deleteSwipe")}
       </div>
       <div
         onPointerDown={(event)=>{

@@ -7,6 +7,7 @@ import { ArrowLeft2 } from "iconsax-react";
 import { useNotification } from "../../components/NotificationContext";
 import AuraLoader from "../../components/AuraLoader";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
+import {useI18n} from "../../components/I18nProvider";
 
 
 const Cropper:any = dynamic(
@@ -36,6 +37,7 @@ const EXTRA_INTERESTS = [
 ];
 
 export default function Profile() {
+  const {t,locale}=useI18n();
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
@@ -493,8 +495,8 @@ canvas.height = img.height * scale;
   const uploadPhoto = async (file: File) => {
     if(uploading){
   warning(
-  "Подождите",
-  "Фотография ещё загружается"
+  t("common.loading"),
+  t("profile.photoUploading")
 );
   return;
 }
@@ -503,8 +505,8 @@ canvas.height = img.height * scale;
 
 if(now - lastUploadTime < 3000){
  warning(
-  "Подождите",
-  "Попробуйте ещё раз через пару секунд"
+  t("common.loading"),
+  t("profile.tryAgain")
 );
  return;
 }
@@ -539,7 +541,7 @@ setUploading(true);
     if (rpcError) {
 
   error(
-    "Ошибка загрузки",
+    t("profile.uploadFailed"),
     rpcError.message
   );
 
@@ -614,8 +616,8 @@ if (!name.trim() || !city.trim()) {
  setSavingProfile(false);
  setUploading(false);
  warning(
-  "Заполните профиль",
-  "Укажите имя и город"
+  t("profile.complete"),
+  t("profile.required")
 );
  return;
 }
@@ -645,7 +647,7 @@ avatar_url:
 if (rpcError) {
 
   error(
-    "Ошибка",
+    t("common.error"),
     rpcError.message
   );
 
@@ -671,8 +673,8 @@ if (isOnboarding) {
 
   if(!navigator.geolocation){
     error(
-  "Ошибка",
-  "Ваше устройство не поддерживает геолокацию"
+  t("common.error"),
+  t("profile.geoUnsupported")
 );
     return;
   }
@@ -708,7 +710,7 @@ console.log(position.coords.longitude);
 const response = await fetch(url,{
   headers:{
     Accept:"application/json",
-    "Accept-Language":"ru"
+    "Accept-Language":locale
   },
   cache:"no-store"
 });
@@ -744,7 +746,7 @@ if(!response.ok){
         }
 
         info(
-  "Город определён",
+  t("profile.cityDetected"),
   detectedCity
 );
 
@@ -753,15 +755,15 @@ if(!response.ok){
         console.log(e);
 
 warning(
-  "Внимание",
-  "Координаты получены, но определить город не удалось"
+  t("common.error"),
+  t("profile.cityFailed")
 );
 
       }
 
       success(
-  "Готово",
-  "Местоположение обновлено"
+  t("common.saved"),
+  t("profile.locationUpdated")
 );
 
     },
@@ -792,7 +794,7 @@ warning(
       setCity(geo.city);
 
       info(
-  "Город определён",
+  t("profile.cityDetected"),
   geo.city
 );
 
@@ -806,8 +808,8 @@ warning(
   }
 
   error(
-  "Ошибка",
-  "Не удалось определить местоположение"
+  t("common.error"),
+  t("profile.locationFailed")
 );
 
 },
@@ -870,7 +872,7 @@ warning(
     fontWeight: 700
   }}
 >
-  Профиль
+  {t("profile.title")}
 </div>
 </div>
 
@@ -913,12 +915,12 @@ warning(
 
         <div style={styles.row}>
           <div style={styles.inputBox}>
-            <p style={styles.label}>Имя</p>
+            <p style={styles.label}>{t("profile.name")}</p>
             <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
           </div>
 
           <div style={styles.inputBox}>
-            <p style={styles.label}>Возраст</p>
+            <p style={styles.label}>{t("profile.age")}</p>
 <div style={{fontSize:14, marginBottom:4}}>{age}</div><input
  type="range"
  min="16"
@@ -931,24 +933,24 @@ warning(
         </div>
 
         <div style={styles.block}>
-          <p style={styles.label}>Я</p>
+          <p style={styles.label}>{t("profile.gender")}</p>
           <div style={styles.buttons}>
-            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>Женщина</button>
-            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>Мужчина</button>
+            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button>
+            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button>
           </div>
         </div>
 
         <div style={styles.block}>
-          <p style={styles.label}>Кого ищешь</p>
+          <p style={styles.label}>{t("profile.lookingFor")}</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
               <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
                 {
  item==="male"
- ? "Парень"
+ ? t("profile.boy")
  : item==="female"
- ? "Девушка"
- : "Любой"
+ ? t("profile.girl")
+ : t("profile.anyone")
 }
               </button>
             ))}
@@ -978,7 +980,7 @@ warning(
         color:"var(--text-secondary)"
       }}
     >
-      Местоположение
+      {t("profile.location")}
     </div>
 
     <div
@@ -988,7 +990,7 @@ warning(
         marginTop:"2px"
       }}
     >
-      📍 {city || "Не указано"}
+      📍 {city || t("common.notSpecified")}
     </div>
   </div>
 
@@ -1004,7 +1006,7 @@ warning(
       fontWeight:600
     }}
   >
-    Обновить
+    {t("profile.updateLocation")}
   </button>
 </div>
 
@@ -1012,7 +1014,7 @@ warning(
 <div style={styles.block}>
 
   <p style={styles.label}>
-  🔎 Радиус поиска
+  🔎 {t("profile.searchRadius")}
 </p>
 
   <div
@@ -1022,7 +1024,7 @@ warning(
       marginBottom:8
     }}
   >
-    {searchRadius} км
+    {t("profile.kilometers",{count:searchRadius})}
     <p
   style={{
     fontSize:"12px",
@@ -1030,7 +1032,7 @@ warning(
     marginBottom:"10px"
   }}
 >
-  Будут показаны люди в радиусе {searchRadius} км
+  {t("profile.radiusHint",{count:searchRadius})}
 </p>
   </div>
 
@@ -1041,7 +1043,7 @@ warning(
       marginBottom:10
     }}
   >
-    Показывать анкеты в выбранном радиусе
+    {t("profile.radiusToggle")}
   </p>
 
   <input
@@ -1067,7 +1069,7 @@ warning(
       color:"var(--text-secondary)"
     }}
   >
-    <span>2 км</span>
+    <span>{t("profile.kilometers",{count:2})}</span>
     <span>50</span>
     <span>100</span>
     <span>200+</span>
@@ -1077,12 +1079,12 @@ warning(
 
 
         <div style={styles.inputBox}>
-          <p style={styles.label}>О себе</p>
+          <p style={styles.label}>{t("profile.bio")}</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
         <div style={styles.block}>
-          <p style={styles.label}>Интересы</p>
+          <p style={styles.label}>{t("profile.interests")}</p>
           <div style={styles.tags}>
             {[...base, ...(showMore ? extra : [])].map((t) => {
               const active = selected.includes(t);
@@ -1117,16 +1119,16 @@ warning(
   size={18}
   text={
     savingProfile
-      ? "Сохранение..."
-      : `Загрузка ${uploadProgress}%`
+      ? t("common.saving")
+      : t("profile.savingPhoto",{progress:uploadProgress})
   }
 />
 
 ) : (
 
   isOnboarding
-    ? "Продолжить"
-    : "Сохранить"
+    ? t("common.continue")
+    : t("common.save")
 
 )}
 </button>
@@ -1139,8 +1141,8 @@ color:"var(--text-secondary)"
 }}
 >
 {saveStatus==="saving"
- ? "Сохраняется..."
- : "Сохранено ✓"}
+ ? t("common.saving")
+ : t("common.saved")}
 </div>
 
       </div>
@@ -1261,7 +1263,7 @@ setCropOpen(false);
 
 }}
 >
-Готово
+{t("common.save")}
 </button>
 
 </div>
@@ -1291,8 +1293,8 @@ setCropOpen(false);
    for (let f of Array.from(files || [])) {
  if (f.size > 10 * 1024 * 1024){
    warning(
-  "Слишком большой файл",
-  "Максимальный размер — 10 МБ"
+  t("profile.fileTooLarge"),
+  t("profile.fileLimit")
 );
    return;
  }
@@ -1306,8 +1308,8 @@ const selectedFiles = Array.from(files);
 if (photos.length + selectedFiles.length > 6) {
 
   warning(
-    "Лимит фотографий",
-    `Можно загрузить ещё ${6 - photos.length} фото`
+    t("profile.photoLimit"),
+    t("profile.photosRemaining",{count:6-photos.length})
   );
 
   return;
@@ -1344,7 +1346,7 @@ decoding="async"
 
     {i===mainIndex && (
       <div style={styles.mainBadge}>
-        ★ Главная
+        ★ {t("profile.mainPhoto")}
       </div>
     )}
 

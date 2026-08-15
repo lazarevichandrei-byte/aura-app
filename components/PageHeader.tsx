@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft2 } from "iconsax-react";
+import {useI18n} from "./I18nProvider";
 
 type Props = {
   title: string;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default function PageHeader({ title, onBack }: Props) {
+  const {t}=useI18n();
   return (
     <header
       style={{
@@ -20,7 +22,7 @@ export default function PageHeader({ title, onBack }: Props) {
     >
       <button
         type="button"
-        aria-label="Назад"
+        aria-label={t("common.backAria")}
         onClick={onBack}
         style={{
           width: 40,

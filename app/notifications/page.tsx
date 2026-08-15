@@ -6,8 +6,11 @@ import PageWrapper from "../../components/PageWrapper";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { selection } from "../../lib/haptic";
+import {useI18n} from "../../components/I18nProvider";
+import { ListSkeleton } from "../../components/AppSkeletons";
 
 export default function NotificationsPage() {
+  const {t}=useI18n();
 
   const router = useRouter();
 
@@ -100,12 +103,7 @@ if (
   news === null
 ){
   return (
-    <div
-      style={{
-        minHeight:"100vh",
-        background:"var(--app-bg)"
-      }}
-    />
+    <ListSkeleton rows={4} />
   );
 }
 
@@ -152,7 +150,7 @@ if (
               fontWeight:700
             }}
           >
-            Уведомления
+            {t("notificationSettings.title")}
           </div>
 
         </div>
@@ -165,17 +163,17 @@ lineHeight:1.5,
 marginBottom:20
 }}
 >
-Настройте уведомления и сигналы приложения.
+{t("notificationSettings.subtitle")}
 </p>
 
 <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
-      ❤️ Новые лайки
+      ❤️ {t("notificationSettings.likes")}
     </div>
 
     <div style={subtitleStyle}>
-      Уведомлять о новых лайках
+      {t("notificationSettings.likesHint")}
     </div>
   </div>
 
@@ -201,11 +199,11 @@ marginBottom:20
   <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
-      💬 Сообщения
+      💬 {t("notificationSettings.messages")}
     </div>
 
     <div style={subtitleStyle}>
-      Уведомлять о новых сообщениях
+      {t("notificationSettings.messagesHint")}
     </div>
   </div>
 
@@ -231,11 +229,11 @@ marginBottom:20
   <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
-      💙 Новые совпадения
+      💙 {t("notificationSettings.matches")}
     </div>
 
     <div style={subtitleStyle}>
-      Уведомлять о новых совпадениях
+      {t("notificationSettings.matchesHint")}
     </div>
   </div>
 
@@ -261,11 +259,11 @@ marginBottom:20
 <div style={cardStyle}>
   <div>
     <div style={titleStyle}>
-      📢 Новости AURA
+      📢 {t("notificationSettings.news")}
     </div>
 
     <div style={subtitleStyle}>
-      Новости и обновления приложения
+      {t("notificationSettings.newsHint")}
     </div>
   </div>
 

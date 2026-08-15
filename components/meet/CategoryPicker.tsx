@@ -1,9 +1,11 @@
 "use client";
+import {useI18n} from "../I18nProvider";
+import type {TranslationKey} from "../../lib/i18n/dictionary";
 
 type Props = {
   value: {
     id: string;
-    name: string;
+    translationKey: string;
     icon: string;
   } | null;
   onClick: () => void;
@@ -13,6 +15,7 @@ export default function CategoryPicker({
   value,
   onClick,
 }: Props) {
+  const {t}=useI18n();
   return (
     <div
       onClick={onClick}
@@ -40,7 +43,7 @@ export default function CategoryPicker({
             marginBottom: 3,
           }}
         >
-          Категория
+          {t("category.label")}
         </div>
 
         <div
@@ -50,8 +53,8 @@ export default function CategoryPicker({
           }}
         >
           {value
-            ? `${value.icon} ${value.name}`
-            : "Выберите категорию"}
+            ? `${value.icon} ${t(value.translationKey as TranslationKey)}`
+            : t("category.choose")}
         </div>
 
       </div>

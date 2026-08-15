@@ -45,6 +45,7 @@ export default function ThemeProvider({children}:{children:ReactNode}){
   );
 
   useEffect(()=>{
+    if(!performance.getEntriesByName("THEME_READY").length) performance.mark("THEME_READY");
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = ()=>{
       const effective = theme === "system" ? (media.matches ? "dark" : "light") : theme;

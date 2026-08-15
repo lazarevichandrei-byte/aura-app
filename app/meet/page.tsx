@@ -26,9 +26,13 @@ import { useCurrentUser } from "../../lib/useCurrentUser";
 import { useNotification } from "../../components/NotificationContext";
 import { supabase } from "../../lib/supabase";
 import { getMeetGuestCount } from "../../lib/meet/participants";
+import {useI18n} from "../../components/I18nProvider";
+import type {TranslationKey} from "../../lib/i18n/dictionary";
+import AuraSkeleton from "../../components/AuraSkeleton";
 
 
 export default function MeetPage() {
+    const {t}=useI18n();
     const router = useRouter();
     const { error: showError, success } = useNotification();
     const mapRef = useRef<AuraMapRef>(null);
@@ -161,12 +165,12 @@ async function handleJoin(eventId: string) {
     await joinMeetEvent(eventId, currentUser.id);
 
     await syncEvent(eventId);
-    success("Вы присоединились", "Теперь вам доступен общий чат встречи.");
+    success(t("meet.joined"), t("meet.joinedText"));
 
   } catch (e) {
 
     console.error(e);
-    showError("Не удалось присоединиться", "Попробуйте ещё раз.");
+    showError(t("meet.joinFailed"), t("meet.tryAgain"));
 
     await load();
 
@@ -182,11 +186,11 @@ async function handleCardAction(event: MeetEvent) {
   try {
     await sendJoinRequest(event.id, currentUser.id);
     await syncEvent(event.id);
-    success("Заявка отправлена", "Организатор увидит вашу заявку.");
+    success(t("meet.requestSent"), t("meet.requestSentText"));
     setSelectedEvent((current) => current?.id === event.id ? { ...current } : current);
   } catch (error) {
     console.error("MEET REQUEST ERROR:", error);
-    showError("Не удалось отправить заявку", "Попробуйте ещё раз.");
+    showError(t("meet.requestFailed"), t("meet.tryAgain"));
   }
 }
 
@@ -213,12 +217,12 @@ async function handleLeave(eventId: string) {
     await leaveMeetEvent(eventId, currentUser.id);
 
     await syncEvent(eventId);
-    success("Вы покинули встречу", "Доступ к общему чату закрыт.");
+    success(t("meet.left"), t("meet.leftText"));
 
   } catch (e) {
 
     console.error(e);
-    showError("Не удалось покинуть встречу", "Попробуйте ещё раз.");
+    showError(t("meet.leaveFailed"), t("meet.tryAgain"));
 
     await load();
 
@@ -234,10 +238,10 @@ async function handleDelete(eventId: string) {
     );
 
     setSelectedEvent(null);
-    success("Встреча удалена", "Встреча и связанный чат удалены.");
+    success(t("meet.deleted"), t("meet.deletedText"));
   } catch (error) {
     console.error(error);
-    showError("Не удалось удалить встречу", "Попробуйте ещё раз.");
+    showError(t("meet.deleteFailed"), t("meet.tryAgain"));
     throw error;
   }
 }
@@ -355,7 +359,7 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
               color: "var(--text-primary)"
             }}
           >
-            Встречи
+            {t("meet.title")}
           </div>
 
           <div
@@ -365,7 +369,7 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
               fontSize: 14
             }}
           >
-            Найди компанию рядом
+            {t("meet.subtitle")}
           </div>
 
         </div>
@@ -420,11 +424,11 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
         {[
           {
             id: "map",
-            title: "🗺 Карта"
+            title: `🗺 ${t("meet.map")}`
           },
           {
             id: "feed",
-            title: "📋 Лента"
+            title: `📋 ${t("meet.feed")}`
           },
         ].map(item => (
 
@@ -492,14 +496,8 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
 />
 
 {loading && (
-
-<div
-style={{
-padding:40,
-textAlign:"center"
-}}
->
-Загрузка...
+<div aria-busy="true" aria-hidden="true" style={{display:"grid",gap:14,paddingTop:8}}>
+  {Array.from({length:3},(_,index)=><AuraSkeleton key={index} height={view==="grid"?190:220} radius={24}/>) }
 </div>
 
 )}
@@ -538,7 +536,7 @@ fontSize:21,
 fontWeight:700
 }}
 >
-Пока нет встреч
+{t("meet.empty")}
 </div>
 
 <div
@@ -549,10 +547,7 @@ lineHeight:1.6,
 fontSize:14
 }}
 >
-Создай первую встречу
-<br/>
-и люди рядом смогут
-присоединиться к тебе.
+{t("meet.emptyHint")}
 </div>
 
 <div
@@ -584,7 +579,7 @@ cursor:"pointer"
 
 }}
 >
-Создать встречу
+{t("meet.create")}
 </div>
 
 </div>
@@ -781,8 +776,8 @@ view === "list" ? (
     >
       <span>
         {selectedCategory
-          ? `${MEET_CATEGORIES.find(c => c.id === selectedCategory)?.icon} ${MEET_CATEGORIES.find(c => c.id === selectedCategory)?.name}`
-          : "🔍 Все категории"}
+          ? (()=>{const category=MEET_CATEGORIES.find(c => c.id === selectedCategory);return category ? `${category.icon} ${t(category.translationKey as TranslationKey)}` : t("category.all");})()
+          : `🔍 ${t("category.all")}`}
       </span>
 
       <span>

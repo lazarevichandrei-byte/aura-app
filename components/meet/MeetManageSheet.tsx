@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import BottomSheet from "../BottomSheet";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   open: boolean;
@@ -11,19 +12,6 @@ type Props = {
   onChat: () => void;
 };
 
-const actions = [
-  {
-    title: "✏️ Редактировать",
-    description: "Изменить информацию",
-    key: "edit",
-  },
-  {
-    title: "👥 Участники",
-    description: "Управление участниками",
-    key: "participants",
-  },
-] as const;
-
 export default function MeetManageSheet({
   open,
   onClose,
@@ -31,6 +19,11 @@ export default function MeetManageSheet({
   onParticipants,
   onChat,
 }: Props) {
+  const {t}=useI18n();
+  const actions = [
+    {title:`✏️ ${t("meet.edit")}`,description:t("meet.editDescription"),key:"edit" as const},
+    {title:`👥 ${t("meet.participants")}`,description:t("meet.participantsManage"),key:"participants" as const},
+  ];
   const handlers = {
     edit: onEdit,
     participants: onParticipants,
@@ -52,7 +45,7 @@ export default function MeetManageSheet({
             color: "var(--text-primary)",
           }}
         >
-          Управление встречей
+          {t("meet.management")}
         </div>
 
         <div
@@ -62,11 +55,11 @@ export default function MeetManageSheet({
             color: "var(--text-secondary)",
           }}
         >
-          Выберите необходимое действие
+          {t("meet.chooseAction")}
         </div>
       </div>
 
-      {[...actions, { title: "💬 Общий чат", description: "Открыть чат встречи", key: "chat" as const }]
+      {[...actions, { title: `💬 ${t("meet.sharedChat")}`, description: t("meet.openChat"), key: "chat" as const }]
         .map((action) => (
         <motion.button
           key={action.key}

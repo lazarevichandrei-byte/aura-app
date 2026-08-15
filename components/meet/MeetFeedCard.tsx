@@ -10,6 +10,8 @@ import {
 import type { MeetEvent } from "../../lib/meet/types";
 import { getMeetGuests } from "../../lib/meet/participants";
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
+import {useI18n} from "../I18nProvider";
+import type {TranslationKey} from "../../lib/i18n/dictionary";
 type Props = {
     event: MeetEvent;
     isCreator: boolean;
@@ -29,6 +31,7 @@ export default function MeetFeedCard({
     onJoin,
     requestStatus,
 }: Props) {
+  const {t,intlLocale}=useI18n();
   const guests = getMeetGuests(event);
 
     return (
@@ -130,9 +133,7 @@ layoutId={event.id}
         }
 
         {
-            MEET_CATEGORIES.find(
-                c => c.id === event.category
-            )?.name
+            (()=>{const category=MEET_CATEGORIES.find(c => c.id === event.category);return category ? t(category.translationKey as TranslationKey) : "";})()
         }
     </span>
 
@@ -205,7 +206,7 @@ layoutId={event.id}
         />
 
         {new Date(event.starts_at).toLocaleDateString(
-            "ru-RU",
+            intlLocale,
             {
                 day: "numeric",
                 month: "long",
@@ -226,7 +227,7 @@ layoutId={event.id}
         />
 
         {new Date(event.starts_at).toLocaleTimeString(
-            "ru-RU",
+            intlLocale,
             {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -317,7 +318,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                        Управление
+                        {t("meet.manageShort")}
                     </div>
 
                 ) : isParticipant ? (
@@ -328,12 +329,12 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                        Вы участвуете
+                        {t("meet.youParticipate")}
                     </div>
 
                 ) : requestStatus === "pending" ? (
 
-                    <div style={{color:"#D97706",fontWeight:700}}>⏳ На рассмотрении</div>
+                    <div style={{color:"var(--warning)",fontWeight:700}}>⏳ {t("meet.pending")}</div>
 
                 ) : isFull ? (
 
@@ -343,7 +344,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                        Нет мест
+                        {t("meet.full")}
                     </div>
 
                 ) : (
@@ -374,7 +375,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                      {event.join_type === "approval" && requestStatus === "rejected" ? "Подать заявку повторно" : event.join_type === "approval" ? "Подать заявку" : "Вступить"}
+                      {event.join_type === "approval" && requestStatus === "rejected" ? t("meet.applyAgain") : event.join_type === "approval" ? t("meet.apply") : t("meet.enter")}
                     </motion.button>
 
                 )}

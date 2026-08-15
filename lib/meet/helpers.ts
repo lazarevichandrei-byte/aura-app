@@ -1,4 +1,4 @@
-export function formatMeetDate(date: string, locale = "en-US") {
+export function formatMeetDate(date: string, locale: string) {
 
   return new Date(date).toLocaleDateString(
     locale,

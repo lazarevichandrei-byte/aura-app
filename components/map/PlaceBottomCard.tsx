@@ -1,4 +1,5 @@
 "use client";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   title: string;
@@ -11,6 +12,7 @@ export default function PlaceBottomCard({
   address,
   onSelect
 }: Props) {
+  const {t}=useI18n();
 
   return(
 
@@ -67,7 +69,7 @@ export default function PlaceBottomCard({
 
       >
 
-        📍 {title || "Выберите место"}
+        📍 {title || t("map.choosePlace")}
 
       </div>
 
@@ -91,7 +93,7 @@ export default function PlaceBottomCard({
 
       >
 
-        {address || "Переместите карту"}
+        {address || t("map.moveMap")}
 
       </div>
 
@@ -129,7 +131,7 @@ onClick={onSelect}
 
       >
 
-        Использовать место
+        {t("map.usePlace")}
 
       </button>
 

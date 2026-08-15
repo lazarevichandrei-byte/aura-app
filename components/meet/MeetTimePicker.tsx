@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   open: boolean;
@@ -15,6 +16,7 @@ const MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padSt
 const ITEM_HEIGHT = 46;
 
 export default function MeetTimePicker({ open, value, onClose, onChange }: Props) {
+  const {t}=useI18n();
   const [rendered, setRendered] = useState(open);
   const [closing, setClosing] = useState(false);
   const [hour, setHour] = useState("12");
@@ -91,12 +93,12 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div style={timeOverlayStyle} role="dialog" aria-modal="true" aria-label="Время встречи">
+    <div style={timeOverlayStyle} role="dialog" aria-modal="true" aria-label={t("meet.timeDialog")}>
       <style>{`@keyframes meetBackdropIn{from{opacity:0}to{opacity:1}}@keyframes meetBackdropOut{from{opacity:1}to{opacity:0}}@keyframes meetSheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes meetSheetOut{from{transform:translateY(0)}to{transform:translateY(100%)}}`}</style>
-      <button aria-label="Закрыть" onClick={onClose} style={{...timeBackdropStyle,animation:closing?"meetBackdropOut .24s ease both":"meetBackdropIn .24s ease both"}} />
+      <button aria-label={t("common.close")} onClick={onClose} style={{...timeBackdropStyle,animation:closing?"meetBackdropOut .24s ease both":"meetBackdropIn .24s ease both"}} />
       <div style={{...timeSheetStyle,animation:closing?"meetSheetOut .24s ease-in both":"meetSheetIn .26s ease-out both"}}>
         <div style={timeHandleStyle} />
-        <div style={{ fontSize: 20, fontWeight: 700 }}>Время встречи</div>
+        <div style={{ fontSize: 20, fontWeight: 700 }}>{t("meet.timeDialog")}</div>
         <div style={pickerStyle}>
           <div style={selectionStyle} />
           {wheel(HOURS, hour, setHour, hoursRef)}
@@ -104,8 +106,8 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
           {wheel(MINUTES, minute, setMinute, minutesRef)}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <button type="button" onClick={onClose} style={cancelStyle}>Отмена</button>
-          <button type="button" onClick={() => { onChange(`${hour}:${minute}`); onClose(); }} style={doneStyle}>Готово</button>
+          <button type="button" onClick={onClose} style={cancelStyle}>{t("common.cancel")}</button>
+          <button type="button" onClick={() => { onChange(`${hour}:${minute}`); onClose(); }} style={doneStyle}>{t("common.done")}</button>
         </div>
       </div>
     </div>,

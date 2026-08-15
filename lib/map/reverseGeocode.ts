@@ -23,7 +23,7 @@ export async function reverseGeocode(
       ["municipality", "place", "locality"].some((type) => item.id?.startsWith(`${type}.`))
     );
 
-    const title = place.text || place.properties?.name || place.place_name?.split(",")[0] || "Ближайшее место";
+    const title = place.text || place.properties?.name || place.place_name?.split(",")[0] || "";
     const address = place.place_name || place.properties?.label || title;
 
     return {

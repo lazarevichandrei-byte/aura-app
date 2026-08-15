@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   NotificationProvider
 } from "../components/NotificationContext";
-import RealtimeNotificationBridge from "../components/RealtimeNotificationBridge";
+import StartupLifecycle from "../components/StartupLifecycle";
 import ThemeProvider from "../components/ThemeProvider";
 import I18nProvider from "../components/I18nProvider";
 
@@ -30,7 +30,7 @@ export default function Providers({
       <I18nProvider>
       <NotificationProvider>
 
-        <RealtimeNotificationBridge />
+        <StartupLifecycle />
 
         {children}
 

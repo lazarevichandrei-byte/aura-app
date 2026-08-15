@@ -16,6 +16,7 @@ import {
 } from "motion/react";
 import type { MeetEvent } from "../../lib/meet/types";
 import MeetCard from "./MeetCard";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   event: MeetEvent | null;
@@ -55,6 +56,7 @@ export default function MeetBottomSheet({
   onDelete,
   onClose,
 }: Props) {
+  const {t}=useI18n();
   const [viewportHeight, setViewportHeight] = useState(getViewportHeight);
   const [snapPoint, setSnapPoint] = useState<SnapPoint>("collapsed");
   const y = useMotionValue(viewportHeight);
@@ -201,7 +203,7 @@ const collapsedPosition = useMemo(
       }}
     >
       <motion.div
-        aria-label="Потяните, чтобы изменить размер карточки встречи"
+        aria-label={t("meet.resizeCard")}
         onPanEnd={() => snapToNearest()}
         style={{
   display: "flex",

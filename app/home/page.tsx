@@ -160,7 +160,7 @@ console.log("SET MYID:", user.id);
     .from("users")
     .insert({
       telegram_id: tgId,
-      name: "Новый пользователь"
+      name: t("home.newUser")
     })
     .select()
     .single();
@@ -426,8 +426,8 @@ if(rpcError){
   console.log("FULL ERROR", rpcError);
 
   error(
-    "Ошибка",
-    rpcError.message ?? "Не удалось поставить лайк"
+    t("common.error"),
+    rpcError.message ?? t("home.likeFailed")
   );
 
   return;
@@ -756,7 +756,7 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
   <span>
     📍 {currentUser.city}
     {currentUser.distance
-      ? ` • ${Math.round(currentUser.distance)} км`
+      ? ` • ${t("home.distance",{distance:Math.round(currentUser.distance)})}`
       : ""}
   </span>
 
@@ -793,7 +793,7 @@ currentUser.last_seen
 </div>
 
 {currentUser.distance
-  ? ` • ${Math.round(currentUser.distance)} км`
+  ? ` • ${t("home.distance",{distance:Math.round(currentUser.distance)})}`
   : ""
 }
 </div>
@@ -835,7 +835,7 @@ currentUser.last_seen
     cursor:"pointer"
   }}
 >
-  Смотреть профиль
+  {t("home.viewProfile")}
 </button>
 
 <div
@@ -1078,7 +1078,7 @@ color:"rgba(255,255,255,.82)",
 marginBottom:38
 }}
 >
-Между вами появилась связь ✨
+{t("home.matchTitle")}
 </div>
 
 
@@ -1185,9 +1185,7 @@ color:"rgba(255,255,255,.88)",
 marginBottom:38
 }}
 >
-Вы и {matchedUser?.name}
-<br/>
-понравились друг другу
+{t("home.matchText",{name:matchedUser?.name || t("home.newUser")})}
 </div>
 
 
@@ -1218,7 +1216,7 @@ fontSize:18,
 fontWeight:600
 }}
 >
-Написать сообщение
+{t("home.message")}
 </button>
 
 
@@ -1257,7 +1255,7 @@ fontSize:18,
 fontWeight:500
 }}
 >
-Продолжить поиск
+{t("home.keepSearching")}
 </button>
 
 

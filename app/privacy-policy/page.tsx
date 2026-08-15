@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
+import {useI18n} from "../../components/I18nProvider";
 
 export default function PrivacyPolicyPage() {
+  const {t}=useI18n();
 
   const router = useRouter();
 
@@ -50,7 +52,7 @@ export default function PrivacyPolicyPage() {
               fontWeight:700
             }}
           >
-            Политика конфиденциальности
+            {t("legal.privacyTitle")}
           </div>
         </div>
 
@@ -62,7 +64,7 @@ export default function PrivacyPolicyPage() {
             marginBottom:20
           }}
         >
-          Информация о хранении и обработке данных.
+          {t("legal.privacySubtitle")}
         </p>
 
         <div style={cardStyle}>

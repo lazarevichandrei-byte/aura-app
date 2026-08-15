@@ -1,4 +1,5 @@
 "use client";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   place: string;
@@ -13,6 +14,7 @@ export default function LocationCard({
   address,
   onMapClick,
 }: Props) {
+  const {t}=useI18n();
 
   if (place) {
 
@@ -40,7 +42,7 @@ export default function LocationCard({
             color:"var(--text-secondary)"
           }}
         >
-          📍 Место встречи
+          📍 {t("map.meetLocation")}
         </div>
 
         <div
@@ -100,7 +102,7 @@ export default function LocationCard({
             fontWeight: 700,
           }}
         >
-          🗺️ Выберите место
+          🗺️ {t("map.open")}
         </div>
 
         <div
@@ -111,9 +113,7 @@ export default function LocationCard({
             lineHeight: 1.45,
           }}
         >
-          Нажмите, чтобы открыть карту
-          <br />
-          и отметить место встречи
+          {t("map.openHint")}
         </div>
 
       </div>

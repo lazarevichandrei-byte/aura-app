@@ -5,12 +5,14 @@ import { useRef, useState } from "react";
 import { useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { sendMatchNotification } from "../../lib/notifications/matches";
-import AuraLoader from "../../components/AuraLoader";
+import { GridSkeleton } from "../../components/AppSkeletons";
 import { useNotification } from "../../components/NotificationContext";
+import {useI18n} from "../../components/I18nProvider";
 export default function LikesPage(){
 
 const router = useRouter();
 const { info } = useNotification();
+const {t}=useI18n();
 
 
 const [myId,setMyId] = useState<string | null>(null);
@@ -156,7 +158,7 @@ function EmptyLikes() {
           color: "var(--text-primary)"
         }}
       >
-        Пока тебя никто не лайкнул
+        {t("likes.empty")}
       </div>
 
       <div
@@ -167,9 +169,7 @@ function EmptyLikes() {
           lineHeight: 1.5
         }}
       >
-        Заполни профиль —
-        <br />
-        так шансов будет больше.
+        {t("likes.emptyHint")}
       </div>
 
       <button
@@ -186,22 +186,14 @@ function EmptyLikes() {
           cursor: "pointer"
         }}
       >
-        Заполнить профиль
+        {t("likes.completeProfile")}
       </button>
     </div>
   );
 }
 
 if (loading) {
-
-  return (
-
-    <AuraLoader
-      compact
-      text="Загрузка лайков..."
-    />
-
-  );
+  return <GridSkeleton />;
 
 }
 
@@ -279,7 +271,7 @@ fontSize:27,
 fontWeight:700
 }}
 >
-Тебя лайкнули
+{t("likes.title")}
 </div>
 
 <div
@@ -289,7 +281,7 @@ marginTop:4,
 color:"var(--text-secondary)"
 }}
 >
-Люди которым ты понравился
+{t("likes.subtitle")}
 </div>
 
 </div>
@@ -322,7 +314,7 @@ fontSize:19,
 fontWeight:700
 }}
 >
-{people.length} человек тебя лайкнули ❤️
+{t("likes.count",{count:people.length})}
 </div>
 
 <div
@@ -332,7 +324,7 @@ fontSize:14,
 color:"var(--text-secondary)"
 }}
 >
-Посмотри кто проявил интерес
+{t("likes.interest")}
 </div>
 
 </div>
@@ -356,7 +348,7 @@ people.map((user, index) => (
 key={user.id}
 
 onClick={()=>{
-info("Профиль скоро появится", "Переход к профилю будет добавлен в следующем обновлении.");
+info(t("likes.profileUnavailable"), t("likes.profileUnavailable"));
 }}
 
 style={{
@@ -478,7 +470,7 @@ color:"var(--primary)",
 cursor:"pointer"
 }}
 >
-Смотреть профиль
+{t("home.viewProfile")}
 </div>
 
 </div>
@@ -694,7 +686,7 @@ marginTop:12,
 fontSize:28,
 fontWeight:800
 }}>
-Это матч!
+{t("likes.match")}
 </div>
 
 <div style={{
@@ -702,7 +694,7 @@ marginTop:10,
 fontSize:16,
 color:"var(--text-secondary)"
 }}>
-Вы и {match?.name || "пользователь"} понравились друг другу
+{t("likes.matchText",{name:match?.name || t("navigation.profile")})}
 </div>
 
 <img
@@ -746,7 +738,7 @@ animation:
 "buttonAppear .55s ease"
 }}
 >
-Написать сообщение
+{t("home.message")}
 </div>
 
 </div>

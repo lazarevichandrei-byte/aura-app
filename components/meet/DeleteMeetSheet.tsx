@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import BottomSheet from "../BottomSheet";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   open: boolean;
@@ -14,6 +15,7 @@ export default function DeleteMeetSheet({
   onClose,
   onConfirm,
 }: Props) {
+  const {t}=useI18n();
   const trackRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -43,7 +45,7 @@ export default function DeleteMeetSheet({
             color: "var(--text-primary)",
           }}
         >
-          Удалить встречу?
+          {t("meet.deleteTitle")}
         </div>
 
         <div
@@ -54,13 +56,13 @@ export default function DeleteMeetSheet({
             lineHeight: 1.5,
           }}
         >
-          Это действие нельзя отменить.
+          {t("meet.deleteIrreversible")}
         </div>
 
         <div
           ref={trackRef}
           role="slider"
-          aria-label="Свайпните вправо, чтобы удалить встречу"
+          aria-label={t("meet.deleteSwipeAria")}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(offset / Math.max(1, (trackRef.current?.clientWidth ?? 58) - 58) * 100)}
@@ -80,7 +82,7 @@ export default function DeleteMeetSheet({
           }}
         >
           <div style={{position:"absolute",inset:0,display:"grid",placeItems:"center",color:"var(--danger)",fontSize:14,fontWeight:700,pointerEvents:"none"}}>
-            Свайпните вправо, чтобы удалить →
+            {t("meet.deleteSwipe")}
           </div>
           <div
             onPointerDown={(event)=>{setDragging(true); event.currentTarget.setPointerCapture(event.pointerId);}}
@@ -97,7 +99,7 @@ export default function DeleteMeetSheet({
 
         {armed && (
           <button onClick={onConfirm} style={{width:"100%",height:48,marginTop:12,border:"none",borderRadius:14,background:"#EF4444",color:"#fff",fontWeight:700}}>
-            Подтвердить удаление
+            {t("meet.deleteConfirm")}
           </button>
         )}
 
@@ -114,7 +116,7 @@ export default function DeleteMeetSheet({
             cursor: "pointer",
           }}
         >
-          Отмена
+          {t("common.cancel")}
         </button>
       </div>
     </BottomSheet>

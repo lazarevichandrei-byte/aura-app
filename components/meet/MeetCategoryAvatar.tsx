@@ -1,4 +1,6 @@
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
+import {useI18n} from "../I18nProvider";
+import type {TranslationKey} from "../../lib/i18n/dictionary";
 
 type MeetCategoryAvatarProps = {
   category?: string | null;
@@ -9,11 +11,12 @@ export default function MeetCategoryAvatar({
   category,
   size = 60,
 }: MeetCategoryAvatarProps) {
+  const {t}=useI18n();
   const meetCategory = MEET_CATEGORIES.find((item) => item.id === category);
 
   return (
     <div
-      aria-label={meetCategory?.name || "Встреча"}
+      aria-label={meetCategory ? t(meetCategory.translationKey as TranslationKey) : t("chats.meeting")}
       style={{
         width: size,
         height: size,

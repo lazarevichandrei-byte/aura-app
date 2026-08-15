@@ -1,6 +1,8 @@
 "use client";
 
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
+import {useI18n} from "../I18nProvider";
+import type {TranslationKey} from "../../lib/i18n/dictionary";
 
 type Props = {
   open: boolean;
@@ -15,6 +17,7 @@ export default function CategorySheet({
   onClose,
   onSelect
 }: Props) {
+  const {t}=useI18n();
 
   if (!open) return null;
 
@@ -96,7 +99,7 @@ export default function CategorySheet({
           }}
 
         >
-          Выберите категорию
+          {t("category.choose")}
         </div>
 
         {MEET_CATEGORIES.map(item=>(
@@ -143,7 +146,7 @@ export default function CategorySheet({
                 fontSize:16
               }}
             >
-              {item.icon} {item.name}
+              {item.icon} {t(item.translationKey as TranslationKey)}
             </div>
 
             {selected===item.id && (

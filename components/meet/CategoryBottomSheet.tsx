@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import BottomSheet from "../BottomSheet";
 import { CATEGORY_GROUPS, MEET_CATEGORIES } from "../../lib/meet/categories";
+import {useI18n} from "../I18nProvider";
+import type {TranslationKey} from "../../lib/i18n/dictionary";
 
 type Props = {
   open: boolean;
@@ -20,6 +22,7 @@ export default function CategoryBottomSheet({
   onSelect,
   allowAll = false,
 }: Props) {
+  const {t}=useI18n();
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,7 +41,7 @@ export default function CategoryBottomSheet({
 
   const selectedGroupName = CATEGORY_GROUPS.find(
     (group) => group.id === selectedGroup
-  )?.name;
+  )?.translationKey;
 
   return (
     <BottomSheet open={open} onClose={closeSheet} height="min(72dvh, 640px)">
@@ -47,7 +50,7 @@ export default function CategoryBottomSheet({
           {selectedGroup && (
             <button
               type="button"
-              aria-label="Назад к группам категорий"
+              aria-label={t("category.backToGroups")}
               onClick={() => setSelectedGroup(null)}
               style={backButtonStyle}
             >
@@ -67,7 +70,7 @@ export default function CategoryBottomSheet({
           )}
 
           <div style={titleStyle}>
-            {selectedGroupName ?? "Выберите категорию"}
+            {selectedGroupName ? t(selectedGroupName as TranslationKey) : t("category.choose")}
           </div>
         </div>
 
@@ -83,7 +86,7 @@ export default function CategoryBottomSheet({
               {allowAll && (
                 <CategoryRow
                   icon="🔍"
-                  name="Все категории"
+                  name={t("category.all")}
                   selected={value === null}
                   onClick={() => selectCategory(null)}
                 />
@@ -93,7 +96,7 @@ export default function CategoryBottomSheet({
                 <CategoryRow
                   key={group.id}
                   icon={group.icon}
-                  name={group.name}
+                  name={t(group.translationKey as TranslationKey)}
                   trailing="›"
                   onClick={() => setSelectedGroup(group.id)}
                 />
@@ -113,7 +116,7 @@ export default function CategoryBottomSheet({
                 <CategoryRow
                   key={category.id}
                   icon={category.icon}
-                  name={category.name}
+                  name={t(category.translationKey as TranslationKey)}
                   selected={value === category.id}
                   onClick={() => selectCategory(category.id)}
                 />

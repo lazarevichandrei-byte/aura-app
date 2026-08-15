@@ -1,6 +1,7 @@
 "use client";
 
 import { formatMeetEndText, type MeetDuration } from "../../lib/meet/time";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   value: MeetDuration;
@@ -9,15 +10,12 @@ type Props = {
   time: string;
 };
 
-const OPTIONS: { id: MeetDuration; label: string }[] = [
-  { id: "30m", label: "30 минут" },
-  { id: "1h", label: "1 час" },
-  { id: "2h", label: "2 часа" },
-  { id: "day", label: "До конца дня" },
-];
-
 export default function MeetDurationSelector({ value, onChange, date, time }: Props) {
-  const endText = formatMeetEndText(date, time, value);
+  const {t,intlLocale}=useI18n();
+  const OPTIONS: { id: MeetDuration; label: string }[] = [
+    {id:"30m",label:t("meet.duration30")},{id:"1h",label:t("meet.duration1h")},{id:"2h",label:t("meet.duration2h")},{id:"day",label:t("meet.durationDay")}
+  ];
+  const endText = formatMeetEndText(date,time,value,intlLocale,{endsAt:(endTime)=>t("meet.endsAt",{time:endTime}),endsOn:(endDate)=>t("meet.endsOn",{date:endDate})});
   return (
     <>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>

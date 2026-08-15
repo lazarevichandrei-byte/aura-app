@@ -6,32 +6,34 @@ import { useRouter } from "next/navigation";
 import PageWrapper from "../../components/PageWrapper";
 import { selection } from "../../lib/haptic";
 import { getTelegramInitData } from "../../lib/telegram-init-data";
+import {useI18n} from "../../components/I18nProvider";
+import { ListSkeleton } from "../../components/AppSkeletons";
 
 export default function BlacklistPage(){
+  const {t}=useI18n();
 
   const router = useRouter();
 
   const [users,setUsers] =
     useState<any[]>([]);
+  const [loading,setLoading]=useState(true);
 
   useEffect(()=>{
     loadBlocked();
   },[]);
 
   async function loadBlocked(){
-
-  const initData = await getTelegramInitData();
-  if(!initData) return;
-
-  const response = await fetch("/api/blocked-users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData, action: "list" })
-  });
-  const result = await response.json().catch(() => null);
-  if(response.ok && result?.ok){
-    setUsers(result.blockedUsers ?? []);
-  }
+  try{
+    const initData = await getTelegramInitData();
+    if(!initData) return;
+    const response = await fetch("/api/blocked-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData, action: "list" })
+    });
+    const result = await response.json().catch(() => null);
+    if(response.ok && result?.ok) setUsers(result.blockedUsers ?? []);
+  }finally{setLoading(false);}
 }
 
   async function unblock(
@@ -51,6 +53,8 @@ export default function BlacklistPage(){
 
   if(response.ok) loadBlocked();
   }
+
+  if(loading) return <ListSkeleton rows={4}/>;
 
   return(
     <PageWrapper>
@@ -92,7 +96,7 @@ export default function BlacklistPage(){
               fontWeight:700
             }}
           >
-            Чёрный список
+            {t("blacklist.title")}
           </div>
 
         </div>
@@ -106,7 +110,7 @@ export default function BlacklistPage(){
     marginBottom:20
   }}
 >
-  Пользователи, которых вы заблокировали.
+  {t("blacklist.subtitle")}
 </p>
 
 )}
@@ -139,7 +143,7 @@ export default function BlacklistPage(){
         color: "var(--text-primary)"
       }}
     >
-      Чёрный список пуст
+      {t("blacklist.empty")}
     </div>
 
     <div
@@ -150,9 +154,7 @@ export default function BlacklistPage(){
         lineHeight: 1.5
       }}
     >
-      Здесь будут отображаться
-      <br />
-      заблокированные пользователи.
+      {t("blacklist.emptyHint")}
     </div>
 
   </div>
@@ -209,7 +211,7 @@ export default function BlacklistPage(){
       marginTop:"2px"
     }}
   >
-    📍 {user?.city || "Город не указан"}
+    📍 {user?.city || t("blacklist.cityUnknown")}
   </div>
 </div>
 
@@ -227,7 +229,7 @@ export default function BlacklistPage(){
                   padding:"10px 14px"
                 }}
               >
-                Разблокировать
+                {t("blacklist.unblock")}
               </button>
 
             </div>

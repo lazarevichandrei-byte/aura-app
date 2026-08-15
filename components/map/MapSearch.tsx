@@ -1,4 +1,5 @@
 "use client";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   value: string;
@@ -9,6 +10,7 @@ export default function MapSearch({
   value,
   onChange
 }: Props) {
+  const {t}=useI18n();
 
   return (
 
@@ -44,7 +46,7 @@ export default function MapSearch({
         <input
           value={value}
           onChange={(e)=>onChange(e.target.value)}
-          placeholder="Кафе, парк или адрес..."
+          placeholder={t("map.searchPlaceholder")}
           style={{
             flex: 1,
             background: "transparent",

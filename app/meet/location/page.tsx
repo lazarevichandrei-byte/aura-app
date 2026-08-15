@@ -11,10 +11,12 @@ import { reverseGeocode } from "../../../lib/map/reverseGeocode";
 import { consumeInitialMeetLocation, saveMeetLocation } from "../../../lib/meet/locationStore";
 import { useNotification } from "../../../components/NotificationContext";
 import { DEFAULT_CENTER } from "../../../lib/map/map";
+import {useI18n} from "../../../components/I18nProvider";
 
 export default function MeetLocationPage() {
   const router = useRouter();
   const { error: showError } = useNotification();
+  const {t}=useI18n();
   const mapRef = useRef<AuraMapRef>(null);
   const initialLocationRef = useRef(
     typeof window === "undefined" ? null : consumeInitialMeetLocation()
@@ -51,7 +53,7 @@ export default function MeetLocationPage() {
 
   const selectPlace = () => {
     if (!place.title && !place.address) {
-      showError("Адрес ещё определяется", "Подождите немного или переместите карту.");
+      showError(t("map.addressPending"), t("map.addressPendingHint"));
       return;
     }
     saveMeetLocation({ ...place, lat: center.lat, lng: center.lng });
@@ -83,12 +85,12 @@ export default function MeetLocationPage() {
         <PlaceBottomCard title={place.title} address={place.address} onSelect={selectPlace} />
 
         <header style={headerStyle}>
-          <button type="button" onClick={() => router.back()} aria-label="Назад" style={backButtonStyle}>
+          <button type="button" onClick={() => router.back()} aria-label={t("common.back")} style={backButtonStyle}>
             <ArrowLeft2 size="22" color="var(--brand-primary)" />
           </button>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Где пройдет встреча?</div>
-            <div style={{ marginTop: 3, color: "var(--text-secondary)", fontSize: 12 }}>Выберите место на карте</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{t("map.where")}</div>
+            <div style={{ marginTop: 3, color: "var(--text-secondary)", fontSize: 12 }}>{t("map.whereHint")}</div>
           </div>
         </header>
       </div>

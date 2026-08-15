@@ -14,6 +14,7 @@ import MeetManageSheet from "./MeetManageSheet";
 import { getMeetGuests } from "../../lib/meet/participants";
 import MeetDeleteSlider from "./MeetDeleteSlider";
 import { meetCountdown } from "../../lib/meet/time";
+import {useI18n} from "../I18nProvider";
 type Props = {
   event: MeetEvent;
   expanded: boolean;
@@ -33,7 +34,8 @@ export default function MeetCard({
 }: Props) {
 
   const router = useRouter();
-  const organizerName = event.users?.name || "Организатор";
+  const {t,intlLocale}=useI18n();
+  const organizerName = event.users?.name || t("meet.organizer");
   const organizerAvatar = event.users?.avatar_url;
   const guests = getMeetGuests(event);
 
@@ -55,14 +57,14 @@ const [joinRequest, setJoinRequest] = useState<any>(null);
 const [loadingRequest, setLoadingRequest] = useState(false);
   
 
-  const eventDate = new Date(event.starts_at).toLocaleString("ru-RU", {
+  const eventDate = new Date(event.starts_at).toLocaleString(intlLocale, {
   day: "numeric",
   month: "long",
   hour: "2-digit",
   minute: "2-digit",
 });
 
-const onlineStatus = getOnlineStatus(event.users ?? {});
+const onlineStatus = getOnlineStatus(event.users??{},intlLocale,{online:t("home.online"),lastSeen:(time)=>t("home.lastSeen",{time})});
 
 const [now, setNow] = useState(Date.now());
 
@@ -74,7 +76,7 @@ useEffect(() => {
   return () => clearInterval(timer);
 }, []);
 
-const countdown = meetCountdown(event.starts_at, event.expires_at, now);
+const countdown = meetCountdown(event.starts_at,event.expires_at,intlLocale,{missing:t("meet.timeMissing"),startsIn:(time)=>t("meet.startsIn",{time}),endsIn:(time)=>t("meet.endsIn",{time}),ended:t("chat.meetEnded")},now);
 
 useEffect(() => {
   if (!currentUserId || isParticipant) return;
@@ -141,7 +143,7 @@ useEffect(() => {
         {organizerAvatar ? (
           <img
             src={organizerAvatar}
-            alt={`Фото ${organizerName}`}
+            alt={t("meet.organizerPhoto",{name:organizerName})}
             style={{
               width: expanded ? 46 : 42,
               height: expanded ? 46 : 42,
@@ -363,7 +365,7 @@ lineHeight: 1.25,
         color: "var(--text-secondary)",
       }}
     >
-      участников встречи
+      {t("meet.participantCount")}
     </div>
   </div>
 
@@ -377,7 +379,7 @@ lineHeight: 1.25,
       borderRadius: 999,
     }}
   >
-    {isFull ? "Мест нет" : "Есть места"}
+    {isFull ? t("meet.full") : t("meet.available")}
   </div>
 </div>
   </>
@@ -423,7 +425,7 @@ lineHeight: 1.25,
       cursor: "pointer",
     }}
   >
-    ⚙️ Управление встречей
+    ⚙️ {t("meet.manage")}
   </div>
   <div style={{marginBottom:16}}>
     <MeetDeleteSlider onDelete={() => onDelete(event.id)} />
@@ -512,16 +514,16 @@ lineHeight: 1.25,
       }}
     >
       {isParticipant
-        ? "🚪 Покинуть встречу"
+        ? `🚪 ${t("meet.leave")}`
         : isFull
-        ? "🚫 Нет мест"
+        ? `🚫 ${t("meet.full")}`
         : isApproval
         ? hasPendingRequest
-          ? "❌ Отменить заявку"
+          ? `❌ ${t("meet.cancelRequest")}`
           : hasRejectedRequest
-          ? "📨 Отправить заявку повторно"
-          : "📨 Отправить заявку"
-        : "🤝 Присоединиться"}
+          ? `📨 ${t("meet.requestAgain")}`
+          : `📨 ${t("meet.sendRequest")}`
+        : `🤝 ${t("meet.join")}`}
     </button>
 
     {isApproval && hasPendingRequest && (
@@ -535,19 +537,19 @@ lineHeight: 1.25,
           fontWeight: 600,
         }}
       >
-        ⏳ Заявка отправлена. Ожидайте решения организатора.
+        ⏳ {t("meet.requestPending")}
       </div>
     )}
 
     {isApproval && hasApprovedRequest && isParticipant && (
       <div style={{marginTop:-6,marginBottom:16,textAlign:"center",color:"#059669",fontSize:14,fontWeight:700}}>
-        ✅ Вы участник встречи
+        ✅ {t("meet.youParticipate")}
       </div>
     )}
 
     {isApproval && hasRejectedRequest && !isParticipant && (
       <div style={{marginTop:-6,marginBottom:16,textAlign:"center",color:"#DC2626",fontSize:14,fontWeight:600}}>
-        Заявка отклонена
+        {t("meet.requestRejectedState")}
       </div>
     )}
 
@@ -569,7 +571,7 @@ lineHeight: 1.25,
       height: 48,
     }}
   >
-    👤 Профиль
+    👤 {t("meet.profile")}
   </button>
 
   {(isParticipant || isCreator) && (
@@ -608,7 +610,7 @@ lineHeight: 1.25,
       height: 48,
     }}
   >
-    💬 Чат встречи
+    💬 {t("meet.chat")}
   </button>
 )}
 </div>

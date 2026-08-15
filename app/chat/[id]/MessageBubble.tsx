@@ -7,6 +7,7 @@ import React,
 import {
   Reply
 } from "lucide-react";
+import {useI18n} from "../../../components/I18nProvider";
 
 type Props = {
   msg:any;
@@ -68,12 +69,13 @@ onLongPressEnd,
 clearLongPress
 
 }:Props){
+const {intlLocale}=useI18n();
 
 const messageTime =
   new Date(
     msg.created_at || Date.now()
   ).toLocaleTimeString(
-    "ru-RU",
+    intlLocale,
     {
       hour:"2-digit",
       minute:"2-digit"

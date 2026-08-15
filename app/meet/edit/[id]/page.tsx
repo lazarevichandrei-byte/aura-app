@@ -6,7 +6,7 @@ import { ArrowLeft2 } from "iconsax-react";
 import { motion } from "motion/react";
 
 import PageWrapper from "../../../../components/PageWrapper";
-import AuraLoader from "../../../../components/AuraLoader";
+import { FormSkeleton } from "../../../../components/AppSkeletons";
 import {
   getMeetEvent,
   updateMeetEvent,
@@ -22,9 +22,11 @@ import { useNotification } from "../../../../components/NotificationContext";
 import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, meetIsoToLocalInputs, type MeetDuration } from "../../../../lib/meet/time";
 import { MEET_CATEGORIES } from "../../../../lib/meet/categories";
 import { consumeMeetLocation, prepareMeetLocation } from "../../../../lib/meet/locationStore";
+import {useI18n} from "../../../../components/I18nProvider";
 
 
 export default function EditMeetPage() {
+  const {t}=useI18n();
   const { id } = useParams();
 
   const router = useRouter();
@@ -107,11 +109,11 @@ async function handleSave() {
   try {
     const startsAt = localMeetDateTimeToIso(date, time);
     if (!startsAt) {
-      showError("Некорректная дата", "Укажите дату и время встречи.");
+      showError(t("meet.invalidDate"), t("meet.requiredDate"));
       return;
     }
     if (!isMeetStartSafelyFuture(startsAt)) {
-      showError("Некорректное время", "Выберите время позже текущего.");
+      showError(t("meet.invalidTime"), t("meet.invalidTimeText"));
       return;
     }
     await updateMeetEvent(id as string, {
@@ -130,7 +132,7 @@ async function handleSave() {
     router.back();
   } catch (error) {
     console.error(error);
-    showError("Не удалось сохранить изменения", "Попробуйте ещё раз.");
+    showError(t("meet.updatedFailed"), t("meet.tryAgain"));
   }
 }
 
@@ -149,14 +151,7 @@ const inputStyle = {
 };
 
 if (loading) {
-  return (
-    <PageWrapper>
-      <AuraLoader
-        fullscreen
-        text="Загрузка встречи..."
-      />
-    </PageWrapper>
-  );
+  return <FormSkeleton />;
 }
 
 
@@ -211,7 +206,7 @@ if (loading) {
                 color: "var(--text-primary)",
             }}
         >
-            Редактирование
+            {t("meet.edit")}
         </div>
 
         <div
@@ -221,7 +216,7 @@ if (loading) {
                 color: "var(--text-secondary)",
             }}
         >
-            Измените данные встречи
+            {t("meet.editHint")}
         </div>
     </div>
 </motion.div>
@@ -251,7 +246,7 @@ if (loading) {
       marginBottom: 10,
     }}
   >
-    Название встречи
+    {t("meet.name")}
   </div>
 
   <input
@@ -270,7 +265,7 @@ if (loading) {
       boxShadow: "0 4px 12px rgba(15,23,42,.04)",
     }}
   >
-    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Категория</div>
+    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>{t("category.label")}</div>
     <CategoryPicker
       value={MEET_CATEGORIES.find((item) => item.id === category) ?? null}
       onClick={() => setCategorySheetOpen(true)}
@@ -303,7 +298,7 @@ if (loading) {
       marginBottom: 10,
     }}
   >
-    Описание
+    {t("meet.description")}
   </div>
 
   <textarea
@@ -335,7 +330,7 @@ if (loading) {
       marginBottom: 10,
     }}
   >
-    Место встречи
+    {t("meet.place")}
   </div>
 
   <LocationCard
@@ -372,7 +367,7 @@ if (loading) {
       marginBottom: 10,
     }}
   >
-    Количество участников
+    {t("meet.capacity")}
   </div>
 
   <PeopleSelector
@@ -383,18 +378,18 @@ if (loading) {
 
 <div style={{display:"flex",gap:12}}>
   <div style={{flex:1}}>
-    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Дата</div>
+    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>{t("meet.date")}</div>
     <input type="date" min={localToday()} value={date} onChange={(event)=>setDate(event.target.value)} style={inputStyle} />
   </div>
   <div style={{flex:1}}>
-    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Время</div>
-    <button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",cursor:"pointer"}}>{time || "Выберите время"}</button>
+    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>{t("meet.time")}</div>
+    <button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",cursor:"pointer"}}>{time || t("meet.chooseTime")}</button>
     <MeetTimePicker open={timePickerOpen} value={time} onClose={() => setTimePickerOpen(false)} onChange={setTime} />
   </div>
 </div>
 
 <div>
-  <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Продолжительность</div>
+  <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>{t("meet.duration")}</div>
   <MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
 </div>
 
@@ -413,7 +408,7 @@ if (loading) {
       cursor: "pointer",
     }}
   >
-    💾 Сохранить изменения
+    💾 {t("meet.saveChanges")}
   </button>
   
 

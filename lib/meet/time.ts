@@ -47,14 +47,14 @@ export function meetEndLocal(date: string, time: string, duration: MeetDuration)
   return new Date(calculateMeetExpiration(start.toISOString(), duration));
 }
 
-export function formatMeetEndText(date: string, time: string, duration: MeetDuration) {
+export function formatMeetEndText(date: string, time: string, duration: MeetDuration, locale:string, copy:{endsAt:(time:string)=>string;endsOn:(date:string)=>string}) {
   const start = localMeetDateTime(date, time);
   const end = meetEndLocal(date, time, duration);
   if (!start || !end) return "";
-  const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
-  if (start.toDateString() === end.toDateString()) return `Закончится в ${endTime}`;
-  const endDate = end.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
-  return `Закончится ${endDate} в ${endTime}`;
+  const endTime = new Intl.DateTimeFormat(locale,{hour:"2-digit",minute:"2-digit"}).format(end);
+  if (start.toDateString() === end.toDateString()) return copy.endsAt(endTime);
+  const endDate = new Intl.DateTimeFormat(locale,{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}).format(end);
+  return copy.endsOn(endDate);
 }
 
 export function nextMeetTimeSuggestion(now = new Date()) {
@@ -75,28 +75,29 @@ export function isMeetStartSafelyFuture(startsAt: string, bufferMinutes = 5) {
   return Number.isFinite(start) && start >= Date.now() + bufferMinutes * 60000;
 }
 
-function compactTimeLeft(milliseconds: number) {
+function compactTimeLeft(milliseconds: number,locale:string) {
   const totalMinutes = Math.max(1, Math.ceil(milliseconds / 60000));
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
-  if (days > 0) return `${days} д${hours > 0 ? ` ${hours} ч` : ""}`;
-  if (hours > 0) return `${hours} ч${minutes > 0 ? ` ${minutes} мин` : ""}`;
-  return `${minutes} мин`;
+  const format=(value:number,unit:Intl.NumberFormatOptions["unit"])=>new Intl.NumberFormat(locale,{style:"unit",unit,unitDisplay:"narrow"}).format(value);
+  if (days > 0) return `${format(days,"day")}${hours > 0 ? ` ${format(hours,"hour")}` : ""}`;
+  if (hours > 0) return `${format(hours,"hour")}${minutes > 0 ? ` ${format(minutes,"minute")}` : ""}`;
+  return format(minutes,"minute");
 }
 
-export function meetCountdown(startsAt: string, expiresAt: string | null, now = Date.now()) {
+export function meetCountdown(startsAt: string, expiresAt: string | null, locale:string, copy:{missing:string;startsIn:(time:string)=>string;endsIn:(time:string)=>string;ended:string}, now = Date.now()) {
   const start = new Date(startsAt).getTime();
   const end = expiresAt ? new Date(expiresAt).getTime() : Number.NaN;
   if (!Number.isFinite(start) || !Number.isFinite(end)) {
-    return { text: "Время не указано", urgent: false, phase: "invalid" as const };
+    return { text: copy.missing, urgent: false, phase: "invalid" as const };
   }
   if (now < start) {
-    return { text: `До встречи: ${compactTimeLeft(start - now)}`, urgent: false, phase: "before" as const };
+    return { text: copy.startsIn(compactTimeLeft(start-now,locale)), urgent: false, phase: "before" as const };
   }
   if (now < end) {
     const milliseconds = end - now;
-    return { text: `До окончания: ${compactTimeLeft(milliseconds)}`, urgent: milliseconds <= 10 * 60000, phase: "active" as const };
+    return { text: copy.endsIn(compactTimeLeft(milliseconds,locale)), urgent: milliseconds <= 10 * 60000, phase: "active" as const };
   }
-  return { text: "Встреча завершена", urgent: true, phase: "ended" as const };
+  return { text: copy.ended, urgent: true, phase: "ended" as const };
 }

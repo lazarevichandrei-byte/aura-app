@@ -6,8 +6,10 @@ import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
 import { useNotification } from "../../components/NotificationContext";
 import { getTelegramInitData } from "../../lib/telegram-init-data";
+import {useI18n} from "../../components/I18nProvider";
 
 export default function SupportPage() {
+  const {t}=useI18n();
 
   const router = useRouter();
 
@@ -31,8 +33,8 @@ async function sendTicket(){
   if(!message.trim()){
 
   warning(
-    "Внимание",
-    "Введите сообщение"
+    t("common.error"),
+    t("support.required")
   );
 
   return;
@@ -54,8 +56,8 @@ async function sendTicket(){
     if(!response.ok || !result?.ok) throw new Error(result?.error || "SUPPORT_FAILED");
   } catch {
     error(
-      "Ошибка",
-      "Не удалось отправить сообщение"
+      t("common.error"),
+      t("support.sendFailed")
     );
     return;
   } finally {
@@ -63,8 +65,8 @@ async function sendTicket(){
   }
 
   success(
-  "Отправлено",
-  "Сообщение успешно отправлено"
+  t("support.sent"),
+  t("support.sentText")
 );
 
 setMessage("");
@@ -109,13 +111,12 @@ setMessage("");
               fontWeight:700
             }}
           >
-            Поддержка
+            {t("support.title")}
           </div>
         </div>
 
         <p style={descriptionStyle}>
-          Свяжитесь с нами если возникли вопросы
-          или проблемы с приложением.
+          {t("support.subtitle")}
         </p>
 
         <div style={cardStyle}>
@@ -135,7 +136,7 @@ setMessage("");
       marginBottom:"12px"
     }}
   >
-    Тип обращения
+    {t("support.type")}
   </div>
 
   <div
@@ -162,7 +163,7 @@ setMessage("");
           : "#111"
       }}
     >
-      🐞 Ошибка
+      🐞 {t("support.bug")}
     </button>
 
     <button
@@ -182,7 +183,7 @@ setMessage("");
           : "#111"
       }}
     >
-      💡 Идея
+      💡 {t("support.idea")}
     </button>
 
     <button
@@ -202,7 +203,7 @@ setMessage("");
           : "#111"
       }}
     >
-      💬 Другое
+      💬 {t("support.other")}
     </button>
 
   </div>
@@ -217,7 +218,7 @@ setMessage("");
       marginBottom:"12px"
     }}
   >
-    Сообщение
+    {t("support.message")}
   </div>
 
   <textarea
@@ -227,7 +228,7 @@ setMessage("");
         e.target.value
       )
     }
-    placeholder="Опишите проблему или предложение..."
+    placeholder={t("support.placeholder")}
     style={{
       width:"100%",
       minHeight:"140px",
@@ -259,8 +260,8 @@ setMessage("");
 >
   {
     sending
-      ? "Отправка..."
-      : "Отправить"
+      ? t("support.sending")
+      : t("support.send")
   }
 </button>
 

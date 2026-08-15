@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
+import {useI18n} from "../../components/I18nProvider";
 
 export default function TermsPage() {
+  const {t}=useI18n();
 
   const router = useRouter();
 
@@ -50,7 +52,7 @@ export default function TermsPage() {
               fontWeight:700
             }}
           >
-            Условия использования
+            {t("legal.termsTitle")}
           </div>
         </div>
 
@@ -62,7 +64,7 @@ export default function TermsPage() {
             marginBottom:20
           }}
         >
-          Правила использования приложения AURA.
+          {t("legal.termsSubtitle")}
         </p>
 
         <div style={cardStyle}>

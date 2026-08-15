@@ -13,6 +13,8 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM } from "../../lib/map/map";
 import type { MeetEvent } from "../../lib/meet/types";
 import { MEET_CATEGORIES } from "../../lib/meet/categories";
 import { useNotification } from "../NotificationContext";
+import {useI18n} from "../I18nProvider";
+import AuraSkeleton from "../AuraSkeleton";
 
 type Coordinates = { lat: number; lng: number };
 
@@ -41,6 +43,7 @@ const AuraMap = forwardRef<AuraMapRef, Props>(function AuraMap({
   category,
 }, ref) {
   const { error: showError } = useNotification();
+  const {t}=useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const eventMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
@@ -160,31 +163,33 @@ const AuraMap = forwardRef<AuraMapRef, Props>(function AuraMap({
         existing.setLngLat([event.longitude as number, event.latitude as number]);
         const element = existing.getElement();
         element.textContent = getCategoryIcon(event.category);
-        element.setAttribute("aria-label", event.title || "Встреча");
+        element.setAttribute("aria-label", event.title || t("map.meetMarker"));
         element.onclick = () => onMarkerClickRef.current?.(event);
         return;
       }
 
-      const element = createMeetMarkerElement(event);
+      const element = createMeetMarkerElement(event,t("map.meetMarker"));
       element.onclick = () => onMarkerClickRef.current?.(event);
       const marker = new maplibregl.Marker({ element, anchor: "bottom" })
         .setLngLat([event.longitude as number, event.latitude as number])
         .addTo(map);
       eventMarkersRef.current.set(eventId, marker);
     });
-  }, [category, events, loaded]);
+  }, [category, events, loaded,t]);
 
   useImperativeHandle(ref, () => ({
     zoomIn: () => mapRef.current?.zoomIn(),
     zoomOut: () => mapRef.current?.zoomOut(),
-    flyToUser: () => locateUser(mapRef.current, userMarkerRef, showError),
-  }), [showError]);
+    flyToUser: () => locateUser(mapRef.current, userMarkerRef, showError,{
+      unavailable:t("map.geolocationUnavailable"),unsupported:t("map.geolocationUnsupported"),denied:t("map.permissionDenied"),failed:t("map.locationFailed"),permissionHint:t("map.permissionHint"),gpsHint:t("map.gpsHint")
+    }),
+  }), [showError,t]);
 
   return (
     <div style={{width:"100%",height:"100%",position:"relative",background:"var(--surface-secondary)"}}>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
-      {!loaded && !mapError && <div style={statusStyle}>Загрузка карты…</div>}
-      {mapError && <div style={statusStyle}>Не удалось загрузить карту</div>}
+      {!loaded && !mapError && <div aria-busy="true" style={{position:"absolute",inset:0,zIndex:2}}><AuraSkeleton width="100%" height="100%" radius={0}/></div>}
+      {mapError && <div style={statusStyle}>{t("map.loadFailed")}</div>}
       {mode === "create" && (
         <div style={centerMarkerStyle} aria-hidden="true">📍</div>
       )}
@@ -207,10 +212,10 @@ function readSavedLocation(): Coordinates | null {
   }
 }
 
-function createMeetMarkerElement(event: MeetEvent) {
+function createMeetMarkerElement(event: MeetEvent, fallbackLabel:string) {
   const element = document.createElement("button");
   element.type = "button";
-  element.setAttribute("aria-label", event.title || "Встреча");
+  element.setAttribute("aria-label", event.title || fallbackLabel);
   element.textContent = getCategoryIcon(event.category);
   Object.assign(element.style, {
     width: "46px", height: "46px", padding: "0", borderRadius: "50%",
@@ -238,10 +243,11 @@ function replaceEmptyStrings(value: unknown): unknown {
 async function locateUser(
   map: maplibregl.Map | null,
   markerRef: React.MutableRefObject<maplibregl.Marker | null>,
-  showError: (title: string, text: string) => void
+  showError: (title: string, text: string) => void,
+  copy:{unavailable:string;unsupported:string;denied:string;failed:string;permissionHint:string;gpsHint:string}
 ): Promise<Coordinates | null> {
   if (!map || !navigator.geolocation) {
-    showError("Геолокация недоступна", "Ваше устройство не поддерживает геолокацию.");
+    showError(copy.unavailable, copy.unsupported);
     return null;
   }
 
@@ -261,8 +267,8 @@ async function locateUser(
     }, (error) => {
       const denied = error.code === error.PERMISSION_DENIED;
       showError(
-        denied ? "Нет доступа к геолокации" : "Не удалось определить местоположение",
-        denied ? "Разрешите доступ к геолокации в настройках Telegram." : "Проверьте GPS и попробуйте ещё раз."
+        denied ? copy.denied : copy.failed,
+        denied ? copy.permissionHint : copy.gpsHint
       );
       resolve(null);
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 15000 });

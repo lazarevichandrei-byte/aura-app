@@ -3,49 +3,49 @@ export const CATEGORY_GROUPS = [
   {
     id: "food",
     icon: "🍽️",
-    name: "Еда и отдых"
+    translationKey: "category.group.food"
   },
 
   {
     id: "entertainment",
     icon: "🎭",
-    name: "Развлечения"
+    translationKey: "category.group.entertainment"
   },
 
   {
     id: "activity",
     icon: "🏃",
-    name: "Активность"
+    translationKey: "category.group.activity"
   },
 
   {
     id: "outdoor",
     icon: "🌿",
-    name: "На улице"
+    translationKey: "category.group.outdoor"
   },
 
   {
     id: "work",
     icon: "💼",
-    name: "Работа и учеба"
+    translationKey: "category.group.work"
   },
 
   {
     id: "dating",
     icon: "❤️",
-    name: "Знакомства"
+    translationKey: "category.group.dating"
   },
 
   {
     id: "creative",
     icon: "🎨",
-    name: "Творчество"
+    translationKey: "category.group.creative"
   },
 
   {
     id: "other",
     icon: "✨",
-    name: "Другое"
+    translationKey: "category.group.other"
   }
 
 ];
@@ -56,35 +56,35 @@ export const MEET_CATEGORIES = [
 
   {
     id: "coffee",
-    name: "Кофе",
+    translationKey: "category.coffee",
     icon: "☕",
     group: "food"
   },
 
   {
     id: "restaurant",
-    name: "Ресторан",
+    translationKey: "category.restaurant",
     icon: "🍽️",
     group: "food"
   },
 
   {
     id: "food",
-    name: "Поесть",
+    translationKey: "category.food",
     icon: "🍔",
     group: "food"
   },
 
   {
     id: "bar",
-    name: "Бар",
+    translationKey: "category.bar",
     icon: "🍺",
     group: "food"
   },
 
   {
     id: "hookah",
-    name: "Кальян",
+    translationKey: "category.hookah",
     icon: "💨",
     group: "food"
   },
@@ -93,42 +93,42 @@ export const MEET_CATEGORIES = [
 
   {
     id: "movie",
-    name: "Кино",
+    translationKey: "category.movie",
     icon: "🎬",
     group: "entertainment"
   },
 
   {
     id: "games",
-    name: "Игры",
+    translationKey: "category.games",
     icon: "🎮",
     group: "entertainment"
   },
 
   {
     id: "boardgames",
-    name: "Настольные игры",
+    translationKey: "category.boardgames",
     icon: "♟️",
     group: "entertainment"
   },
 
   {
     id: "bowling",
-    name: "Боулинг",
+    translationKey: "category.bowling",
     icon: "🎳",
     group: "entertainment"
   },
 
   {
     id: "karaoke",
-    name: "Караоке",
+    translationKey: "category.karaoke",
     icon: "🎤",
     group: "entertainment"
   },
 
   {
     id: "concert",
-    name: "Концерт",
+    translationKey: "category.concert",
     icon: "🎵",
     group: "entertainment"
   },
@@ -137,35 +137,35 @@ export const MEET_CATEGORIES = [
 
   {
     id: "walk",
-    name: "Прогулка",
+    translationKey: "category.walk",
     icon: "🚶",
     group: "activity"
   },
 
   {
     id: "sport",
-    name: "Спорт",
+    translationKey: "category.sport",
     icon: "🏃",
     group: "activity"
   },
 
   {
     id: "gym",
-    name: "Тренировка",
+    translationKey: "category.gym",
     icon: "💪",
     group: "activity"
   },
 
   {
     id: "cycling",
-    name: "Велопрогулка",
+    translationKey: "category.cycling",
     icon: "🚴",
     group: "activity"
   },
 
   {
     id: "dance",
-    name: "Танцы",
+    translationKey: "category.dance",
     icon: "💃",
     group: "activity"
   },
@@ -174,28 +174,28 @@ export const MEET_CATEGORIES = [
 
   {
     id: "picnic",
-    name: "Пикник",
+    translationKey: "category.picnic",
     icon: "🧺",
     group: "outdoor"
   },
 
   {
     id: "nature",
-    name: "Природа",
+    translationKey: "category.nature",
     icon: "🌳",
     group: "outdoor"
   },
 
   {
     id: "travel",
-    name: "Поездка",
+    translationKey: "category.travel",
     icon: "✈️",
     group: "outdoor"
   },
 
   {
     id: "pets",
-    name: "С питомцем",
+    translationKey: "category.pets",
     icon: "🐶",
     group: "outdoor"
   },
@@ -204,28 +204,28 @@ export const MEET_CATEGORIES = [
 
   {
     id: "study",
-    name: "Учёба",
+    translationKey: "category.study",
     icon: "📚",
     group: "work"
   },
 
   {
     id: "coworking",
-    name: "Коворкинг",
+    translationKey: "category.coworking",
     icon: "💻",
     group: "work"
   },
 
   {
     id: "shopping",
-    name: "Шопинг",
+    translationKey: "category.shopping",
     icon: "🛍️",
     group: "work"
   },
 
   {
     id: "photo",
-    name: "Фотосессия",
+    translationKey: "category.photo",
     icon: "📸",
     group: "work"
   },
@@ -234,7 +234,7 @@ export const MEET_CATEGORIES = [
 
   {
     id: "dating",
-    name: "Знакомство",
+    translationKey: "category.dating",
     icon: "❤️",
     group: "dating"
   },
@@ -243,7 +243,7 @@ export const MEET_CATEGORIES = [
 
   {
     id: "creative",
-    name: "Творчество",
+    translationKey: "category.creative",
     icon: "🎨",
     group: "creative"
   },
@@ -252,7 +252,7 @@ export const MEET_CATEGORIES = [
 
   {
     id: "other",
-    name: "Другое",
+    translationKey: "category.other",
     icon: "✨",
     group: "other"
   }

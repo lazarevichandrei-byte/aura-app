@@ -11,6 +11,8 @@ import { useNotification } from "../../../../components/NotificationContext";
 import PageWrapper from "../../../../components/PageWrapper";
 import PageHeader from "../../../../components/PageHeader";
 import { supabase } from "../../../../lib/supabase";
+import {useI18n} from "../../../../components/I18nProvider";
+import { ListSkeleton } from "../../../../components/AppSkeletons";
 export default function MeetRequestsPage({
   params,
 }: {
@@ -19,6 +21,7 @@ export default function MeetRequestsPage({
   const { id } = use(params);
   const router = useRouter();
   const { error: showError, success } = useNotification();
+  const {t}=useI18n();
 
 const [requests, setRequests] = useState<any[]>([]);
 const [loading, setLoading] = useState(true);
@@ -76,10 +79,10 @@ async function approve(request: any) {
   setRequests((current) => current.filter((item) => item.id !== request.id));
   try {
     await approveJoinRequest(request.id);
-    success("Заявка одобрена", "Пользователь добавлен к участникам встречи.");
+    success(t("meet.approved"), t("meet.approvedText"));
   } catch (e) {
     console.error(e);
-    showError("Не удалось одобрить заявку", "Попробуйте ещё раз.");
+    showError(t("meet.approveFailed"), t("meet.tryAgain"));
     await refresh();
   }
 }
@@ -88,10 +91,10 @@ async function reject(request: any) {
   setRequests((current) => current.filter((item) => item.id !== request.id));
   try {
     await rejectJoinRequest(request.id);
-    success("Заявка отклонена", "Пользователь не был добавлен к встрече.");
+    success(t("notifications.requestRejected"), t("meet.rejectedText"));
   } catch (e) {
     console.error(e);
-    showError("Не удалось отклонить заявку", "Попробуйте ещё раз.");
+    showError(t("meet.rejectFailed"), t("meet.tryAgain"));
     await refresh();
   }
 }
@@ -106,10 +109,10 @@ async function reject(request: any) {
         padding: 20,
       }}
     >
-      <PageHeader title="Заявки" onBack={() => router.back()} />
+      <PageHeader title={t("meet.requests",{count:requests.length})} onBack={() => router.back()} />
 
 {loading ? (
-  <div>Загрузка...</div>
+  <ListSkeleton rows={5} />
 ) : requests.length === 0 ? (
   <div
     style={{
@@ -117,7 +120,7 @@ async function reject(request: any) {
       fontSize: 15,
     }}
   >
-    Пока нет заявок
+    {t("meet.noRequests")}
   </div>
 ) : (
   requests.map((request) => (
@@ -138,7 +141,7 @@ async function reject(request: any) {
           fontWeight: 700,
         }}
       >
-        {request.users?.name ?? "Пользователь"}
+        {request.users?.name ?? t("meet.requestUser")}
       </div>
 
       <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -151,9 +154,9 @@ async function reject(request: any) {
           fontSize: 14,
         }}
       >
-        {request.users?.city} • {request.users?.age} лет
+        {request.users?.city} • {t("account.years",{age:request.users?.age ?? "—"})}
       </div>
-      <button onClick={()=>router.push(`/user/${request.user_id}`)} style={{marginTop:8,padding:0,border:0,background:"transparent",color:"var(--primary)",fontWeight:600}}>Открыть профиль</button>
+      <button onClick={()=>router.push(`/user/${request.user_id}`)} style={{marginTop:8,padding:0,border:0,background:"transparent",color:"var(--primary)",fontWeight:600}}>{t("meet.openProfileAction")}</button>
         </div>
       </div>
 
@@ -178,7 +181,7 @@ async function reject(request: any) {
         cursor: "pointer",
       }}
     >
-      ✅ Одобрить
+      ✅ {t("meet.accept")}
     </button>
 
     <button
@@ -194,7 +197,7 @@ async function reject(request: any) {
         cursor: "pointer",
       }}
     >
-      ❌ Отклонить
+      ❌ {t("meet.reject")}
     </button>
   </div>
 )}

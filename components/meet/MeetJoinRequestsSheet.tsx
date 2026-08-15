@@ -2,6 +2,7 @@
 
 import BottomSheet from "../BottomSheet";
 import MeetJoinRequestCard, { type MeetJoinRequest } from "./MeetJoinRequestCard";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   open: boolean;
@@ -13,10 +14,11 @@ type Props = {
 };
 
 export default function MeetJoinRequestsSheet({ open, requests, processingId, onClose, onApprove, onReject }: Props) {
+  const {t}=useI18n();
   return (
     <BottomSheet open={open} onClose={onClose} height="min(76dvh, 680px)">
-      <div style={{ fontSize: 21, fontWeight: 700 }}>Заявки · {requests.length}</div>
-      <div style={{ marginTop: 4, marginBottom: 16, color: "#7A8699", fontSize: 13 }}>Ожидают решения организатора</div>
+      <div style={{ fontSize: 21, fontWeight: 700 }}>{t("meet.requests",{count:requests.length})}</div>
+      <div style={{ marginTop: 4, marginBottom: 16, color: "var(--text-secondary)", fontSize: 13 }}>{t("meet.requestsPending")}</div>
       <div style={{ flex: 1, overflowY: "auto", overscrollBehavior: "contain", paddingBottom: 12 }}>
         {requests.map((request) => (
           <MeetJoinRequestCard

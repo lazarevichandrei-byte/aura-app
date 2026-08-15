@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { motion } from "motion/react";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
     user: any;
@@ -29,6 +30,7 @@ export default function MeetParticipantCard({
     onRemove,
     canRemove = false,
 }: Props) {
+    const {t}=useI18n();
     return (
        <motion.div
     initial={{ opacity: 0, y: 12 }}
@@ -141,7 +143,7 @@ export default function MeetParticipantCard({
                 fontWeight: 700,
             }}
         >
-            Вы
+            {t("meet.you")}
         </div>
     )}
 </div>
@@ -162,7 +164,7 @@ export default function MeetParticipantCard({
         }}
     >
         <Crown size={12} />
-        Организатор
+        {t("meet.organizer")}
     </div>
 )}
                     </div>
@@ -178,7 +180,7 @@ export default function MeetParticipantCard({
     }}
 >
     <MapPin size={14} />
-    {user.city || "Не указан"}
+    {user.city || t("meet.cityUnknown")}
 </div>
 
                     {user.bio && (

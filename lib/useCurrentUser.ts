@@ -13,6 +13,7 @@ export type CurrentUser = {
 
 let cachedUser: CurrentUser | null | undefined;
 let currentUserRequest: Promise<CurrentUser | null> | null = null;
+const SNAPSHOT_KEY="aura-current-user-snapshot";
 
 function mark(name: string) {
   if (typeof performance !== "undefined") performance.mark(name);
@@ -26,6 +27,7 @@ export function loadCurrentUser() {
     mark("USER_BOOTSTRAP_START");
     const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
     if (!telegramUser) return null;
+    mark("INITDATA_AVAILABLE");
 
     const { data, error } = await supabase
       .from("users")
@@ -35,13 +37,23 @@ export function loadCurrentUser() {
 
     if (error) throw error;
     cachedUser = data;
+    if(data) localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({telegram_id:data.telegram_id,name:data.name,avatar_url:data.avatar_url,onboarding_completed:data.onboarding_completed}));
     return data;
   })().finally(() => {
-    mark("USER_BOOTSTRAP");
+    mark("USER_BOOTSTRAP_END");
     currentUserRequest = null;
   });
 
   return currentUserRequest;
+}
+
+export function readCurrentUserSnapshot(){
+  if(typeof window==="undefined") return null;
+  try{
+    const value=JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||"null");
+    const telegramId=(window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    return value?.telegram_id===telegramId?value:null;
+  }catch{return null;}
 }
 
 export function useCurrentUser() {

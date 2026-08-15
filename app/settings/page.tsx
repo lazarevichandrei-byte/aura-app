@@ -249,7 +249,7 @@ useState(false);
     </div>
 
     <div style={subtitleStyle}>
-      Лайки, сообщения, матчи и новости
+      {t("settings.notificationsHint")}
     </div>
 
   </div>
@@ -269,7 +269,7 @@ useState(false);
     </div>
 
     <div style={subtitleStyle}>
-      Управление заблокированными пользователями
+      {t("settings.blacklistHint")}
     </div>
   </div>
 

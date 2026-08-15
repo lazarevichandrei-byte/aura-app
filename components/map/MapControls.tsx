@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
   onLocation: () => void;
@@ -9,13 +10,14 @@ type Props = {
 };
 
 export default function MapControls({ onLocation, onZoomIn, onZoomOut }: Props) {
+  const {t}=useI18n();
   return (
     <div style={containerStyle}>
-      <CircleButton onClick={onLocation} ariaLabel="Моя геолокация" separate>◎</CircleButton>
+      <CircleButton onClick={onLocation} ariaLabel={t("map.myLocation")} separate>◎</CircleButton>
       <div style={zoomGroupStyle}>
-        <CircleButton onClick={onZoomIn} ariaLabel="Приблизить карту">＋</CircleButton>
+        <CircleButton onClick={onZoomIn} ariaLabel={t("map.zoomIn")}>＋</CircleButton>
         <div style={dividerStyle} />
-        <CircleButton onClick={onZoomOut} ariaLabel="Отдалить карту">－</CircleButton>
+        <CircleButton onClick={onZoomOut} ariaLabel={t("map.zoomOut")}>－</CircleButton>
       </div>
     </div>
   );

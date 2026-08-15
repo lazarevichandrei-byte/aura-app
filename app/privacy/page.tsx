@@ -6,8 +6,10 @@ import { supabase } from "../../lib/supabase";
 import PageWrapper from "../../components/PageWrapper";
 import PageHeader from "../../components/PageHeader";
 import { selection } from "../../lib/haptic";
+import {useI18n} from "../../components/I18nProvider";
 
 export default function PrivacyPage() {
+  const {t}=useI18n();
 
   const router = useRouter();
 
@@ -144,7 +146,7 @@ if (
         }}
       >
 
-        <PageHeader title="Конфиденциальность" onBack={() => router.back()} />
+        <PageHeader title={t("privacy.title")} onBack={() => router.back()} />
 
         <p
 style={{
@@ -154,8 +156,7 @@ lineHeight:1.5,
 marginBottom:20
 }}
 >
-Управляйте тем, какую информацию
-видят другие пользователи.
+{t("privacy.subtitle")}
 </p>
 
 <div
@@ -163,11 +164,11 @@ style={cardStyle}
 >
   <div>
     <div style={titleStyle}>
-      Показывать онлайн
+      {t("privacy.online")}
     </div>
 
     <div style={subtitleStyle}>
-      Видно другим пользователям
+      {t("privacy.onlineHint")}
     </div>
   </div>
 
@@ -197,11 +198,11 @@ style={cardStyle}
 >
   <div>
     <div style={titleStyle}>
-      Скрыть профиль
+      {t("privacy.hide")}
     </div>
 
     <div style={subtitleStyle}>
-      Временно скрыть анкету из поиска
+      {t("privacy.hideHint")}
     </div>
   </div>
 

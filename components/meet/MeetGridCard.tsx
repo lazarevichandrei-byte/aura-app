@@ -6,6 +6,7 @@ import {
     Calendar,
 } from "iconsax-react";
 import type { MeetEvent } from "../../lib/meet/types";
+import {useI18n} from "../I18nProvider";
 
 type Props = {
     event: MeetEvent;
@@ -26,6 +27,7 @@ export default function MeetGridCard({
     onJoin,
     requestStatus,
 }: Props) {
+    const {t}=useI18n();
 
     return (
 
@@ -149,7 +151,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                        Управление
+                        {t("meet.manageShort")}
                     </button>
 
                 ) : isParticipant ? (
@@ -165,12 +167,12 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                        Участвую
+                        {t("meet.participating")}
                     </button>
 
                 ) : requestStatus === "pending" ? (
 
-                    <button disabled style={{width:"100%",height:40,borderRadius:12,border:"none",background:"var(--warning-soft)",color:"var(--warning)",fontWeight:700}}>⏳ Рассмотрение</button>
+                    <button disabled style={{width:"100%",height:40,borderRadius:12,border:"none",background:"var(--warning-soft)",color:"var(--warning)",fontWeight:700}}>⏳ {t("meet.pending")}</button>
 
                 ) : isFull ? (
 
@@ -185,7 +187,7 @@ layoutId={event.id}
                             fontWeight: 700,
                         }}
                     >
-                        Нет мест
+                        {t("meet.full")}
                     </button>
 
                 ) : (
@@ -211,7 +213,7 @@ layoutId={event.id}
                             cursor: "pointer",
                         }}
                     >
-                        {event.join_type === "approval" && requestStatus === "rejected" ? "Повторить" : event.join_type === "approval" ? "Заявка" : "Вступить"}
+                        {event.join_type === "approval" && requestStatus === "rejected" ? t("meet.repeat") : event.join_type === "approval" ? t("meet.requestShort") : t("meet.enter")}
                     </button>
 
                 )}

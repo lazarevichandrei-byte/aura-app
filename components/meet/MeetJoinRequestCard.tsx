@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import {useI18n} from "../I18nProvider";
 
 export type MeetJoinRequest = {
   id: string;
@@ -34,16 +35,17 @@ export default function MeetJoinRequestCard({
   onReject,
 }: Props) {
   const router = useRouter();
+  const {t}=useI18n();
   const profile = request.users;
   const avatar = profile?.avatar_url || profile?.photos?.[0] || null;
-  const name = profile?.name || "Пользователь";
+  const name = profile?.name || t("meet.requestUser");
   const profileId = profile?.id || request.user_id;
   const openProfile = () => router.push(`/user/${profileId}`);
 
   return (
     <article style={{ ...cardStyle, margin: compact ? "0 0 10px" : "14px 4px" }}>
-      {!compact && <div style={eyebrowStyle}>👤 Новая заявка на встречу</div>}
-      <button type="button" onClick={openProfile} style={profileRowStyle} aria-label={`Открыть профиль: ${name}`}>
+      {!compact && <div style={eyebrowStyle}>👤 {t("meet.newRequest")}</div>}
+      <button type="button" onClick={openProfile} style={profileRowStyle} aria-label={t("meet.openProfile",{name})}>
         {avatar ? (
           <img src={avatar} alt="" style={avatarStyle} />
         ) : (
@@ -54,19 +56,19 @@ export default function MeetJoinRequestCard({
             {name}{profile?.age ? `, ${profile.age}` : ""}
           </div>
           {profile?.city && <div style={metaStyle}>{profile.city}</div>}
-          {!compact && <div style={{ ...metaStyle, marginTop: 5 }}>Хочет присоединиться к встрече</div>}
+          {!compact && <div style={{ ...metaStyle, marginTop: 5 }}>{t("meet.wantsToJoin")}</div>}
         </div>
       </button>
 
       <button type="button" onClick={openProfile} style={profileButtonStyle}>
-        Профиль
+        {t("meet.profile")}
       </button>
       <div style={actionsStyle}>
         <button type="button" disabled={processing} onClick={onReject} style={rejectButtonStyle}>
-          Отклонить
+          {t("meet.reject")}
         </button>
         <button type="button" disabled={processing} onClick={onApprove} style={approveButtonStyle}>
-          {processing ? "Обработка…" : "Принять"}
+          {processing ? t("meet.processing") : t("meet.accept")}
         </button>
       </div>
     </article>

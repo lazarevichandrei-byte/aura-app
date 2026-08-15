@@ -8,7 +8,8 @@ import {assertDictionariesComplete} from "../lib/i18n/validate";
 const STORAGE_KEY="aura-language";
 const MANUAL_KEY="aura-language-manual";
 
-type I18nContextValue={locale:string;intlLocale:string;direction:"ltr"|"rtl";setLocale:(locale:string,manual?:boolean)=>void;t:(key:TranslationKey)=>string};
+type TranslationParams=Record<string,string|number>;
+type I18nContextValue={locale:string;intlLocale:string;direction:"ltr"|"rtl";setLocale:(locale:string,manual?:boolean)=>void;t:(key:TranslationKey,params?:TranslationParams)=>string};
 const I18nContext=createContext<I18nContextValue|null>(null);
 
 function initialLocale(){
@@ -31,6 +32,7 @@ export default function I18nProvider({children}:{children:ReactNode}){
   };
 
   useEffect(()=>{
+    if(!performance.getEntriesByName("I18N_READY").length) performance.mark("I18N_READY");
     document.documentElement.lang=metadata.code;
     document.documentElement.dir=metadata.direction;
     if(!localStorage.getItem(STORAGE_KEY)) localStorage.setItem(STORAGE_KEY,locale);
@@ -40,11 +42,12 @@ export default function I18nProvider({children}:{children:ReactNode}){
     if(process.env.NODE_ENV !== "production") assertDictionariesComplete();
   },[]);
 
-  const value=useMemo(()=>({locale,intlLocale:metadata.intlLocale,direction:metadata.direction,setLocale,t:(key:TranslationKey)=>{
+  const value=useMemo(()=>({locale,intlLocale:metadata.intlLocale,direction:metadata.direction,setLocale,t:(key:TranslationKey,params?:TranslationParams)=>{
     const localized=dictionaryFor(locale)[key];
     const fallback=dictionaryFor(DEFAULT_LOCALE)[key];
     if(!localized && process.env.NODE_ENV !== "production") console.warn(`[i18n] Missing ${locale}:${key}`);
-    return localized || fallback || key;
+    const template=localized || fallback || key;
+    return params ? template.replace(/\{(\w+)\}/g,(match,name)=>params[name] === undefined ? match : String(params[name])) : template;
   }}),[locale,metadata.direction,metadata.intlLocale]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

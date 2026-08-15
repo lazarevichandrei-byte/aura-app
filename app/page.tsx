@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "../components/I18nProvider";
 import LanguagePickerSheet from "../components/LanguagePickerSheet";
 import {LOCALE_BY_CODE} from "../lib/i18n/locales";
-import {loadCurrentUser} from "../lib/useCurrentUser";
+import {loadCurrentUser,readCurrentUserSnapshot} from "../lib/useCurrentUser";
+import HomeSkeleton from "../components/HomeSkeleton";
 
 export default function Page() {
   const router = useRouter();
@@ -15,17 +16,18 @@ export default function Page() {
 
   useEffect(() => {
     performance.mark("APP_START");
-    performance.mark("FIRST_UI");
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      performance.mark("TELEGRAM_READY");
+      if(tg.initData) performance.mark("INITDATA_AVAILABLE");
+    }
+    const snapshot=readCurrentUserSnapshot();
+    if(snapshot?.onboarding_completed===true){router.replace("/home");return;}
+    if(snapshot?.onboarding_completed===false){router.replace("/profile");return;}
     const init = async () => {
       try {
-        const tg = (window as any).Telegram?.WebApp;
-
-        if (tg) {
-          tg.ready();
-          tg.expand();
-          performance.mark("TELEGRAM_READY");
-        }
-
         // ✅ ДОБАВЛЕНО: защита от отсутствия Telegram
         if (!tg || !tg.initDataUnsafe) {
           setLoading(false);
@@ -65,14 +67,7 @@ setLoading(false);
   };
 
   if (loading) {
-    return (
-      <div style={styles.wrapper}>
-        <div style={styles.center}>
-          <h1 style={styles.logo}>Aura</h1>
-          <p style={styles.subtitle}>{t("home.loading")}</p>
-        </div>
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
   return (

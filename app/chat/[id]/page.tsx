@@ -36,11 +36,15 @@ import MeetCategoryAvatar from "../../../components/meet/MeetCategoryAvatar";
 import MeetJoinRequestCard, { type MeetJoinRequest } from "../../../components/meet/MeetJoinRequestCard";
 import MeetJoinRequestsSheet from "../../../components/meet/MeetJoinRequestsSheet";
 import { approveJoinRequest, rejectJoinRequest } from "../../../lib/meet/api";
+import {useI18n} from "../../../components/I18nProvider";
+import {formatDateTime} from "../../../lib/i18n/format";
+import { ChatScreenSkeleton } from "../../../components/AppSkeletons";
 
 import { MessageBubble }
 from "./MessageBubble";
 
 export default function ChatPage(){
+const {t,intlLocale}=useI18n();
 
 const router = useRouter();
 const params = useParams();
@@ -73,14 +77,14 @@ useEffect(() => {
   if (!meetEvent?.expires_at) return;
   const expiresAt = new Date(meetEvent.expires_at).getTime();
   if (!Number.isFinite(expiresAt)) return;
-  const expire = () => setChatLoadError("Встреча завершена");
+  const expire = () => setChatLoadError(t("chat.meetEnded"));
   if (expiresAt <= Date.now()) {
     expire();
     return;
   }
   const timer = window.setTimeout(expire, expiresAt - Date.now() + 50);
   return () => window.clearTimeout(timer);
-}, [meetEvent?.expires_at]);
+}, [meetEvent?.expires_at,t]);
 
 const [hasMore,setHasMore] =
   useState(true);
@@ -782,7 +786,7 @@ async function markChatRead(readThroughMessageId:string){
 
 async function fetchChatUser(){
   const initData = await getTelegramInitData();
-  if (!initData) throw new Error("Не удалось подтвердить пользователя Telegram");
+  if (!initData) throw new Error(t("meet.telegramFailed"));
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -792,15 +796,15 @@ async function fetchChatUser(){
   if (!response.ok || !result.ok) {
     console.error("CHAT BOOTSTRAP ERROR:", { chatId, currentUserId: userId, stage: "bootstrap", error: result.error });
     if(result.error === "CHAT_ACCESS_DENIED"){
-      throw new Error("Нет доступа к этому чату");
+      throw new Error(t("chat.accessDenied"));
     }
     if(result.error === "CHAT_NOT_FOUND"){
-      throw new Error("Чат не найден");
+      throw new Error(t("chat.notFound"));
     }
     if(result.error === "MEET_EXPIRED"){
-      throw new Error("Встреча завершена");
+      throw new Error(t("chat.meetEnded"));
     }
-    throw new Error("Не удалось загрузить чат");
+    throw new Error(t("chat.loadFailed"));
   }
   if(result.currentUserId){
     setUserId(result.currentUserId);
@@ -839,7 +843,7 @@ async function fetchChatUser(){
 
   if(!result.otherUser) {
     console.error("CHAT USER LOAD ERROR:", { chatId, currentUserId: userId, stage: "other-user" });
-    throw new Error("Собеседник не найден");
+    throw new Error(t("chat.userNotFound"));
   }
   setOtherUser(result.otherUser);
 
@@ -868,19 +872,19 @@ const processJoinRequest = useCallback(async (
   try {
     if (action === "approve") {
       await approveJoinRequest(request.id);
-      success("Заявка принята", "Пользователь добавлен во встречу и общий чат.");
+      success(t("notifications.requestAccepted"), t("chat.requestAcceptedText"));
     } else {
       await rejectJoinRequest(request.id);
-      warning("Заявка отклонена", "Пользователь не добавлен во встречу.");
+      warning(t("notifications.requestRejected"), t("chat.requestRejectedText"));
     }
   } catch (error) {
     console.error("MEET CHAT REQUEST ACTION ERROR:", { requestId: request.id, action, error });
-    showNotificationError("Не удалось обработать заявку", "Попробуйте ещё раз.");
+    showNotificationError(t("chat.requestProcessFailed"), t("meet.tryAgain"));
     await refreshPendingRequests();
   } finally {
     setProcessingRequestId(null);
   }
-}, [processingRequestId, refreshPendingRequests, showNotificationError, success, warning]);
+}, [processingRequestId, refreshPendingRequests, showNotificationError, success, warning,t]);
 
 useEffect(() => {
   if (!meetEvent?.id || !isMeetCreator) return;
@@ -957,7 +961,7 @@ useEffect(()=>{
       await Promise.all([setOnline(), fetchChatUser()]);
     } catch (error) {
       console.error("CHAT INITIALIZATION ERROR:", error);
-      setChatLoadError(error instanceof Error ? error.message : "Не удалось загрузить чат");
+      setChatLoadError(error instanceof Error ? error.message : t("chat.loadFailed"));
     } finally {
       setChatLoaded(true);
     }
@@ -1759,7 +1763,7 @@ async function resendMessage(
 async function sendMessage(){
 
   if(userId === null){
-    showNotificationError("Ошибка", "Не удалось определить отправителя сообщения");
+    showNotificationError(t("common.error"), t("chat.senderFailed"));
     return;
   }
 
@@ -1892,7 +1896,7 @@ if(error){
   );
 
   setNewMessage(text);
-  showNotificationError("Ошибка", "Не удалось отправить сообщение");
+  showNotificationError(t("common.error"), t("chat.sendFailed"));
   setSending(false);
 
   return;
@@ -1927,7 +1931,7 @@ if (receiverId) {
 
     const myName =
       localStorage.getItem("my_name")
-      || "Новый пользователь";
+      || t("chat.newUser");
 
     await sendMessageNotification(
 
@@ -2227,23 +2231,17 @@ function getMessageDateLabel(
     msgDate.toDateString() ===
     today.toDateString()
   ){
-    return "Сегодня";
+    return t("chat.today");
   }
 
   if(
     msgDate.toDateString() ===
     yesterday.toDateString()
   ){
-    return "Вчера";
+    return t("chat.yesterday");
   }
 
-  return msgDate.toLocaleDateString(
-    "ru-RU",
-    {
-      day:"numeric",
-      month:"long"
-    }
-  );
+  return formatDateTime(msgDate,intlLocale,{day:"numeric",month:"long"});
 
 }
 
@@ -2374,7 +2372,7 @@ borderRadius:999,
 whiteSpace:"nowrap"
 }}
 >
-Новые сообщения
+{t("chat.newMessages")}
 </div>
 
 <div
@@ -2483,7 +2481,7 @@ style={{
 />
 
 <span>
-  Ответить
+  {t("chat.reply")}
 </span>
 
 </button>
@@ -2512,7 +2510,7 @@ style={{
 />
 
 <span>
-  Копировать
+  {t("chat.copy")}
 </span>
 
 </button>
@@ -2565,7 +2563,7 @@ setMenuMessage(null);
 />
 
 <span>
-  Удалить
+  {t("common.delete")}
 </span>
 
 </button>
@@ -2677,83 +2675,23 @@ swipeOffset,
 showReplyIcon
 ]);
 
-const onlineStatus = getOnlineStatus(otherUser ?? {});
+const onlineStatus = getOnlineStatus(otherUser??{},intlLocale,{online:t("home.online"),lastSeen:(time)=>t("home.lastSeen",{time})});
 
 if(!chatLoaded && !otherUser && !meetEvent){
-
-  return (
-
-    <div
-      style={{
-        height:"100vh",
-        background:"var(--app-bg)",
-        display:"flex",
-        flexDirection:"column"
-      }}
-    >
-
-      <div
-        style={{
-          height:70,
-          borderBottom:"1px solid #EEF1F4",
-          display:"flex",
-          alignItems:"center",
-          padding:"0 16px",
-          gap:14
-        }}
-      >
-
-        <div
-          style={{
-            width:36,
-            height:36,
-            borderRadius:"50%",
-              background:"var(--surface-secondary)"
-          }}
-        />
-
-        <div>
-
-          <div
-            style={{
-              width:120,
-              height:12,
-              borderRadius:8,
-              background:"var(--surface-secondary)",
-              marginBottom:8
-            }}
-          />
-
-          <div
-            style={{
-              width:70,
-              height:10,
-              borderRadius:8,
-              background:"var(--surface-secondary)"
-            }}
-          />
-
-        </div>
-
-      </div>
-
-    </div>
-
-  );
-
+  return <ChatScreenSkeleton />;
 }
 
 if(chatLoadError){
   return (
     <div style={{minHeight:"100dvh",display:"grid",placeItems:"center",padding:24,textAlign:"center",background:"var(--app-bg)",color:"var(--text-primary)"}}>
       <div>
-        <div style={{fontSize:18,fontWeight:700}}>Не удалось открыть чат</div>
+        <div style={{fontSize:18,fontWeight:700}}>{t("chat.openFailed")}</div>
         <div style={{marginTop:8,color:"var(--text-secondary)"}}>{chatLoadError}</div>
         <button
-          onClick={() => chatLoadError === "Встреча завершена" ? router.replace("/chats") : router.back()}
+          onClick={() => chatLoadError === t("chat.meetEnded") ? router.replace("/chats") : router.back()}
           style={{marginTop:20,height:44,padding:"0 22px",border:0,borderRadius:14,background:"var(--primary)",color:"var(--text-inverse)",fontWeight:600}}
         >
-          {chatLoadError === "Встреча завершена" ? "К списку чатов" : "Назад"}
+          {chatLoadError === t("chat.meetEnded") ? t("chat.list") : t("common.back")}
         </button>
       </div>
     </div>
@@ -2865,7 +2803,7 @@ cursor:"pointer"
             maxWidth:220
           }}
         >
-          {meetEvent.title || "Встреча"}
+          {meetEvent.title || t("chats.meeting")}
         </div>
 
         <div
@@ -2876,7 +2814,7 @@ cursor:"pointer"
             fontWeight:500
           }}
         >
-          Встреча{meetEvent.participantCount ? ` · ${meetEvent.participantCount} участников` : ""}
+          {t("chats.meeting")}{meetEvent.participantCount ? ` · ${t("chat.participants",{count:meetEvent.participantCount})}` : ""}
         </div>
 
       </div>
@@ -2914,7 +2852,7 @@ cursor:"pointer"
             fontWeight:600
           }}
         >
-          {otherUser?.name || "Пользователь"}
+          {otherUser?.name || t("chat.user")}
         </div>
 
         <div
@@ -2926,7 +2864,7 @@ cursor:"pointer"
         >
           {
             isOffline
-              ? "нет соединения"
+              ? t("chat.offline")
               : onlineStatus.text
           }
         </div>
@@ -2977,7 +2915,7 @@ cursor:"pointer"
       flexShrink: 0,
     }}
   >
-    Заявки · {pendingRequests.length}
+    {t("chats.requests",{count:pendingRequests.length})}
   </button>
 )}
 
@@ -3224,7 +3162,7 @@ color:"var(--text-primary)",
 marginBottom:5
 }}
 >
-Ответ на сообщение
+{t("chat.replyTo")}
 </div>
 
 <div
@@ -3369,7 +3307,7 @@ clearTimeout(
 }}
 
 
-placeholder="Сообщение..."
+placeholder={t("chat.message")}
 rows={1}
 
 style={{

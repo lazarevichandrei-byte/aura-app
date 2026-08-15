@@ -10,7 +10,7 @@ import {
 } from "next/navigation";
 import PageWrapper from "../../../../components/PageWrapper";
 import BottomSheet from "../../../../components/BottomSheet";
-import AuraLoader from "../../../../components/AuraLoader";
+import { ListSkeleton } from "../../../../components/AppSkeletons";
 import { useCurrentUser } from "../../../../lib/useCurrentUser";
 
 import {
@@ -20,8 +20,10 @@ import {
 } from "../../../../lib/meet/api";
 import MeetParticipantCard from "../../../../components/meet/MeetParticipantCard";
 import { createChatIfNotExists } from "../../../../lib/chat/api";
+import {useI18n} from "../../../../components/I18nProvider";
 
 export default function MeetParticipantsPage() {
+    const {t}=useI18n();
 
     const { id } = useParams();
 
@@ -80,15 +82,7 @@ const searchParams = useSearchParams();
 }
 
 if (loading) {
-
-    return (
-        <PageWrapper>
-            <AuraLoader
-                fullscreen
-                text="Загрузка участников..."
-            />
-        </PageWrapper>
-    );
+    return <ListSkeleton rows={6} />;
 
 }
 
@@ -159,7 +153,7 @@ if (loading) {
                 lineHeight: 1.1,
             }}
         >
-            Участники встречи
+            {t("meet.participantsTitle")}
         </div>
 
         <div
@@ -169,8 +163,7 @@ if (loading) {
                 color: "var(--text-secondary)",
             }}
         >
-            {participants.filter((participant: any) => participant.users.id !== event?.creator_id).length} из {event?.max_people ?? 0} участников • Свободно{" "}
-{Math.max(0, (event?.max_people ?? 0) - participants.filter((participant: any) => participant.users.id !== event?.creator_id).length)}
+            {t("meet.spotsSummary",{count:participants.filter((participant:any)=>participant.users.id!==event?.creator_id).length,max:event?.max_people??0,free:Math.max(0,(event?.max_people??0)-participants.filter((participant:any)=>participant.users.id!==event?.creator_id).length)})}
         </div>
     </div>
 </motion.div>
@@ -301,9 +294,7 @@ if (loading) {
                     lineHeight: 1.5,
                 }}
             >
-                Удалить этого участника
-                <br />
-                из встречи?
+                {t("meet.removeTitle")}
             </div>
 
             <motion.button
@@ -334,7 +325,7 @@ if (loading) {
                     cursor: "pointer",
                 }}
             >
-                Удалить
+                {t("meet.remove")}
             </motion.button>
 
             <motion.button
@@ -354,7 +345,7 @@ if (loading) {
                     cursor: "pointer",
                 }}
             >
-                Отмена
+                {t("common.cancel")}
             </motion.button>
         </>
     )}

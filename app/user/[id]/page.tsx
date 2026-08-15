@@ -69,8 +69,8 @@ async function submitReport(){
   if(!reportReason){
 
   warning(
-    "Внимание",
-    "Выберите причину жалобы"
+    t("common.error"),
+    t("report.chooseReason")
   );
 
   return;
@@ -79,7 +79,7 @@ async function submitReport(){
 
   const initData = await getTelegramInitData();
   if(!initData){
-    error("Ошибка", "Не удалось подтвердить пользователя Telegram");
+    error(t("common.error"), t("report.authFailed"));
     return;
   }
 
@@ -90,7 +90,7 @@ async function submitReport(){
   });
   const result = await response.json().catch(() => null);
   if(!response.ok || !result?.ok){
-    error("Ошибка", "Не удалось отправить жалобу");
+    error(t("common.error"), t("report.sendFailed"));
     return;
   }
 
@@ -98,8 +98,8 @@ async function submitReport(){
   setReportReason("");
 
   success(
-  "Готово",
-  "Жалоба отправлена"
+  t("common.done"),
+  t("report.sent")
 );
 }
 
@@ -109,7 +109,7 @@ async function submitReport(){
   async function blockUser(){
   const initData = await getTelegramInitData();
   if(!initData){
-    error("Ошибка", "Не удалось подтвердить пользователя Telegram");
+    error(t("common.error"), t("report.authFailed"));
     return;
   }
 
@@ -120,7 +120,7 @@ async function submitReport(){
   });
   const result = await response.json().catch(() => null);
   if(!response.ok || !result?.ok){
-    error("Ошибка", "Не удалось заблокировать пользователя");
+    error(t("common.error"), t("report.blockFailed"));
     return;
   }
 
@@ -273,7 +273,7 @@ async function submitReport(){
  {!photoLoaded && <div style={{position:"absolute",inset:0,background:"linear-gradient(100deg,var(--surface-secondary) 20%,var(--surface-elevated) 40%,var(--surface-secondary) 60%)",backgroundSize:"200% 100%",animation:"profilePhotoLoading 1.2s ease infinite"}} />}
  <img
   src={photos[photoIndex] || "/noavatar.jpg"}
-    alt={`Фото ${user.name || "пользователя"}, ${photoIndex+1}`}
+    alt={t("report.photoAlt",{name:user.name || t("chat.user"),index:photoIndex+1})}
     draggable={false}
     onLoad={()=>setPhotoLoaded(true)}
     onError={(event)=>{ event.currentTarget.src="/noavatar.jpg"; setPhotoLoaded(true); }}
@@ -438,7 +438,7 @@ async function submitReport(){
           <h2 style={sectionTitleStyle}>{t("profile.location")}</h2>
           <div style={{background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:18,padding:"14px 16px",boxShadow:"var(--shadow-sm)"}}>
             <div style={{fontWeight:700}}>📍 {user.city}</div>
-            {user.distance ? <div style={{marginTop:4,color:"var(--text-secondary)",fontSize:13}}>{Math.round(user.distance)} км от вас</div> : null}
+            {user.distance ? <div style={{marginTop:4,color:"var(--text-secondary)",fontSize:13}}>{t("report.distance",{distance:Math.round(user.distance)})}</div> : null}
           </div>
         </section>}
 
@@ -496,21 +496,21 @@ async function submitReport(){
         marginBottom:"18px"
       }}
     >
-      Пожаловаться
+      {t("profile.report")}
     </div>
 
     {[
-      "Спам",
-      "Фейк аккаунт",
-      "Оскорбления",
-      "Неприемлемый контент",
-      "Другое"
+      {value:"Спам",label:t("report.spam")},
+      {value:"Фейк аккаунт",label:t("report.fake")},
+      {value:"Оскорбления",label:t("report.harassment")},
+      {value:"Неприемлемый контент",label:t("report.content")},
+      {value:"Другое",label:t("report.other")}
     ].map(item => (
 
       <div
-        key={item}
+        key={item.value}
         onClick={() =>
-          setReportReason(item)
+          setReportReason(item.value)
         }
         style={{
           padding:"16px",
@@ -519,19 +519,19 @@ async function submitReport(){
           marginBottom:"10px",
 
           background:
-            reportReason === item
+            reportReason === item.value
             ? "var(--primary-soft)"
             : "var(--surface-secondary)",
 
           border:
-            reportReason === item
+            reportReason === item.value
             ? "2px solid var(--primary)"
             : "2px solid transparent",
 
           cursor:"pointer"
         }}
       >
-        {item}
+        {item.label}
       </div>
 
     ))}
@@ -552,7 +552,7 @@ async function submitReport(){
         marginTop:"10px"
       }}
     >
-      Отправить жалобу
+      {t("profile.reportSubmit")}
     </button>
 
   </div>
@@ -643,7 +643,7 @@ async function submitReport(){
   }}
 >
 
-  <button type="button" aria-label="Закрыть галерею" onClick={()=>setShowGallery(false)} style={{position:"absolute",top:"calc(env(safe-area-inset-top, 0px) + 16px)",right:16,zIndex:4,width:44,height:44,borderRadius:"50%",background:"rgba(0,0,0,.46)",color:"#fff",fontSize:24,cursor:"pointer"}}>×</button>
+  <button type="button" aria-label={t("report.closeGallery")} onClick={()=>setShowGallery(false)} style={{position:"absolute",top:"calc(env(safe-area-inset-top, 0px) + 16px)",right:16,zIndex:4,width:44,height:44,borderRadius:"50%",background:"rgba(0,0,0,.46)",color:"#fff",fontSize:24,cursor:"pointer"}}>×</button>
 
   {photos.length > 1 && <div style={{position:"absolute",top:"calc(env(safe-area-inset-top, 0px) + 18px)",left:18,right:72,display:"flex",gap:5,zIndex:3}}>
     {photos.map((_:string,index:number)=><span key={index} style={{flex:1,height:3,borderRadius:99,background:index===photoIndex ? "#fff" : "rgba(255,255,255,.32)",transition:"background .2s ease"}} />)}
@@ -652,7 +652,7 @@ async function submitReport(){
   <img
     onClick={handlePhotoTap}
     src={photos[photoIndex] || "/noavatar.jpg"}
-    alt={`Фото ${user.name || "пользователя"}, ${photoIndex+1}`}
+    alt={t("report.photoAlt",{name:user.name || t("chat.user"),index:photoIndex+1})}
     draggable={false}
     onError={(event)=>{ event.currentTarget.src="/noavatar.jpg"; }}
     style={{

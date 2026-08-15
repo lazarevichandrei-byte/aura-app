@@ -10,10 +10,11 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { joinChatPresence } from "../../lib/presence";
 import BottomNav from "../../components/BottomNav";
-import AuraLoader from "../../components/AuraLoader";
+import { ChatListSkeleton } from "../../components/AppSkeletons";
 import { createChatIfNotExists } from "../../lib/chat/api";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 import MeetCategoryAvatar from "../../components/meet/MeetCategoryAvatar";
+import {useI18n} from "../../components/I18nProvider";
 
 const MAX_LIST_PRESENCE_CHATS = 20;
 
@@ -31,6 +32,7 @@ typing,
 router,
 index
 }:any){
+const {t,intlLocale}=useI18n();
 
 const [pressed,setPressed] =
 useState(false);
@@ -141,8 +143,8 @@ marginLeft:14
 
   <span>
     {chat.is_meet_chat
-      ? chat.event_title || "Встреча"
-      : chat.name || "Без имени"}
+      ? chat.event_title || t("chats.meeting")
+      : chat.name || t("chats.unnamed")}
   </span>
 </div>
 
@@ -155,7 +157,7 @@ marginLeft:14
       marginTop: 2,
     }}
   >
-    Встреча
+    {t("chats.meeting")}
   </div>
 )}
 
@@ -167,7 +169,7 @@ marginLeft:14
   }}
 >
   {typing
-    ? "печатает..."
+    ? t("chats.typing")
     : chat.last_message || ""}
 </div>
 
@@ -189,7 +191,7 @@ chat.last_message_at
 ? new Date(
 chat.last_message_at
 ).toLocaleTimeString(
-"ru-RU",
+intlLocale,
 {
 hour:"2-digit",
 minute:"2-digit"
@@ -231,7 +233,7 @@ fontWeight:700
     fontWeight: 700,
     whiteSpace: "nowrap",
   }}>
-    Заявки · {chat.pending_request_count}
+    {t("chats.requests",{count:chat.pending_request_count})}
   </div>
 )}
 
@@ -264,6 +266,7 @@ transform:translateY(0);
 
 
 export default function Chats(){
+const {t}=useI18n();
 
 
 const router = useRouter();
@@ -678,7 +681,7 @@ fontWeight: 600,
           color: "var(--text-primary)"
         }}
       >
-        Пока нет сообщений
+        {t("chats.empty")}
       </div>
 
       <div
@@ -689,7 +692,7 @@ fontSize: 12,
           lineHeight: 1.5
         }}
       >
-        Начни знакомиться ❤️
+        {t("chats.emptyHint")}
       </div>
 
       <button
@@ -706,22 +709,14 @@ fontSize: 12,
           cursor: "pointer"
         }}
       >
-        Начать знакомиться
+        {t("chats.start")}
       </button>
     </div>
   );
 }
 
 if (loading) {
-
-  return (
-
-    <AuraLoader
-      compact
-      text="Загрузка чатов..."
-    />
-
-  );
+  return <ChatListSkeleton />;
 
 }
 
@@ -763,7 +758,7 @@ fontWeight:700,
 letterSpacing:"-.8px"
 }}
 >
-Чаты
+{t("chats.title")}
 </h1>
 
 
@@ -800,7 +795,7 @@ setSearch(
 e.target.value
 )
 }
-placeholder="Поиск"
+placeholder={t("chats.search")}
 
 style={{
 flex:1,
@@ -874,7 +869,7 @@ fontSize:15
       </div>
 
       <div style={{ marginTop: 6, fontSize: 12, fontWeight: 600 }}>
-        Тебя лайкнули
+        {t("chats.likedYou")}
       </div>
     </div>
 
@@ -957,7 +952,7 @@ console.log("UPDATE ERROR:", error);
         </div>
 
         <div style={{ fontSize: 13, marginTop: 6 }}>
-          {chat.name || "Без имени"}
+          {chat.name || t("chats.unnamed")}
         </div>
       </div>
     ))}
@@ -979,7 +974,7 @@ console.log("UPDATE ERROR:", error);
         marginBottom: 10,
       }}
     >
-      Результаты
+      {t("chats.results")}
     </div>
   )}
 
@@ -1006,7 +1001,7 @@ console.log("UPDATE ERROR:", error);
         color: "var(--text-muted)",
       }}
     >
-      Никого не найдено
+      {t("chats.noResults")}
     </div>
   )}
 </div>
