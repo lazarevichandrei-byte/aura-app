@@ -5,6 +5,8 @@ const MAX_INIT_DATA_AGE_SECONDS = 24 * 60 * 60;
 type TelegramUser = {
   id: number;
   first_name?: string;
+  photo_url?: string;
+  language_code?: string;
 };
 
 type ValidationResult =

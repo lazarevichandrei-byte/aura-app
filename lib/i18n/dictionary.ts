@@ -8,6 +8,7 @@ export const en = {
   "theme.system":"System", "theme.systemHint":"Like your device", "theme.light":"Light", "theme.lightHint":"Always light",
   "theme.dark":"Dark", "theme.darkHint":"Always dark", "language.current":"Current language",
   "home.loading":"Loading…", "home.tagline":"Find your energy 💙", "home.login":"Continue with Telegram",
+  "auth.welcome":"Welcome to Aura", "auth.loginWithTelegram":"Log in with Telegram", "auth.loginError":"Could not log in with Telegram",
   "home.terms":"By continuing, you accept", "home.termsLinks":"Terms of Use and Privacy Policy", "home.online":"Online", "home.recently":"Recently", "home.lastSeen":"Last seen at {time}",
   "profile.about":"About", "profile.interests":"Interests", "profile.location":"Location", "profile.photos":"photos",
   "profile.actions":"Actions", "profile.report":"Report", "profile.block":"Block", "profile.reportTitle":"Report profile",
@@ -42,6 +43,7 @@ export const en = {
   "account.delete":"Delete account", "account.deleteTitle":"Delete account?", "account.deleteText":"The app will be a little sadder without you.",
   "account.deleteHint":"If something did not work, contact support ❤️", "account.deleted":"Account deleted",
   "account.deletedText":"Thank you for being with us ❤️", "account.userNotFound":"User not found",
+  "account.close":"Close", "account.deleteFailed":"Could not delete account",
   "category.group.food":"Food & leisure", "category.group.entertainment":"Entertainment", "category.group.activity":"Activity",
   "category.group.outdoor":"Outdoors", "category.group.work":"Work & study", "category.group.dating":"Dating",
   "category.group.creative":"Creative", "category.group.other":"Other", "category.coffee":"Coffee", "category.restaurant":"Restaurant",
@@ -153,6 +155,7 @@ const ru:Dictionary = {
   "theme.system":"Системная", "theme.systemHint":"Как на устройстве", "theme.light":"Светлая", "theme.lightHint":"Всегда светлая",
   "theme.dark":"Тёмная", "theme.darkHint":"Всегда тёмная", "language.current":"Текущий язык",
   "home.loading":"Загрузка…", "home.tagline":"Найди свою энергию 💙", "home.login":"Войти через Telegram",
+  "auth.welcome":"Добро пожаловать в Aura", "auth.loginWithTelegram":"Войти через Telegram", "auth.loginError":"Не удалось войти через Telegram",
   "home.terms":"Продолжая, вы принимаете", "home.termsLinks":"Условия использования и Политику конфиденциальности", "home.online":"Онлайн", "home.recently":"Был недавно", "home.lastSeen":"Был в {time}",
   "profile.about":"О себе", "profile.interests":"Интересы", "profile.location":"Расположение", "profile.photos":"фото",
   "profile.actions":"Действия", "profile.report":"Пожаловаться", "profile.block":"Заблокировать", "profile.reportTitle":"Пожаловаться",
@@ -187,6 +190,7 @@ const ru:Dictionary = {
   "account.delete":"Удалить аккаунт", "account.deleteTitle":"Удалить аккаунт?", "account.deleteText":"Без вас приложение станет чуточку грустнее.",
   "account.deleteHint":"Если что-то работало не так — напишите нам в поддержку ❤️", "account.deleted":"Аккаунт удалён",
   "account.deletedText":"Спасибо, что были с нами ❤️", "account.userNotFound":"Пользователь не найден",
+  "account.close":"Закрыть", "account.deleteFailed":"Не удалось удалить аккаунт",
   "category.group.food":"Еда и отдых", "category.group.entertainment":"Развлечения", "category.group.activity":"Активность",
   "category.group.outdoor":"На улице", "category.group.work":"Работа и учёба", "category.group.dating":"Знакомства",
   "category.group.creative":"Творчество", "category.group.other":"Другое", "category.coffee":"Кофе", "category.restaurant":"Ресторан",
@@ -354,8 +358,16 @@ const core:Record<string,DictionaryOverride> = {
   th:{"navigation.home":"หน้าหลัก","navigation.meet":"นัดพบ","navigation.chats":"แชท","navigation.profile":"โปรไฟล์","settings.title":"การตั้งค่า","settings.language":"ภาษา","settings.appearance":"รูปลักษณ์"},
 };
 
-const reviewedGenerated=Object.fromEntries(Object.entries(generatedDictionaries).map(([locale,dictionary])=>[locale,{...dictionary,...tierOneReviewed[locale]}]));
-export const DICTIONARIES:Record<string,Dictionary> = {en,...reviewedGenerated,be:{...generatedDictionaries.be,...beReviewed},uk:{...generatedDictionaries.uk,...ukReviewed},ru};
+function withAuthStrings(dictionary:Dictionary):Dictionary{return {...dictionary,
+  "auth.welcome":dictionary["home.tagline"],
+  "auth.loginWithTelegram":dictionary["home.login"],
+  "auth.loginError":dictionary["meet.telegramFailed"],
+  "account.close":dictionary["common.close"],
+  "account.deleteFailed":dictionary["common.error"],
+};}
+
+const reviewedGenerated=Object.fromEntries(Object.entries(generatedDictionaries).map(([locale,dictionary])=>[locale,withAuthStrings({...dictionary,...tierOneReviewed[locale]} as Dictionary)]));
+export const DICTIONARIES:Record<string,Dictionary> = {en,...reviewedGenerated,be:withAuthStrings({...generatedDictionaries.be,...beReviewed} as Dictionary),uk:withAuthStrings({...generatedDictionaries.uk,...ukReviewed} as Dictionary),ru};
 
 export function dictionaryFor(locale:string):Dictionary{
   return DICTIONARIES[locale] || en;

@@ -9,13 +9,14 @@ import { AccountSkeleton } from "../../components/AppSkeletons";
 import { useNotification } from "../../components/NotificationContext";
 import { warning } from "../../lib/haptic";
 import {useI18n} from "../../components/I18nProvider";
+import {getTelegramInitData} from "../../lib/telegram-init-data";
+import {clearAuraUserSession,DELETED_SESSION_KEY} from "../../lib/useCurrentUser";
 
 
 export default function AccountPage() {
   const {t}=useI18n();
   const router = useRouter();
   const {
-  success,
   error
 } = useNotification();
 
@@ -24,6 +25,7 @@ export default function AccountPage() {
 useState(true);
   const [showDeleteModal,setShowDeleteModal] =
 useState(false);
+  const [deleted,setDeleted]=useState(false);
 
   useEffect(() => {
   document.body.style.overflowY = "auto";
@@ -61,62 +63,26 @@ useState(false);
 
   async function deleteAccount(){
     warning();
-
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if (!telegramId) return;
-
-  const { data:user } =
-    await supabase
-      .from("users")
-      .select("id")
-      .eq("telegram_id", telegramId)
-      .single();
-
-  if (!user){
-
-  error(
-    t("common.error"),
-    t("account.userNotFound")
-  );
-
-  return;
-}
-const { error: rpcError } =
-  await supabase.rpc(
-      "delete_my_account",
-      {
-        p_user_id:user.id
+    try{
+      const initData=await getTelegramInitData();
+      if(!initData)throw new Error("AUTH_REQUIRED");
+      const response=await fetch("/api/auth/telegram",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData})});
+      const result=await response.json().catch(()=>null);
+      if(!response.ok||!result?.ok)throw new Error(result?.error||"DELETE_FAILED");
+      clearAuraUserSession();
+      const telegram=(window as any)?.Telegram?.WebApp;
+      if(typeof telegram?.close==="function"){
+        sessionStorage.removeItem(DELETED_SESSION_KEY);
+        telegram.close();
+        return;
       }
-    );
-
-  if (rpcError){
-
-  error(
-    t("common.error"),
-    rpcError.message
-  );
-
-  return;
+      setDeleted(true);
+    }catch{
+      error(t("common.error"),t("account.deleteFailed"));
+    }
 }
 
-  localStorage.clear();
-
-success(
-  t("account.deleted"),
-  t("account.deletedText")
-);
-
-setTimeout(() => {
-
-  router.replace("/");
-
-},1200);
-}
+if(deleted)return <main className="app-page" style={{minHeight:"100dvh",display:"grid",placeItems:"center",padding:"24px"}}><section className="app-card" style={{width:"min(100%,380px)",padding:28,borderRadius:24,textAlign:"center"}}><h1 style={{margin:0,fontSize:28}}>{t("account.deleted")}</h1><p style={{color:"var(--text-secondary)",lineHeight:1.5}}>{t("account.deletedText")}</p><button style={editButtonStyle} onClick={()=>{sessionStorage.removeItem(DELETED_SESSION_KEY);router.replace("/");}}>{t("account.close")}</button></section></main>;
 
 if (loading) {
   return <AccountSkeleton />;

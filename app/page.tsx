@@ -1,159 +1,80 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useI18n } from "../components/I18nProvider";
-import LanguagePickerSheet from "../components/LanguagePickerSheet";
-import {LOCALE_BY_CODE} from "../lib/i18n/locales";
-import {loadCurrentUser,readCurrentUserSnapshot} from "../lib/useCurrentUser";
+import {useEffect,useState} from "react";
+import {useRouter} from "next/navigation";
 import HomeSkeleton from "../components/HomeSkeleton";
+import LanguagePickerSheet from "../components/LanguagePickerSheet";
+import {useNotification} from "../components/NotificationContext";
+import {useI18n} from "../components/I18nProvider";
+import {LOCALE_BY_CODE} from "../lib/i18n/locales";
+import {DELETED_SESSION_KEY,loadCurrentUser,setCurrentUserCache} from "../lib/useCurrentUser";
+import {getTelegramInitData} from "../lib/telegram-init-data";
 
-export default function Page() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
+type StartupState="loading"|"new_user"|"deleted_session"|"error";
+
+export default function Page(){
+  const router=useRouter();
   const {t,locale}=useI18n();
+  const {error:showError}=useNotification();
+  const [state,setState]=useState<StartupState>("loading");
   const [languageOpen,setLanguageOpen]=useState(false);
+  const [loginPending,setLoginPending]=useState(false);
 
-  useEffect(() => {
+  useEffect(()=>{
     performance.mark("APP_START");
-    const tg = (window as any).Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      performance.mark("TELEGRAM_READY");
-      if(tg.initData) performance.mark("INITDATA_AVAILABLE");
-    }
-    const snapshot=readCurrentUserSnapshot();
-    if(snapshot?.onboarding_completed===true){router.replace("/home");return;}
-    if(snapshot?.onboarding_completed===false){router.replace("/profile");return;}
-    const init = async () => {
-      try {
-        // ✅ ДОБАВЛЕНО: защита от отсутствия Telegram
-        if (!tg || !tg.initDataUnsafe) {
-          setLoading(false);
-          return;
-        }
+    const telegram=(window as any).Telegram?.WebApp;
+    telegram?.ready?.();
+    telegram?.expand?.();
+    if(sessionStorage.getItem(DELETED_SESSION_KEY)==="1"){setState("deleted_session");return;}
+    loadCurrentUser({force:true}).then((user)=>{
+      if(!user){setState("new_user");return;}
+      router.replace(user.onboarding_completed?"/home":"/profile");
+    }).catch(()=>setState("error"));
+  },[router]);
 
-        if (!tg.initDataUnsafe.user) {
-          setLoading(false);
-          return;
-        }
-
-        const data = await loadCurrentUser();
-
-if (data?.onboarding_completed) {
-  router.replace("/home");
-  return;
-}
-
-if (data && data.onboarding_completed !== true) {
-  router.replace("/profile");
-  return;
-}
-
-setLoading(false);
-
-      } catch (e) {
-        console.log("INIT ERROR:", e);
-        setLoading(false);
-      }
-    };
-
-    init();
-  }, [router]);
-
-  const handleLogin = () => {
-    router.push("/profile");
+  const login=async()=>{
+    if(loginPending)return;
+    setLoginPending(true);
+    try{
+      const initData=await getTelegramInitData();
+      if(!initData)throw new Error("NO_INIT_DATA");
+      const response=await fetch("/api/auth/telegram",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,action:"create",language:locale})});
+      const result=await response.json().catch(()=>null);
+      if(!response.ok||!result?.ok||!result.user)throw new Error(result?.error||"AUTH_FAILED");
+      sessionStorage.removeItem(DELETED_SESSION_KEY);
+      setCurrentUserCache(result.user);
+      router.replace(result.user.onboarding_completed?"/home":"/profile");
+    }catch{
+      showError(t("common.error"),t("auth.loginError"));
+      setState("new_user");
+    }finally{setLoginPending(false);}
   };
 
-  if (loading) {
-    return <HomeSkeleton />;
-  }
+  if(state==="loading")return <HomeSkeleton/>;
 
-  return (
-    <main style={styles.wrapper}>
-      {/* CENTER */}
-      <div style={styles.center}>
-        <h1 style={styles.logo}>Aura</h1>
+  if(state==="deleted_session")return <main className="welcome-shell"><section className="welcome-center"><img className="welcome-mark" src="/favicon.ico" alt="Aura"/><h1>Aura</h1><p>{t("account.deleted")}</p><button className="welcome-cta" onClick={()=>{sessionStorage.removeItem(DELETED_SESSION_KEY);const telegram=(window as any).Telegram?.WebApp;if(typeof telegram?.close==="function")telegram.close();else setState("new_user");}}>{t("account.close")}</button></section></main>;
 
-        <p style={styles.subtitle}>
-          {t("home.tagline")}
-        </p>
-
-        <button style={styles.button} onClick={handleLogin}>
-          ✈️ {t("home.login")}
-        </button>
-      </div>
-
-      {/* FOOTER */}
-      <div style={styles.footer}>
-        <button type="button" onClick={()=>setLanguageOpen(true)} style={styles.languageButton}>🌐 {LOCALE_BY_CODE.get(locale)?.nativeName || locale}</button>
-        <p>{t("home.terms")}</p>
-        <p style={styles.links}>
-          {t("home.termsLinks")}
-        </p>
-      </div>
-      <LanguagePickerSheet open={languageOpen} onClose={()=>setLanguageOpen(false)} />
-    </main>
-  );
+  return <main className="welcome-shell">
+    <section className="welcome-center">
+      <img className="welcome-mark" src="/favicon.ico" alt="Aura"/>
+      <h1>Aura</h1>
+      <p>{t(state==="error"?"auth.loginError":"auth.welcome")}</p>
+      <button className="welcome-cta" disabled={loginPending} onClick={login}>{loginPending?t("common.loading"):t("auth.loginWithTelegram")}</button>
+    </section>
+    <footer className="welcome-footer">
+      <button type="button" onClick={()=>setLanguageOpen(true)}>🌐 <span dir="auto">{LOCALE_BY_CODE.get(locale)?.nativeName||locale}</span></button>
+    </footer>
+    <LanguagePickerSheet open={languageOpen} onClose={()=>setLanguageOpen(false)}/>
+    <style jsx>{`
+      .welcome-shell{min-height:var(--tg-viewport-stable-height,100dvh);background:var(--app-bg);color:var(--text-primary);display:flex;flex-direction:column;padding:calc(24px + env(safe-area-inset-top)) 24px calc(18px + env(safe-area-inset-bottom));overflow:hidden}
+      .welcome-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0}
+      .welcome-mark{width:88px;height:88px;border-radius:24px;box-shadow:0 16px 40px color-mix(in srgb,var(--brand-primary) 24%,transparent)}
+      h1{font-size:46px;line-height:1;margin:20px 0 0;letter-spacing:-1.5px}
+      p{max-width:320px;margin:12px 0 34px;color:var(--text-secondary);font-size:16px;line-height:1.5}
+      .welcome-cta{width:min(100%,340px);min-height:56px;padding:0 20px;border:0;border-radius:18px;background:var(--brand-gradient);color:var(--text-inverse);font-size:16px;font-weight:750;cursor:pointer;box-shadow:0 12px 28px color-mix(in srgb,var(--brand-primary) 22%,transparent)}
+      .welcome-cta:disabled{opacity:.65;cursor:default}
+      .welcome-footer{display:flex;justify-content:center;flex-shrink:0}
+      .welcome-footer button{min-height:44px;padding:8px 16px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-primary);font-weight:650;cursor:pointer}
+    `}</style>
+  </main>;
 }
-
-const styles: any = {
-  wrapper: {
-    minHeight: "100dvh",
-    background: "var(--app-bg)",
-    color:"var(--text-primary)",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    padding: "24px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-  },
-
-  center: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logo: {
-    fontSize: "48px",
-    fontWeight: "600",
-    letterSpacing: "-1px",
-    color: "var(--text-primary)",
-  },
-
-  subtitle: {
-    fontSize: "16px",
-    color: "var(--text-secondary)",
-    marginTop: "8px",
-    marginBottom: "48px",
-  },
-
-  button: {
-    width: "100%",
-    maxWidth: "320px",
-    height: "56px",
-    borderRadius: "18px",
-    border: "none",
-    fontSize: "17px",
-    fontWeight: "600",
-    color: "var(--text-inverse)",
-    background: "var(--primary)",
-    cursor: "pointer",
-  },
-
-  footer: {
-    textAlign: "center",
-    fontSize: "12px",
-    color: "var(--text-muted)",
-  },
-
-  links: {
-    marginTop: "4px",
-    color: "var(--primary)",
-  },
-  languageButton:{margin:"0 auto 16px",padding:"9px 14px",borderRadius:999,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text-primary)",fontWeight:600,cursor:"pointer"},
-};

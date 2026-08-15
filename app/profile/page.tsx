@@ -128,22 +128,21 @@ if (!user) {
 
 
 
-fetch("/api/auth/telegram", {
+const authResponse=await fetch("/api/auth/telegram", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-  initData: tg.initData
+  initData: tg.initData,
+  action:"check"
 }),
-
-
-
-
-})
-.then(r => r.json())
-.then(data => {
 });
+const authResult=await authResponse.json().catch(()=>null);
+if(!authResponse.ok||!authResult?.ok||!authResult.exists){
+  router.replace("/");
+  return;
+}
 
 setTelegramId(user.id);
 setName(user.first_name || "");
@@ -171,36 +170,7 @@ onboarding_completed
 .maybeSingle();
 
 if (!data) {
-
-  const { data: createdUser } = await supabase
-  .from("users")
-  .insert({
-    telegram_id: user.id,
-    name: user.first_name || "User",
-    avatar_url: user.photo_url || null,
-
-    // Конфиденциальность
-    show_online: true,
-    show_last_seen: true,
-    hide_profile: false,
-
-    // Уведомления
-    likes_notifications: true,
-    messages_notifications: true,
-    matches_notifications: true,
-    news_notifications: true
-  })
-  .select()
-  .single();
-
-  if(createdUser){
-    setName(createdUser.name || "");
-    if(createdUser.avatar_url){
-  setPhotos([createdUser.avatar_url]);
-}
-  }
-
-  setLoading(false);
+  router.replace("/");
   return;
 }
 
@@ -283,10 +253,7 @@ setLastSaveTime(now);
    setSaveStatus("saving");
 
    const { error } =
-await supabase
-.from("users")
-.upsert(
-{
+await supabase.from("users").update({
  telegram_id:telegramId,
  name,
  age,
@@ -304,11 +271,7 @@ avatar_url:
    null,
  photos,
  onboarding_completed: !isOnboarding
-},
-{
- onConflict:"telegram_id"
-}
-);
+}).eq("telegram_id",telegramId);
 
    if(!error){
     lastSavedRef.current = payload;
