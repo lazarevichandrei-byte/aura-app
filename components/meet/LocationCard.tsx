@@ -3,12 +3,14 @@
 type Props = {
   place: string;
   city: string;
+  address?: string;
   onMapClick: () => void;
 };
 
 export default function LocationCard({
   place,
   city,
+  address,
   onMapClick,
 }: Props) {
 
@@ -56,7 +58,7 @@ export default function LocationCard({
             fontSize:14
           }}
         >
-          {city}
+          {address || city}
         </div>
 
       </div>

@@ -21,6 +21,7 @@ import MeetDurationSelector from "../../../../components/meet/MeetDurationSelect
 import { useNotification } from "../../../../components/NotificationContext";
 import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, meetIsoToLocalInputs, type MeetDuration } from "../../../../lib/meet/time";
 import { MEET_CATEGORIES } from "../../../../lib/meet/categories";
+import { consumeMeetLocation, prepareMeetLocation } from "../../../../lib/meet/locationStore";
 
 
 export default function EditMeetPage() {
@@ -36,6 +37,7 @@ const [description, setDescription] = useState("");
 const [category, setCategory] = useState("");
 const [city, setCity] = useState("");
 const [place, setPlace] = useState("");
+const [address, setAddress] = useState("");
 
 const [latitude, setLatitude] =
   useState<number | null>(null);
@@ -59,25 +61,14 @@ useEffect(() => {
 
 useEffect(() => {
   function restoreLocation() {
-  const raw = sessionStorage.getItem("meet_location");
-
-  
-  if (!raw) return;
-
-    try {
-      const data = JSON.parse(raw);
-
-restoredLocation.current = true;
-
-setPlace(data.title || "");
-setCity(data.address || "");
-setLatitude(data.lat ?? null);
-setLongitude(data.lng ?? null);
-
-      sessionStorage.removeItem("meet_location");
-    } catch {
-      sessionStorage.removeItem("meet_location");
-    }
+    const data = consumeMeetLocation();
+    if (!data) return;
+    restoredLocation.current = true;
+    setPlace(data.title);
+    setAddress(data.address);
+    setCity(data.city);
+    setLatitude(data.lat);
+    setLongitude(data.lng);
   }
 
   restoreLocation();
@@ -99,6 +90,7 @@ async function load() {
   if (!restoredLocation.current) {
   setCity(event.city);
   setPlace(event.place);
+  setAddress(event.city);
   setLatitude(event.latitude);
   setLongitude(event.longitude);
 }
@@ -126,7 +118,7 @@ async function handleSave() {
   title,
   description,
   category,
-  city,
+  city: address || city,
   place,
   latitude,
   longitude,
@@ -347,7 +339,15 @@ if (loading) {
   <LocationCard
   place={place}
   city={city}
+  address={address}
   onMapClick={() => {
+    prepareMeetLocation(latitude !== null && longitude !== null ? {
+      title: place,
+      address,
+      city,
+      lat: latitude,
+      lng: longitude,
+    } : null);
     router.push("/meet/location");
   }}
 />

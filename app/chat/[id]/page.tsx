@@ -33,6 +33,9 @@ import { getOnlineStatus } from "../../../lib/user/getOnlineStatus";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
 import { useNotification } from "../../../components/NotificationContext";
 import MeetCategoryAvatar from "../../../components/meet/MeetCategoryAvatar";
+import MeetJoinRequestCard, { type MeetJoinRequest } from "../../../components/meet/MeetJoinRequestCard";
+import MeetJoinRequestsSheet from "../../../components/meet/MeetJoinRequestsSheet";
+import { approveJoinRequest, rejectJoinRequest } from "../../../lib/meet/api";
 
 import { MessageBubble }
 from "./MessageBubble";
@@ -41,7 +44,7 @@ export default function ChatPage(){
 
 const router = useRouter();
 const params = useParams();
-const { error: showNotificationError } = useNotification();
+const { error: showNotificationError, success, warning } = useNotification();
 
 const chatId =
 params.id as string;
@@ -57,6 +60,10 @@ useState<any>(null);
 
 const [meetEvent,setMeetEvent] =
   useState<any>(null);
+const [isMeetCreator, setIsMeetCreator] = useState(false);
+const [pendingRequests, setPendingRequests] = useState<MeetJoinRequest[]>([]);
+const [requestsOpen, setRequestsOpen] = useState(false);
+const [processingRequestId, setProcessingRequestId] = useState<string | null>(null);
 
 const [chatLoaded,setChatLoaded] =
   useState(false);
@@ -747,6 +754,8 @@ async function fetchChatUser(){
   if(chat.event_id){
 
     setMeetEvent({ ...result.event, participantCount: result.participantCount });
+    setIsMeetCreator(Boolean(result.isCreator));
+    setPendingRequests(result.pendingRequests || []);
 
     // Для чата встречи обычный пользователь
     // в шапке не нужен
@@ -766,6 +775,68 @@ async function fetchChatUser(){
   setOtherUser(result.otherUser);
 
 }
+
+const refreshPendingRequests = useCallback(async () => {
+  const initData = await getTelegramInitData();
+  if (!initData) return;
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData, chatId, action: "requests" }),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok || !result.isCreator) return;
+  setPendingRequests(result.pendingRequests || []);
+}, [chatId]);
+
+const processJoinRequest = useCallback(async (
+  request: MeetJoinRequest,
+  action: "approve" | "reject"
+) => {
+  if (processingRequestId) return;
+  setProcessingRequestId(request.id);
+  setPendingRequests((current) => current.filter((item) => item.id !== request.id));
+  try {
+    if (action === "approve") {
+      await approveJoinRequest(request.id);
+      success("Заявка принята", "Пользователь добавлен во встречу и общий чат.");
+    } else {
+      await rejectJoinRequest(request.id);
+      warning("Заявка отклонена", "Пользователь не добавлен во встречу.");
+    }
+  } catch (error) {
+    console.error("MEET CHAT REQUEST ACTION ERROR:", { requestId: request.id, action, error });
+    showNotificationError("Не удалось обработать заявку", "Попробуйте ещё раз.");
+    await refreshPendingRequests();
+  } finally {
+    setProcessingRequestId(null);
+  }
+}, [processingRequestId, refreshPendingRequests, showNotificationError, success, warning]);
+
+useEffect(() => {
+  if (!meetEvent?.id || !isMeetCreator) return;
+  let ready = false;
+  const channel = supabase
+    .channel(`meet-chat-requests-${meetEvent.id}`)
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "meet_join_requests",
+      filter: `event_id=eq.${meetEvent.id}`,
+    }, (payload: any) => {
+      void refreshPendingRequests();
+      if (ready && payload.eventType === "INSERT") {
+        success("Новая заявка на встречу", "Откройте заявки в шапке общего чата.");
+      }
+    })
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") ready = true;
+    });
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
+}, [isMeetCreator, meetEvent?.id, refreshPendingRequests, success]);
 
 useEffect(()=>{
 
@@ -2658,7 +2729,8 @@ cursor:"pointer"
     display:"flex",
     alignItems:"center",
     gap:12,
-    minWidth:0
+    minWidth:0,
+    flex:1
   }}
 >
 
@@ -2778,6 +2850,29 @@ cursor:"pointer"
   )}
 
 </div>
+
+{meetEvent && isMeetCreator && pendingRequests.length > 0 && (
+  <button
+    type="button"
+    onClick={() => setRequestsOpen(true)}
+    style={{
+      marginLeft: 8,
+      height: 32,
+      padding: "0 11px",
+      border: 0,
+      borderRadius: 999,
+      background: "#EEF5FF",
+      color: "#2F80FF",
+      fontSize: 12,
+      fontWeight: 700,
+      whiteSpace: "nowrap",
+      cursor: "pointer",
+      flexShrink: 0,
+    }}
+  >
+    Заявки · {pendingRequests.length}
+  </button>
+)}
 
 </div>
 
@@ -2937,7 +3032,26 @@ WebkitOverflowScrolling:"touch",
 
 {renderedMessages}
 
+{isMeetCreator && pendingRequests.map((request) => (
+  <MeetJoinRequestCard
+    key={request.id}
+    request={request}
+    processing={processingRequestId === request.id}
+    onApprove={() => void processJoinRequest(request, "approve")}
+    onReject={() => void processJoinRequest(request, "reject")}
+  />
+))}
+
 </div>
+
+<MeetJoinRequestsSheet
+  open={requestsOpen}
+  requests={pendingRequests}
+  processingId={processingRequestId}
+  onClose={() => setRequestsOpen(false)}
+  onApprove={(request) => void processJoinRequest(request, "approve")}
+  onReject={(request) => void processJoinRequest(request, "reject")}
+/>
 
 
 

@@ -20,6 +20,7 @@ import MeetDurationSelector from "../../../components/meet/MeetDurationSelector"
 import { useNotification } from "../../../components/NotificationContext";
 import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, nextMeetTimeSuggestion, type MeetDuration } from "../../../lib/meet/time";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
+import { consumeMeetLocation, prepareMeetLocation } from "../../../lib/meet/locationStore";
 export default function CreateMeetPage() {
     
 
@@ -35,6 +36,7 @@ useState("");
 
 const [place,setPlace] =
 useState("");
+const [address, setAddress] = useState("");
 
 const [latitude,setLatitude] =
 useState<number | null>(null);
@@ -85,6 +87,11 @@ useEffect(() => {
     setTitle(draft.title ?? "");
     setDescription(draft.description ?? "");
     setCategory(draft.category ?? "coffee");
+    setPlace(draft.place ?? "");
+    setAddress(draft.address ?? "");
+    setCity(draft.city ?? "");
+    setLatitude(draft.latitude ?? null);
+    setLongitude(draft.longitude ?? null);
     const suggestion = nextMeetTimeSuggestion();
     setDate(draft.date || suggestion.date);
     setTime(draft.time || suggestion.time);
@@ -111,6 +118,11 @@ useEffect(() => {
   maxPeople,
   duration,
   joinType,
+  place,
+  address,
+  city,
+  latitude,
+  longitude,
 })
   );
 }, 
@@ -123,33 +135,22 @@ useEffect(() => {
   maxPeople,
   duration,
   joinType,
+  place,
+  address,
+  city,
+  latitude,
+  longitude,
 ]
 );
 
 useEffect(() => {
-  const raw = sessionStorage.getItem("meet_location");
-
-
-
-  if (!raw) return;
-
-  try {
-
-    const data = JSON.parse(raw);
-
-    setPlace(data.title || "");
-    setCity(data.city || data.address || "");
-    setLatitude(data.lat ?? null);
-    setLongitude(data.lng ?? null);
-
-    sessionStorage.removeItem("meet_location");
-
-  } catch {
-
-    sessionStorage.removeItem("meet_location");
-
-  }
-
+  const data = consumeMeetLocation();
+  if (!data) return;
+  setPlace(data.title);
+  setAddress(data.address);
+  setCity(data.city);
+  setLatitude(data.lat);
+  setLongitude(data.lng);
 }, []);
 
   
@@ -196,7 +197,7 @@ useEffect(() => {
       title,
       description,
       category,
-      city,
+      city: address || city,
       place,
       latitude,
       longitude,
@@ -475,7 +476,15 @@ marginTop:16
 <LocationCard
   place={place}
   city={city}
+  address={address}
   onMapClick={() => {
+    prepareMeetLocation(latitude !== null && longitude !== null ? {
+      title: place,
+      address,
+      city,
+      lat: latitude,
+      lng: longitude,
+    } : null);
     router.push("/meet/location");
   }}
 />

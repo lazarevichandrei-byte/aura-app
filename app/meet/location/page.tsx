@@ -1,230 +1,133 @@
 "use client";
 
-import {
-  useState,
-  useRef,
-  useEffect
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
-
 import PageWrapper from "../../../components/PageWrapper";
-
-import AuraMap, {
-  AuraMapRef
-} from "../../../components/map/AuraMap";
+import AuraMap, { type AuraMapRef } from "../../../components/map/AuraMap";
 import MapControls from "../../../components/map/MapControls";
 import PlaceBottomCard from "../../../components/map/PlaceBottomCard";
 import { reverseGeocode } from "../../../lib/map/reverseGeocode";
+import { consumeInitialMeetLocation, saveMeetLocation } from "../../../lib/meet/locationStore";
+import { useNotification } from "../../../components/NotificationContext";
+import { DEFAULT_CENTER } from "../../../lib/map/map";
+
 export default function MeetLocationPage() {
-
   const router = useRouter();
+  const { error: showError } = useNotification();
+  const mapRef = useRef<AuraMapRef>(null);
+  const initialLocationRef = useRef(
+    typeof window === "undefined" ? null : consumeInitialMeetLocation()
+  );
+  const requestSequenceRef = useRef(0);
+  const [center, setCenter] = useState(() => initialLocationRef.current
+    ? { lat: initialLocationRef.current.lat, lng: initialLocationRef.current.lng }
+    : DEFAULT_CENTER);
+  const [place, setPlace] = useState({
+    title: initialLocationRef.current?.title || "",
+    address: initialLocationRef.current?.address || "",
+    city: initialLocationRef.current?.city || "",
+  });
 
-  const mapRef =
-  useRef<AuraMapRef>(null);
-
-    const [center, setCenter] = useState({
-  lat: 53.9023,
-  lng: 27.5615
-});
-
-const [place, setPlace] = useState({
-  title: "",
-  address: "",
-  city: ""
-});
-
-useEffect(() => {
-
-  const controller = new AbortController();
-
-  const timer = setTimeout(async () => {
-    try {
-      const result = await reverseGeocode(
-        center.lat,
-        center.lng,
-        controller.signal
-      );
-      setPlace(result);
-    } catch (error) {
-      if (!(error instanceof DOMException && error.name === "AbortError")) {
-        console.error("REVERSE GEOCODING ERROR:", error);
+  useEffect(() => {
+    const controller = new AbortController();
+    const sequence = ++requestSequenceRef.current;
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await reverseGeocode(center.lat, center.lng, controller.signal);
+        if (sequence === requestSequenceRef.current) setPlace(result);
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error("REVERSE GEOCODING ERROR:", error);
+        }
       }
+    }, 350);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [center]);
+
+  const selectPlace = () => {
+    if (!place.title && !place.address) {
+      showError("Адрес ещё определяется", "Подождите немного или переместите карту.");
+      return;
     }
-
-  }, 350);
-
-  return () => {
-    controller.abort();
-    clearTimeout(timer);
+    saveMeetLocation({ ...place, lat: center.lat, lng: center.lng });
+    router.back();
   };
 
-}, [center]);
-
   return (
-
     <PageWrapper enabled={false}>
+      <div style={pageStyle}>
+        <AuraMap
+          ref={mapRef}
+          initialCenter={initialLocationRef.current ? {
+            lat: initialLocationRef.current.lat,
+            lng: initialLocationRef.current.lng,
+          } : null}
+          onCenterChanged={(lat, lng) => setCenter({ lat, lng })}
+        />
 
-      <div
-        style={{
-          position:"relative",
-          width:"100%",
-          height:"100dvh",
-          overflow:"hidden",
-          background:"#F5F7FB"
-        }}
-      >
-
-        {/* КАРТА */}
-
-        <div
-          style={{
-            position:"absolute",
-            inset:0
+        <MapControls
+          onLocation={() => {
+            void mapRef.current?.flyToUser().then((coordinates) => {
+              if (coordinates) setCenter(coordinates);
+            });
           }}
-        >
+          onZoomIn={() => mapRef.current?.zoomIn()}
+          onZoomOut={() => mapRef.current?.zoomOut()}
+        />
 
-          <AuraMap
-  ref={mapRef}
-  onCenterChanged={(lat, lng) => {
-    setCenter({
-      lat,
-      lng
-    });
-  }}
-/>
+        <PlaceBottomCard title={place.title} address={place.address} onSelect={selectPlace} />
 
-          <MapControls
+        <header style={headerStyle}>
+          <button type="button" onClick={() => router.back()} aria-label="Назад" style={backButtonStyle}>
+            <ArrowLeft2 size="22" color="#2F80FF" />
+          </button>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#111827" }}>Где пройдет встреча?</div>
+            <div style={{ marginTop: 3, color: "#6B7280", fontSize: 12 }}>Выберите место на карте</div>
+          </div>
+        </header>
+      </div>
+    </PageWrapper>
+  );
+}
 
-  onLocation={() => {
-    mapRef.current?.flyToUser();
-  }}
-
-  onZoomIn={() => {
-    mapRef.current?.zoomIn();
-  }}
-
-  onZoomOut={() => {
-    mapRef.current?.zoomOut();
-  }}
-
-/>
-
-<PlaceBottomCard
-  title={place.title}
-  address={place.address}
-  onSelect={() => {
-
-  const data = {
-  title: place.title,
-  address: place.address,
-  city: place.city,
-  lat: center.lat,
-  lng: center.lng
+const pageStyle = {
+  position: "relative" as const,
+  width: "100%",
+  height: "var(--tg-viewport-stable-height, 100dvh)",
+  overflow: "hidden",
+  background: "#F5F7FB",
+  "--aura-map-card-clearance": "176px",
 };
 
-sessionStorage.setItem(
-  "meet_location",
-  JSON.stringify(data)
-);
+const headerStyle = {
+  position: "absolute" as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 20,
+  padding: "max(8px, env(safe-area-inset-top, 0px)) 16px 8px",
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  pointerEvents: "none" as const,
+};
 
-
-
-window.history.back();
-
-}}
-/>
-
-        </div>
-
-        {/* HEADER */}
-
-        <div
-          style={{
-            position:"absolute",
-            top:0,
-            left:0,
-            right:0,
-            zIndex:20,
-            paddingTop:8
-          }}
-        >
-
-          <div
-            style={{
-              display:"flex",
-              alignItems:"center",
-              gap:14,
-              padding:"0 16px 8px"
-            }}
-          >
-
-            <div
-
-              onClick={()=>router.back()}
-
-              style={{
-
-                width:36,
-height:36,
-borderRadius:18,
-
-                background:"#fff",
-
-                display:"flex",
-
-                justifyContent:"center",
-
-                alignItems:"center",
-
-                cursor:"pointer",
-
-                boxShadow:
-                  "0 6px 18px rgba(0,0,0,.08)"
-
-              }}
-
-            >
-
-              <ArrowLeft2
-                size="22"
-                color="#2F80FF"
-              />
-
-            </div>
-
-            <div>
-
-              <div
-                style={{
-                  fontSize:18,
-                  fontWeight:700,
-                  color:"#111827"
-                }}
-              >
-                Где пройдет встреча?
-              </div>
-
-              <div
-                style={{
-                  marginTop:3,
-                  color:"#6B7280",
-                  fontSize:12
-                }}
-              >
-                Выберите место на карте
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </PageWrapper>
-
-  );
-
-}
+const backButtonStyle = {
+  width: 40,
+  height: 40,
+  padding: 0,
+  border: 0,
+  borderRadius: 20,
+  background: "#fff",
+  display: "grid",
+  placeItems: "center",
+  cursor: "pointer",
+  boxShadow: "0 6px 18px rgba(0,0,0,.08)",
+  pointerEvents: "auto" as const,
+};

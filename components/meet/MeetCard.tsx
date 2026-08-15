@@ -56,7 +56,6 @@ const isFull =
 
 const isCreator =
   currentUserId === event.users?.id;
-const pendingRequests = (event.meet_join_requests ?? []).filter((request) => request.status === "pending").length;
 
   const [manageOpen, setManageOpen] = useState(false);
 
@@ -448,7 +447,7 @@ lineHeight: 1.25,
       cursor: "pointer",
     }}
   >
-    ⚙️ Управление встречей{pendingRequests > 0 ? ` · Заявки ${pendingRequests}` : ""}
+    ⚙️ Управление встречей
   </div>
   <div style={{marginBottom:16}}>
     <MeetDeleteSlider onDelete={() => onDelete(event.id)} />
@@ -653,16 +652,10 @@ lineHeight: 1.25,
     setManageOpen(false);
     router.push(`/meet/participants/${event.id}?tab=map`);
   }}
-  onRequests={() => {
-    setManageOpen(false);
-    router.push(`/meet/requests/${event.id}?tab=map`);
-  }}
   onChat={async () => {
     const { data: chat } = await supabase.from("chats").select("id").eq("event_id", event.id).maybeSingle();
     if (chat) router.push(`/chat/${chat.id}`);
   }}
-  pendingRequests={pendingRequests}
-  showRequests={event.join_type === "approval"}
 />
 
     </>

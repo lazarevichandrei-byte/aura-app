@@ -1,141 +1,72 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 type Props = {
-
-  onLocation:()=>void;
-
-  onZoomIn:()=>void;
-
-  onZoomOut:()=>void;
-
+  onLocation: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
 };
 
-export default function MapControls({
-
-  onLocation,
-
-  onZoomIn,
-
-  onZoomOut
-
-}:Props){
-
-  return(
-
-    <div
-
-     style={{
-
-  position:"absolute",
-
-  right:16,
-
-  bottom:"calc(154px + env(safe-area-inset-bottom, 0px))",
-
-  display:"flex",
-
-  flexDirection:"column",
-
-  gap:10,
-
-  zIndex:30,
-
-  alignItems:"center"
-
-}}
-
-    >
-
-      <CircleButton
-        onClick={onLocation}
-        ariaLabel="Моя геолокация"
-      >
-        ◎
-      </CircleButton>
-
-      <CircleButton
-        onClick={onZoomIn}
-        ariaLabel="Приблизить карту"
-      >
-        ＋
-      </CircleButton>
-
-      <CircleButton
-        onClick={onZoomOut}
-        ariaLabel="Отдалить карту"
-      >
-        －
-      </CircleButton>
-
+export default function MapControls({ onLocation, onZoomIn, onZoomOut }: Props) {
+  return (
+    <div style={containerStyle}>
+      <CircleButton onClick={onLocation} ariaLabel="Моя геолокация" separate>◎</CircleButton>
+      <div style={zoomGroupStyle}>
+        <CircleButton onClick={onZoomIn} ariaLabel="Приблизить карту">＋</CircleButton>
+        <div style={dividerStyle} />
+        <CircleButton onClick={onZoomOut} ariaLabel="Отдалить карту">－</CircleButton>
+      </div>
     </div>
-
   );
-
 }
 
-function CircleButton({
-
-  children,
-
-  onClick,
-
-  ariaLabel
-
-}:{ children: React.ReactNode; onClick: () => void; ariaLabel: string }){
-
-  return(
-
-    <button
-      type="button"
-      aria-label={ariaLabel}
-
-      onClick={onClick}
-
-      style={{
-
-  width:50,
-  height:50,
-
-  borderRadius:25,
-
-  background:"rgba(255,255,255,.92)",
-
-  backdropFilter:"blur(18px)",
-
-  WebkitBackdropFilter:"blur(18px)",
-
-  display:"flex",
-
-  justifyContent:"center",
-
-  alignItems:"center",
-
-  cursor:"pointer",
-
-  userSelect:"none",
-
-  fontSize:22,
-
-  fontWeight:700,
-
-  color:"#2F80FF",
-
-  border:"1px solid rgba(255,255,255,.7)",
-
-  padding:0,
-
-  boxShadow:"0 10px 28px rgba(0,0,0,.12)",
-
-  transition:"all .2s ease"
-
-}}
-
-    >
-
+function CircleButton({ children, onClick, ariaLabel, separate = false }: {
+  children: ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+  separate?: boolean;
+}) {
+  return (
+    <button type="button" aria-label={ariaLabel} onClick={onClick} style={{ ...buttonStyle, borderRadius: separate ? 24 : 0 }}>
       {children}
-
     </button>
-
   );
-
 }
+
+const containerStyle = {
+  position: "absolute" as const,
+  right: 16,
+  bottom: "calc(var(--aura-map-card-clearance, var(--aura-bottom-nav-height, 74px)) + 12px + env(safe-area-inset-bottom, 0px))",
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: 10,
+  zIndex: 30,
+  alignItems: "center",
+};
+
+const zoomGroupStyle = {
+  overflow: "hidden",
+  borderRadius: 24,
+  background: "rgba(255,255,255,.94)",
+  boxShadow: "0 8px 24px rgba(0,0,0,.12)",
+};
+
+const buttonStyle = {
+  width: 48,
+  height: 48,
+  border: "1px solid rgba(255,255,255,.7)",
+  padding: 0,
+  background: "rgba(255,255,255,.94)",
+  backdropFilter: "blur(18px)",
+  WebkitBackdropFilter: "blur(18px)",
+  display: "grid",
+  placeItems: "center",
+  color: "#2F80FF",
+  fontSize: 22,
+  fontWeight: 700,
+  cursor: "pointer",
+  touchAction: "manipulation",
+};
+
+const dividerStyle = { height: 1, margin: "0 8px", background: "#E5EAF1" };

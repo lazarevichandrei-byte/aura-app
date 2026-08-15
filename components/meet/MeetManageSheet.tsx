@@ -8,10 +8,7 @@ type Props = {
   onClose: () => void;
   onEdit: () => void;
   onParticipants: () => void;
-  onRequests: () => void;
   onChat: () => void;
-  pendingRequests?: number;
-  showRequests?: boolean;
 };
 
 const actions = [
@@ -25,11 +22,6 @@ const actions = [
     description: "Управление участниками",
     key: "participants",
   },
-  {
-    title: "📨 Заявки",
-    description: "Просмотреть ожидающие заявки",
-    key: "requests",
-  },
 ] as const;
 
 export default function MeetManageSheet({
@@ -37,15 +29,11 @@ export default function MeetManageSheet({
   onClose,
   onEdit,
   onParticipants,
-  onRequests,
   onChat,
-  pendingRequests = 0,
-  showRequests = true,
 }: Props) {
   const handlers = {
     edit: onEdit,
     participants: onParticipants,
-    requests: onRequests,
     chat: onChat,
   };
 
@@ -79,7 +67,6 @@ export default function MeetManageSheet({
       </div>
 
       {[...actions, { title: "💬 Общий чат", description: "Открыть чат встречи", key: "chat" as const }]
-        .filter((action) => action.key !== "requests" || showRequests)
         .map((action) => (
         <motion.button
           key={action.key}
@@ -104,7 +91,7 @@ export default function MeetManageSheet({
               color: "#111827",
             }}
           >
-            {action.title}{action.key === "requests" && pendingRequests > 0 ? ` · ${pendingRequests}` : ""}
+            {action.title}
           </div>
 
           <div

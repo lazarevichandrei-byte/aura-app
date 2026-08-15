@@ -110,7 +110,7 @@ const chatsRaw = [
       meetEventIds.length
         ? supabaseAdmin
             .from("meet_events")
-            .select("id,title,category")
+            .select("id,title,category,creator_id")
             .in("id", meetEventIds)
         : Promise.resolve({ data: [] }),
       otherUserIds.length
@@ -132,6 +132,25 @@ const chatsRaw = [
     const usersById = new Map(
       (otherUsers || []).map((otherUser) => [otherUser.id, otherUser])
     );
+
+    const creatorEventIds = (meetEvents || [])
+      .filter((event) => event.creator_id === user.id)
+      .map((event) => event.id);
+    const { data: pendingRequestRows, error: pendingRequestError } = creatorEventIds.length
+      ? await supabaseAdmin
+          .from("meet_join_requests")
+          .select("event_id")
+          .in("event_id", creatorEventIds)
+          .eq("status", "pending")
+      : { data: [], error: null };
+    if (pendingRequestError) throw pendingRequestError;
+    const pendingRequestsByEvent = new Map<string, number>();
+    for (const request of pendingRequestRows || []) {
+      pendingRequestsByEvent.set(
+        request.event_id,
+        (pendingRequestsByEvent.get(request.event_id) ?? 0) + 1
+      );
+    }
 
     const chats = (chatsRaw || []).map((chat) => {
 
@@ -164,7 +183,14 @@ const chatsRaw = [
       avatar: null,
 
       category_avatar:
-        event?.category || "other"
+        event?.category || "other",
+
+      pending_request_count:
+        event?.creator_id === user.id
+          ? pendingRequestsByEvent.get(chat.event_id) ?? 0
+          : 0,
+
+      is_meet_creator: event?.creator_id === user.id
     };
   }
 

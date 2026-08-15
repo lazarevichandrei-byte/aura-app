@@ -4,6 +4,34 @@ import { validateTelegramInitData } from "../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
 
+async function loadPendingMeetRequests(eventId: string, userId: string) {
+  const { data: event, error: eventError } = await supabaseAdmin
+    .from("meet_events")
+    .select("creator_id")
+    .eq("id", eventId)
+    .single();
+  if (eventError) throw eventError;
+  if (event.creator_id !== userId) {
+    return { isCreator: false, pendingRequests: [] };
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("meet_join_requests")
+    .select("id,event_id,user_id,status,created_at,users(id,name,age,city,avatar_url,photos)")
+    .eq("event_id", eventId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+
+  return {
+    isCreator: true,
+    pendingRequests: (data ?? []).map((request) => ({
+      ...request,
+      users: Array.isArray(request.users) ? request.users[0] ?? null : request.users,
+    })),
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const { initData, chatId, action = "load", text, body, replyToId, replyPreview } = await request.json();
@@ -38,6 +66,14 @@ export async function POST(request: Request) {
     if (chatError || !chat) {
       console.error("CHAT API LOAD ERROR:", { chatId, userId: user.id, code: chatError?.code, message: chatError?.message });
       return NextResponse.json({ ok: false, error: "CHAT_NOT_FOUND" }, { status: 404 });
+    }
+
+    if (action === "requests") {
+      if (!chat.event_id) {
+        return NextResponse.json({ ok: false, error: "NOT_MEET_CHAT" }, { status: 400 });
+      }
+      const requestData = await loadPendingMeetRequests(chat.event_id, user.id);
+      return NextResponse.json({ ok: true, ...requestData });
     }
 
     if (action === "load" && chat.event_id) {
@@ -99,6 +135,7 @@ export async function POST(request: Request) {
         }
         if (messagesResult.error) throw messagesResult.error;
 
+        const requestData = await loadPendingMeetRequests(chat.event_id, user.id);
         return NextResponse.json({
           ok: true,
           currentUserId: user.id,
@@ -107,6 +144,7 @@ export async function POST(request: Request) {
           participantCount: participants?.length ?? 0,
           otherUser: null,
           messages: messagesResult.data ?? [],
+          ...requestData,
         });
       }
       if (!bootstrap) {
@@ -123,6 +161,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ ok: false, error: "MEET_NOT_FOUND" }, { status: 404 });
       }
 
+      const requestData = await loadPendingMeetRequests(chat.event_id, user.id);
       return NextResponse.json({
         ok: true,
         currentUserId: user.id,
@@ -131,6 +170,7 @@ export async function POST(request: Request) {
         participantCount: bootstrap.participant_count,
         otherUser: null,
         messages: bootstrap.messages ?? [],
+        ...requestData,
       });
     }
 

@@ -205,6 +205,24 @@ fontWeight:700
 </div>
 )}
 
+{chat.is_meet_chat && chat.pending_request_count > 0 && (
+  <div style={{
+    minHeight: 20,
+    padding: "2px 7px",
+    borderRadius: 10,
+    background: "#FFF1E8",
+    color: "#D96B20",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 10,
+    fontWeight: 700,
+    whiteSpace: "nowrap",
+  }}>
+    Заявки · {chat.pending_request_count}
+  </div>
+)}
+
 </div>
 
 </div>
@@ -414,6 +432,43 @@ useEffect(()=>{
   };
 
 },[myId]);
+
+const creatorMeetEventIds = useMemo(
+  () => chats
+    .filter((chat) => chat.is_meet_chat && chat.is_meet_creator && chat.event_id)
+    .map((chat) => chat.event_id)
+    .sort(),
+  [chats]
+);
+const creatorMeetEventsKey = creatorMeetEventIds.join("|");
+
+useEffect(() => {
+  if (!myId || !creatorMeetEventIds.length) return;
+
+  let channel = supabase.channel(`chat-list-meet-requests-${myId}`);
+  const reload = () => {
+    window.clearTimeout(reloadTimer.current);
+    reloadTimer.current = window.setTimeout(() => loadChats(false), 250);
+  };
+  creatorMeetEventIds.forEach((eventId) => {
+    channel = channel.on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "meet_join_requests",
+        filter: `event_id=eq.${eventId}`,
+      },
+      reload
+    );
+  });
+  channel.subscribe();
+
+  return () => {
+    void supabase.removeChannel(channel);
+    window.clearTimeout(reloadTimer.current);
+  };
+}, [creatorMeetEventsKey, myId]);
 
 
 

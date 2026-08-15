@@ -14,6 +14,8 @@ import {
 } from "../../lib/meet/api";
 import { useRouter } from "next/navigation";
 import AuraMap from "../../components/map/AuraMap";
+import type { AuraMapRef } from "../../components/map/AuraMap";
+import MapControls from "../../components/map/MapControls";
 import MeetBottomSheet from "../../components/meet/MeetBottomSheet";
 import MeetViewSwitcher from "../../components/meet/MeetViewSwitcher";
 import MeetFeedCard from "../../components/meet/MeetFeedCard";
@@ -30,6 +32,7 @@ export default function MeetPage() {
     const router = useRouter();
     const { error: showError, success } = useNotification();
     const realtimeSuccessRef = useRef(success);
+    const mapRef = useRef<AuraMapRef>(null);
     useEffect(() => {
       realtimeSuccessRef.current = success;
     }, [success]);
@@ -666,7 +669,8 @@ view === "list" ? (
   }}
   style={{
     position: "relative",
-    height: "70vh",
+    height: "calc(var(--tg-viewport-stable-height, 100dvh) - 250px - env(safe-area-inset-bottom, 0px))",
+    minHeight: 380,
   borderRadius: 24,
   overflow: "hidden",
   boxShadow: "0 8px 20px rgba(0,0,0,.05)",
@@ -676,6 +680,7 @@ view === "list" ? (
 >
 
   <AuraMap
+  ref={mapRef}
   mode="view"
   events={events}
   category={selectedCategory}
@@ -688,6 +693,14 @@ view === "list" ? (
 
   }}
 />
+
+  {!selectedEvent && (
+    <MapControls
+      onLocation={() => { void mapRef.current?.flyToUser(); }}
+      onZoomIn={() => mapRef.current?.zoomIn()}
+      onZoomOut={() => mapRef.current?.zoomOut()}
+    />
+  )}
 
   {selectedEvent && (
     <div

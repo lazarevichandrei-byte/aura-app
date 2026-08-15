@@ -11,41 +11,31 @@ export async function reverseGeocode(
       { signal }
     );
 
+    if (!res.ok) throw new Error(`GEOCODER_HTTP_${res.status}`);
+
     const data = await res.json();
 
-    if (!data.features?.length) {
-      return {
-        title: "",
-        address: "",
-        city: ""
-      };
-    }
+    if (!data.features?.length) throw new Error("GEOCODER_EMPTY_RESULT");
 
     const place = data.features[0];
     const context = place.context ?? [];
-    const cityFeature = context.find((item: any) =>
+    const cityFeature = [place, ...context].find((item: any) =>
       ["municipality", "place", "locality"].some((type) => item.id?.startsWith(`${type}.`))
     );
 
-    return {
-      title:
-        place.text ||
-        place.place_name?.split(",")[0] ||
-        "Неизвестное место",
+    const title = place.text || place.properties?.name || place.place_name?.split(",")[0] || "Ближайшее место";
+    const address = place.place_name || place.properties?.label || title;
 
-      address:
-        place.place_name || "",
+    return {
+      title,
+      address,
       city: cityFeature?.text || ""
     };
 
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
 
-    return {
-      title: "",
-      address: "",
-      city: ""
-    };
+    throw error;
 
   }
 }
