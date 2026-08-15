@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
+import {recipientPushCopy} from "../../../../lib/i18n/server-notifications";
 
 export const runtime = "nodejs";
 
@@ -61,7 +62,7 @@ export async function POST(request:Request){
 
     const {data:recipient} = await supabaseAdmin
       .from("users")
-      .select("telegram_id,is_online,likes_notifications,messages_notifications,matches_notifications")
+      .select("telegram_id,is_online,language,likes_notifications,messages_notifications,matches_notifications")
       .eq("id",userId)
       .single();
     if(!recipient?.telegram_id) return NextResponse.json({ok:false,error:"RECIPIENT_NOT_FOUND"},{status:404});
@@ -77,13 +78,15 @@ export async function POST(request:Request){
     const token = process.env.TELEGRAM_BOT_TOKEN;
     if(!token) return NextResponse.json({ok:false,error:"BOT_TOKEN_MISSING"},{status:500});
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aura-app-sage.vercel.app";
+    const copy=recipientPushCopy(type,recipient.language);
+    const localizedText=copy.text || text;
     const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         chat_id:recipient.telegram_id,
-        text:title ? `${title}\n\n${text}` : text,
-        reply_markup:{inline_keyboard:[[{text:button || "🚀 Открыть",web_app:{url:appUrl}}]]}
+        text:`${copy.title}\n\n${localizedText}`,
+        reply_markup:{inline_keyboard:[[{text:copy.button,web_app:{url:appUrl}}]]}
       })
     });
     const result = await telegramResponse.json();

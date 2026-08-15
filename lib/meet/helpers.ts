@@ -1,7 +1,7 @@
-export function formatMeetDate(date: string) {
+export function formatMeetDate(date: string, locale = "en-US") {
 
   return new Date(date).toLocaleDateString(
-    "ru-RU",
+    locale,
     {
       day: "numeric",
       month: "long",

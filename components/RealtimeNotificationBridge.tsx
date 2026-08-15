@@ -6,16 +6,21 @@ import { getTelegramInitData } from "../lib/telegram-init-data";
 import { supabase } from "../lib/supabase";
 import { useCurrentUser } from "../lib/useCurrentUser";
 import { useNotification } from "./NotificationContext";
+import {useI18n} from "./I18nProvider";
+import {formatDateTime} from "../lib/i18n/format";
 
 export default function RealtimeNotificationBridge(){
   const pathname = usePathname();
   const { user } = useCurrentUser();
   const { notify } = useNotification();
+  const {t,intlLocale}=useI18n();
   const notifyRef = useRef(notify);
   const [chats,setChats] = useState<any[]>([]);
   const [settings,setSettings] = useState({messages:true,likes:true,matches:true});
   const reconcileTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatsRef = useRef<any[]>([]);
+
+  useEffect(()=>{ if(user?.id) performance.mark("REALTIME_START"); },[user?.id]);
 
   useEffect(()=>{ chatsRef.current = chats; },[chats]);
   useEffect(()=>{ notifyRef.current = notify; },[notify]);
@@ -102,8 +107,8 @@ export default function RealtimeNotificationBridge(){
         const chat = chatsRef.current.find((item)=>item.id === chatId);
         notifyRef.current({
           id:`message:${message.id}`,
-          title:chat?.is_meet_chat ? `Встреча: ${chat.name}` : chat?.name || "Новое сообщение",
-          text:String(message.body || "Новое сообщение").slice(0,100),
+          title:chat?.is_meet_chat ? `${t("notifications.meetingPrefix")}: ${chat.name}` : chat?.name || t("notifications.newMessage"),
+          text:String(message.body || t("notifications.newMessage")).slice(0,100),
           icon:"💬",
           type:"info",
           href:`/chat/${chatId}`,
@@ -130,8 +135,8 @@ export default function RealtimeNotificationBridge(){
         if(status !== "approved" && status !== "rejected") return;
         notifyRef.current({
           id:`request:${payload.new.id}:${status}`,
-          title:status === "approved" ? "Заявка принята" : "Заявка отклонена",
-          text:status === "approved" ? "Теперь вам доступен чат встречи." : "Организатор отклонил заявку.",
+          title:status === "approved" ? t("notifications.requestAccepted") : t("notifications.requestRejected"),
+          text:status === "approved" ? t("notifications.chatAvailable") : t("notifications.requestRejectedText"),
           icon:status === "approved" ? "✅" : "ℹ️",
           type:status === "approved" ? "success" : "info",
           href:`/meet/${payload.new.event_id}`,
@@ -141,7 +146,7 @@ export default function RealtimeNotificationBridge(){
         if(!ready) return;
         window.dispatchEvent(new CustomEvent("aura-like-realtime",{detail:payload}));
         if(!settings.likes || payload.new?.from_user_id === user.id) return;
-        notifyRef.current({id:`like:${payload.new.id}`,title:"Новый лайк",text:"Кому-то понравился ваш профиль.",icon:"❤️",type:"info",href:"/likes"});
+        notifyRef.current({id:`like:${payload.new.id}`,title:t("notifications.newLike"),text:t("notifications.newLikeText"),icon:"❤️",type:"info",href:"/likes"});
       })
       .on("postgres_changes",{event:"UPDATE",schema:"public",table:"users",filter:`id=eq.${user.id}`},(payload:any)=>{
         if(!ready || !payload.new) return;
@@ -161,10 +166,10 @@ export default function RealtimeNotificationBridge(){
     const channel = supabase
       .channel(`notification-matches-${user.id}`)
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user1_id=eq.${user.id}`},(payload:any)=>{
-        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:"Новое совпадение",text:"Теперь можно начать общение.",icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
+        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
       })
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user2_id=eq.${user.id}`},(payload:any)=>{
-        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:"Новое совпадение",text:"Теперь можно начать общение.",icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
+        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
       })
       .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
     return ()=>{ void supabase.removeChannel(channel); };
@@ -178,15 +183,15 @@ export default function RealtimeNotificationBridge(){
       channel = channel.on("postgres_changes",{event:"*",schema:"public",table:"meet_events",filter:`id=eq.${chat.event_id}`},(payload:any)=>{
         if(!ready || chat.is_meet_creator) return;
         if(payload.eventType === "DELETE"){
-          notifyRef.current({id:`meet-delete:${chat.event_id}`,title:"Встреча отменена",text:`«${chat.name}» отменена организатором.`,icon:"⚠️",type:"warning",href:"/meet"});
+          notifyRef.current({id:`meet-delete:${chat.event_id}`,title:t("notifications.meetCancelled"),text:`${chat.name}: ${t("notifications.meetCancelledText")}`,icon:"⚠️",type:"warning",href:"/meet"});
           return;
         }
         if(payload.eventType === "UPDATE"){
           const changedTime = chat.event_starts_at !== payload.new?.starts_at;
           const changedPlace = chat.event_place !== payload.new?.place;
           if(changedTime || changedPlace){
-            const details = changedTime ? `Новое время: ${new Date(payload.new.starts_at).toLocaleString("ru-RU")}` : `Новое место: ${payload.new.place || "уточняется"}`;
-            notifyRef.current({id:`meet-update:${chat.event_id}:${payload.new.starts_at}:${payload.new.place}`,title:`Встреча «${chat.name}» изменена`,text:details,icon:"📅",type:"info",href:`/meet/${chat.event_id}`});
+            const details = changedTime ? `${t("notifications.newTime")}: ${formatDateTime(payload.new.starts_at,intlLocale)}` : `${t("notifications.newPlace")}: ${payload.new.place || t("notifications.placePending")}`;
+            notifyRef.current({id:`meet-update:${chat.event_id}:${payload.new.starts_at}:${payload.new.place}`,title:`${t("notifications.meetChanged")}: ${chat.name}`,text:details,icon:"📅",type:"info",href:`/meet/${chat.event_id}`});
             void reconcile();
           }
         }
@@ -196,7 +201,7 @@ export default function RealtimeNotificationBridge(){
       channel = channel.on("postgres_changes",{event:"INSERT",schema:"public",table:"meet_join_requests",filter:`event_id=eq.${chat.event_id}`},(payload:any)=>{
         if(!ready || payload.new?.user_id === user.id) return;
         if(pathname.startsWith("/meet/requests/") || pathname === `/chat/${chat.id}`) return;
-        notifyRef.current({id:`request-new:${payload.new.id}`,title:"Новая заявка на встречу",text:`На встречу «${chat.name}» пришла заявка.`,icon:"👤",type:"info",href:`/chat/${chat.id}`});
+        notifyRef.current({id:`request-new:${payload.new.id}`,title:t("notifications.newRequest"),text:`${chat.name}: ${t("notifications.newRequestText")}`,icon:"👤",type:"info",href:`/chat/${chat.id}`});
       });
       channel = channel.on("postgres_changes",{event:"*",schema:"public",table:"meet_participants",filter:`event_id=eq.${chat.event_id}`},(payload:any)=>{
         if(!ready || pathname === `/chat/${chat.id}`) return;
@@ -207,8 +212,8 @@ export default function RealtimeNotificationBridge(){
         if(!joined && !left) return;
         notifyRef.current({
           id:`participant:${chat.event_id}:${participantId}:${payload.eventType}`,
-          title:joined ? "Новый участник встречи" : "Участник покинул встречу",
-          text:joined ? `К встрече «${chat.name}» присоединился участник.` : `Участник вышел из встречи «${chat.name}».`,
+          title:joined ? t("notifications.participantJoined") : t("notifications.participantLeft"),
+          text:`${chat.name}: ${t(joined ? "notifications.participantJoinedText" : "notifications.participantLeftText")}`,
           icon:joined ? "👋" : "ℹ️",
           type:"info",
           href:`/meet/${chat.event_id}`,
@@ -224,11 +229,11 @@ export default function RealtimeNotificationBridge(){
         const chatTimers:ReturnType<typeof setTimeout>[] = [];
         const delay = new Date(chat.event_starts_at).getTime() - Date.now() - 30*60*1000;
         if(chat.event_starts_at && delay > 0 && delay <= 24*60*60*1000){
-          chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-soon:${chat.event_id}`,title:"Встреча скоро начнётся",text:`«${chat.name}» начнётся через 30 минут.`,icon:"⏰",type:"info",href:`/meet/${chat.event_id}`}),delay));
+          chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-soon:${chat.event_id}`,title:t("notifications.meetSoon"),text:`${chat.name}: ${t("notifications.meetSoonText")}`,icon:"⏰",type:"info",href:`/meet/${chat.event_id}`}),delay));
         }
         const endDelay = new Date(chat.event_expires_at).getTime() - Date.now();
         if(chat.event_expires_at && endDelay > 0 && endDelay <= 24*60*60*1000){
-          chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-ended:${chat.event_id}`,title:"Встреча завершилась",text:`«${chat.name}» завершилась.`,icon:"🏁",type:"info",href:"/meet"}),endDelay));
+          chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-ended:${chat.event_id}`,title:t("notifications.meetEnded"),text:chat.name,icon:"🏁",type:"info",href:"/meet"}),endDelay));
         }
         return chatTimers;
       });

@@ -8,7 +8,41 @@ export type CurrentUser = {
   telegram_id: number;
   name: string;
   avatar_url: string | null;
+  onboarding_completed: boolean | null;
 };
+
+let cachedUser: CurrentUser | null | undefined;
+let currentUserRequest: Promise<CurrentUser | null> | null = null;
+
+function mark(name: string) {
+  if (typeof performance !== "undefined") performance.mark(name);
+}
+
+export function loadCurrentUser() {
+  if (cachedUser !== undefined) return Promise.resolve(cachedUser);
+  if (currentUserRequest) return currentUserRequest;
+
+  currentUserRequest = (async () => {
+    mark("USER_BOOTSTRAP_START");
+    const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+    if (!telegramUser) return null;
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("id,telegram_id,name,avatar_url,onboarding_completed")
+      .eq("telegram_id", telegramUser.id)
+      .maybeSingle();
+
+    if (error) throw error;
+    cachedUser = data;
+    return data;
+  })().finally(() => {
+    mark("USER_BOOTSTRAP");
+    currentUserRequest = null;
+  });
+
+  return currentUserRequest;
+}
 
 export function useCurrentUser() {
   const [user, setUser] = useState<CurrentUser | null>(null);
@@ -17,28 +51,7 @@ export function useCurrentUser() {
   useEffect(() => {
     async function loadUser() {
       try {
-        const tg = (window as any).Telegram?.WebApp;
-        const telegramUser = tg?.initDataUnsafe?.user;
-
-        if (!telegramUser) {
-          setLoading(false);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from("users")
-          .select(`
-            id,
-            telegram_id,
-            name,
-            avatar_url
-          `)
-          .eq("telegram_id", telegramUser.id)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        setUser(data);
+        setUser(await loadCurrentUser());
       } finally {
         setLoading(false);
       }

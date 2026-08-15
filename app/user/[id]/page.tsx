@@ -8,10 +8,12 @@ import { useNotification } from "../../../components/NotificationContext";
 import BottomSheet from "../../../components/BottomSheet";
 import UserProfileSkeleton from "../../../components/UserProfileSkeleton";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
+import {useI18n} from "../../../components/I18nProvider";
 export default function UserProfilePage() {
 
   const params = useParams();
   const router = useRouter();
+  const {t}=useI18n();
   const {
   success,
   error,
@@ -360,7 +362,7 @@ async function submitReport(){
     fontSize:"15px"
   }}
 >
-  📍 {user.city || "Город не указан"}{user.distance ? ` • ${Math.round(user.distance)} км` : ""}
+  📍 {user.city || t("profile.noCity")}{user.distance ? ` • ${Math.round(user.distance)} km` : ""}
 </div>
 
 <div
@@ -383,7 +385,7 @@ async function submitReport(){
       cursor:"pointer"
     }}
   >
-    {photos.length > 1 ? `${photoIndex+1} / ${photos.length}` : `📷 ${photos.length || 1} фото`}
+    {photos.length > 1 ? `${photoIndex+1} / ${photos.length}` : `📷 ${photos.length || 1} ${t("profile.photos")}`}
   </div>
 
   
@@ -409,8 +411,8 @@ async function submitReport(){
 >
   {user.last_seen ? (
     Date.now() - new Date(user.last_seen).getTime() < 5 * 60 * 1000
-      ? "● Онлайн"
-      : "● Был недавно"
+      ? `● ${t("home.online")}`
+      : `● ${t("home.recently")}`
   ) : null}
 </div>
 
@@ -421,19 +423,19 @@ async function submitReport(){
 </div>
 
         {user.bio && <section style={profileSectionStyle}>
-          <h2 style={sectionTitleStyle}>О себе</h2>
+          <h2 style={sectionTitleStyle}>{t("profile.about")}</h2>
           <p style={{lineHeight:1.6,fontSize:15}}>{user.bio}</p>
         </section>}
 
         {user.interests?.length > 0 && <section style={profileSectionStyle}>
-          <h2 style={sectionTitleStyle}>Интересы</h2>
+          <h2 style={sectionTitleStyle}>{t("profile.interests")}</h2>
           <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
             {user.interests.map((item:string)=><span key={item} style={interestChipStyle}>{item}</span>)}
           </div>
         </section>}
 
         {user.city && <section style={{marginTop:22}}>
-          <h2 style={sectionTitleStyle}>Расположение</h2>
+          <h2 style={sectionTitleStyle}>{t("profile.location")}</h2>
           <div style={{background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:18,padding:"14px 16px",boxShadow:"var(--shadow-sm)"}}>
             <div style={{fontWeight:700}}>📍 {user.city}</div>
             {user.distance ? <div style={{marginTop:4,color:"var(--text-secondary)",fontSize:13}}>{Math.round(user.distance)} км от вас</div> : null}
@@ -576,7 +578,7 @@ async function submitReport(){
       textAlign:"center"
     }}
   >
-    Действия
+    {t("profile.actions")}
   </h2>
 
   <div
@@ -598,7 +600,7 @@ async function submitReport(){
       style={actionItem}
 
     >
-      ⚠️ Пожаловаться
+      ⚠️ {t("profile.report")}
     </div>
 
     <div
@@ -614,7 +616,7 @@ async function submitReport(){
       style={{...actionItem,color:"var(--danger)"}}
 
     >
-      🚫 Заблокировать
+      🚫 {t("profile.block")}
     </div>
 
   </div>

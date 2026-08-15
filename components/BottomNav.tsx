@@ -21,6 +21,7 @@ import {
   MessageCircle,
   User
 } from "lucide-react";
+import { useI18n } from "./I18nProvider";
 
 type Props = {
   hidden?: boolean;
@@ -33,6 +34,7 @@ export default function BottomNav({
 const router = useRouter();
 const pathname = usePathname();
 const { user: currentUser } = useCurrentUser();
+const {t}=useI18n();
 
 const [unread,setUnread] =
 useState(
@@ -192,7 +194,7 @@ onClick={()=>router.push("/home")}
 style={itemStyle(pathname==="/home")}
 >
 <Home size={28}/>
-Главная
+{t("navigation.home")}
 </div>
 
 
@@ -201,7 +203,7 @@ onClick={()=>router.push("/meet")}
 style={itemStyle(pathname==="/meet")}
 >
 <MapPinned size={28}/>
-Встречи
+{t("navigation.meet")}
 </div>
 
 
@@ -217,7 +219,7 @@ style={itemStyle(pathname==="/chats")}
       </div>
     )}
   </div>
-  Чаты
+  {t("navigation.chats")}
 </div>
 
 
@@ -227,7 +229,7 @@ onClick={()=>router.push("/account")}
 style={itemStyle(pathname==="/account")}
 >
 <User size={28}/>
-Профиль
+{t("navigation.profile")}
 </div>
 
 </div>

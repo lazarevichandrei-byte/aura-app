@@ -13,6 +13,9 @@ import {
 
 import BottomSheet from "../../components/BottomSheet";
 import { useTheme } from "../../components/ThemeProvider";
+import {useI18n} from "../../components/I18nProvider";
+import LanguagePickerSheet from "../../components/LanguagePickerSheet";
+import {LOCALE_BY_CODE} from "../../lib/i18n/locales";
 
 
 
@@ -20,6 +23,7 @@ import { useTheme } from "../../components/ThemeProvider";
 export default function SettingsPage() {
   const router = useRouter();
   const {theme,setTheme} = useTheme();
+  const {locale,setLocale,t}=useI18n();
 
   useEffect(() => {
   loadSettings();
@@ -52,9 +56,7 @@ show_last_seen
     const savedTheme = data.theme;
     if(savedTheme === "system" || savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
 
-    setLanguage(
-      data.language || "ru"
-    );
+    if(data.language) setLocale(data.language,false);
 
     setShowOnline(
       data.show_online ?? true
@@ -95,9 +97,6 @@ async function saveSetting(
 
 }
 
-
-const [language,setLanguage] =
-useState("ru");
 
 const [showOnline,setShowOnline] =
 useState(true);
@@ -164,7 +163,7 @@ useState(false);
       fontWeight: 700
     }}
   >
-    Настройки
+    {t("settings.title")}
   </div>
 
 </div>
@@ -177,7 +176,7 @@ useState(false);
     marginBottom:20
   }}
 >
-  Персонализируйте приложение под себя.
+  {t("settings.subtitle")}
 </p>
 
 <div
@@ -190,16 +189,16 @@ useState(false);
   <div>
 
     <div style={titleStyle}>
-      🎨 Оформление
+      🎨 {t("settings.appearance")}
     </div>
 
     <div style={subtitleStyle}>
       {
         theme === "light"
-        ? "Светлая"
+        ? t("theme.light")
         : theme === "dark"
-        ? "Тёмная"
-        : "Системная"
+        ? t("theme.dark")
+        : t("theme.system")
       }
     </div>
 
@@ -226,15 +225,11 @@ useState(false);
   <div>
 
     <div style={titleStyle}>
-      🌍 Язык
+      🌍 {t("settings.language")}
     </div>
 
     <div style={subtitleStyle}>
-      {
-        language === "ru"
-        ? "Русский"
-        : "English"
-      }
+      {LOCALE_BY_CODE.get(locale)?.nativeName || locale}
     </div>
 
   </div>
@@ -250,7 +245,7 @@ useState(false);
   <div>
 
     <div style={titleStyle}>
-      🔔 Уведомления
+      🔔 {t("settings.notifications")}
     </div>
 
     <div style={subtitleStyle}>
@@ -270,7 +265,7 @@ useState(false);
 >
   <div>
     <div style={titleStyle}>
-      🚫 Чёрный список
+      🚫 {t("settings.blacklist")}
     </div>
 
     <div style={subtitleStyle}>
@@ -294,7 +289,7 @@ useState(false);
       textAlign:"center"
     }}
   >
-    Оформление
+    {t("settings.appearance")}
   </h2>
 
   <div style={{ marginTop:20 }}>
@@ -326,7 +321,7 @@ useState(false);
 
       }}
     >
-      <span><strong>☀️ Светлая</strong><small style={themeDescriptionStyle}>Всегда светлая</small></span><span>{theme === "light" ? "●" : "○"}</span>
+      <span><strong>☀️ {t("theme.light")}</strong><small style={themeDescriptionStyle}>{t("theme.lightHint")}</small></span><span>{theme === "light" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -356,7 +351,7 @@ useState(false);
 
       }}
     >
-      <span><strong>☾ Тёмная</strong><small style={themeDescriptionStyle}>Всегда тёмная</small></span><span>{theme === "dark" ? "●" : "○"}</span>
+      <span><strong>☾ {t("theme.dark")}</strong><small style={themeDescriptionStyle}>{t("theme.darkHint")}</small></span><span>{theme === "dark" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -386,92 +381,14 @@ useState(false);
 
       }}
     >
-      <span><strong>◐ Системная</strong><small style={themeDescriptionStyle}>Как на устройстве</small></span><span>{theme === "system" ? "●" : "○"}</span>
+      <span><strong>◐ {t("theme.system")}</strong><small style={themeDescriptionStyle}>{t("theme.systemHint")}</small></span><span>{theme === "system" ? "●" : "○"}</span>
     </div>
 
   </div>
 
 </BottomSheet>
 
-<BottomSheet
-  open={showLanguageModal}
-  onClose={() => setShowLanguageModal(false)}
->
-
-  <h2
-    style={{
-      margin:0,
-      textAlign:"center"
-    }}
-  >
-    Выбор языка
-  </h2>
-
-  <div style={{ marginTop:20 }}>
-
-    <div
-      style={{
-        ...sheetItem,
-        background:
-          language === "ru"
-            ? "var(--primary-soft)"
-            : "var(--surface-secondary)",
-        border:
-          language === "ru"
-            ? "1px solid var(--brand-primary)"
-            : "1px solid transparent"
-      }}
-      onClick={async()=>{
-
-         selection();
-
-        setLanguage("ru");
-
-        await saveSetting(
-          "language",
-          "ru"
-        );
-
-        setShowLanguageModal(false);
-
-      }}
-    >
-      <span>🇷🇺 Русский</span><span>{language === "ru" ? "●" : "○"}</span>
-    </div>
-
-    <div
-      style={{
-        ...sheetItem,
-        background:
-          language === "en"
-            ? "var(--primary-soft)"
-            : "var(--surface-secondary)",
-        border:
-          language === "en"
-            ? "1px solid var(--brand-primary)"
-            : "1px solid transparent"
-      }}
-      onClick={async()=>{
-
-          selection();
-
-        setLanguage("en");
-
-        await saveSetting(
-          "language",
-          "en"
-        );
-
-        setShowLanguageModal(false);
-
-      }}
-    >
-      <span>🇺🇸 English</span><span>{language === "en" ? "●" : "○"}</span>
-    </div>
-
-  </div>
-
-</BottomSheet>
+<LanguagePickerSheet open={showLanguageModal} onClose={()=>setShowLanguageModal(false)} onPersist={(nextLocale)=>saveSetting("language",nextLocale)} />
     
   </PageWrapper>
   );

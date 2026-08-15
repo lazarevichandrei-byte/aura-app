@@ -23,12 +23,14 @@ import {
 
 import { sendNotification } from "../../lib/notifications/index";
 import { NotificationType } from "../../lib/constants/notificationTypes";
+import {useI18n} from "../../components/I18nProvider";
 
 
 
 export default function Home() {
   console.log("HOME RENDER");
 const router = useRouter();  
+const {t}=useI18n();
 
 const {
   notify,
@@ -778,12 +780,12 @@ Date.now() -
 new Date(currentUser.last_seen).getTime()
 < 5 * 60 * 1000
 
-? "● Онлайн"
+? `● ${t("home.online")}`
 
 : currentUser.show_last_seen &&
 currentUser.last_seen
 
-? "● Был недавно"
+? `● ${t("home.recently")}`
 
 : ""
 }

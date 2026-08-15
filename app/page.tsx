@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../lib/supabase";
+import { useI18n } from "../components/I18nProvider";
+import LanguagePickerSheet from "../components/LanguagePickerSheet";
+import {LOCALE_BY_CODE} from "../lib/i18n/locales";
+import {loadCurrentUser} from "../lib/useCurrentUser";
 
 export default function Page() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const {t,locale}=useI18n();
+  const [languageOpen,setLanguageOpen]=useState(false);
 
   useEffect(() => {
+    performance.mark("APP_START");
+    performance.mark("FIRST_UI");
     const init = async () => {
       try {
         const tg = (window as any).Telegram?.WebApp;
@@ -16,6 +23,7 @@ export default function Page() {
         if (tg) {
           tg.ready();
           tg.expand();
+          performance.mark("TELEGRAM_READY");
         }
 
         // ✅ ДОБАВЛЕНО: защита от отсутствия Telegram
@@ -24,32 +32,25 @@ export default function Page() {
           return;
         }
 
-        const user = tg.initDataUnsafe.user;
-
-        if (!user) {
+        if (!tg.initDataUnsafe.user) {
           setLoading(false);
           return;
         }
 
-        const { data } = await supabase
-  .from("users")
-  .select("onboarding_completed")
-  .eq("telegram_id", user.id)
-  .maybeSingle();
+        const data = await loadCurrentUser();
 
 if (data?.onboarding_completed) {
-  window.location.href="/home";
+  router.replace("/home");
   return;
 }
 
 if (data && data.onboarding_completed !== true) {
-  window.location.href="/profile";
+  router.replace("/profile");
   return;
 }
 
 setLoading(false);
 
-        setLoading(false);
       } catch (e) {
         console.log("INIT ERROR:", e);
         setLoading(false);
@@ -57,11 +58,10 @@ setLoading(false);
     };
 
     init();
-  }, []);
+  }, [router]);
 
   const handleLogin = () => {
-    // ✅ ИЗМЕНЕНО: вместо router.push
-    window.location.href = "/profile";
+    router.push("/profile");
   };
 
   if (loading) {
@@ -69,7 +69,7 @@ setLoading(false);
       <div style={styles.wrapper}>
         <div style={styles.center}>
           <h1 style={styles.logo}>Aura</h1>
-          <p style={styles.subtitle}>Загрузка...</p>
+          <p style={styles.subtitle}>{t("home.loading")}</p>
         </div>
       </div>
     );
@@ -82,21 +82,23 @@ setLoading(false);
         <h1 style={styles.logo}>Aura</h1>
 
         <p style={styles.subtitle}>
-          Найди свою энергию 💙
+          {t("home.tagline")}
         </p>
 
         <button style={styles.button} onClick={handleLogin}>
-          ✈️ Войти через Telegram
+          ✈️ {t("home.login")}
         </button>
       </div>
 
       {/* FOOTER */}
       <div style={styles.footer}>
-        <p>Продолжая, вы принимаете</p>
+        <button type="button" onClick={()=>setLanguageOpen(true)} style={styles.languageButton}>🌐 {LOCALE_BY_CODE.get(locale)?.nativeName || locale}</button>
+        <p>{t("home.terms")}</p>
         <p style={styles.links}>
-          Условия использования и Политику конфиденциальности
+          {t("home.termsLinks")}
         </p>
       </div>
+      <LanguagePickerSheet open={languageOpen} onClose={()=>setLanguageOpen(false)} />
     </main>
   );
 }
@@ -158,4 +160,5 @@ const styles: any = {
     marginTop: "4px",
     color: "var(--primary)",
   },
+  languageButton:{margin:"0 auto 16px",padding:"9px 14px",borderRadius:999,background:"var(--surface)",border:"1px solid var(--border)",color:"var(--text-primary)",fontWeight:600,cursor:"pointer"},
 };

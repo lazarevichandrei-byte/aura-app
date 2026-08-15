@@ -8,6 +8,7 @@ import {
 } from "../components/NotificationContext";
 import RealtimeNotificationBridge from "../components/RealtimeNotificationBridge";
 import ThemeProvider from "../components/ThemeProvider";
+import I18nProvider from "../components/I18nProvider";
 
 
 export default function Providers({
@@ -26,6 +27,7 @@ export default function Providers({
     >
 
       <ThemeProvider>
+      <I18nProvider>
       <NotificationProvider>
 
         <RealtimeNotificationBridge />
@@ -33,6 +35,7 @@ export default function Providers({
         {children}
 
       </NotificationProvider>
+      </I18nProvider>
       </ThemeProvider>
 
     </QueryClientProvider>
