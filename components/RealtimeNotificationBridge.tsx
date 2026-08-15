@@ -8,6 +8,7 @@ import { useCurrentUser } from "../lib/useCurrentUser";
 import { useNotification } from "./NotificationContext";
 import {useI18n} from "./I18nProvider";
 import {formatDateTime} from "../lib/i18n/format";
+import {DEFAULT_NOTIFICATION_PREFERENCES,notificationEnabled,normalizeNotificationPreferences,type NotificationPreferences} from "../lib/notifications/preferences";
 
 export default function RealtimeNotificationBridge(){
   const pathname = usePathname();
@@ -16,7 +17,7 @@ export default function RealtimeNotificationBridge(){
   const {t,intlLocale}=useI18n();
   const notifyRef = useRef(notify);
   const [chats,setChats] = useState<any[]>([]);
-  const [settings,setSettings] = useState({messages:true,likes:true,matches:true});
+  const [settings,setSettings] = useState<NotificationPreferences>(()=>{try{return normalizeNotificationPreferences(JSON.parse(localStorage.getItem("aura-notification-preferences")||"null"));}catch{return DEFAULT_NOTIFICATION_PREFERENCES;}});
   const reconcileTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatsRef = useRef<any[]>([]);
 
@@ -50,20 +51,10 @@ export default function RealtimeNotificationBridge(){
 
   useEffect(()=>{
     void reconcile();
-    if(user?.id){
-      void supabase.from("users")
-        .select("messages_notifications,likes_notifications,matches_notifications")
-        .eq("id",user.id)
-        .maybeSingle()
-        .then(({data})=>{
-          if(data) setSettings({
-            messages:data.messages_notifications !== false,
-            likes:data.likes_notifications !== false,
-            matches:data.matches_notifications !== false,
-          });
-        });
-    }
+    void getTelegramInitData().then(async(initData)=>{if(!initData)return;const response=await fetch("/api/notification-settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData})});const result=await response.json().catch(()=>null);if(response.ok&&result?.ok){setSettings(result.preferences);localStorage.setItem("aura-notification-preferences",JSON.stringify(result.preferences));}});
   },[user?.id]);
+
+  useEffect(()=>{const update=(event:Event)=>setSettings(normalizeNotificationPreferences((event as CustomEvent).detail));window.addEventListener("notification-preferences-updated",update);return()=>window.removeEventListener("notification-preferences-updated",update);},[]);
 
   useEffect(()=>{
     if(!user?.id) return;
@@ -103,8 +94,9 @@ export default function RealtimeNotificationBridge(){
       },(payload:any)=>{
         const message = payload.new;
         window.dispatchEvent(new CustomEvent("aura-chat-message",{detail:message}));
-        if(!ready || !settings.messages || message.sender_id === user.id || pathname === `/chat/${chatId}`) return;
         const chat = chatsRef.current.find((item)=>item.id === chatId);
+        const eventType=chat?.is_meet_chat?"meet_chat_message":"private_message";
+        if(!ready || !notificationEnabled(settings,eventType) || message.sender_id === user.id || pathname === `/chat/${chatId}`) return;
         notifyRef.current({
           id:`message:${message.id}`,
           title:chat?.is_meet_chat ? `${t("notifications.meetingPrefix")}: ${chat.name}` : chat?.name || t("notifications.newMessage"),
@@ -120,7 +112,7 @@ export default function RealtimeNotificationBridge(){
       if(status === "CHANNEL_ERROR" || status === "TIMED_OUT") void reconcile();
     });
     return ()=>{ void supabase.removeChannel(channel); };
-  },[chatKey,pathname,settings.messages,user?.id]);
+  },[chatKey,pathname,settings,user?.id]);
 
   useEffect(()=>{
     if(!user?.id) return;
@@ -133,6 +125,7 @@ export default function RealtimeNotificationBridge(){
         if(payload.eventType !== "UPDATE") return;
         const status = payload.new?.status;
         if(status !== "approved" && status !== "rejected") return;
+        if(!notificationEnabled(settings,status === "approved" ? "meet_request_approved" : "meet_request_rejected")) return;
         notifyRef.current({
           id:`request:${payload.new.id}:${status}`,
           title:status === "approved" ? t("notifications.requestAccepted") : t("notifications.requestRejected"),
@@ -145,20 +138,12 @@ export default function RealtimeNotificationBridge(){
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"likes",filter:`to_user_id=eq.${user.id}`},(payload:any)=>{
         if(!ready) return;
         window.dispatchEvent(new CustomEvent("aura-like-realtime",{detail:payload}));
-        if(!settings.likes || payload.new?.from_user_id === user.id) return;
+        if(!notificationEnabled(settings,"like_received") || payload.new?.from_user_id === user.id) return;
         notifyRef.current({id:`like:${payload.new.id}`,title:t("notifications.newLike"),text:t("notifications.newLikeText"),icon:"❤️",type:"info",href:"/likes"});
-      })
-      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"users",filter:`id=eq.${user.id}`},(payload:any)=>{
-        if(!ready || !payload.new) return;
-        setSettings({
-          messages:payload.new.messages_notifications !== false,
-          likes:payload.new.likes_notifications !== false,
-          matches:payload.new.matches_notifications !== false,
-        });
       })
       .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
     return ()=>{ void supabase.removeChannel(channel); };
-  },[settings.likes,user?.id]);
+  },[settings,user?.id]);
 
   useEffect(()=>{
     if(!user?.id) return;
@@ -166,14 +151,14 @@ export default function RealtimeNotificationBridge(){
     const channel = supabase
       .channel(`notification-matches-${user.id}`)
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user1_id=eq.${user.id}`},(payload:any)=>{
-        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
+        if(ready && notificationEnabled(settings,"match_created") && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
       })
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user2_id=eq.${user.id}`},(payload:any)=>{
-        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
+        if(ready && notificationEnabled(settings,"match_created") && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
       })
       .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
     return ()=>{ void supabase.removeChannel(channel); };
-  },[settings.matches,user?.id]);
+  },[settings,user?.id]);
 
   useEffect(()=>{
     if(!user?.id || !meetChats.length) return;
@@ -183,6 +168,7 @@ export default function RealtimeNotificationBridge(){
       channel = channel.on("postgres_changes",{event:"*",schema:"public",table:"meet_events",filter:`id=eq.${chat.event_id}`},(payload:any)=>{
         if(!ready || chat.is_meet_creator) return;
         if(payload.eventType === "DELETE"){
+          if(!notificationEnabled(settings,"meet_cancelled"))return;
           notifyRef.current({id:`meet-delete:${chat.event_id}`,title:t("notifications.meetCancelled"),text:`${chat.name}: ${t("notifications.meetCancelledText")}`,icon:"⚠️",type:"warning",href:"/meet"});
           return;
         }
@@ -190,6 +176,7 @@ export default function RealtimeNotificationBridge(){
           const changedTime = chat.event_starts_at !== payload.new?.starts_at;
           const changedPlace = chat.event_place !== payload.new?.place;
           if(changedTime || changedPlace){
+            if(!notificationEnabled(settings,"meet_updated")){void reconcile();return;}
             const details = changedTime ? `${t("notifications.newTime")}: ${formatDateTime(payload.new.starts_at,intlLocale)}` : `${t("notifications.newPlace")}: ${payload.new.place || t("notifications.placePending")}`;
             notifyRef.current({id:`meet-update:${chat.event_id}:${payload.new.starts_at}:${payload.new.place}`,title:`${t("notifications.meetChanged")}: ${chat.name}`,text:details,icon:"📅",type:"info",href:`/meet/${chat.event_id}`});
             void reconcile();
@@ -199,7 +186,7 @@ export default function RealtimeNotificationBridge(){
     });
     creatorMeetChats.forEach((chat)=>{
       channel = channel.on("postgres_changes",{event:"INSERT",schema:"public",table:"meet_join_requests",filter:`event_id=eq.${chat.event_id}`},(payload:any)=>{
-        if(!ready || payload.new?.user_id === user.id) return;
+        if(!ready || payload.new?.user_id === user.id || !notificationEnabled(settings,"meet_request_new")) return;
         if(pathname.startsWith("/meet/requests/") || pathname === `/chat/${chat.id}`) return;
         notifyRef.current({id:`request-new:${payload.new.id}`,title:t("notifications.newRequest"),text:`${chat.name}: ${t("notifications.newRequestText")}`,icon:"👤",type:"info",href:`/chat/${chat.id}`});
       });
@@ -210,6 +197,7 @@ export default function RealtimeNotificationBridge(){
         const joined = payload.eventType === "INSERT";
         const left = payload.eventType === "DELETE";
         if(!joined && !left) return;
+        if(!notificationEnabled(settings,joined?"meet_participant_joined":"meet_participant_left"))return;
         notifyRef.current({
           id:`participant:${chat.event_id}:${participantId}:${payload.eventType}`,
           title:joined ? t("notifications.participantJoined") : t("notifications.participantLeft"),
@@ -222,13 +210,13 @@ export default function RealtimeNotificationBridge(){
     });
     channel.subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
     return ()=>{ void supabase.removeChannel(channel); };
-  },[meetKey,pathname,user?.id]);
+  },[meetKey,pathname,settings,user?.id]);
 
   useEffect(()=>{
     const timers = meetChats.flatMap((chat)=>{
         const chatTimers:ReturnType<typeof setTimeout>[] = [];
         const delay = new Date(chat.event_starts_at).getTime() - Date.now() - 30*60*1000;
-        if(chat.event_starts_at && delay > 0 && delay <= 24*60*60*1000){
+        if(notificationEnabled(settings,"meet_reminder") && chat.event_starts_at && delay > 0 && delay <= 24*60*60*1000){
           chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-soon:${chat.event_id}`,title:t("notifications.meetSoon"),text:`${chat.name}: ${t("notifications.meetSoonText")}`,icon:"⏰",type:"info",href:`/meet/${chat.event_id}`}),delay));
         }
         const endDelay = new Date(chat.event_expires_at).getTime() - Date.now();
@@ -238,7 +226,7 @@ export default function RealtimeNotificationBridge(){
         return chatTimers;
       });
     return ()=>timers.forEach(clearTimeout);
-  },[meetTimingKey]);
+  },[meetTimingKey,settings]);
 
   return null;
 }

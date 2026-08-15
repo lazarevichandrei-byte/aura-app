@@ -188,22 +188,9 @@ export async function updateMeetEvent(
   max_people: number;
 }
 ) {
-  const duration = values.duration ?? "1h";
-  const { data, error } = await supabase
-    .from("meet_events")
-    .update({
-      ...values,
-      expires_at: calculateMeetExpiration(values.starts_at, duration),
-    })
-    .eq("id", eventId)
-    .select()
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
+  const initData=await getTelegramInitData();if(!initData)throw new Error("TELEGRAM_AUTH_REQUIRED");
+  const response=await fetch("/api/meet/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,eventId,values})});
+  const result=await response.json();if(!response.ok||!result?.ok)throw new Error(result?.error||"UPDATE_FAILED");return result.event;
 }
 export async function deleteMeetEvent(
   eventId: string

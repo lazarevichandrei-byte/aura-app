@@ -1922,11 +1922,6 @@ if(data){
 
 }
 
-const receiverId =
-  otherUser?.id;
-
-if (receiverId) {
-
   try {
 
     const myName =
@@ -1935,13 +1930,13 @@ if (receiverId) {
 
     await sendMessageNotification(
 
-      receiverId,
+      otherUser?.id,
 
       myName,
 
       text,
-
-      chatId
+      chatId,
+      data.id
 
     );
 
@@ -1953,8 +1948,6 @@ if (receiverId) {
     );
 
   }
-
-}
 
 
 

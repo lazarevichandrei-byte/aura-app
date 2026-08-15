@@ -1,381 +1,65 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ArrowLeft2 } from "iconsax-react";
+import {useCallback,useEffect,useRef,useState} from "react";
+import {useRouter} from "next/navigation";
+import {ArrowLeft2} from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
-import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
-import { selection } from "../../lib/haptic";
+import {ListSkeleton} from "../../components/AppSkeletons";
 import {useI18n} from "../../components/I18nProvider";
-import { ListSkeleton } from "../../components/AppSkeletons";
+import {useNotification} from "../../components/NotificationContext";
+import {selection} from "../../lib/haptic";
+import {getTelegramInitData} from "../../lib/telegram-init-data";
+import {DEFAULT_NOTIFICATION_PREFERENCES,type NotificationPreferences} from "../../lib/notifications/preferences";
 
-export default function NotificationsPage() {
-  const {t}=useI18n();
+const CACHE_KEY="aura-notification-preferences";
+type PreferenceKey=keyof NotificationPreferences;
+const sections=[
+  {title:"navigation.chats",items:[
+    ["privateMessages","💬","notificationSettings.messages","notificationSettings.messagesHint"],
+    ["meetChatMessages","👥","meet.sharedChat","notifications.newMessage"],
+  ]},
+  {title:"meet.title",items:[
+    ["meetRequestNew","📨","notifications.newRequest","notifications.newRequestText"],
+    ["meetRequestApproved","✅","notifications.requestAccepted","notifications.chatAvailable"],
+    ["meetRequestRejected","ℹ️","notifications.requestRejected","notifications.requestRejectedText"],
+    ["meetParticipantJoined","👋","notifications.participantJoined","notifications.participantJoinedText"],
+    ["meetParticipantLeft","🚪","notifications.participantLeft","notifications.participantLeftText"],
+    ["meetUpdated","📅","notifications.meetChanged","notifications.newTime"],
+    ["meetCancelled","⚠️","notifications.meetCancelled","notifications.meetCancelledText"],
+    ["meetReminder","⏰","notifications.meetSoon","notifications.meetSoonText"],
+  ]},
+  {title:"likes.title",items:[
+    ["likes","❤️","notificationSettings.likes","notificationSettings.likesHint"],
+    ["matches","💙","notificationSettings.matches","notificationSettings.matchesHint"],
+  ]},
+  {title:"notificationSettings.news",items:[["system","📢","notificationSettings.news","notificationSettings.newsHint"]]},
+] as const;
 
-  const router = useRouter();
+function cachedPreferences(){try{return {...DEFAULT_NOTIFICATION_PREFERENCES,...JSON.parse(localStorage.getItem(CACHE_KEY)||"null")};}catch{return null;}}
 
-  const [likes,setLikes] =
-useState<boolean | null>(null);
+export default function NotificationsPage(){
+  const router=useRouter();const {t}=useI18n();const {error:showError}=useNotification();
+  const [preferences,setPreferences]=useState<NotificationPreferences|null>(()=>typeof window==="undefined"?null:cachedPreferences());
+  const [loadError,setLoadError]=useState(false);const saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);const lastSaved=useRef<NotificationPreferences|null>(preferences);
 
-const [messages,setMessages] =
-useState<boolean | null>(null);
+  const load=useCallback(async()=>{setLoadError(false);try{const initData=await getTelegramInitData();if(!initData)throw new Error("AUTH_REQUIRED");const response=await fetch("/api/notification-settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData})});const result=await response.json();if(!response.ok||!result?.ok)throw new Error(result?.error);setPreferences(result.preferences);lastSaved.current=result.preferences;localStorage.setItem(CACHE_KEY,JSON.stringify(result.preferences));}catch{setLoadError(true);}},[]);
+  useEffect(()=>{void load();return()=>{if(saveTimer.current)clearTimeout(saveTimer.current);};},[load]);
 
-const [matches,setMatches] =
-useState<boolean | null>(null);
+  const save=(next:NotificationPreferences)=>{if(saveTimer.current)clearTimeout(saveTimer.current);saveTimer.current=setTimeout(async()=>{try{const initData=await getTelegramInitData();if(!initData)throw new Error("AUTH_REQUIRED");const response=await fetch("/api/notification-settings",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,preferences:next})});const result=await response.json();if(!response.ok||!result?.ok)throw new Error(result?.error);lastSaved.current=result.preferences;localStorage.setItem(CACHE_KEY,JSON.stringify(result.preferences));window.dispatchEvent(new CustomEvent("notification-preferences-updated",{detail:result.preferences}));}catch{if(lastSaved.current)setPreferences(lastSaved.current);showError(t("common.error"),t("support.sendFailed"));}},350);};
+  const toggle=(key:PreferenceKey)=>{if(!preferences)return;selection();const next={...preferences,[key]:!preferences[key]};setPreferences(next);localStorage.setItem(CACHE_KEY,JSON.stringify(next));window.dispatchEvent(new CustomEvent("notification-preferences-updated",{detail:next}));save(next);};
 
-const [news,setNews] =
-useState<boolean | null>(null);
-
-
-
-useEffect(() => {
-  loadSettings();
-}, []);
-
-async function loadSettings() {
-
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if (!telegramId) return;
-
-  const { data } = await supabase
-    .from("users")
-    .select(`
-likes_notifications,
-messages_notifications,
-matches_notifications,
-news_notifications
-`)
-    .eq("telegram_id", telegramId)
-    .single();
-
-  if (!data) return;
-
-  setLikes(
-data.likes_notifications ?? true
-);
-
-setMessages(
-data.messages_notifications ?? true
-);
-
-setMatches(
-data.matches_notifications ?? true
-);
-
-setNews(
-data.news_notifications ?? true
-);
+  if(!preferences&&!loadError)return <ListSkeleton rows={8}/>;
+  if(!preferences)return <main className="app-page" style={{display:"grid",placeItems:"center",padding:24,textAlign:"center"}}><div><p>{t("common.error")}</p><button onClick={()=>void load()} style={retryStyle}>{t("common.retry")}</button></div></main>;
+  return <PageWrapper><main className="app-page" style={{padding:"20px 20px 48px"}}><div style={{maxWidth:520,margin:"0 auto"}}>
+    <header style={{display:"flex",alignItems:"center",gap:12,marginBottom:22}}><button onClick={()=>router.back()} aria-label={t("common.backAria")} style={backStyle}><ArrowLeft2 size={28} color="var(--primary)"/></button><div><h1 style={{fontSize:24}}>{t("notificationSettings.title")}</h1><p style={subtitleStyle}>{t("notificationSettings.subtitle")}</p></div></header>
+    <PreferenceRow icon="🔔" title={t("notificationSettings.title")} subtitle={preferences.enabled?t("notificationSettings.subtitle"):t("settings.notificationsHint")} active={preferences.enabled} onClick={()=>toggle("enabled")} featured/>
+    {sections.map((section)=><section key={section.title} style={{marginTop:26}}><h2 style={sectionTitleStyle}>{t(section.title)}</h2><div style={sectionStyle}>{section.items.map(([key,icon,title,hint])=><PreferenceRow key={key} icon={icon} title={t(title)} subtitle={t(hint)} active={preferences[key]} muted={!preferences.enabled} onClick={()=>toggle(key)}/>)}</div></section>)}
+  </div></main></PageWrapper>;
 }
 
-async function saveSetting(
-  field:string,
-  value:boolean
-){
-
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if (!telegramId) return;
-
-  await supabase
-    .from("users")
-    .update({
-      [field]: value
-    })
-    .eq(
-      "telegram_id",
-      telegramId
-    );
-}
-
-if (
-  likes === null ||
-  messages === null ||
-  matches === null ||
-  news === null
-){
-  return (
-    <ListSkeleton rows={4} />
-  );
-}
-
-  return (
-    <PageWrapper>
-      <div
-        style={{
-          minHeight:"100vh",
-          background:"var(--app-bg)",
-          color:"var(--text-primary)",
-          padding:"20px"
-        }}
-      >
-
-        <div
-          style={{
-            display:"flex",
-            alignItems:"center",
-            marginBottom:24
-          }}
-        >
-
-          <div
-            onClick={()=>router.back()}
-            style={{
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              paddingRight:10,
-              cursor:"pointer"
-            }}
-          >
-            <ArrowLeft2
-              size="28"
-              color="var(--brand-primary)"
-              variant="Outline"
-            />
-          </div>
-
-          <div
-            style={{
-              marginLeft:14,
-              fontSize:24,
-              fontWeight:700
-            }}
-          >
-            {t("notificationSettings.title")}
-          </div>
-
-        </div>
-
-        <p
-style={{
-color:"var(--text-secondary)",
-fontSize:14,
-lineHeight:1.5,
-marginBottom:20
-}}
->
-{t("notificationSettings.subtitle")}
-</p>
-
-<div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      ❤️ {t("notificationSettings.likes")}
-    </div>
-
-    <div style={subtitleStyle}>
-      {t("notificationSettings.likesHint")}
-    </div>
-  </div>
-
-  <Switch
-    active={likes}
-    onClick={async()=>{
-
-      selection();
-
-      const value=!likes;
-
-      setLikes(value);
-
-      await saveSetting(
-        "likes_notifications",
-        value
-      );
-
-    }}
-  />
-</div>
-
-  <div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      💬 {t("notificationSettings.messages")}
-    </div>
-
-    <div style={subtitleStyle}>
-      {t("notificationSettings.messagesHint")}
-    </div>
-  </div>
-
-  <Switch
-    active={messages}
-    onClick={async()=>{
-
-      selection();
-
-      const value = !messages;
-
-      setMessages(value);
-
-      await saveSetting(
-        "messages_notifications",
-        value
-      );
-
-    }}
-  />
-</div>
-
-  <div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      💙 {t("notificationSettings.matches")}
-    </div>
-
-    <div style={subtitleStyle}>
-      {t("notificationSettings.matchesHint")}
-    </div>
-  </div>
-
-  <Switch
-    active={matches}
-    onClick={async()=>{
-
-      selection();
-
-      const value = !matches;
-
-      setMatches(value);
-
-      await saveSetting(
-        "matches_notifications",
-        value
-      );
-
-    }}
-  />
-</div>
-
-<div style={cardStyle}>
-  <div>
-    <div style={titleStyle}>
-      📢 {t("notificationSettings.news")}
-    </div>
-
-    <div style={subtitleStyle}>
-      {t("notificationSettings.newsHint")}
-    </div>
-  </div>
-
-  <Switch
-    active={news}
-    onClick={async()=>{
-
-      selection();
-
-      const value = !news;
-
-      setNews(value);
-
-      await saveSetting(
-        "news_notifications",
-        value
-      );
-
-    }}
-  />
-</div>
-
-</div>
-
-    </PageWrapper>
-  );
-
-}
-
-
-const cardStyle = {
-  background:"var(--surface)",
-  border:"1px solid var(--border-subtle)",
-  borderRadius:"18px",
-  padding:"18px",
-  marginBottom:"14px",
-
-  display:"flex",
-  justifyContent:"space-between",
-  alignItems:"center",
-
-  boxShadow:
-    "0 4px 14px rgba(0,0,0,.04)"
-};
-
-const titleStyle = {
-  fontSize:"15px",
-  fontWeight:600
-};
-
-const subtitleStyle = {
-  marginTop:"4px",
-  fontSize:"12px",
-  color:"var(--text-secondary)"
-};
-
-function Switch({
-  active,
-  onClick,
-  disabled = false
-}:{
-  active:boolean | null;
-  onClick:()=>void;
-  disabled?: boolean;
-}){
-
-  return(
-    <div
-      onClick={() => {
-
-        if(disabled) return;
-
-        onClick();
-
-      }}
-      style={{
-        width:54,
-        height:30,
-        borderRadius:999,
-
-        background:
-          active
-          ? "var(--brand-primary)"
-          : "#D7DCE4",
-
-        position:"relative",
-
-        transition:"all .2s ease",
-
-        cursor: disabled ? "default" : "pointer",
-
-        opacity: disabled ? 0.45 : 1
-      }}
-    >
-      <div
-        style={{
-          position:"absolute",
-          top:3,
-          left:active
-            ? 27
-            : 3,
-
-          width:24,
-          height:24,
-
-          borderRadius:"50%",
-
-          background:"var(--surface)",
-
-          transition:"all .2s ease"
-        }}
-      />
-    </div>
-  );
-}
+function PreferenceRow({icon,title,subtitle,active,onClick,muted=false,featured=false}:{icon:string;title:string;subtitle:string;active:boolean;onClick:()=>void;muted?:boolean;featured?:boolean}){return <div style={{...rowStyle,opacity:muted ? .62 : 1,background:featured?"var(--primary-soft)":"var(--surface)"}}><span style={{fontSize:22}}>{icon}</span><div style={{minWidth:0,flex:1}}><strong style={{display:"block",fontSize:15}}>{title}</strong><small style={subtitleStyle}>{subtitle}</small></div><button type="button" role="switch" aria-checked={active} onClick={onClick} style={{...switchStyle,background:active?"var(--primary)":"var(--surface-secondary)"}}><span style={{...thumbStyle,transform:`translateX(${active?22:2}px)`}}/></button></div>}
+const rowStyle={display:"flex",alignItems:"center",gap:12,minHeight:68,padding:"12px 14px",borderBottom:"1px solid var(--border-subtle)",transition:"opacity .16s ease"};
+const sectionStyle={overflow:"hidden",borderRadius:20,border:"1px solid var(--border-subtle)",background:"var(--surface)",boxShadow:"var(--shadow-sm)"};
+const sectionTitleStyle={fontSize:13,fontWeight:700,color:"var(--text-secondary)",margin:"0 4px 9px"};const subtitleStyle={display:"block",marginTop:3,fontSize:12,lineHeight:1.35,color:"var(--text-secondary)"};
+const switchStyle={width:52,height:30,borderRadius:999,padding:0,position:"relative" as const,flexShrink:0,cursor:"pointer",transition:"background .18s ease"};const thumbStyle={position:"absolute" as const,top:3,left:0,width:24,height:24,borderRadius:"50%",background:"var(--surface-elevated)",boxShadow:"var(--shadow-sm)",transition:"transform .18s ease"};
+const backStyle={width:38,height:38,display:"grid",placeItems:"center",background:"transparent",cursor:"pointer"};const retryStyle={marginTop:16,height:44,padding:"0 22px",borderRadius:14,background:"var(--primary)",color:"var(--text-inverse)"};

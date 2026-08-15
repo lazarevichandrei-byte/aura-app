@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 import { ensureMeetChatParticipant, reserveMeetGuestSlot } from "../../../../lib/server/meet-chat-participant";
+import {deliverTelegramNotification} from "../../../../lib/server/notifications/deliver";
 
 export const runtime = "nodejs";
 
@@ -59,7 +60,7 @@ async function addParticipant(eventId: string, userId: string) {
   const { data: event, error: eventError } = await supabaseAdmin
     .from("meet_events").select("creator_id,max_people").eq("id", eventId).single();
   if (eventError || !event) throw eventError ?? new Error("MEET_NOT_FOUND");
-  if (event.creator_id === userId) return;
+  if (event.creator_id === userId) return false;
 
   const addedMeetParticipant = await reserveMeetGuestSlot(eventId, userId);
 
@@ -73,6 +74,7 @@ async function addParticipant(eventId: string, userId: string) {
     }
     throw error;
   }
+  return addedMeetParticipant;
 }
 
 export async function POST(request: Request) {
@@ -108,9 +110,11 @@ export async function POST(request: Request) {
             const { error } = await supabaseAdmin.from("meet_join_requests").update({ status: "pending", reviewed_at: null }).eq("id", existingRequest.id);
             if (error) throw error;
           }
+          await deliverTelegramNotification({eventType:"meet_request_new",recipientUserId:event.creator_id,dedupeKey:`meet_request:${existingRequest.id}`,entityId:existingRequest.id,href:`/meet/${event.id}`});
         } else {
-          const { error } = await supabaseAdmin.from("meet_join_requests").insert({ event_id: event.id, user_id: user.id });
+          const { data:createdRequest,error } = await supabaseAdmin.from("meet_join_requests").insert({ event_id: event.id, user_id: user.id }).select("id").single();
           if (error && error.code !== "23505") throw error;
+          if(createdRequest)await deliverTelegramNotification({eventType:"meet_request_new",recipientUserId:event.creator_id,dedupeKey:`meet_request:${createdRequest.id}`,entityId:createdRequest.id,href:`/meet/${event.id}`});
         }
       } else if (action === "cancel-request") {
         const { error } = await supabaseAdmin.from("meet_join_requests").delete().eq("event_id", event.id).eq("user_id", user.id).eq("status", "pending");
@@ -119,7 +123,8 @@ export async function POST(request: Request) {
         if (event.join_type !== "open" || !event.is_active || new Date(event.expires_at) <= new Date()) {
           return NextResponse.json({ ok: false, error: "JOIN_NOT_ALLOWED" }, { status: 403 });
         }
-        await addParticipant(event.id, user.id);
+        const joined=await addParticipant(event.id, user.id);
+        if(joined)await deliverTelegramNotification({eventType:"meet_participant_joined",recipientUserId:event.creator_id,dedupeKey:`participant_joined:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
       } else {
         if (event.creator_id === user.id) {
           return NextResponse.json({ ok: false, error: "CREATOR_CANNOT_LEAVE" }, { status: 403 });
@@ -131,6 +136,7 @@ export async function POST(request: Request) {
           const { error: chatError } = await supabaseAdmin.from("chat_participants").delete().eq("chat_id", chat.id).eq("user_id", user.id);
           if (chatError) throw chatError;
         }
+        await deliverTelegramNotification({eventType:"meet_participant_left",recipientUserId:event.creator_id,dedupeKey:`participant_left:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
       }
     } else if (action === "approve" || action === "reject") {
       const { data: joinRequest } = await supabaseAdmin
@@ -153,12 +159,14 @@ export async function POST(request: Request) {
           .update({ status: "approved", reviewed_at: new Date().toISOString() })
           .eq("id", joinRequest.id);
         if (error) throw error;
+        await deliverTelegramNotification({eventType:"meet_request_approved",recipientUserId:joinRequest.user_id,dedupeKey:`request_approved:${joinRequest.id}`,entityId:joinRequest.id,href:`/meet/${joinRequest.event_id}`});
       } else if (action === "reject" && joinRequest.status === "pending") {
         const { error } = await supabaseAdmin
           .from("meet_join_requests")
           .update({ status: "rejected", reviewed_at: new Date().toISOString() })
           .eq("id", joinRequest.id);
         if (error) throw error;
+        await deliverTelegramNotification({eventType:"meet_request_rejected",recipientUserId:joinRequest.user_id,dedupeKey:`request_rejected:${joinRequest.id}`,entityId:joinRequest.id,href:`/meet/${joinRequest.event_id}`});
       }
     } else {
       return NextResponse.json({ ok: false, error: "UNKNOWN_ACTION" }, { status: 400 });

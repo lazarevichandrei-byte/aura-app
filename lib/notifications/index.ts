@@ -42,6 +42,7 @@ export async function sendNotification(
     template.button,
 
   chatId:payload.chatId
+  ,entityId:payload.data?.entityId
 
 })
     }
