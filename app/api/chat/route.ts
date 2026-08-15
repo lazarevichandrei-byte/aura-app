@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         .single(),
       supabaseAdmin
         .from("chats")
-        .select("id,event_id,user1_id,user2_id")
+        .select("id,event_id,user1_id,user2_id,unread_count")
         .eq("id", chatId)
         .single(),
     ]);
@@ -220,6 +220,7 @@ export async function POST(request: Request) {
           last_message: message.body,
           last_message_at: message.created_at,
           has_messages: true,
+          unread_count: (chat.unread_count ?? 0) + 1,
         })
         .eq("id", chat.id);
       if (metadataError) {

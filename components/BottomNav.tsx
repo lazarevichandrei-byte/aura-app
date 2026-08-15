@@ -12,10 +12,12 @@ useState
 
 import { supabase }
 from "../lib/supabase";
+import { getTelegramInitData }
+from "../lib/telegram-init-data";
 import {
   Home,
   MapPinned,
-  Heart,
+  MessageCircle,
   User
 } from "lucide-react";
 
@@ -80,23 +82,31 @@ channel
 
 async function loadUnread(){
 
-const { data } =
-await supabase
-.from("messages")
-.select("id")
-.eq(
-"is_read",
-false
+const initData = await getTelegramInitData();
+if(!initData) return;
+
+const response = await fetch("/api/chats",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({initData})
+});
+
+if(!response.ok) return;
+
+const result = await response.json();
+if(!result?.ok) return;
+
+const totalUnread = (result.chats || []).reduce(
+  (total, chat) => total + (chat.unread_count || 0),
+  0
 );
 
 setUnread(
-data?.length || 0
+totalUnread
 );
 localStorage.setItem(
 "navUnread",
-String(
-data?.length || 0
-)
+String(totalUnread)
 );
 }
 
@@ -157,7 +167,14 @@ style={itemStyle(pathname==="/meet")}
 onClick={()=>router.push("/chats")}
 style={itemStyle(pathname==="/chats")}
 >
-  <Heart size={28}/>
+  <div style={{position:"relative",display:"grid",placeItems:"center"}}>
+    <MessageCircle size={28}/>
+    {unread > 0 && (
+      <div style={{position:"absolute",top:-7,right:-10,minWidth:18,height:18,padding:"0 5px",borderRadius:9,background:"#2F80FF",color:"#fff",display:"grid",placeItems:"center",fontSize:10,fontWeight:800,border:"2px solid #fff",boxSizing:"border-box"}}>
+        {unread > 99 ? "99+" : unread}
+      </div>
+    )}
+  </div>
   Чаты
 </div>
 

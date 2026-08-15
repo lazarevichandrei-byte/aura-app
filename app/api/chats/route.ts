@@ -58,11 +58,11 @@ if (validation.ok === false) {
    const [{ data: personalChats }, { data: participantRows }] = await Promise.all([
      supabaseAdmin
        .from("chats")
-       .select("id,event_id,user1_id,user2_id,last_message,last_message_at,unread_count,has_messages,liked_by,is_new_match")
+       .select("id,event_id,user1_id,user2_id,last_message,last_message_at,created_at,unread_count,has_messages,liked_by,is_new_match")
        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`),
      supabaseAdmin
        .from("chat_participants")
-       .select("chat_id,chats!inner(id,event_id,user1_id,user2_id,last_message,last_message_at,unread_count,has_messages,liked_by,is_new_match)")
+       .select("chat_id,chats!inner(id,event_id,user1_id,user2_id,last_message,last_message_at,created_at,unread_count,has_messages,liked_by,is_new_match)")
        .eq("user_id", user.id)
        .not("chats.event_id", "is", null),
    ]);
@@ -83,12 +83,8 @@ const chatsRaw = [
   )
   .sort(
     (a, b) =>
-      new Date(
-        b.last_message_at || 0
-      ).getTime() -
-      new Date(
-        a.last_message_at || 0
-      ).getTime()
+      new Date(b.last_message_at || b.created_at || 0).getTime() -
+      new Date(a.last_message_at || a.created_at || 0).getTime()
   );
 
 
@@ -222,7 +218,12 @@ const chatsRaw = [
       otherUser?.avatar_url || null
   };
 
-});
+})
+  .sort(
+    (left, right) =>
+      new Date(right.last_message_at || right.created_at || 0).getTime() -
+      new Date(left.last_message_at || left.created_at || 0).getTime()
+  );
     return NextResponse.json({
       ok:true,
       chats

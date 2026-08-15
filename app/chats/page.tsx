@@ -17,6 +17,12 @@ import MeetCategoryAvatar from "../../components/meet/MeetCategoryAvatar";
 
 const MAX_LIST_PRESENCE_CHATS = 20;
 
+const chatTimestamp = (chat: any) =>
+  new Date(chat.last_message_at || chat.created_at || 0).getTime();
+
+const sortChats = (items: any[]) =>
+  [...items].sort((left, right) => chatTimestamp(right) - chatTimestamp(left));
+
 
 const ChatCard = React.memo(
 function ChatCard({
@@ -68,10 +74,13 @@ borderRadius:22,
 background:
 pressed
 ? "#F2F4F7"
-: "#fff",
+: chat.unread_count > 0
+  ? "#F3F8FF"
+  : "#fff",
 
-boxShadow:
-"0 1px 4px rgba(0,0,0,.03)",
+boxShadow: chat.unread_count > 0
+  ? "0 4px 14px rgba(47,128,255,.08)"
+  : "0 1px 4px rgba(0,0,0,.03)",
 
 transition:
 "background .15s ease",
@@ -111,7 +120,8 @@ marginLeft:14
 }}>
 
 <div style={{
-  fontWeight: chat.unread_count ? 700 : 600,
+  fontWeight: chat.unread_count ? 750 : 600,
+  color: chat.unread_count ? "#111827" : "#273142",
   display: "flex",
   alignItems: "center",
   gap: 6,
@@ -303,6 +313,11 @@ const presenceChatIds = useMemo(
   [chats]
 );
 const presenceKey = presenceChatIds.join("|");
+const realtimeChatIds = useMemo(
+  () => chats.map((chat) => chat.id).sort(),
+  [chats]
+);
+const realtimeChatKey = realtimeChatIds.join("|");
 
 useEffect(() => {
   if (!presenceChatIds.length) return;
@@ -344,6 +359,45 @@ useEffect(() => {
   };
 }, [presenceKey]);
 
+useEffect(() => {
+  if (!myId || !realtimeChatIds.length) return;
+
+  let channel = supabase.channel(`chat-list-messages-${myId}`);
+  realtimeChatIds.forEach((currentChatId) => {
+    channel = channel.on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `chat_id=eq.${currentChatId}`,
+      },
+      (payload: any) => {
+        const message = payload.new;
+        setChats((current) => sortChats(current.map((chat) =>
+          chat.id === message.chat_id
+            ? {
+                ...chat,
+                last_message: message.body || "",
+                last_message_at: message.created_at,
+                unread_count: message.sender_id === myId
+                  ? chat.unread_count || 0
+                  : chat.last_message_at === message.created_at
+                    ? chat.unread_count || 0
+                    : (chat.unread_count || 0) + 1,
+              }
+            : chat
+        )));
+      }
+    );
+  });
+  channel.subscribe();
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
+}, [myId, realtimeChatKey]);
+
 
 useEffect(() => {
 
@@ -369,19 +423,7 @@ useEffect(() => {
 
       });
 
-      return updated.sort((a:any,b:any)=>
-
-        new Date(
-          b.last_message_at || 0
-        ).getTime()
-
-        -
-
-        new Date(
-          a.last_message_at || 0
-        ).getTime()
-
-      );
+      return sortChats(updated);
 
     });
 
@@ -500,17 +542,7 @@ search.toLowerCase()
 )
 );
 
-const sortedChats = [...filteredChats].sort((a, b) => {
-
-  if ((b.liked_by ? 1 : 0) !== (a.liked_by ? 1 : 0)) {
-    return (b.liked_by ? 1 : 0) - (a.liked_by ? 1 : 0);
-  }
-
-  const tA = new Date(a.last_message_at || 0).getTime();
-  const tB = new Date(b.last_message_at || 0).getTime();
-
-  return tB - tA;
-});
+const sortedChats = sortChats(filteredChats);
 
 
 
@@ -552,7 +584,7 @@ async function loadChats(showLoader = true){
       return;
     }
 
-  setChats(result.chats || []);
+  setChats(sortChats(result.chats || []));
 
 
 

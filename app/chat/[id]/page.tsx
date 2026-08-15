@@ -152,6 +152,16 @@ useState(false);
 
 const [highlightedMsg,setHighlightedMsg] =
 useState<string | null>(null);
+const [newlyReadMessageIds,setNewlyReadMessageIds] =
+useState<Set<string>>(()=>new Set());
+const newlyReadTimerRef =
+useRef<ReturnType<typeof setTimeout> | null>(null);
+
+useEffect(()=>()=>{
+  if(newlyReadTimerRef.current){
+    clearTimeout(newlyReadTimerRef.current);
+  }
+},[]);
 
 const [firstUnreadId,setFirstUnreadId] =
 useState<string | null>(null);
@@ -693,11 +703,38 @@ const firstUnread =
       m.sender_id !== userId
   );
 
+const unreadMessageIds = new Set<string>(
+  reversed
+    .filter(
+      (message:any) =>
+        !message.is_read &&
+        message.sender_id !== userId
+    )
+    .map((message:any) => String(message.id))
+);
+
+setNewlyReadMessageIds(unreadMessageIds);
+
+if(newlyReadTimerRef.current){
+  clearTimeout(newlyReadTimerRef.current);
+}
+
+if(unreadMessageIds.size){
+  newlyReadTimerRef.current = setTimeout(()=>{
+    setNewlyReadMessageIds(new Set());
+    newlyReadTimerRef.current = null;
+  },500);
+}
+
 if(firstUnread){
 
   setFirstUnreadId(
     String(firstUnread.id)
   );
+
+}else{
+
+  setFirstUnreadId(null);
 
 }
 
@@ -2504,6 +2541,15 @@ setMenuMessage(null);
 
 )}
 
+<div
+style={{
+  borderRadius:18,
+  background:newlyReadMessageIds.has(String(msg.id))
+    ? "rgba(47,128,255,.10)"
+    : "transparent",
+  transition:"background 1.2s ease"
+}}
+>
 <MessageBubble
 
 
@@ -2573,6 +2619,7 @@ clearLongPress={
   clearLongPress
 }
 />
+</div>
 
 </React.Fragment>
 
@@ -2584,6 +2631,7 @@ clearLongPress={
 messages,
 userId,
 firstUnreadId,
+newlyReadMessageIds,
 highlightedMsg,
 menuMessage,
 
