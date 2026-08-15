@@ -1,11 +1,13 @@
 import { NotificationPayload } from "./types";
 import { NotificationTemplates } from "./templates";
+import { getTelegramInitData } from "../telegram-init-data";
 
 export async function sendNotification(
   payload: NotificationPayload
 ) {
 
-  console.log("SEND NOTIFICATION:", payload);
+  const initData = await getTelegramInitData();
+  if(!initData) return {ok:false,skipped:true};
 
   const template =
     NotificationTemplates[payload.type];
@@ -23,6 +25,8 @@ export async function sendNotification(
 
   userId: payload.userId,
 
+  initData,
+
   type: payload.type,
 
   title:
@@ -35,21 +39,16 @@ export async function sendNotification(
 
   button:
     payload.buttonText ??
-    template.button
+    template.button,
+
+  chatId:payload.chatId
 
 })
     }
   );
 
-  console.log("FETCH STATUS:", response.status);
-
   const result =
     await response.json();
-
-  console.log(
-  "FETCH RESULT:",
-  JSON.stringify(result, null, 2)
-);
 
   if (!response.ok) {
 

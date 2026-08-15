@@ -548,7 +548,8 @@ onRefresh={refreshFeed}
 <div
 style={{
 minHeight:"100vh",
-background:"#F6F7FB",
+background:"var(--app-bg)",
+color:"var(--text-primary)",
 padding:"18px 18px 118px"
 }}
 >
@@ -579,7 +580,7 @@ backfaceVisibility:"hidden",
 
 borderRadius:36,
 overflow:"hidden",
-background:"#fff",
+background:"var(--surface)",
 boxShadow:"0 10px 30px rgba(0,0,0,.06)",
 transform: dragging
 ? `translateX(${dragX}px) rotate(${dragX/80}deg)`
@@ -721,7 +722,7 @@ zIndex:8
         width:"18px",
         height:"18px",
         borderRadius:"50%",
-        background:"#2AABEE",
+        background:"var(--primary)",
 
         display:"flex",
         alignItems:"center",
@@ -746,7 +747,7 @@ zIndex:8
     alignItems:"center",
     justifyContent:"space-between",
     fontSize:"13px",
-    color:"#70717C"
+    color:"var(--text-secondary)"
   }}
 >
   <span>
@@ -824,8 +825,8 @@ currentUser.last_seen
     border:"none",
     borderRadius:"999px",
 
-    background:"#EEF5FF",
-    color:"#2AABEE",
+    background:"var(--primary-soft)",
+    color:"var(--primary)",
 
     fontWeight:600,
     cursor:"pointer"
@@ -848,8 +849,8 @@ currentUser.last_seen
         style={{
           padding:"6px 11px",
           borderRadius:"999px",
-          background:"#EEF5FF",
-          color:"#4D8DFF",
+          background:"var(--primary-soft)",
+          color:"var(--primary)",
           fontSize:"11.5px"
         }}
       >

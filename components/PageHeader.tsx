@@ -28,8 +28,9 @@ export default function PageHeader({ title, onBack }: Props) {
           display: "grid",
           placeItems: "center",
           borderRadius: "50%",
-          background: "#fff",
-          color: "#2F80FF",
+          background: "var(--surface)",
+          color: "var(--primary)",
+          border:"1px solid var(--border-subtle)",
           cursor: "pointer",
           flexShrink: 0,
         }}
@@ -40,7 +41,7 @@ export default function PageHeader({ title, onBack }: Props) {
       <h1
         style={{
           margin: 0,
-          color: "#1F2937",
+          color: "var(--text-primary)",
           fontSize: 24,
           fontWeight: 700,
           letterSpacing: "-0.3px",

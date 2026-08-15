@@ -31,11 +31,7 @@ import { getMeetGuestCount } from "../../lib/meet/participants";
 export default function MeetPage() {
     const router = useRouter();
     const { error: showError, success } = useNotification();
-    const realtimeSuccessRef = useRef(success);
     const mapRef = useRef<AuraMapRef>(null);
-    useEffect(() => {
-      realtimeSuccessRef.current = success;
-    }, [success]);
 
 
     const { user: currentUser } = useCurrentUser();
@@ -45,13 +41,6 @@ useState<any[]>([]);
 
 const [loading,setLoading] =
 useState(true);
-const eventsRef = useRef<any[]>([]);
-const realtimeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-useEffect(() => {
-  eventsRef.current = events;
-}, [events]);
-
 useEffect(() => {
   const nearestExpiration = events.reduce<number | null>((nearest, event) => {
     const expiresAt = new Date(event.expires_at).getTime();
@@ -114,10 +103,6 @@ useEffect(() => {
     .on("postgres_changes", { event: "*", schema: "public", table: "meet_join_requests" }, (payload: any) => {
       const eventId = payload.new?.event_id || payload.old?.event_id;
       if (eventId) void syncEvent(eventId);
-      if (payload.eventType === "INSERT") {
-        const event = eventsRef.current.find((item) => item.id === eventId);
-        if (event?.creator_id === currentUser?.id) realtimeSuccessRef.current("Новая заявка", `На встречу «${event.title}» пришла заявка.`);
-      }
     })
     .subscribe((status) => {
       if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
@@ -126,7 +111,6 @@ useEffect(() => {
     });
 
   return () => {
-    if (realtimeTimerRef.current) clearTimeout(realtimeTimerRef.current);
     void supabase.removeChannel(channel);
   };
 }, [currentUser?.id, syncEvent]);
@@ -345,7 +329,8 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
     <div
       style={{
         minHeight: "100vh",
-        background: "#F5F7FB",
+        background: "var(--app-bg)",
+        color:"var(--text-primary)",
         paddingBottom: "calc(90px + env(safe-area-inset-bottom, 0px))"
       }}
     >
@@ -367,7 +352,7 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
             style={{
               fontSize: 24,
               fontWeight: 700,
-              color: "#1F2937"
+              color: "var(--text-primary)"
             }}
           >
             Встречи
@@ -376,7 +361,7 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
           <div
             style={{
               marginTop: 4,
-              color: "#7B8595",
+              color: "var(--text-secondary)",
               fontSize: 14
             }}
           >
@@ -401,13 +386,13 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
             borderRadius: "50%",
 
             background:
-              "linear-gradient(135deg,#2F80FF,#56CCF2)",
+              "var(--primary)",
 
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
 
-            color: "#fff",
+            color: "var(--text-inverse)",
             fontSize: 30,
             cursor: "pointer",
 
@@ -524,7 +509,8 @@ textAlign:"center"
 <div
 style={{
 
-background:"#fff",
+background:"var(--surface)",
+color:"var(--text-primary)",
 
 borderRadius:24,
 
@@ -558,7 +544,7 @@ fontWeight:700
 <div
 style={{
 marginTop:10,
-color:"#7B8595",
+color:"var(--text-secondary)",
 lineHeight:1.6,
 fontSize:14
 }}
@@ -584,9 +570,9 @@ height:52,
 borderRadius:16,
 
 background:
-"linear-gradient(135deg,#2F80FF,#56CCF2)",
+"var(--primary)",
 
-color:"#fff",
+color:"var(--text-inverse)",
 
 display:"flex",
 justifyContent:"center",
@@ -781,7 +767,7 @@ view === "list" ? (
         height: 38,
         padding: "0 14px",
         borderRadius: 14,
-        background: "rgba(255,255,255,.82)",
+        background: "var(--nav-bg)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         display: "flex",

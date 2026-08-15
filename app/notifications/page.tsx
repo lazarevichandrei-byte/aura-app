@@ -103,7 +103,7 @@ if (
     <div
       style={{
         minHeight:"100vh",
-        background:"#F5F7FB"
+        background:"var(--app-bg)"
       }}
     />
   );
@@ -114,7 +114,8 @@ if (
       <div
         style={{
           minHeight:"100vh",
-          background:"#F5F7FB",
+          background:"var(--app-bg)",
+          color:"var(--text-primary)",
           padding:"20px"
         }}
       >
@@ -158,7 +159,7 @@ if (
 
         <p
 style={{
-color:"#7B8595",
+color:"var(--text-secondary)",
 fontSize:14,
 lineHeight:1.5,
 marginBottom:20
@@ -291,12 +292,13 @@ marginBottom:20
 
     </PageWrapper>
   );
-  
+
 }
 
 
 const cardStyle = {
-  background:"#fff",
+  background:"var(--surface)",
+  border:"1px solid var(--border-subtle)",
   borderRadius:"18px",
   padding:"18px",
   marginBottom:"14px",
@@ -317,7 +319,7 @@ const titleStyle = {
 const subtitleStyle = {
   marginTop:"4px",
   fontSize:"12px",
-  color:"#8B95A7"
+  color:"var(--text-secondary)"
 };
 
 function Switch({
@@ -371,7 +373,7 @@ function Switch({
 
           borderRadius:"50%",
 
-          background:"#fff",
+          background:"var(--surface)",
 
           transition:"all .2s ease"
         }}
@@ -379,5 +381,3 @@ function Switch({
     </div>
   );
 }
-
-  

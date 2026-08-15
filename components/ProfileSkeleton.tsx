@@ -8,7 +8,7 @@ export default function ProfileSkeleton() {
       style={{
         maxWidth: 420,
         margin: "0 auto",
-        background: "#fff",
+        background: "var(--surface)",
         borderRadius: 24,
         padding: 20
       }}

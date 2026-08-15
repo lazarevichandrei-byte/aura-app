@@ -27,7 +27,7 @@ export default function AuraSkeleton({
           position:relative;
           overflow:hidden;
 
-          background:#EEF2F7;
+          background:var(--surface-secondary);
         }
 
         .aura-skeleton::after{

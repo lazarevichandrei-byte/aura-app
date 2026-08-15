@@ -16,9 +16,6 @@ export default function Page() {
         if (tg) {
           tg.ready();
           tg.expand();
-          tg.setBackgroundColor("#ffffff");
-          tg.setHeaderColor("#ffffff");
-          document.body.style.background = "#ffffff";
         }
 
         // ✅ ДОБАВЛЕНО: защита от отсутствия Telegram
@@ -106,8 +103,9 @@ setLoading(false);
 
 const styles: any = {
   wrapper: {
-    minHeight: "100vh",
-    background: "#ffffff",
+    minHeight: "100dvh",
+    background: "var(--app-bg)",
+    color:"var(--text-primary)",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -127,12 +125,12 @@ const styles: any = {
     fontSize: "48px",
     fontWeight: "600",
     letterSpacing: "-1px",
-    color: "#000",
+    color: "var(--text-primary)",
   },
 
   subtitle: {
     fontSize: "16px",
-    color: "#6B7280",
+    color: "var(--text-secondary)",
     marginTop: "8px",
     marginBottom: "48px",
   },
@@ -145,19 +143,19 @@ const styles: any = {
     border: "none",
     fontSize: "17px",
     fontWeight: "600",
-    color: "#fff",
-    background: "linear-gradient(135deg,#2AABEE,#1C8CEB)",
+    color: "var(--text-inverse)",
+    background: "var(--primary)",
     cursor: "pointer",
   },
 
   footer: {
     textAlign: "center",
     fontSize: "12px",
-    color: "#9CA3AF",
+    color: "var(--text-muted)",
   },
 
   links: {
     marginTop: "4px",
-    color: "#2AABEE",
+    color: "var(--primary)",
   },
 };

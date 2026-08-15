@@ -75,7 +75,8 @@ setMessage("");
       <div
         style={{
           minHeight:"100vh",
-          background:"#F5F7FB",
+          background:"var(--app-bg)",
+          color:"var(--text-primary)",
           padding:"20px"
         }}
       >
@@ -249,11 +250,11 @@ setMessage("");
     border:"none",
     borderRadius:"18px",
 
-    color:"#fff",
+    color:"var(--text-inverse)",
     fontWeight:600,
 
     background:
-      "linear-gradient(135deg,#2AABEE,#1C8CEB)"
+      "var(--primary)"
   }}
 >
   {
@@ -271,14 +272,15 @@ setMessage("");
 
 
 const descriptionStyle = {
-  color:"#7B8595",
+  color:"var(--text-secondary)",
   fontSize:14,
   lineHeight:1.5,
   marginBottom:20
 };
 
 const cardStyle = {
-  background:"#fff",
+  background:"var(--surface)",
+  border:"1px solid var(--border-subtle)",
   borderRadius:"18px",
   padding:"18px",
   marginBottom:"14px",

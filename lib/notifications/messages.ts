@@ -4,7 +4,8 @@ import { NotificationType } from "../constants/notificationTypes";
 export async function sendMessageNotification(
   userId: string,
   senderName: string,
-  message: string
+  message: string,
+  chatId: string
 ) {
 
   const preview =
@@ -22,7 +23,9 @@ export async function sendMessageNotification(
 
     text: `${senderName}:\n${preview}`,
 
-    buttonText: "📨 Ответить"
+    buttonText: "📨 Ответить",
+
+    chatId,
 
   });
 

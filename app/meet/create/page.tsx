@@ -251,7 +251,8 @@ useEffect(() => {
       <div
         style={{
           minHeight:"100vh",
-          background:"#F5F7FB",
+          background:"var(--app-bg)",
+          color:"var(--text-primary)",
           padding:"20px",
           paddingBottom:"120px"
         }}
@@ -382,7 +383,7 @@ flex:1
 🕒 Время
 </div>
 
-<button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",color:time?"#111":"#8A94A3",cursor:"pointer"}}>
+<button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",color:time?"var(--text-primary)":"var(--text-muted)",cursor:"pointer"}}>
   {time || "Выберите время"}
 </button>
 
@@ -435,8 +436,8 @@ flex:1
       cursor: "pointer",
       fontWeight: 600,
       transition: ".15s",
-      background: joinType === "open" ? "#2F80FF" : "#fff",
-      color: joinType === "open" ? "#fff" : "#222",
+      background: joinType === "open" ? "var(--primary)" : "var(--surface)",
+      color: joinType === "open" ? "var(--text-inverse)" : "var(--text-primary)",
       boxShadow: "0 2px 8px rgba(0,0,0,.04)",
     }}
   >
@@ -454,8 +455,8 @@ flex:1
       cursor: "pointer",
       fontWeight: 600,
       transition: ".15s",
-      background: joinType === "approval" ? "#2F80FF" : "#fff",
-      color: joinType === "approval" ? "#fff" : "#222",
+      background: joinType === "approval" ? "var(--primary)" : "var(--surface)",
+      color: joinType === "approval" ? "var(--text-inverse)" : "var(--text-primary)",
       boxShadow: "0 2px 8px rgba(0,0,0,.04)",
     }}
   >
@@ -532,9 +533,9 @@ onChange={setMaxPeople}
             borderRadius:18,
 
             background:
-              "linear-gradient(135deg,#2F80FF,#56CCF2)",
+              "var(--primary)",
 
-            color:"#fff",
+            color:"var(--text-inverse)",
 
             display:"flex",
             justifyContent:"center",
@@ -592,7 +593,8 @@ const inputStyle = {
   
   padding:"0 16px",
 
-  background:"#fff",
+  background:"var(--surface)",
+  color:"var(--text-primary)",
 
   fontSize:15,
 

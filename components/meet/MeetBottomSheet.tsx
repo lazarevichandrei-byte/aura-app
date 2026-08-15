@@ -163,7 +163,7 @@ const collapsedPosition = useMemo(
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,.55)",
+        background: "var(--overlay)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
         opacity: backdropOpacity,
@@ -188,7 +188,9 @@ const collapsedPosition = useMemo(
         right: 0,
         bottom: 0,
         height: "95dvh",
-        background: "#fff",
+        background: "var(--sheet-bg)",
+        color:"var(--text-primary)",
+        border:"1px solid var(--border)",
         borderTopLeftRadius: 34,
         borderTopRightRadius: 34,
         padding: "18px 20px calc(112px + env(safe-area-inset-bottom, 0px))",
@@ -212,7 +214,7 @@ const collapsedPosition = useMemo(
 
   position: "sticky",
   top: -18,
-  background: "#fff",
+  background: "var(--sheet-bg)",
   zIndex: 2,
 }}
       >
@@ -221,7 +223,7 @@ const collapsedPosition = useMemo(
             width: 58,
             height: 6,
             borderRadius: 999,
-            background: "#D6D6D6",
+            background: "var(--border)",
           }}
         />
       </motion.div>

@@ -13,7 +13,8 @@ export default function TermsPage() {
       <div
   style={{
     minHeight:"100vh",
-    background:"#F5F7FB",
+    background:"var(--app-bg)",
+    color:"var(--text-primary)",
     padding:"20px",
     paddingBottom:"120px",
     overflowY:"auto"
@@ -55,7 +56,7 @@ export default function TermsPage() {
 
         <p
           style={{
-            color:"#7B8595",
+            color:"var(--text-secondary)",
             fontSize:14,
             lineHeight:1.5,
             marginBottom:20
@@ -92,7 +93,8 @@ export default function TermsPage() {
 }
 
 const cardStyle = {
-  background:"#fff",
+  background:"var(--surface)",
+  border:"1px solid var(--border-subtle)",
   borderRadius:"18px",
   padding:"20px",
   boxShadow:"0 4px 14px rgba(0,0,0,.04)"
@@ -101,6 +103,5 @@ const cardStyle = {
 const textStyle = {
   fontSize:"14px",
   lineHeight:1.8,
-  color:"#394150"
+  color:"var(--text-secondary)"
 };
-

@@ -129,7 +129,7 @@ const chatsRaw = [
       meetEventIds.length
         ? supabaseAdmin
             .from("meet_events")
-            .select("id,title,category,creator_id,is_active,expires_at")
+            .select("id,title,category,creator_id,is_active,expires_at,starts_at,place")
             .in("id", meetEventIds)
         : Promise.resolve({ data: [] }),
       otherUserIds.length
@@ -204,6 +204,10 @@ const chatsRaw = [
         event?.category || null,
 
       event_expires_at: event?.expires_at,
+
+      event_starts_at: event?.starts_at,
+
+      event_place: event?.place,
 
       name:
         event?.title || "Встреча",

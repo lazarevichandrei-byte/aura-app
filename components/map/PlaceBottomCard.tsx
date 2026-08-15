@@ -28,19 +28,20 @@ export default function PlaceBottomCard({
 
   zIndex:30,
 
-  background:"rgba(255,255,255,.88)",
+  background:"var(--nav-bg)",
+  color:"var(--text-primary)",
 
   backdropFilter:"blur(24px)",
 
   WebkitBackdropFilter:"blur(24px)",
 
-  border:"1px solid rgba(255,255,255,.65)",
+  border:"1px solid var(--border)",
 
   borderRadius:24,
 
   padding:"14px 16px",
 
-  boxShadow:"0 18px 45px rgba(0,0,0,.16)"
+  boxShadow:"var(--shadow-md)"
 
 }}
 
@@ -108,9 +109,9 @@ onClick={onSelect}
 
   borderRadius:16,
 
-  background:"linear-gradient(135deg,#2F80FF,#56CCF2)",
+  background:"var(--primary)",
 
-  color:"#fff",
+  color:"var(--text-inverse)",
 
   fontWeight:700,
 

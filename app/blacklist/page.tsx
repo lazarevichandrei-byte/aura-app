@@ -58,7 +58,8 @@ export default function BlacklistPage(){
       <div
         style={{
           minHeight:"100vh",
-          background:"#F5F7FB",
+          background:"var(--app-bg)",
+          color:"var(--text-primary)",
           padding:"20px"
         }}
       >
@@ -100,7 +101,7 @@ export default function BlacklistPage(){
 
 <p
   style={{
-    color:"#7B8595",
+    color:"var(--text-secondary)",
     fontSize:14,
     marginBottom:20
   }}
@@ -135,7 +136,7 @@ export default function BlacklistPage(){
         marginTop: 10,
         fontSize: 16,
         fontWeight: 600,
-        color: "#1F2937"
+        color: "var(--text-primary)"
       }}
     >
       Чёрный список пуст
@@ -145,7 +146,7 @@ export default function BlacklistPage(){
       style={{
         marginTop: 4,
         fontSize: 12,
-        color: "#8A8F9B",
+        color: "var(--text-secondary)",
         lineHeight: 1.5
       }}
     >
@@ -204,7 +205,7 @@ export default function BlacklistPage(){
   <div
     style={{
       fontSize:"12px",
-      color:"#8B95A7",
+      color:"var(--text-secondary)",
       marginTop:"2px"
     }}
   >
@@ -241,7 +242,8 @@ export default function BlacklistPage(){
 }
 
 const cardStyle = {
-  background:"#fff",
+  background:"var(--surface)",
+  border:"1px solid var(--border-subtle)",
   borderRadius:"18px",
   padding:"16px",
   marginBottom:"14px",

@@ -7,12 +7,15 @@ import {
   useState,
   ReactNode
 } from "react";
+import { useRouter } from "next/navigation";
 
 import Notification from "./Notification";
 
 type NotifyData = {
+  id?: string;
   title: string;
   text: string;
+  href?: string;
   icon?: string;
   type?: "success" | "error" | "warning" | "info";
 };
@@ -56,6 +59,8 @@ export function NotificationProvider({
 
   const queue =
     useRef<NotifyData[]>([]);
+  const seen = useRef<Map<string,number>>(new Map());
+  const router = useRouter();
 
   const showing =
     useRef(false);
@@ -85,11 +90,27 @@ export function NotificationProvider({
 
   }
 
-  function notify(
+function notify(
   data: NotifyData
 ){
 
+  const now = Date.now();
+  if(data.id){
+    const seenAt = seen.current.get(data.id);
+    if(seenAt && now - seenAt < 60_000) return;
+    seen.current.set(data.id,now);
+    if(seen.current.size > 100){
+      const oldest = [...seen.current.entries()]
+        .sort((left,right)=>left[1]-right[1])
+        .slice(0,seen.current.size-100);
+      oldest.forEach(([id])=>seen.current.delete(id));
+    }
+  }
+
   queue.current.push(data);
+  if(queue.current.length > 5){
+    queue.current.splice(0,queue.current.length-5);
+  }
 
   const tg =
   (window as any)?.Telegram?.WebApp;
@@ -213,6 +234,8 @@ if(tg?.HapticFeedback){
   icon={notification.icon}
 
   type={notification.type}
+
+  onOpen={notification.href ? ()=>router.push(notification.href!) : undefined}
 
   onClose={handleClose}
 

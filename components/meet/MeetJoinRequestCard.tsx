@@ -47,7 +47,7 @@ export default function MeetJoinRequestCard({
         {avatar ? (
           <img src={avatar} alt="" style={avatarStyle} />
         ) : (
-          <div style={{ ...avatarStyle, display: "grid", placeItems: "center", background: "#EEF2F7" }}>👤</div>
+          <div style={{ ...avatarStyle, display: "grid", placeItems: "center", background: "var(--surface-secondary)" }}>👤</div>
         )}
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 16, fontWeight: 700 }}>
@@ -73,12 +73,12 @@ export default function MeetJoinRequestCard({
   );
 }
 
-const cardStyle = { padding: 16, borderRadius: 20, border: "1px solid #DCE8FF", background: "linear-gradient(180deg,#F8FBFF 0%,#F2F7FF 100%)", boxShadow: "0 6px 18px rgba(47,128,255,.08)" };
-const eyebrowStyle = { marginBottom: 12, color: "#2F80FF", fontSize: 13, fontWeight: 700 };
+const cardStyle = { padding: 16, borderRadius: 20, border: "1px solid var(--border)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" };
+const eyebrowStyle = { marginBottom: 12, color: "var(--primary)", fontSize: 13, fontWeight: 700 };
 const profileRowStyle = { width: "100%", padding: 0, border: 0, background: "transparent", color: "inherit", textAlign: "left" as const, display: "flex", alignItems: "center", gap: 12, cursor: "pointer" };
 const avatarStyle = { width: 48, height: 48, borderRadius: "50%", objectFit: "cover" as const, flexShrink: 0 };
-const metaStyle = { marginTop: 2, color: "#7A8699", fontSize: 13 };
-const profileButtonStyle = { marginTop: 12, padding: 0, border: 0, background: "transparent", color: "#2F80FF", fontSize: 13, fontWeight: 700, cursor: "pointer" };
+const metaStyle = { marginTop: 2, color: "var(--text-secondary)", fontSize: 13 };
+const profileButtonStyle = { marginTop: 12, padding: 0, border: 0, background: "transparent", color: "var(--primary)", fontSize: 13, fontWeight: 700, cursor: "pointer" };
 const actionsStyle = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 14 };
-const rejectButtonStyle = { height: 42, border: 0, borderRadius: 13, background: "#FFF0F1", color: "#D14343", fontWeight: 700, cursor: "pointer" };
-const approveButtonStyle = { height: 42, border: 0, borderRadius: 13, background: "#2F80FF", color: "#fff", fontWeight: 700, cursor: "pointer" };
+const rejectButtonStyle = { height: 42, border: 0, borderRadius: 13, background: "var(--danger-soft)", color: "var(--danger)", fontWeight: 700, cursor: "pointer" };
+const approveButtonStyle = { height: 42, border: 0, borderRadius: 13, background: "var(--primary)", color: "var(--text-inverse)", fontWeight: 700, cursor: "pointer" };

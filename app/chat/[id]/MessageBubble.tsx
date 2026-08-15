@@ -198,7 +198,7 @@ height:34,
 
 borderRadius:"50%",
 
-background:"#EEF4FF",
+background:"var(--primary-soft)",
 
 boxShadow:
   "0 4px 14px rgba(46,123,255,.18)",
@@ -228,7 +228,7 @@ transition:
 
           <Reply
   size={16}
-  color="#111"
+  color="var(--text-primary)"
 />
 
         </div>
@@ -254,13 +254,13 @@ transition:
   style={{
 
     background: mine
-          ? "linear-gradient(135deg,#59A8FF,#2E7BFF)"
-          : "#F2F4F7",
+          ? "var(--chat-outgoing)"
+          : "var(--chat-incoming)",
 
           color:
             mine
-            ? "#fff"
-            : "#111",
+            ? "var(--text-inverse)"
+            : "var(--text-primary)",
 
           padding:"8px 13px",
 
@@ -341,7 +341,7 @@ transition:
               background:
                 mine
                 ? "rgba(255,255,255,.16)"
-                : "#E8F0FF",
+                : "var(--primary-soft)",
 
               padding:"6px 8px",
 

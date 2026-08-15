@@ -60,7 +60,9 @@ layoutId={event.id}
             onClick={onClick}
 
             style={{
-                background: "#fff",
+                background: "var(--surface)",
+                color:"var(--text-primary)",
+                border:"1px solid var(--border-subtle)",
                 borderRadius: 24,
                 padding: 16,
                 cursor: "pointer",
@@ -115,8 +117,8 @@ layoutId={event.id}
             gap: 6,
             padding: "4px 10px",
             borderRadius: 999,
-            background: "#EEF7FF",
-            color: "#2AABEE",
+            background: "var(--primary-soft)",
+            color: "var(--primary)",
             fontSize: 12,
             fontWeight: 700,
         }}
@@ -163,8 +165,8 @@ layoutId={event.id}
             gap: 6,
             padding: "6px 12px",
             borderRadius: 999,
-            background: "#F4F8FC",
-            color: "#556274",
+            background: "var(--surface-secondary)",
+            color: "var(--text-secondary)",
             fontSize: 13,
             fontWeight: 600,
         }}
@@ -185,7 +187,7 @@ layoutId={event.id}
         alignItems: "center",
         gap: 18,
         marginTop: 10,
-        color: "#697586",
+        color: "var(--text-secondary)",
         flexWrap: "wrap",
     }}
 >
@@ -275,8 +277,8 @@ layoutId={event.id}
                         borderRadius: "50%",
                         objectFit: "cover",
                         marginLeft: index === 0 ? 0 : -8,
-                        border: "2px solid #fff",
-                        background: "#fff",
+                        border: "2px solid var(--surface)",
+                        background: "var(--surface)",
                     }}
                 />
 
@@ -289,7 +291,7 @@ layoutId={event.id}
             display: "flex",
             alignItems: "center",
             gap: 6,
-            color: "#5F6675",
+            color: "var(--text-secondary)",
             fontWeight: 600,
         }}
     >
@@ -311,7 +313,7 @@ layoutId={event.id}
 
                     <div
                         style={{
-                            color: "#2AABEE",
+                            color: "var(--primary)",
                             fontWeight: 700,
                         }}
                     >
@@ -366,8 +368,8 @@ layoutId={event.id}
                             padding: "0 18px",
                             borderRadius: 14,
                             background:
-                                "#2AABEE",
-                            color: "#fff",
+                                "var(--primary)",
+                            color: "var(--text-inverse)",
                             cursor: "pointer",
                             fontWeight: 700,
                         }}

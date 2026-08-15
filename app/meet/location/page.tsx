@@ -87,8 +87,8 @@ export default function MeetLocationPage() {
             <ArrowLeft2 size="22" color="#2F80FF" />
           </button>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#111827" }}>Где пройдет встреча?</div>
-            <div style={{ marginTop: 3, color: "#6B7280", fontSize: 12 }}>Выберите место на карте</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Где пройдет встреча?</div>
+            <div style={{ marginTop: 3, color: "var(--text-secondary)", fontSize: 12 }}>Выберите место на карте</div>
           </div>
         </header>
       </div>
@@ -101,7 +101,7 @@ const pageStyle = {
   width: "100%",
   height: "var(--tg-viewport-stable-height, 100dvh)",
   overflow: "hidden",
-  background: "#F5F7FB",
+  background: "var(--app-bg)",
   "--aura-map-card-clearance": "176px",
 };
 
@@ -124,7 +124,8 @@ const backButtonStyle = {
   padding: 0,
   border: 0,
   borderRadius: 20,
-  background: "#fff",
+  background: "var(--surface)",
+  color:"var(--text-primary)",
   display: "grid",
   placeItems: "center",
   cursor: "pointer",

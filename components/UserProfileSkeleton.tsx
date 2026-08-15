@@ -7,7 +7,7 @@ export default function UserProfileSkeleton() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#F5F7FB",
+        background: "var(--app-bg)",
         padding: "20px",
         maxWidth: 420,
         margin: "0 auto"

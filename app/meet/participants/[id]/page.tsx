@@ -99,7 +99,8 @@ if (loading) {
     <main
         style={{
             minHeight: "100vh",
-            background: "#F5F7FB",
+            background: "var(--app-bg)",
+            color:"var(--text-primary)",
         }}
     >
 
@@ -154,7 +155,7 @@ if (loading) {
             style={{
                 fontSize: 21,
                 fontWeight: 700,
-                color: "#111827",
+                color: "var(--text-primary)",
                 lineHeight: 1.1,
             }}
         >
@@ -165,7 +166,7 @@ if (loading) {
             style={{
                 marginTop: 3,
                 fontSize: 13,
-                color: "#7B8595",
+                color: "var(--text-secondary)",
             }}
         >
             {participants.filter((participant: any) => participant.users.id !== event?.creator_id).length} из {event?.max_people ?? 0} участников • Свободно{" "}
@@ -276,7 +277,7 @@ if (loading) {
                         borderRadius: "50%",
                         objectFit: "cover",
                         margin: "0 auto",
-                        border: "2px solid #E5E7EB",
+                        border: "2px solid var(--border)",
                     }}
                 />
             </motion.div>
@@ -286,7 +287,7 @@ if (loading) {
                     marginTop: 14,
                     fontSize: 18,
                     fontWeight: 700,
-                    color: "#111827",
+                    color: "var(--text-primary)",
                 }}
             >
                 {removeUser.name}
@@ -296,7 +297,7 @@ if (loading) {
                 style={{
                     marginTop: 8,
                     fontSize: 14,
-                    color: "#6B7280",
+                    color: "var(--text-secondary)",
                     lineHeight: 1.5,
                 }}
             >
@@ -345,9 +346,9 @@ if (loading) {
                     width: "100%",
                     height: 48,
                     borderRadius: 14,
-                    border: "1px solid #E5E7EB",
-                    background: "#fff",
-                    color: "#111827",
+                    border: "1px solid var(--border)",
+                    background: "var(--surface)",
+                    color: "var(--text-primary)",
                     fontWeight: 600,
                     fontSize: 15,
                     cursor: "pointer",

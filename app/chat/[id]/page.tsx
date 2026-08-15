@@ -884,7 +884,6 @@ const processJoinRequest = useCallback(async (
 
 useEffect(() => {
   if (!meetEvent?.id || !isMeetCreator) return;
-  let ready = false;
   const channel = supabase
     .channel(`meet-chat-requests-${meetEvent.id}`)
     .on("postgres_changes", {
@@ -894,12 +893,8 @@ useEffect(() => {
       filter: `event_id=eq.${meetEvent.id}`,
     }, (payload: any) => {
       void refreshPendingRequests();
-      if (ready && payload.eventType === "INSERT") {
-        success("Новая заявка на встречу", "Откройте заявки в шапке общего чата.");
-      }
     })
     .subscribe((status) => {
-      if (status === "SUBSCRIBED") ready = true;
       if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
         void refreshPendingRequests();
       }
@@ -908,7 +903,7 @@ useEffect(() => {
   return () => {
     void supabase.removeChannel(channel);
   };
-}, [isMeetCreator, meetEvent?.id, refreshPendingRequests, success]);
+}, [isMeetCreator, meetEvent?.id, refreshPendingRequests]);
 
 useEffect(()=>{
 
@@ -1940,7 +1935,9 @@ if (receiverId) {
 
       myName,
 
-      text
+      text,
+
+      chatId
 
     );
 
@@ -2689,7 +2686,7 @@ if(!chatLoaded && !otherUser && !meetEvent){
     <div
       style={{
         height:"100vh",
-        background:"#fff",
+        background:"var(--app-bg)",
         display:"flex",
         flexDirection:"column"
       }}
@@ -2711,7 +2708,7 @@ if(!chatLoaded && !otherUser && !meetEvent){
             width:36,
             height:36,
             borderRadius:"50%",
-            background:"#EEF1F4"
+              background:"var(--surface-secondary)"
           }}
         />
 
@@ -2722,7 +2719,7 @@ if(!chatLoaded && !otherUser && !meetEvent){
               width:120,
               height:12,
               borderRadius:8,
-              background:"#EEF1F4",
+              background:"var(--surface-secondary)",
               marginBottom:8
             }}
           />
@@ -2732,7 +2729,7 @@ if(!chatLoaded && !otherUser && !meetEvent){
               width:70,
               height:10,
               borderRadius:8,
-              background:"#F4F6F8"
+              background:"var(--surface-secondary)"
             }}
           />
 
@@ -2748,13 +2745,13 @@ if(!chatLoaded && !otherUser && !meetEvent){
 
 if(chatLoadError){
   return (
-    <div style={{minHeight:"100dvh",display:"grid",placeItems:"center",padding:24,textAlign:"center",background:"#fff"}}>
+    <div style={{minHeight:"100dvh",display:"grid",placeItems:"center",padding:24,textAlign:"center",background:"var(--app-bg)",color:"var(--text-primary)"}}>
       <div>
         <div style={{fontSize:18,fontWeight:700}}>Не удалось открыть чат</div>
-        <div style={{marginTop:8,color:"#7A8699"}}>{chatLoadError}</div>
+        <div style={{marginTop:8,color:"var(--text-secondary)"}}>{chatLoadError}</div>
         <button
           onClick={() => chatLoadError === "Встреча завершена" ? router.replace("/chats") : router.back()}
-          style={{marginTop:20,height:44,padding:"0 22px",border:0,borderRadius:14,background:"#2E7BFF",color:"#fff",fontWeight:600}}
+          style={{marginTop:20,height:44,padding:"0 22px",border:0,borderRadius:14,background:"var(--primary)",color:"var(--text-inverse)",fontWeight:600}}
         >
           {chatLoadError === "Встреча завершена" ? "К списку чатов" : "Назад"}
         </button>
@@ -2796,7 +2793,8 @@ right:0,
 bottom:0,
 height:"100%",
 overflow:"visible",
-background:"#fff",
+background:"var(--surface)",
+color:"var(--text-primary)",
 display:"flex",
 flexDirection:"column",
 animation:"chatOpen .16s ease"
@@ -2899,7 +2897,7 @@ cursor:"pointer"
           }}
         />
       ) : (
-        <div style={{width:36,height:36,borderRadius:"50%",background:"#EEF1F4",display:"grid",placeItems:"center",fontSize:18}}>👤</div>
+        <div style={{width:36,height:36,borderRadius:"50%",background:"var(--surface-secondary)",display:"grid",placeItems:"center",fontSize:18}}>👤</div>
       )}
 
       <div
@@ -2922,7 +2920,7 @@ cursor:"pointer"
         <div
           style={{
             fontSize:12,
-            color:"#7A8699",
+            color:"var(--text-secondary)",
             marginTop:2
           }}
         >
@@ -2970,8 +2968,8 @@ cursor:"pointer"
       padding: "0 11px",
       border: 0,
       borderRadius: 999,
-      background: "#EEF5FF",
-      color: "#2F80FF",
+      background: "var(--primary-soft)",
+      color: "var(--primary)",
       fontSize: 12,
       fontWeight: 700,
       whiteSpace: "nowrap",
@@ -3003,7 +3001,7 @@ left:"50%",
 transform:"translateX(-50%)",
 zIndex:50,
 
-background:"rgba(242,244,247,.92)",
+background:"color-mix(in srgb,var(--surface-secondary) 92%,transparent)",
 
 backdropFilter:"blur(12px)",
 
@@ -3014,7 +3012,7 @@ borderRadius:999,
 fontSize:12,
 fontWeight:700,
 
-color:"#5F6B7A",
+color:"var(--text-secondary)",
 
 pointerEvents:"none",
 
@@ -3051,7 +3049,7 @@ borderRadius:"50%",
 
 border:"none",
 
-background:"#fff",
+background:"var(--surface)",
 
 boxShadow:
 "0 4px 18px rgba(0,0,0,.12)",
@@ -3063,7 +3061,7 @@ justifyContent:"center",
 fontSize:24,
 fontWeight:700,
 
-color:"#7A8699",
+color:"var(--text-secondary)",
 
 cursor:"pointer",
 
@@ -3187,7 +3185,7 @@ flexShrink:0,
 
 <div
 style={{
-background:"#EDF4FF",
+background:"var(--primary-soft)",
 padding:"8px 13px",
 borderRadius:14,
 marginBottom:8,
@@ -3206,7 +3204,7 @@ right:10,
 top:8,
 fontSize:14,
 cursor:"pointer",
-color:"#7A8699"
+color:"var(--text-secondary)"
 }}
 >
 
@@ -3222,7 +3220,7 @@ color:"#7A8699"
 style={{
 fontSize:11,
 fontWeight:600,
-color:"#111",
+color:"var(--text-primary)",
 marginBottom:5
 }}
 >
@@ -3265,7 +3263,7 @@ alignItems:"center",
 
 position:"relative",
 
-background:"#F4F6F8",
+background:"var(--input-bg)",
 
 paddingLeft:12,
 paddingRight:4,
@@ -3282,7 +3280,7 @@ overflow:"hidden",
 transition:
   "height .18s ease",
 
-border:"1px solid #E7ECF2",
+border:"1px solid var(--border)",
 
 boxSizing:"border-box"
 }}

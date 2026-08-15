@@ -8,7 +8,7 @@ export default function HomeSkeleton() {
       style={{
         padding: "18px",
         height: "100vh",
-        background: "#F6F7FB"
+        background: "var(--app-bg)"
       }}
     >
       {/* Карточка */}

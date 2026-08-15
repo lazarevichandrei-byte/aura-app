@@ -1,0 +1,239 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { getTelegramInitData } from "../lib/telegram-init-data";
+import { supabase } from "../lib/supabase";
+import { useCurrentUser } from "../lib/useCurrentUser";
+import { useNotification } from "./NotificationContext";
+
+export default function RealtimeNotificationBridge(){
+  const pathname = usePathname();
+  const { user } = useCurrentUser();
+  const { notify } = useNotification();
+  const notifyRef = useRef(notify);
+  const [chats,setChats] = useState<any[]>([]);
+  const [settings,setSettings] = useState({messages:true,likes:true,matches:true});
+  const reconcileTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chatsRef = useRef<any[]>([]);
+
+  useEffect(()=>{ chatsRef.current = chats; },[chats]);
+  useEffect(()=>{ notifyRef.current = notify; },[notify]);
+
+  const chatIds = useMemo(()=>chats.map((chat)=>chat.id).sort(),[chats]);
+  const chatKey = chatIds.join("|");
+  const meetChats = useMemo(()=>chats.filter((chat)=>chat.is_meet_chat),[chats]);
+  const meetKey = meetChats.map((chat)=>chat.event_id).sort().join("|");
+  const meetTimingKey = meetChats
+    .map((chat)=>`${chat.event_id}:${chat.event_starts_at || ""}:${chat.event_expires_at || ""}`)
+    .sort()
+    .join("|");
+  const creatorMeetChats = useMemo(()=>meetChats.filter((chat)=>chat.is_meet_creator),[meetChats]);
+
+  async function reconcile(){
+    const initData = await getTelegramInitData();
+    if(!initData) return;
+    const response = await fetch("/api/chats",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({initData})
+    });
+    if(!response.ok) return;
+    const result = await response.json();
+    if(result?.ok) setChats(result.chats || []);
+  }
+
+  useEffect(()=>{
+    void reconcile();
+    if(user?.id){
+      void supabase.from("users")
+        .select("messages_notifications,likes_notifications,matches_notifications")
+        .eq("id",user.id)
+        .maybeSingle()
+        .then(({data})=>{
+          if(data) setSettings({
+            messages:data.messages_notifications !== false,
+            likes:data.likes_notifications !== false,
+            matches:data.matches_notifications !== false,
+          });
+        });
+    }
+  },[user?.id]);
+
+  useEffect(()=>{
+    if(!user?.id) return;
+    const schedule = ()=>{
+      if(reconcileTimer.current) clearTimeout(reconcileTimer.current);
+      reconcileTimer.current = setTimeout(()=>void reconcile(),200);
+    };
+    let channel = supabase
+      .channel(`notification-membership-${user.id}`)
+      .on("postgres_changes",{event:"*",schema:"public",table:"chats",filter:`user1_id=eq.${user.id}`},schedule)
+      .on("postgres_changes",{event:"*",schema:"public",table:"chats",filter:`user2_id=eq.${user.id}`},schedule)
+      .on("postgres_changes",{event:"*",schema:"public",table:"chat_participants",filter:`user_id=eq.${user.id}`},schedule)
+      .subscribe((status)=>{
+        if(status === "CHANNEL_ERROR" || status === "TIMED_OUT") schedule();
+      });
+    const resume = ()=>{ if(!document.hidden) schedule(); };
+    document.addEventListener("visibilitychange",resume);
+    window.addEventListener("online",resume);
+    return ()=>{
+      if(reconcileTimer.current) clearTimeout(reconcileTimer.current);
+      document.removeEventListener("visibilitychange",resume);
+      window.removeEventListener("online",resume);
+      void supabase.removeChannel(channel);
+    };
+  },[user?.id]);
+
+  useEffect(()=>{
+    if(!user?.id || !chatIds.length) return;
+    let ready = false;
+    let channel = supabase.channel(`notification-messages-${user.id}`);
+    chatIds.forEach((chatId)=>{
+      channel = channel.on("postgres_changes",{
+        event:"INSERT",
+        schema:"public",
+        table:"messages",
+        filter:`chat_id=eq.${chatId}`,
+      },(payload:any)=>{
+        const message = payload.new;
+        window.dispatchEvent(new CustomEvent("aura-chat-message",{detail:message}));
+        if(!ready || !settings.messages || message.sender_id === user.id || pathname === `/chat/${chatId}`) return;
+        const chat = chatsRef.current.find((item)=>item.id === chatId);
+        notifyRef.current({
+          id:`message:${message.id}`,
+          title:chat?.is_meet_chat ? `Встреча: ${chat.name}` : chat?.name || "Новое сообщение",
+          text:String(message.body || "Новое сообщение").slice(0,100),
+          icon:"💬",
+          type:"info",
+          href:`/chat/${chatId}`,
+        });
+      });
+    });
+    channel.subscribe((status)=>{
+      if(status === "SUBSCRIBED") ready = true;
+      if(status === "CHANNEL_ERROR" || status === "TIMED_OUT") void reconcile();
+    });
+    return ()=>{ void supabase.removeChannel(channel); };
+  },[chatKey,pathname,settings.messages,user?.id]);
+
+  useEffect(()=>{
+    if(!user?.id) return;
+    let ready = false;
+    const channel = supabase
+      .channel(`notification-user-events-${user.id}`)
+      .on("postgres_changes",{event:"*",schema:"public",table:"meet_join_requests",filter:`user_id=eq.${user.id}`},(payload:any)=>{
+        if(!ready) return;
+        window.dispatchEvent(new CustomEvent("aura-meet-request-user",{detail:payload}));
+        if(payload.eventType !== "UPDATE") return;
+        const status = payload.new?.status;
+        if(status !== "approved" && status !== "rejected") return;
+        notifyRef.current({
+          id:`request:${payload.new.id}:${status}`,
+          title:status === "approved" ? "Заявка принята" : "Заявка отклонена",
+          text:status === "approved" ? "Теперь вам доступен чат встречи." : "Организатор отклонил заявку.",
+          icon:status === "approved" ? "✅" : "ℹ️",
+          type:status === "approved" ? "success" : "info",
+          href:`/meet/${payload.new.event_id}`,
+        });
+      })
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"likes",filter:`to_user_id=eq.${user.id}`},(payload:any)=>{
+        if(!ready) return;
+        window.dispatchEvent(new CustomEvent("aura-like-realtime",{detail:payload}));
+        if(!settings.likes || payload.new?.from_user_id === user.id) return;
+        notifyRef.current({id:`like:${payload.new.id}`,title:"Новый лайк",text:"Кому-то понравился ваш профиль.",icon:"❤️",type:"info",href:"/likes"});
+      })
+      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"users",filter:`id=eq.${user.id}`},(payload:any)=>{
+        if(!ready || !payload.new) return;
+        setSettings({
+          messages:payload.new.messages_notifications !== false,
+          likes:payload.new.likes_notifications !== false,
+          matches:payload.new.matches_notifications !== false,
+        });
+      })
+      .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
+    return ()=>{ void supabase.removeChannel(channel); };
+  },[settings.likes,user?.id]);
+
+  useEffect(()=>{
+    if(!user?.id) return;
+    let ready = false;
+    const channel = supabase
+      .channel(`notification-matches-${user.id}`)
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user1_id=eq.${user.id}`},(payload:any)=>{
+        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:"Новое совпадение",text:"Теперь можно начать общение.",icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
+      })
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user2_id=eq.${user.id}`},(payload:any)=>{
+        if(ready && settings.matches && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:"Новое совпадение",text:"Теперь можно начать общение.",icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
+      })
+      .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
+    return ()=>{ void supabase.removeChannel(channel); };
+  },[settings.matches,user?.id]);
+
+  useEffect(()=>{
+    if(!user?.id || !meetChats.length) return;
+    let ready = false;
+    let channel = supabase.channel(`notification-meets-${user.id}`);
+    meetChats.forEach((chat)=>{
+      channel = channel.on("postgres_changes",{event:"*",schema:"public",table:"meet_events",filter:`id=eq.${chat.event_id}`},(payload:any)=>{
+        if(!ready || chat.is_meet_creator) return;
+        if(payload.eventType === "DELETE"){
+          notifyRef.current({id:`meet-delete:${chat.event_id}`,title:"Встреча отменена",text:`«${chat.name}» отменена организатором.`,icon:"⚠️",type:"warning",href:"/meet"});
+          return;
+        }
+        if(payload.eventType === "UPDATE"){
+          const changedTime = chat.event_starts_at !== payload.new?.starts_at;
+          const changedPlace = chat.event_place !== payload.new?.place;
+          if(changedTime || changedPlace){
+            const details = changedTime ? `Новое время: ${new Date(payload.new.starts_at).toLocaleString("ru-RU")}` : `Новое место: ${payload.new.place || "уточняется"}`;
+            notifyRef.current({id:`meet-update:${chat.event_id}:${payload.new.starts_at}:${payload.new.place}`,title:`Встреча «${chat.name}» изменена`,text:details,icon:"📅",type:"info",href:`/meet/${chat.event_id}`});
+            void reconcile();
+          }
+        }
+      });
+    });
+    creatorMeetChats.forEach((chat)=>{
+      channel = channel.on("postgres_changes",{event:"INSERT",schema:"public",table:"meet_join_requests",filter:`event_id=eq.${chat.event_id}`},(payload:any)=>{
+        if(!ready || payload.new?.user_id === user.id) return;
+        if(pathname.startsWith("/meet/requests/") || pathname === `/chat/${chat.id}`) return;
+        notifyRef.current({id:`request-new:${payload.new.id}`,title:"Новая заявка на встречу",text:`На встречу «${chat.name}» пришла заявка.`,icon:"👤",type:"info",href:`/chat/${chat.id}`});
+      });
+      channel = channel.on("postgres_changes",{event:"*",schema:"public",table:"meet_participants",filter:`event_id=eq.${chat.event_id}`},(payload:any)=>{
+        if(!ready || pathname === `/chat/${chat.id}`) return;
+        const participantId = payload.new?.user_id || payload.old?.user_id;
+        if(!participantId || participantId === user.id) return;
+        const joined = payload.eventType === "INSERT";
+        const left = payload.eventType === "DELETE";
+        if(!joined && !left) return;
+        notifyRef.current({
+          id:`participant:${chat.event_id}:${participantId}:${payload.eventType}`,
+          title:joined ? "Новый участник встречи" : "Участник покинул встречу",
+          text:joined ? `К встрече «${chat.name}» присоединился участник.` : `Участник вышел из встречи «${chat.name}».`,
+          icon:joined ? "👋" : "ℹ️",
+          type:"info",
+          href:`/meet/${chat.event_id}`,
+        });
+      });
+    });
+    channel.subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
+    return ()=>{ void supabase.removeChannel(channel); };
+  },[meetKey,pathname,user?.id]);
+
+  useEffect(()=>{
+    const timers = meetChats.flatMap((chat)=>{
+        const chatTimers:ReturnType<typeof setTimeout>[] = [];
+        const delay = new Date(chat.event_starts_at).getTime() - Date.now() - 30*60*1000;
+        if(chat.event_starts_at && delay > 0 && delay <= 24*60*60*1000){
+          chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-soon:${chat.event_id}`,title:"Встреча скоро начнётся",text:`«${chat.name}» начнётся через 30 минут.`,icon:"⏰",type:"info",href:`/meet/${chat.event_id}`}),delay));
+        }
+        const endDelay = new Date(chat.event_expires_at).getTime() - Date.now();
+        if(chat.event_expires_at && endDelay > 0 && endDelay <= 24*60*60*1000){
+          chatTimers.push(setTimeout(()=>notifyRef.current({id:`meet-ended:${chat.event_id}`,title:"Встреча завершилась",text:`«${chat.name}» завершилась.`,icon:"🏁",type:"info",href:"/meet"}),endDelay));
+        }
+        return chatTimers;
+      });
+    return ()=>timers.forEach(clearTimeout);
+  },[meetTimingKey]);
+
+  return null;
+}

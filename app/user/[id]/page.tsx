@@ -133,7 +133,8 @@ async function submitReport(){
     <div
       style={{
         minHeight:"100vh",
-        background:"#F5F7FB",
+        background:"var(--app-bg)",
+        color:"var(--text-primary)",
         padding:"20px"
       }}
     >
@@ -161,7 +162,7 @@ async function submitReport(){
           >
             <ArrowLeft2
               size="28"
-              color="#2AABEE"
+              color="var(--primary)"
             />
           </div>
 
@@ -239,7 +240,7 @@ async function submitReport(){
   onClick={() =>
     setShowGallery(true)
   }
-  src={photos[photoIndex]}
+  src={photos[photoIndex] || "/noavatar.jpg"}
     alt=""
     style={{
       width:"100%",
@@ -299,7 +300,7 @@ async function submitReport(){
       width:"20px",
       height:"20px",
       borderRadius:"50%",
-      background:"#2AABEE",
+      background:"var(--primary)",
 
       display:"flex",
       alignItems:"center",
@@ -384,14 +385,15 @@ async function submitReport(){
   style={{
     marginTop:"16px",
 
-    background:"#fff",
+    background:"var(--surface)",
+    border:"1px solid var(--border-subtle)",
 
     borderRadius:"24px",
 
     padding:"18px",
 
     boxShadow:
-      "0 6px 18px rgba(0,0,0,.04)"
+      "var(--shadow-sm)"
   }}
 >
 
@@ -452,9 +454,9 @@ async function submitReport(){
             padding:"6px 10px",
 borderRadius:"999px",
 
-background:"#F3F7FF",
+background:"var(--primary-soft)",
 
-color:"#2AABEE",
+color:"var(--primary)",
 
 fontSize:"12px",
 fontWeight:600
@@ -492,7 +494,7 @@ fontWeight:600
 
   <div
     style={{
-      background:"#F7F9FC",
+      background:"var(--surface-secondary)",
       borderRadius:"16px",
       padding:"14px"
     }}
@@ -502,7 +504,7 @@ fontWeight:600
     <div
       style={{
         marginTop:"4px",
-        color:"#8B95A7",
+        color:"var(--text-secondary)",
         fontSize:"13px"
       }}
     >
@@ -548,7 +550,8 @@ fontWeight:600
     }
     style={{
       width:"100%",
-      background:"#fff",
+      background:"var(--sheet-bg)",
+      color:"var(--text-primary)",
 
       borderTopLeftRadius:"28px",
       borderTopRightRadius:"28px",
@@ -589,12 +592,12 @@ fontWeight:600
 
           background:
             reportReason === item
-            ? "#E8F4FF"
-            : "#F5F7FB",
+            ? "var(--primary-soft)"
+            : "var(--surface-secondary)",
 
           border:
             reportReason === item
-            ? "2px solid #2AABEE"
+            ? "2px solid var(--primary)"
             : "2px solid transparent",
 
           cursor:"pointer"
@@ -614,8 +617,8 @@ fontWeight:600
         border:"none",
         borderRadius:"16px",
 
-        background:"#2AABEE",
-        color:"#fff",
+        background:"var(--primary)",
+        color:"var(--text-inverse)",
 
         fontWeight:600,
         marginTop:"10px"
@@ -682,10 +685,7 @@ fontWeight:600
 
       }}
 
-      style={{
-        ...actionItem,
-        color:"#FF4D4F"
-      }}
+      style={{...actionItem,color:"var(--danger)"}}
 
     >
       🚫 Заблокировать
@@ -735,7 +735,8 @@ fontWeight:600
 const actionItem = {
   padding:"16px",
   borderRadius:"16px",
-  background:"#F5F7FB",
+  background:"var(--surface-secondary)",
+  color:"var(--text-primary)",
   marginBottom:"10px",
   cursor:"pointer",
   fontWeight:600

@@ -48,7 +48,7 @@ export default function AuraLoader({
       marginLeft: 10,
       fontSize: 14,
       fontWeight: 500,
-      color: "#374151",
+      color: "var(--text-secondary)",
     }}
   >
     {text}

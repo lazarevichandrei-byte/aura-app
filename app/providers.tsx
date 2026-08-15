@@ -6,6 +6,8 @@ import { useState } from "react";
 import {
   NotificationProvider
 } from "../components/NotificationContext";
+import RealtimeNotificationBridge from "../components/RealtimeNotificationBridge";
+import ThemeProvider from "../components/ThemeProvider";
 
 
 export default function Providers({
@@ -23,11 +25,15 @@ export default function Providers({
       client={queryClient}
     >
 
+      <ThemeProvider>
       <NotificationProvider>
+
+        <RealtimeNotificationBridge />
 
         {children}
 
       </NotificationProvider>
+      </ThemeProvider>
 
     </QueryClientProvider>
 

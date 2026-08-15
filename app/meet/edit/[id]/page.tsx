@@ -140,10 +140,11 @@ const inputStyle = {
   width: "100%",
   height: 52,
   borderRadius: 14,
-  border: "1px solid #E5E7EB",
+  border: "1px solid var(--border)",
   padding: "0 16px",
   fontSize: 16,
-  background: "#fff",
+  background: "var(--input-bg)",
+  color:"var(--text-primary)",
   boxSizing: "border-box" as const,
 };
 
@@ -166,7 +167,8 @@ if (loading) {
     <div
       style={{
         minHeight: "100vh",
-        background: "#F5F7FB",
+        background: "var(--app-bg)",
+        color:"var(--text-primary)",
         padding: 24,
       }}
     >
@@ -206,7 +208,7 @@ if (loading) {
             style={{
                 fontSize: 24,
                 fontWeight: 700,
-                color: "#111827",
+                color: "var(--text-primary)",
             }}
         >
             Редактирование
@@ -216,7 +218,7 @@ if (loading) {
             style={{
                 marginTop: 4,
                 fontSize: 13,
-                color: "#7B8595",
+                color: "var(--text-secondary)",
             }}
         >
             Измените данные встречи
@@ -234,10 +236,10 @@ if (loading) {
 >
   <div
   style={{
-    background: "#fff",
+    background: "var(--surface)",
     borderRadius: 18,
     padding: 18,
-    border: "1px solid rgba(15,23,42,.05)",
+    border: "1px solid var(--border-subtle)",
     boxShadow: "0 4px 12px rgba(15,23,42,.04)",
   }}
 >
@@ -245,7 +247,7 @@ if (loading) {
     style={{
       fontSize: 13,
       fontWeight: 600,
-      color: "#6B7280",
+      color: "var(--text-secondary)",
       marginBottom: 10,
     }}
   >
@@ -261,14 +263,14 @@ if (loading) {
 
   <div
     style={{
-      background: "#fff",
+      background: "var(--surface)",
       borderRadius: 18,
       padding: 18,
-      border: "1px solid rgba(15,23,42,.05)",
+      border: "1px solid var(--border-subtle)",
       boxShadow: "0 4px 12px rgba(15,23,42,.04)",
     }}
   >
-    <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Категория</div>
+    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Категория</div>
     <CategoryPicker
       value={MEET_CATEGORIES.find((item) => item.id === category) ?? null}
       onClick={() => setCategorySheetOpen(true)}
@@ -286,10 +288,10 @@ if (loading) {
 
   <div
   style={{
-    background: "#fff",
+    background: "var(--surface)",
     borderRadius: 18,
     padding: 18,
-    border: "1px solid rgba(15,23,42,.05)",
+    border: "1px solid var(--border-subtle)",
     boxShadow: "0 4px 12px rgba(15,23,42,.04)",
   }}
 >
@@ -297,7 +299,7 @@ if (loading) {
     style={{
       fontSize: 13,
       fontWeight: 600,
-      color: "#6B7280",
+      color: "var(--text-secondary)",
       marginBottom: 10,
     }}
   >
@@ -318,10 +320,10 @@ if (loading) {
 
   <div
   style={{
-    background: "#fff",
+    background: "var(--surface)",
     borderRadius: 18,
     padding: 18,
-    border: "1px solid rgba(15,23,42,.05)",
+    border: "1px solid var(--border-subtle)",
     boxShadow: "0 4px 12px rgba(15,23,42,.04)",
   }}
 >
@@ -329,7 +331,7 @@ if (loading) {
     style={{
       fontSize: 13,
       fontWeight: 600,
-      color: "#6B7280",
+      color: "var(--text-secondary)",
       marginBottom: 10,
     }}
   >
@@ -355,10 +357,10 @@ if (loading) {
 
   <div
   style={{
-    background: "#fff",
+    background: "var(--surface)",
     borderRadius: 18,
     padding: 18,
-    border: "1px solid rgba(15,23,42,.05)",
+    border: "1px solid var(--border-subtle)",
     boxShadow: "0 4px 12px rgba(15,23,42,.04)",
   }}
 >
@@ -366,7 +368,7 @@ if (loading) {
     style={{
       fontSize: 13,
       fontWeight: 600,
-      color: "#6B7280",
+      color: "var(--text-secondary)",
       marginBottom: 10,
     }}
   >
@@ -381,18 +383,18 @@ if (loading) {
 
 <div style={{display:"flex",gap:12}}>
   <div style={{flex:1}}>
-    <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Дата</div>
+    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Дата</div>
     <input type="date" min={localToday()} value={date} onChange={(event)=>setDate(event.target.value)} style={inputStyle} />
   </div>
   <div style={{flex:1}}>
-    <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Время</div>
+    <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Время</div>
     <button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",cursor:"pointer"}}>{time || "Выберите время"}</button>
     <MeetTimePicker open={timePickerOpen} value={time} onClose={() => setTimePickerOpen(false)} onChange={setTime} />
   </div>
 </div>
 
 <div>
-  <div style={{fontSize:13,fontWeight:600,color:"#6B7280",marginBottom:10}}>Продолжительность</div>
+  <div style={{fontSize:13,fontWeight:600,color:"var(--text-secondary)",marginBottom:10}}>Продолжительность</div>
   <MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
 </div>
 
@@ -404,8 +406,8 @@ if (loading) {
       height: 52,
       border: "none",
       borderRadius: 14,
-     background: "linear-gradient(135deg,#2F80FF,#56CCF2)",
-      color: "#fff",
+     background: "var(--primary)",
+      color: "var(--text-inverse)",
       fontSize: 16,
       fontWeight: 600,
       cursor: "pointer",

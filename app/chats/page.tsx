@@ -73,7 +73,7 @@ borderRadius:22,
 
 background:
 pressed
-? "#F2F4F7"
+? "var(--surface-secondary)"
 : chat.unread_count > 0
   ? "#F3F8FF"
   : "#fff",
@@ -112,7 +112,7 @@ cursor:"pointer"
       }}
     />
   ) : (
-    <div style={{width:60,height:60,borderRadius:"50%",background:"#EEF1F4",display:"grid",placeItems:"center",fontSize:26,flexShrink:0}}>👤</div>
+    <div style={{width:60,height:60,borderRadius:"50%",background:"var(--surface-secondary)",display:"grid",placeItems:"center",fontSize:26,flexShrink:0}}>👤</div>
   )
 )}
 
@@ -123,7 +123,7 @@ marginLeft:14
 
 <div style={{
   fontWeight: chat.unread_count ? 750 : 600,
-  color: chat.unread_count ? "#111827" : "#273142",
+  color: "var(--text-primary)",
   display: "flex",
   alignItems: "center",
   gap: 6,
@@ -151,7 +151,7 @@ marginLeft:14
     style={{
       fontSize: 11,
       fontWeight: 600,
-      color: "#2F80FF",
+      color: "var(--primary)",
       marginTop: 2,
     }}
   >
@@ -162,7 +162,7 @@ marginLeft:14
 <div
   style={{
     fontSize: 13,
-    color: typing ? "#2F80FF" : "#8A8F9B",
+    color: typing ? "var(--primary)" : "var(--text-secondary)",
     marginTop: chat.is_meet_chat ? 3 : 2,
   }}
 >
@@ -182,7 +182,7 @@ gap:10
 
 <div style={{
 fontSize:14,
-color:"#A0A5B0"
+color:"var(--text-muted)"
 }}>
 {
 chat.last_message_at
@@ -205,8 +205,8 @@ minWidth:20,
 height:20,
 padding:"0 6px",
 borderRadius:10,
-background:"#2F80FF",
-color:"#fff",
+background:"var(--primary)",
+color:"var(--text-inverse)",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
@@ -320,12 +320,6 @@ const presenceChatIds = useMemo(
   [chats]
 );
 const presenceKey = presenceChatIds.join("|");
-const realtimeChatIds = useMemo(
-  () => chats.map((chat) => chat.id).sort(),
-  [chats]
-);
-const realtimeChatKey = realtimeChatIds.join("|");
-
 useEffect(() => {
   if (!presenceChatIds.length) return;
 
@@ -367,20 +361,10 @@ useEffect(() => {
 }, [presenceKey]);
 
 useEffect(() => {
-  if (!myId || !realtimeChatIds.length) return;
-
-  let channel = supabase.channel(`chat-list-messages-${myId}`);
-  realtimeChatIds.forEach((currentChatId) => {
-    channel = channel.on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `chat_id=eq.${currentChatId}`,
-      },
-      (payload: any) => {
-        const message = payload.new;
+  if (!myId) return;
+  const handleMessage = (event:Event) => {
+        const message = (event as CustomEvent<any>).detail;
+        if(!message) return;
         setChats((current) => sortChats(current.map((chat) =>
           chat.id === message.chat_id
             ? {
@@ -395,20 +379,13 @@ useEffect(() => {
               }
             : chat
         )));
-      }
-    );
-  });
-  channel.subscribe((status) => {
-    if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-      window.clearTimeout(reloadTimer.current);
-      reloadTimer.current = window.setTimeout(() => loadChats(false), 250);
-    }
-  });
+  };
+  window.addEventListener("aura-chat-message",handleMessage);
 
   return () => {
-    void supabase.removeChannel(channel);
+    window.removeEventListener("aura-chat-message",handleMessage);
   };
-}, [myId, realtimeChatKey]);
+}, [myId]);
 
 
 useEffect(() => {
@@ -698,7 +675,7 @@ function EmptyChats() {
           marginTop: 10,
 fontSize: 16,
 fontWeight: 600,
-          color: "#1F2937"
+          color: "var(--text-primary)"
         }}
       >
         Пока нет сообщений
@@ -708,7 +685,7 @@ fontWeight: 600,
         style={{
           marginTop: 4,
 fontSize: 12,
-          color: "#8A8F9B",
+          color: "var(--text-secondary)",
           lineHeight: 1.5
         }}
       >
@@ -723,8 +700,8 @@ fontSize: 12,
           padding: "0 20px",
           border: "none",
           borderRadius: 999,
-          background: "#2F80FF",
-          color: "#fff",
+          background: "var(--primary)",
+          color: "var(--text-inverse)",
           fontWeight: 600,
           cursor: "pointer"
         }}
@@ -758,7 +735,8 @@ height:"100dvh",
 overflowY:"auto",
 WebkitOverflowScrolling:"touch",
 
-background:"#FCFCFE",
+background:"var(--app-bg)",
+color:"var(--text-primary)",
 
 padding:"8px 16px 130px",
 
@@ -798,7 +776,7 @@ style={{
 marginTop:8,
 height:42,
 borderRadius:14,
-background:"#F4F4F8",
+background:"var(--input-bg)",
 display:"flex",
 alignItems:"center",
 padding:"0 14px",
@@ -809,7 +787,7 @@ gap:8
 <span
 style={{
 fontSize:15,
-color:"#A3A8B3"
+color:"var(--text-muted)"
 }}
 >
 ⌕
@@ -881,14 +859,14 @@ fontSize:15
             width: 24,
             height: 24,
             borderRadius: "50%",
-            background: "#2F80FF",
-            color: "#fff",
+            background: "var(--primary)",
+            color: "var(--text-inverse)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: 11,
             fontWeight: 700,
-            border: "2px solid #fff",
+            border: "2px solid var(--surface)",
           }}
         >
           12
@@ -946,8 +924,8 @@ console.log("UPDATE ERROR:", error);
             borderRadius: "50%",
             padding: 2.5,
             border: chat.is_new_match
-              ? "2px solid #2F80FF"
-              : "2px solid #E6EBF3",
+              ? "2px solid var(--primary)"
+              : "2px solid var(--border)",
           }}
         >
           {chat.avatar ? (
@@ -961,7 +939,7 @@ console.log("UPDATE ERROR:", error);
               }}
             />
           ) : (
-            <div style={{width:"100%",height:"100%",borderRadius:"50%",background:"#EEF1F4",display:"grid",placeItems:"center",fontSize:28}}>👤</div>
+            <div style={{width:"100%",height:"100%",borderRadius:"50%",background:"var(--surface-secondary)",display:"grid",placeItems:"center",fontSize:28}}>👤</div>
           )}
 
           <div
@@ -972,7 +950,7 @@ console.log("UPDATE ERROR:", error);
               width: 14,
               height: 14,
               background: "#47C73B",
-              border: "2px solid #fff",
+              border: "2px solid var(--surface)",
               borderRadius: "50%",
             }}
           />
@@ -997,7 +975,7 @@ console.log("UPDATE ERROR:", error);
       style={{
         fontSize: 13,
         fontWeight: 600,
-        color: "#8A8F9B",
+        color: "var(--text-secondary)",
         marginBottom: 10,
       }}
     >
@@ -1025,7 +1003,7 @@ console.log("UPDATE ERROR:", error);
         padding: "30px 0",
         textAlign: "center",
         fontSize: 14,
-        color: "#9AA3AF",
+        color: "var(--text-muted)",
       }}
     >
       Никого не найдено

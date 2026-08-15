@@ -161,7 +161,7 @@ alignItems:"center",
 gap:5,
 fontSize:11,
 fontWeight:500,
-color: active ? "#2F80FF" : "#A7ADB8",
+color: active ? "var(--primary)" : "var(--text-muted)",
 cursor:"pointer"
 });
 
@@ -177,8 +177,9 @@ bottom:0,
 left:0,
 right:0,
 height:"calc(74px + env(safe-area-inset-bottom, 0px))",
-background:"#fff",
-borderTop:"1px solid #ECECEC",
+background:"var(--nav-bg)",
+borderTop:"1px solid var(--border)",
+backdropFilter:"blur(18px)",
 display:"flex",
 alignItems:"center",
 paddingBottom:"env(safe-area-inset-bottom, 0px)",
@@ -211,7 +212,7 @@ style={itemStyle(pathname==="/chats")}
   <div style={{position:"relative",display:"grid",placeItems:"center"}}>
     <MessageCircle size={28}/>
     {unread > 0 && (
-      <div style={{position:"absolute",top:-7,right:-10,minWidth:18,height:18,padding:"0 5px",borderRadius:9,background:"#2F80FF",color:"#fff",display:"grid",placeItems:"center",fontSize:10,fontWeight:800,border:"2px solid #fff",boxSizing:"border-box"}}>
+      <div style={{position:"absolute",top:-7,right:-10,minWidth:18,height:18,padding:"0 5px",borderRadius:9,background:"var(--accent)",color:"var(--text-inverse)",display:"grid",placeItems:"center",fontSize:10,fontWeight:800,border:"2px solid var(--nav-bg)",boxSizing:"border-box"}}>
         {unread > 99 ? "99+" : unread}
       </div>
     )}

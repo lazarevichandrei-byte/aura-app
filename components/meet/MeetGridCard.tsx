@@ -56,7 +56,9 @@ layoutId={event.id}
             onClick={onClick}
 
             style={{
-                background: "#fff",
+                background: "var(--surface)",
+                color:"var(--text-primary)",
+                border:"1px solid var(--border-subtle)",
                 borderRadius: 22,
                 padding: 16,
                 boxShadow:
@@ -96,7 +98,7 @@ layoutId={event.id}
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    color: "#7B8595",
+                    color: "var(--text-secondary)",
                     fontSize: 13,
                 }}
             >
@@ -114,7 +116,7 @@ layoutId={event.id}
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    color: "#7B8595",
+                    color: "var(--text-secondary)",
                     fontSize: 13,
                 }}
             >
@@ -142,8 +144,8 @@ layoutId={event.id}
                             height: 40,
                             borderRadius: 12,
                             border: "none",
-                            background: "#EEF7FF",
-                            color: "#2AABEE",
+                            background: "var(--primary-soft)",
+                            color: "var(--primary)",
                             fontWeight: 700,
                         }}
                     >
@@ -203,8 +205,8 @@ layoutId={event.id}
                             height: 40,
                             borderRadius: 12,
                             border: "none",
-                            background: "#2AABEE",
-                            color: "#fff",
+                            background: "var(--primary)",
+                            color: "var(--text-inverse)",
                             fontWeight: 700,
                             cursor: "pointer",
                         }}

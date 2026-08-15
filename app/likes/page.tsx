@@ -65,28 +65,19 @@ useEffect(() => {
 useEffect(() => {
   if (!myId) return;
   const reconcile = () => void loadLikes(myId,false);
-  const channel = supabase
-    .channel(`likes-${myId}`)
-    .on("postgres_changes", {
-      event: "*",
-      schema: "public",
-      table: "likes",
-      filter: `to_user_id=eq.${myId}`,
-    }, reconcile)
-    .subscribe((status) => {
-      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") reconcile();
-    });
+  const handleRealtime = () => reconcile();
 
   const handleResume = () => {
     if (!document.hidden) reconcile();
   };
+  window.addEventListener("aura-like-realtime", handleRealtime);
   document.addEventListener("visibilitychange", handleResume);
   window.addEventListener("online", handleResume);
 
   return () => {
+    window.removeEventListener("aura-like-realtime", handleRealtime);
     document.removeEventListener("visibilitychange", handleResume);
     window.removeEventListener("online", handleResume);
-    void supabase.removeChannel(channel);
   };
 }, [myId]);
 
@@ -162,7 +153,7 @@ function EmptyLikes() {
           marginTop: 10,
           fontSize: 16,
           fontWeight: 600,
-          color: "#1F2937"
+          color: "var(--text-primary)"
         }}
       >
         Пока тебя никто не лайкнул
@@ -172,7 +163,7 @@ function EmptyLikes() {
         style={{
           marginTop: 4,
           fontSize: 12,
-          color: "#8A8F9B",
+          color: "var(--text-secondary)",
           lineHeight: 1.5
         }}
       >
@@ -189,8 +180,8 @@ function EmptyLikes() {
           padding: "0 20px",
           border: "none",
           borderRadius: 999,
-          background: "#2F80FF",
-          color: "#fff",
+          background: "var(--primary)",
+          color: "var(--text-inverse)",
           fontWeight: 600,
           cursor: "pointer"
         }}
@@ -244,7 +235,8 @@ height:"100dvh",
 overflowY:"auto",
 WebkitOverflowScrolling:"touch",
 
-background:"#FCFCFE",
+background:"var(--app-bg)",
+color:"var(--text-primary)",
 
 padding:"10px 16px 120px",
 
@@ -273,7 +265,7 @@ onClick={()=>router.back()}
 style={{
 fontSize:52,
 lineHeight:"38px",
-color:"#2F80FF",
+color:"var(--primary)",
 cursor:"pointer"
 }}
 >
@@ -294,7 +286,7 @@ fontWeight:700
 style={{
 fontSize:13,
 marginTop:4,
-color:"#8A8F9B"
+color:"var(--text-secondary)"
 }}
 >
 Люди которым ты понравился
@@ -317,7 +309,7 @@ padding:"18px",
 borderRadius:24,
 
 background:
-"linear-gradient(135deg,#EDF4FF,#F8FAFF)",
+"var(--primary-soft)",
 
 boxShadow:
 "0 6px 18px rgba(46,123,255,.08)"
@@ -337,7 +329,7 @@ fontWeight:700
 style={{
 marginTop:8,
 fontSize:14,
-color:"#7B8794"
+color:"var(--text-secondary)"
 }}
 >
 Посмотри кто проявил интерес
@@ -368,7 +360,8 @@ info("Профиль скоро появится", "Переход к профи
 }}
 
 style={{
-background:"#fff",
+background:"var(--surface)",
+color:"var(--text-primary)",
 
 borderRadius:26,
 
@@ -444,7 +437,7 @@ lineHeight:"22px"
 style={{
 marginTop:4,
 fontSize:14,
-color:"#8A8F9B"
+color:"var(--text-secondary)"
 }}
 >
 {user.users?.city}
@@ -476,11 +469,11 @@ justifyContent:"center",
 borderRadius:999,
 border:"2px solid #5EA9FF",
 
-background:"#fff",
+background:"var(--surface)",
 
 fontSize:13,
 fontWeight:600,
-color:"#2F80FF",
+color:"var(--primary)",
 
 cursor:"pointer"
 }}
@@ -521,8 +514,8 @@ style={{
 width:40,
 height:40,
 borderRadius:"50%",
-background:"#F7F8FB",
-border:"1px solid #E8EDF5",
+background:"var(--surface-secondary)",
+border:"1px solid var(--border)",
 
 display:"flex",
 alignItems:"center",
@@ -608,7 +601,7 @@ width:46,
 height:46,
 borderRadius:"50%",
 
-background:"#fff",
+background:"var(--surface)",
 border:"2px solid #5EA9FF",
 
 display:"flex",
@@ -655,7 +648,7 @@ style={{
 position:"fixed",
 inset:0,
 
-background:"rgba(0,0,0,.55)",
+background:"var(--overlay)",
 
 display:"flex",
 justifyContent:"center",
@@ -673,7 +666,8 @@ style={{
 width:"90%",
 maxWidth:360,
 
-background:"#fff",
+background:"var(--sheet-bg)",
+color:"var(--text-primary)",
 
 borderRadius:28,
 
@@ -706,7 +700,7 @@ fontWeight:800
 <div style={{
 marginTop:10,
 fontSize:16,
-color:"#666"
+color:"var(--text-secondary)"
 }}>
 Вы и {match?.name || "пользователь"} понравились друг другу
 </div>
@@ -736,9 +730,9 @@ marginTop:28,
 height:50,
 borderRadius:16,
 
-background:"#2F80FF",
+background:"var(--primary)",
 
-color:"#fff",
+color:"var(--text-inverse)",
 
 display:"flex",
 alignItems:"center",

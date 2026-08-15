@@ -13,16 +13,14 @@ import {
 } from "../../lib/haptic";
 
 import BottomSheet from "../../components/BottomSheet";
+import { useTheme } from "../../components/ThemeProvider";
 
 
 
 
 export default function SettingsPage() {
-
-
-
- 
   const router = useRouter();
+  const {theme,setTheme} = useTheme();
 
   useEffect(() => {
   loadSettings();
@@ -52,9 +50,8 @@ show_last_seen
 
   if(data){
 
-    setTheme(
-      data.theme || "system"
-    );
+    const savedTheme = data.theme;
+    if(savedTheme === "system" || savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
 
     setLanguage(
       data.language || "ru"
@@ -100,9 +97,6 @@ async function saveSetting(
 }
 
 
-  const [theme,setTheme] =
-useState("system");
-
 const [language,setLanguage] =
 useState("ru");
 
@@ -126,7 +120,8 @@ useState(false);
     <div
       style={{
         minHeight:"100vh",
-        background:"#F5F7FB",
+        background:"var(--app-bg)",
+        color:"var(--text-primary)",
         padding:"20px"
       }}
     >
@@ -158,7 +153,7 @@ useState(false);
   >
     <ArrowLeft2
       size="28"
-      color="#2E7BFF"
+      color="var(--primary)"
       variant="Outline"
     />
   </div>
@@ -177,7 +172,7 @@ useState(false);
 
         <p
   style={{
-    color:"#7B8595",
+    color:"var(--text-secondary)",
     fontSize:14,
     lineHeight:1.5,
     marginBottom:20
@@ -196,7 +191,7 @@ useState(false);
   <div>
 
     <div style={titleStyle}>
-      🎨 Тема
+      🎨 Оформление
     </div>
 
     <div style={subtitleStyle}>
@@ -213,7 +208,7 @@ useState(false);
 
   <ArrowRight2
     size="18"
-    color="#A0A8B5"
+    color="var(--text-muted)"
   />
 
 </div>
@@ -252,7 +247,7 @@ useState(false);
 
   <ArrowRight2
     size="18"
-    color="#A0A8B5"
+    color="var(--text-muted)"
   />
 
 </div>
@@ -277,7 +272,7 @@ useState(false);
 
   <ArrowRight2
     size="18"
-    color="#A0A8B5"
+    color="var(--text-muted)"
   />
 
 </div>
@@ -319,7 +314,7 @@ useState(false);
       textAlign:"center"
     }}
   >
-    Выбор темы
+    Оформление
   </h2>
 
   <div style={{ marginTop:20 }}>
@@ -329,11 +324,11 @@ useState(false);
         ...sheetItem,
         background:
           theme === "light"
-            ? "#EAF5FF"
-            : "#F5F7FB",
+            ? "var(--primary-soft)"
+            : "var(--surface-secondary)",
         border:
           theme === "light"
-            ? "1px solid #2AABEE"
+            ? "1px solid var(--primary)"
             : "1px solid transparent"
       }}
       onClick={async()=>{
@@ -351,7 +346,7 @@ useState(false);
 
       }}
     >
-      ☀️ Светлая
+      <span>☀️ Светлая</span><span>{theme === "light" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -359,11 +354,11 @@ useState(false);
         ...sheetItem,
         background:
           theme === "dark"
-            ? "#EAF5FF"
-            : "#F5F7FB",
+            ? "var(--primary-soft)"
+            : "var(--surface-secondary)",
         border:
           theme === "dark"
-            ? "1px solid #2AABEE"
+            ? "1px solid var(--primary)"
             : "1px solid transparent"
       }}
      onClick={async()=>{
@@ -381,7 +376,7 @@ useState(false);
 
       }}
     >
-      🌙 Тёмная
+      <span>🌙 Тёмная</span><span>{theme === "dark" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -389,11 +384,11 @@ useState(false);
         ...sheetItem,
         background:
           theme === "system"
-            ? "#EAF5FF"
-            : "#F5F7FB",
+            ? "var(--primary-soft)"
+            : "var(--surface-secondary)",
         border:
           theme === "system"
-            ? "1px solid #2AABEE"
+            ? "1px solid var(--primary)"
             : "1px solid transparent"
       }}
       onClick={async()=>{
@@ -411,7 +406,7 @@ useState(false);
 
       }}
     >
-      ⚙️ Системная
+      <span>⚙️ Системная</span><span>{theme === "system" ? "●" : "○"}</span>
     </div>
 
   </div>
@@ -514,7 +509,9 @@ const itemStyle = {
 };
 
 const cardStyle = {
-  background:"#fff",
+  background:"var(--surface)",
+  color:"var(--text-primary)",
+  border:"1px solid var(--border-subtle)",
   borderRadius:"18px",
   padding:"18px",
   marginBottom:"14px",
@@ -524,7 +521,7 @@ const cardStyle = {
   alignItems:"center",
 
   boxShadow:
-    "0 4px 14px rgba(0,0,0,.04)"
+    "var(--shadow-sm)"
 };
 
 const titleStyle = {
@@ -535,7 +532,7 @@ const titleStyle = {
 const subtitleStyle = {
   marginTop:"4px",
   fontSize:"12px",
-  color:"#8B95A7"
+  color:"var(--text-secondary)"
 };
 const themeButton = {
   flex:1,
@@ -553,8 +550,12 @@ const activeThemeButton = {
 const sheetItem = {
   padding:"16px",
   borderRadius:"16px",
-  background:"#F5F7FB",
+  background:"var(--surface-secondary)",
   marginBottom:"10px",
   cursor:"pointer",
-  fontWeight:600
+  fontWeight:600,
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+  color:"var(--text-primary)"
 };

@@ -93,7 +93,9 @@ if (!startedFromEdge) {
     onTouchStart={touchStart}
     onTouchEnd={touchEnd}
     style={{
-  minHeight:"100vh",
+  minHeight:"100dvh",
+  background:"var(--app-bg)",
+  color:"var(--text-primary)",
 
   opacity: visible ? 1 : 0,
 

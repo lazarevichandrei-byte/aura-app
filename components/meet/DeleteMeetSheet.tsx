@@ -40,7 +40,7 @@ export default function DeleteMeetSheet({
             marginTop: 10,
             fontSize: 22,
             fontWeight: 700,
-            color: "#111827",
+            color: "var(--text-primary)",
           }}
         >
           Удалить встречу?
@@ -50,7 +50,7 @@ export default function DeleteMeetSheet({
           style={{
             marginTop: 10,
             fontSize: 14,
-            color: "#6B7280",
+            color: "var(--text-secondary)",
             lineHeight: 1.5,
           }}
         >
@@ -74,12 +74,12 @@ export default function DeleteMeetSheet({
             height: 54,
             marginTop: 28,
             borderRadius: 16,
-            background: "#FEE2E2",
+            background: "var(--danger-soft)",
             overflow:"hidden",
             touchAction:"none",
           }}
         >
-          <div style={{position:"absolute",inset:0,display:"grid",placeItems:"center",color:"#B91C1C",fontSize:14,fontWeight:700,pointerEvents:"none"}}>
+          <div style={{position:"absolute",inset:0,display:"grid",placeItems:"center",color:"var(--danger)",fontSize:14,fontWeight:700,pointerEvents:"none"}}>
             Свайпните вправо, чтобы удалить →
           </div>
           <div
@@ -109,7 +109,7 @@ export default function DeleteMeetSheet({
             marginTop: 12,
             border: "none",
             background: "transparent",
-            color: "#6B7280",
+            color: "var(--text-secondary)",
             fontSize: 16,
             cursor: "pointer",
           }}

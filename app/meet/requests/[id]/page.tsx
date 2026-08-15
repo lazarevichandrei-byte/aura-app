@@ -101,7 +101,8 @@ async function reject(request: any) {
     <main
       style={{
         minHeight: "100vh",
-        background: "#F5F7FB",
+        background: "var(--app-bg)",
+        color:"var(--text-primary)",
         padding: 20,
       }}
     >
@@ -112,7 +113,7 @@ async function reject(request: any) {
 ) : requests.length === 0 ? (
   <div
     style={{
-      color: "#6B7280",
+      color: "var(--text-secondary)",
       fontSize: 15,
     }}
   >
@@ -123,7 +124,8 @@ async function reject(request: any) {
     <div
       key={request.id}
       style={{
-        background: "#fff",
+        background: "var(--surface)",
+        border:"1px solid var(--border-subtle)",
         borderRadius: 18,
         padding: 16,
         marginBottom: 14,
@@ -145,13 +147,13 @@ async function reject(request: any) {
       <div
         style={{
           marginTop: 4,
-          color: "#6B7280",
+          color: "var(--text-secondary)",
           fontSize: 14,
         }}
       >
         {request.users?.city} • {request.users?.age} лет
       </div>
-      <button onClick={()=>router.push(`/user/${request.user_id}`)} style={{marginTop:8,padding:0,border:0,background:"transparent",color:"#2F80FF",fontWeight:600}}>Открыть профиль</button>
+      <button onClick={()=>router.push(`/user/${request.user_id}`)} style={{marginTop:8,padding:0,border:0,background:"transparent",color:"var(--primary)",fontWeight:600}}>Открыть профиль</button>
         </div>
       </div>
 

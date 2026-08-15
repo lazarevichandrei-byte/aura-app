@@ -97,7 +97,7 @@ export default function BottomSheet({
             zIndex: 99999,
             display: "flex",
             alignItems: "flex-end",
-            background: "rgba(0,0,0,.45)",
+            background: "var(--overlay)",
             backdropFilter: "blur(6px)",
             WebkitBackdropFilter: "blur(6px)",
             overscrollBehavior: "contain",
@@ -155,7 +155,9 @@ export default function BottomSheet({
               width: "100%",
               maxHeight: isExpandable ? `${expandedHeight * 100}dvh` : maxHeight,
               height: isExpandable ? `${expandedHeight * 100}dvh` : height,
-              background: "#FFFFFF",
+              background: "var(--sheet-bg)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border)",
               borderTopLeftRadius: 28,
               borderTopRightRadius: 28,
               padding: "20px 24px calc(24px + env(safe-area-inset-bottom))",
@@ -163,7 +165,7 @@ export default function BottomSheet({
               display: "flex",
               flexDirection: "column",
               boxSizing: "border-box",
-              boxShadow: "0 -10px 40px rgba(0,0,0,.15)",
+              boxShadow: "var(--shadow-md)",
               overscrollBehavior: "contain",
             }}
           >
@@ -185,7 +187,7 @@ export default function BottomSheet({
                 width: 46,
                 height: 5,
                 borderRadius: 999,
-                background: "#D8DCE3",
+                background: "var(--border)",
                 }}
               />
             </motion.div>

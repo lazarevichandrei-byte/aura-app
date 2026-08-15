@@ -39,10 +39,11 @@ export default function MeetParticipantCard({
     }}
     style={{
     marginTop: 8,
-    background: "#fff",
+    background: "var(--surface)",
+    color:"var(--text-primary)",
     borderRadius: 18,
     padding: 14,
-    border: "1px solid rgba(15,23,42,.05)",
+    border: "1px solid var(--border-subtle)",
     boxShadow: "0 4px 12px rgba(15,23,42,.04)",
 }}
 >
@@ -75,7 +76,7 @@ export default function MeetParticipantCard({
                             height: "100%",
                             borderRadius: "50%",
                             objectFit: "cover",
-                            background: "#F3F4F6",
+                            background: "var(--surface-secondary)",
                         }}
                     />
 
@@ -89,7 +90,7 @@ export default function MeetParticipantCard({
             height: 10,
             borderRadius: "50%",
             background: "#22C55E",
-            border: "2px solid white",
+            border: "2px solid var(--surface)",
         }}
     />
 )}
@@ -121,7 +122,7 @@ export default function MeetParticipantCard({
         style={{
             fontSize: 18,
             fontWeight: 700,
-            color: "#111827",
+            color: "var(--text-primary)",
             lineHeight: 1.1,
         }}
     >
@@ -134,8 +135,8 @@ export default function MeetParticipantCard({
             style={{
                 padding: "3px 8px",
                 borderRadius: 999,
-                background: "#E8F1FF",
-                color: "#2F80FF",
+                background: "var(--primary-soft)",
+                color: "var(--primary)",
                 fontSize: 11,
                 fontWeight: 700,
             }}
@@ -172,7 +173,7 @@ export default function MeetParticipantCard({
         display: "flex",
         alignItems: "center",
         gap: 8,
-        color: "#6B7280",
+        color: "var(--text-secondary)",
         fontSize: 13,
     }}
 >
@@ -184,7 +185,7 @@ export default function MeetParticipantCard({
                         <div
                             style={{
                                 marginTop: 8,
-                                color: "#4B5563",
+                                color: "var(--text-secondary)",
                                 fontSize: 13,
                                 lineHeight: 1.5,
                             }}
@@ -214,8 +215,8 @@ export default function MeetParticipantCard({
         width: 42,
         height: 42,
         borderRadius: "50%",
-        border: "1px solid #E7EAF0",
-        background: "#fff",
+        border: "1px solid var(--border)",
+        background: "var(--surface)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -236,8 +237,8 @@ export default function MeetParticipantCard({
             height: 42,
             borderRadius: "50%",
             border: "none",
-            background: "#2F80FF",
-            color: "#fff",
+            background: "var(--primary)",
+            color: "var(--text-inverse)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -259,8 +260,8 @@ export default function MeetParticipantCard({
             height: 42,
             borderRadius: "50%",
             border: "none",
-            background: "#FFF1F2",
-            color: "#EF4444",
+            background: "var(--danger-soft)",
+            color: "var(--danger)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",

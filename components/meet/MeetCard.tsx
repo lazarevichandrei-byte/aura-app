@@ -2,8 +2,7 @@ import type { CSSProperties } from "react";
 import type { MeetEvent } from "../../lib/meet/types";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 import {
   sendJoinRequest,
@@ -12,7 +11,6 @@ import {
 } from "../../lib/meet/api";
 import { getOnlineStatus } from "../../lib/user/getOnlineStatus";
 import MeetManageSheet from "./MeetManageSheet";
-import { useNotification } from "../NotificationContext";
 import { getMeetGuests } from "../../lib/meet/participants";
 import MeetDeleteSlider from "./MeetDeleteSlider";
 import { meetCountdown } from "../../lib/meet/time";
@@ -35,12 +33,6 @@ export default function MeetCard({
 }: Props) {
 
   const router = useRouter();
-  const { success, warning } = useNotification();
-  const realtimeNotificationRef = useRef({ success, warning });
-  useEffect(() => {
-    realtimeNotificationRef.current = { success, warning };
-  }, [success, warning]);
-
   const organizerName = event.users?.name || "Организатор";
   const organizerAvatar = event.users?.avatar_url;
   const guests = getMeetGuests(event);
@@ -110,33 +102,16 @@ const hasApprovedRequest =
 
 useEffect(() => {
   if (!currentUserId || !isApproval || isCreator) return;
-  let ready = false;
-  const channel = supabase
-    .channel(`meet-request-${event.id}-${currentUserId}`)
-    .on("postgres_changes", {
-      event: "*",
-      schema: "public",
-      table: "meet_join_requests",
-      filter: `event_id=eq.${event.id}`,
-    }, (payload: any) => {
-      const row = payload.new || payload.old;
-      if (row?.user_id !== currentUserId) return;
-      if (payload.eventType === "DELETE") {
-        setJoinRequest(null);
-        return;
-      }
-      setJoinRequest(payload.new);
-      if (ready && payload.eventType === "UPDATE") {
-        if (payload.new?.status === "approved") realtimeNotificationRef.current.success("Заявка принята", "Теперь вам доступен чат встречи.");
-        if (payload.new?.status === "rejected") realtimeNotificationRef.current.warning("Заявка отклонена", "Вы можете отправить заявку повторно.");
-      }
-    })
-    .subscribe((status) => {
-      if (status === "SUBSCRIBED") ready = true;
-    });
+  const handleRequest = (eventPayload: Event) => {
+    const payload = (eventPayload as CustomEvent<any>).detail;
+    const row = payload?.new || payload?.old;
+    if (row?.event_id !== event.id || row?.user_id !== currentUserId) return;
+    setJoinRequest(payload.eventType === "DELETE" ? null : payload.new);
+  };
+  window.addEventListener("aura-meet-request-user", handleRequest);
 
   return () => {
-    void supabase.removeChannel(channel);
+    window.removeEventListener("aura-meet-request-user", handleRequest);
   };
 }, [currentUserId, event.id, isApproval, isCreator]);
 
@@ -144,8 +119,9 @@ useEffect(() => {
     width: "100%",
     height: 52,
     borderRadius: 16,
-    border: "1px solid #E5E7EB",
-    background: "#fff",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
+    color:"var(--text-primary)",
     fontSize: 16,
     fontWeight: 600,
     cursor: "pointer",
@@ -233,7 +209,7 @@ lineHeight: 1.25,
         <p
           style={{
             marginTop: 10,
-            color: "#555",
+            color: "var(--text-secondary)",
             lineHeight: 1.5,
             display: "-webkit-box",
             WebkitLineClamp: 3,
@@ -259,10 +235,10 @@ lineHeight: 1.25,
       alignItems: "center",
       gap: 6,
       padding: "6px 10px",
-      background: "#F5F7FA",
+      background: "var(--surface-secondary)",
       borderRadius: 12,
       fontSize: 13,
-      color: "#444",
+      color: "var(--text-secondary)",
       fontWeight: 500,
     }}
   >
@@ -275,10 +251,10 @@ lineHeight: 1.25,
       alignItems: "center",
       gap: 6,
       padding: "6px 10px",
-      background: "#F5F7FA",
+      background: "var(--surface-secondary)",
       borderRadius: 12,
       fontSize: 13,
-      color: "#444",
+      color: "var(--text-secondary)",
       fontWeight: 500,
     }}
   >
@@ -330,8 +306,8 @@ lineHeight: 1.25,
             borderRadius: "50%",
             objectFit: "cover",
             marginLeft: index === 0 ? 0 : -12,
-            border: "2px solid #fff",
-            background: "#F3F4F6",
+            border: "2px solid var(--surface)",
+            background: "var(--surface-secondary)",
           }}
         />
       ))}
@@ -342,13 +318,13 @@ lineHeight: 1.25,
             width: 38,
             height: 38,
             borderRadius: "50%",
-            background: "#F3F4F6",
+            background: "var(--surface-secondary)",
             display: "grid",
             placeItems: "center",
             fontWeight: 600,
             fontSize: 13,
             marginLeft: -12,
-            border: "2px solid #fff",
+            border: "2px solid var(--surface)",
           }}
         >
           +{guests.length - 5}
@@ -364,9 +340,9 @@ lineHeight: 1.25,
     marginTop: 8,
     marginBottom: 12,
     padding: "10px 14px",
-    background: "#F8F9FB",
+    background: "var(--surface-secondary)",
     borderRadius: 14,
-    border: "1px solid #EEF1F4",
+    border: "1px solid var(--border-subtle)",
   }}
 >
   <div>
@@ -374,7 +350,7 @@ lineHeight: 1.25,
       style={{
         fontSize: 15,
         fontWeight: 700,
-        color: "#111827",
+        color: "var(--text-primary)",
       }}
     >
       👥 {guests.length} / {event.max_people}
@@ -384,7 +360,7 @@ lineHeight: 1.25,
       style={{
         marginTop: 2,
         fontSize: 12,
-        color: "#6B7280",
+        color: "var(--text-secondary)",
       }}
     >
       участников встречи
@@ -411,7 +387,7 @@ lineHeight: 1.25,
         <p
           style={{
             marginTop: 18,
-            color: "#555",
+            color: "var(--text-secondary)",
             lineHeight: 1.6,
           }}
         >
@@ -438,9 +414,9 @@ lineHeight: 1.25,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "rgba(42,171,238,.15)",
-      color: "#2AABEE",
-      border: "1px solid rgba(42,171,238,.35)",
+      background: "var(--primary-soft)",
+      color: "var(--primary)",
+      border: "1px solid var(--primary)",
       borderRadius: 16,
       marginBottom: 16,
       fontWeight: 600,
@@ -519,8 +495,8 @@ lineHeight: 1.25,
           ? "#EF4444"
           : hasPendingRequest
           ? "#F59E0B"
-          : "linear-gradient(135deg,#2AABEE,#1C8CEB)",
-        color: "#fff",
+          : "var(--primary)",
+        color: "var(--text-inverse)",
         fontSize: 17,
         marginBottom: 16,
         opacity:

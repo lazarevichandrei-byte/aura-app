@@ -24,7 +24,9 @@ export default function LocationCard({
           onMapClick();
         }}
         style={{
-          background:"#fff",
+          background:"var(--surface)",
+          color:"var(--text-primary)",
+          border:"1px solid var(--border-subtle)",
           borderRadius:18,
           padding:16,
           cursor:"pointer",
@@ -35,7 +37,7 @@ export default function LocationCard({
         <div
           style={{
             fontSize:13,
-            color:"#8B95A7"
+            color:"var(--text-secondary)"
           }}
         >
           📍 Место встречи
@@ -54,7 +56,7 @@ export default function LocationCard({
         <div
           style={{
             marginTop:2,
-            color:"#7B8595",
+            color:"var(--text-secondary)",
             fontSize:14
           }}
         >
@@ -72,7 +74,9 @@ export default function LocationCard({
   <div
     onClick={onMapClick}
     style={{
-      background: "#fff",
+      background: "var(--surface)",
+      color:"var(--text-primary)",
+      border:"1px solid var(--border-subtle)",
       borderRadius: 18,
       padding: 18,
       cursor: "pointer",
@@ -102,7 +106,7 @@ export default function LocationCard({
         <div
           style={{
             marginTop: 6,
-            color: "#7B8595",
+            color: "var(--text-secondary)",
             fontSize: 14,
             lineHeight: 1.45,
           }}
@@ -117,7 +121,7 @@ export default function LocationCard({
       <div
         style={{
           fontSize: 24,
-          color: "#2F80FF",
+          color: "var(--primary)",
           fontWeight: 700,
         }}
       >

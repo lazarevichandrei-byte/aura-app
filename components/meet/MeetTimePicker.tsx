@@ -79,7 +79,7 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
             select(item);
             ref.current?.scrollTo({ top: items.indexOf(item) * ITEM_HEIGHT, behavior: "smooth" });
           }}
-          style={{ ...wheelItemStyle, color: selected === item ? "#175FD1" : "#8A94A3", fontWeight: selected === item ? 750 : 500 }}
+          style={{ ...wheelItemStyle, color: selected === item ? "var(--primary)" : "var(--text-secondary)", fontWeight: selected === item ? 750 : 500 }}
         >
           {item}
         </button>
@@ -114,12 +114,12 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
 }
 
 const timeOverlayStyle = { position: "fixed" as const, inset: 0, zIndex: 10000, display: "flex", alignItems: "flex-end" };
-const timeBackdropStyle = { position: "absolute" as const, inset: 0, border: 0, background: "rgba(15,23,42,.46)" };
-const timeSheetStyle = { position: "relative" as const, width: "100%", height: "min(58dvh, 500px)", boxSizing: "border-box" as const, borderRadius: "26px 26px 0 0", padding: "10px 20px calc(18px + env(safe-area-inset-bottom, 0px))", background: "#fff" };
-const timeHandleStyle = { width: 42, height: 4, borderRadius: 4, background: "#D7DCE4", margin: "0 auto 18px" };
+const timeBackdropStyle = { position: "absolute" as const, inset: 0, border: 0, background: "var(--overlay)" };
+const timeSheetStyle = { position: "relative" as const, width: "100%", height: "min(58dvh, 500px)", boxSizing: "border-box" as const, borderRadius: "26px 26px 0 0", padding: "10px 20px calc(18px + env(safe-area-inset-bottom, 0px))", background: "var(--sheet-bg)", color:"var(--text-primary)" };
+const timeHandleStyle = { width: 42, height: 4, borderRadius: 4, background: "var(--border)", margin: "0 auto 18px" };
 const pickerStyle = { position: "relative" as const, height: ITEM_HEIGHT * 5, display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: 8, margin: "18px 0" };
-const selectionStyle = { position: "absolute" as const, left: 10, right: 10, top: ITEM_HEIGHT * 2, height: ITEM_HEIGHT, borderRadius: 14, background: "#EDF4FF", pointerEvents: "none" as const };
+const selectionStyle = { position: "absolute" as const, left: 10, right: 10, top: ITEM_HEIGHT * 2, height: ITEM_HEIGHT, borderRadius: 14, background: "var(--primary-soft)", pointerEvents: "none" as const };
 const wheelStyle = { height: ITEM_HEIGHT * 5, overflowY: "auto" as const, scrollSnapType: "y mandatory" as const, overscrollBehavior: "contain" as const, scrollbarWidth: "none" as const, zIndex: 1 };
 const wheelItemStyle = { width: "100%", height: ITEM_HEIGHT, border: 0, background: "transparent", fontSize: 22, scrollSnapAlign: "center" as const };
-const cancelStyle = { height: 50, border: 0, borderRadius: 15, background: "#F1F3F6", color: "#4B5563", fontWeight: 700, fontSize: 15 };
-const doneStyle = { ...cancelStyle, background: "#2F80FF", color: "#fff" };
+const cancelStyle = { height: 50, border: 0, borderRadius: 15, background: "var(--surface-secondary)", color: "var(--text-primary)", fontWeight: 700, fontSize: 15 };
+const doneStyle = { ...cancelStyle, background: "var(--primary)", color: "var(--text-inverse)" };

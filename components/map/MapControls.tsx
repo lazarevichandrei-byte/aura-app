@@ -48,25 +48,25 @@ const containerStyle = {
 const zoomGroupStyle = {
   overflow: "hidden",
   borderRadius: 24,
-  background: "rgba(255,255,255,.94)",
-  boxShadow: "0 8px 24px rgba(0,0,0,.12)",
+  background: "var(--nav-bg)",
+  boxShadow: "var(--shadow-md)",
 };
 
 const buttonStyle = {
   width: 48,
   height: 48,
-  border: "1px solid rgba(255,255,255,.7)",
+  border: "1px solid var(--border)",
   padding: 0,
-  background: "rgba(255,255,255,.94)",
+  background: "var(--nav-bg)",
   backdropFilter: "blur(18px)",
   WebkitBackdropFilter: "blur(18px)",
   display: "grid",
   placeItems: "center",
-  color: "#2F80FF",
+  color: "var(--primary)",
   fontSize: 22,
   fontWeight: 700,
   cursor: "pointer",
   touchAction: "manipulation",
 };
 
-const dividerStyle = { height: 1, margin: "0 8px", background: "#E5EAF1" };
+const dividerStyle = { height: 1, margin: "0 8px", background: "var(--border)" };

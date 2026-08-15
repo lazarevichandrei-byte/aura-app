@@ -49,7 +49,7 @@ export default function MeetManageSheet({
           style={{
             fontSize: 22,
             fontWeight: 700,
-            color: "#111827",
+            color: "var(--text-primary)",
           }}
         >
           Управление встречей
@@ -59,7 +59,7 @@ export default function MeetManageSheet({
           style={{
             marginTop: 4,
             fontSize: 13,
-            color: "#6B7280",
+            color: "var(--text-secondary)",
           }}
         >
           Выберите необходимое действие
@@ -77,7 +77,7 @@ export default function MeetManageSheet({
             height: 74,
             marginBottom: 12,
             border: "none",
-            background: "#fff",
+            background: "var(--surface-secondary)",
             borderRadius: 18,
             padding: "0 18px",
             cursor: "pointer",
@@ -88,7 +88,7 @@ export default function MeetManageSheet({
             style={{
               fontSize: 17,
               fontWeight: 700,
-              color: "#111827",
+              color: "var(--text-primary)",
             }}
           >
             {action.title}
@@ -98,7 +98,7 @@ export default function MeetManageSheet({
             style={{
               marginTop: 4,
               fontSize: 13,
-              color: "#6B7280",
+              color: "var(--text-secondary)",
             }}
           >
             {action.description}

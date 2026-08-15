@@ -963,7 +963,7 @@ warning(
   style={{
     marginTop:"14px",
     padding:"14px 16px",
-    background:"#F9FAFB",
+    background:"var(--surface-secondary)",
     borderRadius:"16px",
 
     display:"flex",
@@ -975,7 +975,7 @@ warning(
     <div
       style={{
         fontSize:"12px",
-        color:"#8A94A6"
+        color:"var(--text-secondary)"
       }}
     >
       Местоположение
@@ -996,8 +996,8 @@ warning(
     onClick={updateLocation}
     style={{
       border:"none",
-      background:"#EAF5FF",
-      color:"#2AABEE",
+      background:"var(--primary-soft)",
+      color:"var(--primary)",
       padding:"8px 12px",
       borderRadius:"10px",
       fontSize:"13px",
@@ -1026,7 +1026,7 @@ warning(
     <p
   style={{
     fontSize:"12px",
-    color:"#8A94A6",
+    color:"var(--text-secondary)",
     marginBottom:"10px"
   }}
 >
@@ -1037,7 +1037,7 @@ warning(
   <p
     style={{
       fontSize:12,
-      color:"#8A94A6",
+      color:"var(--text-secondary)",
       marginBottom:10
     }}
   >
@@ -1064,7 +1064,7 @@ warning(
       justifyContent:"space-between",
       marginTop:6,
       fontSize:12,
-      color:"#8A94A6"
+      color:"var(--text-secondary)"
     }}
   >
     <span>2 км</span>
@@ -1135,7 +1135,7 @@ style={{
 marginTop:10,
 fontSize:12,
 textAlign:"center",
-color:"#8A94A6"
+color:"var(--text-secondary)"
 }}
 >
 {saveStatus==="saving"
@@ -1163,7 +1163,8 @@ color:"#8A94A6"
  style={{
    width:"92%",
    maxWidth:"380px",
-   background:"#fff",
+   background:"var(--surface-elevated)",
+   color:"var(--text-primary)",
    borderRadius:"28px",
    padding:"20px",
    position:"relative",
@@ -1178,7 +1179,7 @@ style={{
  height:"320px",
  overflow:"hidden",
  borderRadius:"18px",
- background:"#111"
+ background:"var(--surface-secondary)"
 }}
 >
 
@@ -1413,12 +1414,13 @@ setCropOpen(true);
 const styles:any = {
   wrapper:{
  minHeight:"100vh",
- background:"#F5F7FB",
+ background:"var(--app-bg)",
+ color:"var(--text-primary)",
  padding:"20px 20px 120px",
  overflowY:"auto",
  WebkitOverflowScrolling:"touch"
 },
-  card:{background:"#fff",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
+  card:{background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
 avatarWrapper:{
  display:"flex",
@@ -1433,7 +1435,7 @@ avatarMask:{
  height:"92px",
  borderRadius:"50%",
  overflow:"hidden",
- background:"#E7F3FF",
+ background:"var(--primary-soft)",
  position:"relative"
 },
 
@@ -1445,7 +1447,7 @@ avatarImage:{
 
 
 
-  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"#E7F3FF",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
+  avatar:{width:"90px",height:"90px",borderRadius:"50%",background:"var(--primary-soft)",display:"flex",alignItems:"center",justifyContent:"center",objectFit:"cover"},
 plus:{
  position:"absolute",
  bottom:0,
@@ -1455,8 +1457,8 @@ plus:{
  height:"24px",
 
  borderRadius:"50%",
- background:"#2AABEE",
- color:"#fff",
+ background:"var(--primary)",
+ color:"var(--text-inverse)",
 
  display:"flex",
  alignItems:"center",
@@ -1470,14 +1472,14 @@ plus:{
   row:{display:"flex",gap:"10px"},
 
 inputBox:{
-  background:"#F9FAFB",
+  background:"var(--input-bg)",
   borderRadius:"16px",
   padding:"8px 12px", // было 12px
   marginTop:"10px",   // чуть меньше отступ
   flex:1
 },
 
-label:{fontSize:"12px",color:"#6B7280"},
+label:{fontSize:"12px",color:"var(--text-secondary)"},
   input:{width:"100%",border:"none",background:"transparent",outline:"none"},
 
   textarea:{
@@ -1497,7 +1499,7 @@ label:{fontSize:"12px",color:"#6B7280"},
     padding:"8px 6px",
     borderRadius:"12px",
     border:"none",
-    background:"#E7F3FF",
+    background:"var(--primary-soft)",
     fontSize:"12px",
     fontWeight:"500",
     whiteSpace:"nowrap"
@@ -1514,13 +1516,13 @@ label:{fontSize:"12px",color:"#6B7280"},
  fontSize:10,
  fontWeight:600
 },
-  active:{background:"linear-gradient(135deg,#2AABEE,#1C8CEB)",color:"#fff"},
+  active:{background:"var(--primary)",color:"var(--text-inverse)"},
 
   tags:{display:"flex",flexWrap:"wrap",gap:"8px"},
-  tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid #2AABEE",color:"#2AABEE",background:"#fff"},
-  tagActive:{background:"#2AABEE",color:"#fff"},
+  tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid var(--primary)",color:"var(--primary)",background:"var(--surface)"},
+  tagActive:{background:"var(--primary)",color:"var(--text-inverse)"},
 
-  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"#fff",background:"linear-gradient(135deg,#2AABEE,#1C8CEB)"},
+  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"var(--text-inverse)",background:"var(--primary)"},
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
@@ -1573,7 +1575,7 @@ addPhoto:{
  height:"160px",
  margin:"0 auto",
  borderRadius:"18px",
- background:"#EEF5FD",
+ background:"var(--surface-secondary)",
  display:"flex",
  alignItems:"center",
  justifyContent:"center",
@@ -1592,8 +1594,8 @@ deleteBtn:{
  borderRadius:"50%",
  border:"none",
 
- background:"#fff",
- color:"#111",
+ background:"var(--surface)",
+ color:"var(--text-primary)",
 
  boxShadow:"0 4px 12px rgba(0,0,0,.18)",
 
@@ -1615,7 +1617,7 @@ slider:{
  height:"8px",
  borderRadius:"999px",
 
- background:"#DCEBFF",
+ background:"var(--primary-soft)",
 
  outline:"none"
 },
@@ -1634,7 +1636,7 @@ editPhotoBtn:{
  borderRadius:"50%",
  border:"none",
 
- background:"#fff",
+ background:"var(--surface)",
  boxShadow:"0 6px 16px rgba(0,0,0,.18)",
 
  display:"flex",
@@ -1645,7 +1647,8 @@ editPhotoBtn:{
  zIndex:999
 },
 cropModal:{
- background:"#fff",
+ background:"var(--surface)",
+ color:"var(--text-primary)",
  width:"90%",
  maxWidth:"380px",
  borderRadius:"28px",

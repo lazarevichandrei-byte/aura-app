@@ -143,7 +143,7 @@ function CategoryRow({
     <button
       type="button"
       onClick={onClick}
-      style={{ ...rowStyle, background: selected ? "#EEF5FF" : "transparent" }}
+      style={{ ...rowStyle, background: selected ? "var(--primary-soft)" : "transparent" }}
     >
       <span style={rowLabelStyle}>
         <span style={{ fontSize: 22 }}>{icon}</span>
@@ -180,7 +180,7 @@ const backButtonStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: "#2F80FF",
+  color: "var(--primary)",
   background: "transparent",
   cursor: "pointer",
 };
@@ -190,11 +190,11 @@ const rowStyle = {
   height: 56,
   padding: "0 8px",
   border: 0,
-  borderBottom: "1px solid #F1F3F6",
+  borderBottom: "1px solid var(--border-subtle)",
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  color: "#20242C",
+  color: "var(--text-primary)",
   cursor: "pointer",
   textAlign: "left" as const,
 };
@@ -209,7 +209,7 @@ const rowLabelStyle = {
 
 const trailingStyle = {
   minWidth: 20,
-  color: "#2F80FF",
+  color: "var(--primary)",
   fontSize: 20,
   fontWeight: 700,
   textAlign: "center" as const,

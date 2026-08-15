@@ -7,6 +7,7 @@ type Props = {
   text: string;
   icon?: string;
   type?: "success" | "error" | "warning" | "info";
+  onOpen?: () => void;
   onClose: () => void;
 };
 
@@ -15,6 +16,7 @@ export default function Notification({
   text,
   icon = "🔔",
   type = "info",
+  onOpen,
   onClose
 }: Props) {
 
@@ -73,7 +75,7 @@ const accentBackground = {
 
   const timer = setTimeout(() => {
     closeNotification();
-  },2500);
+  },3500);
 
   return () => clearTimeout(timer);
 
@@ -136,6 +138,13 @@ setTranslateX(diff);
 
     <div
 
+      onClick={()=>{
+        if(!dragging && Math.abs(translateX)<8 && onOpen){
+          onOpen();
+          closeNotification();
+        }
+      }}
+
       onPointerDown={pointerDown}
 
       onPointerMove={pointerMove}
@@ -148,7 +157,7 @@ setTranslateX(diff);
 
         position:"fixed",
 
-        top:20,
+        top:"calc(env(safe-area-inset-top, 0px) + 12px)",
 
         left:16,
 
@@ -156,7 +165,8 @@ setTranslateX(diff);
 
         zIndex:999999,
 
-        background:"#FFFFFF",
+        background:"var(--surface-elevated)",
+        color:"var(--text-primary)",
 
         borderRadius:20,
 
@@ -164,10 +174,12 @@ setTranslateX(diff);
 
         userSelect:"none",
 
+        cursor:onOpen ? "pointer" : "default",
+
         touchAction:"pan-y",
 
-        boxShadow:
-          "0 12px 40px rgba(0,0,0,.18)",
+        boxShadow:"var(--shadow-md)",
+        border:"1px solid var(--border)",
 
         opacity:
   visible
