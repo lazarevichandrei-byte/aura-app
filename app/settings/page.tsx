@@ -326,7 +326,7 @@ useState(false);
 
       }}
     >
-      <span>☀️ Светлая</span><span>{theme === "light" ? "●" : "○"}</span>
+      <span><strong>☀️ Светлая</strong><small style={themeDescriptionStyle}>Всегда светлая</small></span><span>{theme === "light" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -356,7 +356,7 @@ useState(false);
 
       }}
     >
-      <span>🌙 Тёмная</span><span>{theme === "dark" ? "●" : "○"}</span>
+      <span><strong>☾ Тёмная</strong><small style={themeDescriptionStyle}>Всегда тёмная</small></span><span>{theme === "dark" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -386,7 +386,7 @@ useState(false);
 
       }}
     >
-      <span>⚙️ Системная</span><span>{theme === "system" ? "●" : "○"}</span>
+      <span><strong>◐ Системная</strong><small style={themeDescriptionStyle}>Как на устройстве</small></span><span>{theme === "system" ? "●" : "○"}</span>
     </div>
 
   </div>
@@ -518,3 +518,4 @@ const sheetItem = {
   alignItems:"center",
   color:"var(--text-primary)"
 };
+const themeDescriptionStyle = {display:"block",marginTop:4,color:"var(--text-secondary)",fontSize:12,fontWeight:500};

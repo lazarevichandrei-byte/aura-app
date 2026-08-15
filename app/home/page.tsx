@@ -676,12 +676,11 @@ pointerEvents:"none",
 background:`
 linear-gradient(
 to top,
-#ffffff 0%,
-rgba(255,255,255,.98) 18%,
-rgba(255,255,255,.92) 35%,
-rgba(255,255,255,.72) 55%,
-rgba(255,255,255,.42) 72%,
-rgba(255,255,255,0) 100%
+rgba(0,0,0,.74) 0%,
+rgba(0,0,0,.62) 24%,
+rgba(0,0,0,.42) 52%,
+rgba(0,0,0,.16) 76%,
+rgba(0,0,0,0) 100%
 )
 `
 }}
@@ -693,7 +692,9 @@ position:"absolute",
 left:30,
 right:30,
 bottom:26,
-zIndex:8
+zIndex:8,
+color:"rgba(255,255,255,.98)",
+textShadow:"0 1px 8px rgba(0,0,0,.42)"
 }}
 >
 
@@ -708,7 +709,7 @@ zIndex:8
     style={{
       margin:0,
       fontSize:18,
-      fontWeight:600
+      fontWeight:700
     }}
   >
     {currentUser.name}, {currentUser.age}
@@ -747,7 +748,7 @@ zIndex:8
     alignItems:"center",
     justifyContent:"space-between",
     fontSize:"13px",
-    color:"var(--text-secondary)"
+    color:"rgba(255,255,255,.82)"
   }}
 >
   <span>
@@ -765,8 +766,8 @@ zIndex:8
       Date.now() -
       new Date(currentUser.last_seen).getTime()
       < 5 * 60 * 1000
-        ? "#22C55E"
-        : "#9CA3AF",
+        ? "#7FF0AD"
+        : "rgba(255,255,255,.76)",
     fontWeight:600
   }}
 >

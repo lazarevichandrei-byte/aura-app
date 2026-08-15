@@ -278,6 +278,11 @@ animation:typingDots 1.3s infinite;
 content:"";
 }
 
+@keyframes profilePhotoLoading{
+0%{background-position:200% 0;}
+100%{background-position:-200% 0;}
+}
+
 25%{
 content:".";
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
@@ -37,6 +37,11 @@ useState(false);
 
 const [photoIndex,setPhotoIndex] =
 useState(0);
+const [photoLoaded,setPhotoLoaded] = useState(false);
+const pointerStart = useRef({x:0,y:0});
+const suppressTapUntil = useRef(0);
+
+useEffect(()=>setPhotoLoaded(false),[photoIndex]);
 
   useEffect(() => {
     loadUser();
@@ -127,6 +132,25 @@ async function submitReport(){
       ? [user.avatar_url]
       : [];
 
+  const previousPhoto = () => setPhotoIndex((index)=>Math.max(0,index-1));
+  const nextPhoto = () => setPhotoIndex((index)=>Math.min(photos.length-1,index+1));
+  const handlePointerDown = (event:React.PointerEvent)=>{
+    pointerStart.current = {x:event.clientX,y:event.clientY};
+  };
+  const handlePointerUp = (event:React.PointerEvent)=>{
+    const deltaX = event.clientX - pointerStart.current.x;
+    const deltaY = event.clientY - pointerStart.current.y;
+    if(Math.abs(deltaX) < 46 || Math.abs(deltaX) <= Math.abs(deltaY)*1.2) return;
+    suppressTapUntil.current = Date.now()+300;
+    if(deltaX < 0) nextPhoto(); else previousPhoto();
+  };
+  const handlePhotoTap = (event:React.MouseEvent<HTMLElement>)=>{
+    if(Date.now() < suppressTapUntil.current) return;
+    if(photos.length <= 1){ setShowGallery(true); return; }
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if(event.clientX < bounds.left + bounds.width/2) previousPhoto(); else nextPhoto();
+  };
+
   return (
 
 <>
@@ -169,12 +193,22 @@ async function submitReport(){
         </div>
 
       <div
+  onPointerDown={handlePointerDown}
+  onPointerUp={handlePointerUp}
+  onClick={handlePhotoTap}
   style={{
-    position:"relative"
+    position:"relative",
+    aspectRatio:"4 / 5",
+    maxHeight:560,
+    overflow:"hidden",
+    borderRadius:32,
+    background:"var(--surface-secondary)",
+    touchAction:"pan-y",
+    userSelect:"none"
   }}
 >
 
-    <div
+    {photos.length > 1 && <div
   style={{
     position:"absolute",
     top:"12px",
@@ -204,12 +238,10 @@ async function submitReport(){
       }}
     />
   ))}
-</div>
+</div>}
 
 <div
-  onClick={() =>
-    setShowActions(true)
-  }
+  onClick={(event) => { event.stopPropagation(); setShowActions(true); }}
   style={{
     position:"absolute",
     top:"16px",
@@ -236,17 +268,20 @@ async function submitReport(){
   ⋮
 </div>
 
+ {!photoLoaded && <div style={{position:"absolute",inset:0,background:"linear-gradient(100deg,var(--surface-secondary) 20%,var(--surface-elevated) 40%,var(--surface-secondary) 60%)",backgroundSize:"200% 100%",animation:"profilePhotoLoading 1.2s ease infinite"}} />}
  <img
-  onClick={() =>
-    setShowGallery(true)
-  }
   src={photos[photoIndex] || "/noavatar.jpg"}
-    alt=""
+    alt={`Фото ${user.name || "пользователя"}, ${photoIndex+1}`}
+    draggable={false}
+    onLoad={()=>setPhotoLoaded(true)}
+    onError={(event)=>{ event.currentTarget.src="/noavatar.jpg"; setPhotoLoaded(true); }}
     style={{
       width:"100%",
-      height:"260px",
+      height:"100%",
       objectFit:"cover",
-      borderRadius:"32px"
+      opacity:photoLoaded ? 1 : 0,
+      transition:"opacity .22s ease",
+      pointerEvents:"none"
     }}
   />
 
@@ -256,15 +291,15 @@ async function submitReport(){
       left:0,
       right:0,
       bottom:0,
-      height:"45%",
-
-      borderRadius:"0 0 32px 32px",
+      height:"62%",
 
       background:`
       linear-gradient(
         to top,
-        rgba(0,0,0,.75),
-        rgba(0,0,0,.05)
+        rgba(0,0,0,.78) 0%,
+        rgba(0,0,0,.54) 38%,
+        rgba(0,0,0,.18) 72%,
+        rgba(0,0,0,0) 100%
       )`
     }}
   />
@@ -274,7 +309,9 @@ async function submitReport(){
       position:"absolute",
       left:"24px",
       bottom:"24px",
-      color:"#fff"
+      color:"rgba(255,255,255,.98)",
+      textShadow:"0 1px 8px rgba(0,0,0,.42)",
+      pointerEvents:"none"
     }}
   >
 
@@ -323,7 +360,7 @@ async function submitReport(){
     fontSize:"15px"
   }}
 >
-  📍 {user.city}
+  📍 {user.city || "Город не указан"}{user.distance ? ` • ${Math.round(user.distance)} км` : ""}
 </div>
 
 <div
@@ -336,14 +373,17 @@ async function submitReport(){
 >
 
   <div
+    onClick={(event)=>{ event.stopPropagation(); setShowGallery(true); }}
     style={{
       background:"rgba(255,255,255,.18)",
       padding:"6px 10px",
       borderRadius:"999px",
-      fontSize:"12px"
+      fontSize:"12px",
+      pointerEvents:"auto",
+      cursor:"pointer"
     }}
   >
-    📸 {photos.length} фото
+    {photos.length > 1 ? `${photoIndex+1} / ${photos.length}` : `📷 ${photos.length || 1} фото`}
   </div>
 
   
@@ -367,12 +407,11 @@ async function submitReport(){
     fontSize:"13px"
   }}
 >
-  {user.last_seen &&
-   Date.now() -
-   new Date(user.last_seen).getTime()
-   < 5 * 60 * 1000
-    ? "🟢 Онлайн"
-    : "⚪ Был недавно"}
+  {user.last_seen ? (
+    Date.now() - new Date(user.last_seen).getTime() < 5 * 60 * 1000
+      ? "● Онлайн"
+      : "● Был недавно"
+  ) : null}
 </div>
 
 </div>
@@ -381,140 +420,27 @@ async function submitReport(){
 
 </div>
 
-        <div
-  style={{
-    marginTop:"16px",
+        {user.bio && <section style={profileSectionStyle}>
+          <h2 style={sectionTitleStyle}>О себе</h2>
+          <p style={{lineHeight:1.6,fontSize:15}}>{user.bio}</p>
+        </section>}
 
-    background:"var(--surface)",
-    border:"1px solid var(--border-subtle)",
-
-    borderRadius:"24px",
-
-    padding:"18px",
-
-    boxShadow:
-      "var(--shadow-sm)"
-  }}
->
-
-          
-
-          <div
-            style={{
-              marginTop:"18px",
-              lineHeight:1.5
-            }}
-          >
-<div
-  style={{
-    fontSize:"18px",
-    fontWeight:700,
-    marginBottom:"12px"
-  }}
->
-  О себе
-</div>
-
-
-
-            {user.bio}
+        {user.interests?.length > 0 && <section style={profileSectionStyle}>
+          <h2 style={sectionTitleStyle}>Интересы</h2>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+            {user.interests.map((item:string)=><span key={item} style={interestChipStyle}>{item}</span>)}
           </div>
+        </section>}
 
-          <div
-  style={{
-    marginTop:"28px"
-  }}
->
-
-
-
-  <div
-    style={{
-      fontSize:"18px",
-      fontWeight:700,
-      marginBottom:"14px"
-    }}
-  >
-    Интересы
-  </div>
-
-  <div
-    style={{
-      display:"flex",
-      flexWrap:"wrap",
-      gap:"8px"
-    }}
-  >
-    {(user.interests || []).map(
-      (item:string) => (
-
-        <div
-          key={item}
-          style={{
-            padding:"6px 10px",
-borderRadius:"999px",
-
-background:"var(--primary-soft)",
-
-color:"var(--primary)",
-
-fontSize:"12px",
-fontWeight:600
-          }}
-        >
-          {item}
-        </div>
-
-      )
-    )}
-    
-  </div>
-
-  
+        {user.city && <section style={{marginTop:22}}>
+          <h2 style={sectionTitleStyle}>Расположение</h2>
+          <div style={{background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:18,padding:"14px 16px",boxShadow:"var(--shadow-sm)"}}>
+            <div style={{fontWeight:700}}>📍 {user.city}</div>
+            {user.distance ? <div style={{marginTop:4,color:"var(--text-secondary)",fontSize:13}}>{Math.round(user.distance)} км от вас</div> : null}
+          </div>
+        </section>}
 
 </div>
-
-
-</div>
-
-<div
-  style={{
-    marginTop:"24px"
-  }}
->
-  <div
-    style={{
-      fontSize:"18px",
-      fontWeight:700,
-      marginBottom:"12px"
-    }}
-  >
-    Расположение
-  </div>
-
-  <div
-    style={{
-      background:"var(--surface-secondary)",
-      borderRadius:"16px",
-      padding:"14px"
-    }}
-  >
-    📍 {user.city || "Не указано"}
-
-    <div
-      style={{
-        marginTop:"4px",
-        color:"var(--text-secondary)",
-        fontSize:"13px"
-      }}
-    >
-      2 км от вас
-    </div>
-  </div>
-</div>
-
-</div>
-
 </div>
         
 
@@ -700,9 +626,8 @@ fontWeight:600
 
 
 <div
-  onClick={() =>
-    setShowGallery(false)
-  }
+  onPointerDown={handlePointerDown}
+  onPointerUp={handlePointerUp}
   style={{
     position:"fixed",
     inset:0,
@@ -711,16 +636,28 @@ fontWeight:600
 
     display:"flex",
     justifyContent:"center",
-    alignItems:"center"
+    alignItems:"center",
+    touchAction:"pan-y"
   }}
 >
 
+  <button type="button" aria-label="Закрыть галерею" onClick={()=>setShowGallery(false)} style={{position:"absolute",top:"calc(env(safe-area-inset-top, 0px) + 16px)",right:16,zIndex:4,width:44,height:44,borderRadius:"50%",background:"rgba(0,0,0,.46)",color:"#fff",fontSize:24,cursor:"pointer"}}>×</button>
+
+  {photos.length > 1 && <div style={{position:"absolute",top:"calc(env(safe-area-inset-top, 0px) + 18px)",left:18,right:72,display:"flex",gap:5,zIndex:3}}>
+    {photos.map((_:string,index:number)=><span key={index} style={{flex:1,height:3,borderRadius:99,background:index===photoIndex ? "#fff" : "rgba(255,255,255,.32)",transition:"background .2s ease"}} />)}
+  </div>}
+
   <img
-    src={photos[photoIndex]}
+    onClick={handlePhotoTap}
+    src={photos[photoIndex] || "/noavatar.jpg"}
+    alt={`Фото ${user.name || "пользователя"}, ${photoIndex+1}`}
+    draggable={false}
+    onError={(event)=>{ event.currentTarget.src="/noavatar.jpg"; }}
     style={{
       width:"100%",
       height:"100%",
-      objectFit:"contain"
+      objectFit:"contain",
+      userSelect:"none"
     }}
   />
 
@@ -741,3 +678,6 @@ const actionItem = {
   cursor:"pointer",
   fontWeight:600
 };
+const profileSectionStyle = {marginTop:16,background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:22,padding:18,boxShadow:"var(--shadow-sm)"};
+const sectionTitleStyle = {fontSize:18,fontWeight:700,marginBottom:12};
+const interestChipStyle = {padding:"8px 11px",borderRadius:999,background:"var(--primary-soft)",border:"1px solid var(--brand-border)",color:"var(--brand-primary)",fontSize:13,fontWeight:600};
