@@ -51,7 +51,8 @@ export default function CategorySheet({
 
           zIndex:1000,
 
-          background:"#fff",
+          background:"var(--sheet-bg)",
+          color:"var(--text-primary)",
 
           borderTopLeftRadius:28,
           borderTopRightRadius:28,
@@ -130,8 +131,8 @@ export default function CategorySheet({
 
               background:
                 selected===item.id
-                ? "#EEF6FF"
-                : "#fff"
+                ? "var(--primary-soft)"
+                : "var(--surface-secondary)"
 
             }}
 
@@ -149,7 +150,7 @@ export default function CategorySheet({
 
               <div
                 style={{
-                  color:"#2F80FF",
+                  color:"var(--brand-primary)",
                   fontWeight:700
                 }}
               >

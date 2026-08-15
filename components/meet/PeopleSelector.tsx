@@ -28,11 +28,11 @@ export default function PeopleSelector({
 
         justifyContent:"space-between",
 
-        background:"#fff",
+        background:"var(--surface-secondary)",
+        color:"var(--text-primary)",
+        border:"1px solid var(--border)",
 
         borderRadius:18,
-
-        border:"1px solid #E8EEF6",
 
         padding:"10px 14px",
 
@@ -118,7 +118,7 @@ border:"none",
 
 borderRadius:"50%",
 
-background:"#E6F7FF",
+background:"var(--primary-soft)",
 
 fontSize:24,
 
@@ -126,6 +126,6 @@ fontWeight:700,
 
 cursor:"pointer",
 
-color:"#2AABEE"
+color:"var(--brand-primary)"
 
 } as const;

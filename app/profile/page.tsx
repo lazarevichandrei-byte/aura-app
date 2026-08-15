@@ -857,7 +857,7 @@ warning(
   >
     <ArrowLeft2
       size="28"
-      color="#2AABEE"
+      color="var(--brand-primary)"
       variant="Outline"
     />
   </button>
@@ -1337,7 +1337,7 @@ decoding="async"
       style={{
         ...styles.galleryImg,
         border: i===mainIndex
-          ? "3px solid #2AABEE"
+          ? "3px solid var(--brand-primary)"
           : "none"
       }}
     />
@@ -1372,8 +1372,9 @@ setCropOpen(true);
    width:"34px",
    height:"34px",
    borderRadius:"50%",
-   border:"2px solid #fff",
-   background:"#fff",
+   border:"2px solid var(--surface)",
+   background:"var(--surface)",
+   color:"var(--text-primary)",
    boxShadow:"0 4px 12px rgba(0,0,0,.18)",
    zIndex:9999
  }}

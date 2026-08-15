@@ -19,7 +19,9 @@ export default function CategoryPicker({
       style={{
         height: 58,
         borderRadius: 18,
-        background: "#fff",
+        background: "var(--surface-secondary)",
+        color:"var(--text-primary)",
+        border:"1px solid var(--border)",
         padding: "0 18px",
         display: "flex",
         alignItems: "center",
@@ -34,7 +36,7 @@ export default function CategoryPicker({
         <div
           style={{
             fontSize: 12,
-            color: "#8A8A8A",
+            color: "var(--text-secondary)",
             marginBottom: 3,
           }}
         >
@@ -54,14 +56,6 @@ export default function CategoryPicker({
 
       </div>
 
-      <div
-        style={{
-          fontSize: 22,
-          color: "#A0A0A0",
-        }}
-      >
-        ›
-      </div>
     </div>
   );
 }

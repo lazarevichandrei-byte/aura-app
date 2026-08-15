@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import {
-  ArrowLeft2,
-  ArrowRight2
+  ArrowLeft2
 } from "iconsax-react";
 import PageWrapper from "../../components/PageWrapper";
 import {
@@ -206,11 +205,6 @@ useState(false);
 
   </div>
 
-  <ArrowRight2
-    size="18"
-    color="var(--text-muted)"
-  />
-
 </div>
 
 
@@ -245,11 +239,6 @@ useState(false);
 
   </div>
 
-  <ArrowRight2
-    size="18"
-    color="var(--text-muted)"
-  />
-
 </div>
 
 
@@ -270,11 +259,6 @@ useState(false);
 
   </div>
 
-  <ArrowRight2
-    size="18"
-    color="var(--text-muted)"
-  />
-
 </div>
 
 
@@ -294,10 +278,6 @@ useState(false);
     </div>
   </div>
 
-  <ArrowRight2
-    size="18"
-    color="#A0A8B5"
-  />
 </div>
 
       </div>
@@ -434,11 +414,11 @@ useState(false);
         ...sheetItem,
         background:
           language === "ru"
-            ? "#EAF5FF"
-            : "#F5F7FB",
+            ? "var(--primary-soft)"
+            : "var(--surface-secondary)",
         border:
           language === "ru"
-            ? "1px solid #2AABEE"
+            ? "1px solid var(--brand-primary)"
             : "1px solid transparent"
       }}
       onClick={async()=>{
@@ -456,7 +436,7 @@ useState(false);
 
       }}
     >
-      🇷🇺 Русский
+      <span>🇷🇺 Русский</span><span>{language === "ru" ? "●" : "○"}</span>
     </div>
 
     <div
@@ -464,11 +444,11 @@ useState(false);
         ...sheetItem,
         background:
           language === "en"
-            ? "#EAF5FF"
-            : "#F5F7FB",
+            ? "var(--primary-soft)"
+            : "var(--surface-secondary)",
         border:
           language === "en"
-            ? "1px solid #2AABEE"
+            ? "1px solid var(--brand-primary)"
             : "1px solid transparent"
       }}
       onClick={async()=>{
@@ -486,7 +466,7 @@ useState(false);
 
       }}
     >
-      🇺🇸 English
+      <span>🇺🇸 English</span><span>{language === "en" ? "●" : "○"}</span>
     </div>
 
   </div>
@@ -499,14 +479,6 @@ useState(false);
 
 
 
-
-const itemStyle = {
-  background: "#fff",
-  padding: "16px",
-  borderRadius: 16,
-  marginTop: 12,
-  cursor: "pointer"
-};
 
 const cardStyle = {
   background:"var(--surface)",
@@ -533,19 +505,6 @@ const subtitleStyle = {
   marginTop:"4px",
   fontSize:"12px",
   color:"var(--text-secondary)"
-};
-const themeButton = {
-  flex:1,
-  height:"38px",
-  border:"none",
-  borderRadius:"12px",
-  background:"#F3F5F8",
-  cursor:"pointer"
-};
-
-const activeThemeButton = {
-  background:"#2AABEE",
-  color:"#fff"
 };
 const sheetItem = {
   padding:"16px",

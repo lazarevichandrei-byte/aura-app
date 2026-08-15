@@ -84,7 +84,7 @@ export default function MeetLocationPage() {
 
         <header style={headerStyle}>
           <button type="button" onClick={() => router.back()} aria-label="Назад" style={backButtonStyle}>
-            <ArrowLeft2 size="22" color="#2F80FF" />
+            <ArrowLeft2 size="22" color="var(--brand-primary)" />
           </button>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Где пройдет встреча?</div>

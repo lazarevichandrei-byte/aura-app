@@ -104,7 +104,7 @@ layoutId={event.id}
             >
                 <Location
                     size="16"
-                    color="#2AABEE"
+                    color="var(--brand-primary)"
                 />
 
                 {event.place}
@@ -122,7 +122,7 @@ layoutId={event.id}
             >
                 <Calendar
                     size="16"
-                    color="#2AABEE"
+                    color="var(--brand-primary)"
                 />
 
                 {new Date(
@@ -160,7 +160,7 @@ layoutId={event.id}
                             height: 40,
                             borderRadius: 12,
                             border: "none",
-                            background: "#ECFDF5",
+                            background: "var(--success-soft)",
                             color: "#10B981",
                             fontWeight: 700,
                         }}
@@ -170,7 +170,7 @@ layoutId={event.id}
 
                 ) : requestStatus === "pending" ? (
 
-                    <button disabled style={{width:"100%",height:40,borderRadius:12,border:"none",background:"#FFF7ED",color:"#D97706",fontWeight:700}}>⏳ Рассмотрение</button>
+                    <button disabled style={{width:"100%",height:40,borderRadius:12,border:"none",background:"var(--warning-soft)",color:"var(--warning)",fontWeight:700}}>⏳ Рассмотрение</button>
 
                 ) : isFull ? (
 
@@ -180,7 +180,7 @@ layoutId={event.id}
                             height: 40,
                             borderRadius: 12,
                             border: "none",
-                            background: "#FEF2F2",
+                            background: "var(--danger-soft)",
                             color: "#EF4444",
                             fontWeight: 700,
                         }}
@@ -205,7 +205,7 @@ layoutId={event.id}
                             height: 40,
                             borderRadius: 12,
                             border: "none",
-                            background: "var(--primary)",
+                            background: "var(--brand-gradient)",
                             color: "var(--text-inverse)",
                             fontWeight: 700,
                             cursor: "pointer",

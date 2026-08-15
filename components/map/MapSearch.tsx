@@ -22,7 +22,9 @@ export default function MapSearch({
         style={{
           height: 46,
           borderRadius: 16,
-          background: "#fff",
+          background: "var(--surface-elevated)",
+          color:"var(--text-primary)",
+          border:"1px solid var(--border)",
           display: "flex",
           alignItems: "center",
           padding: "0 14px",

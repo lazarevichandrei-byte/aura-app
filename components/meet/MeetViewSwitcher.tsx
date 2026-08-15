@@ -31,7 +31,7 @@ export default function MeetViewSwitcher({
             <div
                 style={{
                     display: "flex",
-                    background: "#fff",
+                    background: "var(--surface-secondary)",
                     borderRadius: 12,
                     padding: 1,
                     boxShadow:
@@ -57,7 +57,7 @@ export default function MeetViewSwitcher({
                         cursor: "pointer",
                         background:
                             view === "list"
-                                ? "#2AABEE"
+                                ? "var(--brand-primary)"
                                 : "transparent",
                     }}
                 >
@@ -66,8 +66,8 @@ export default function MeetViewSwitcher({
                         size="16"
                         color={
                             view === "list"
-                                ? "#fff"
-                                : "#5F6675"
+                                ? "var(--text-inverse)"
+                                : "var(--text-secondary)"
                         }
                         variant="Outline"
                     />
@@ -91,7 +91,7 @@ export default function MeetViewSwitcher({
                         cursor: "pointer",
                         background:
                             view === "grid"
-                                ? "#2AABEE"
+                                ? "var(--brand-primary)"
                                 : "transparent",
                     }}
                 >
@@ -100,8 +100,8 @@ export default function MeetViewSwitcher({
                         size="16"
                         color={
                             view === "grid"
-                                ? "#fff"
-                                : "#5F6675"
+                                ? "var(--text-inverse)"
+                                : "var(--text-secondary)"
                         }
                         variant="Outline"
                     />

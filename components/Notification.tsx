@@ -36,7 +36,7 @@ export default function Notification({
 
   warning: "#F59E0B",
 
-  info: "#2F80FF"
+  info: "var(--brand-primary)"
 
 }[type];
 
@@ -48,7 +48,7 @@ const accentBackground = {
 
   warning: "#FEF3C7",
 
-  info: "#DBEAFE"
+  info: "var(--brand-soft)"
 
 }[type];
 

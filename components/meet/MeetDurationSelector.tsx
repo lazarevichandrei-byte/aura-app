@@ -26,13 +26,13 @@ export default function MeetDurationSelector({ value, onChange, date, time }: Pr
             key={item.id}
             type="button"
             onClick={() => onChange(item.id)}
-            style={{ height: 48, border: 0, borderRadius: 14, fontWeight: 600, background: value === item.id ? "#2F80FF" : "#fff", color: value === item.id ? "#fff" : "#222", boxShadow: "0 2px 8px rgba(0,0,0,.04)" }}
+            style={{height:48,border:"1px solid",borderColor:value === item.id ? "var(--brand-primary)" : "var(--border)",borderRadius:14,fontWeight:600,background:value === item.id ? "var(--brand-gradient)" : "var(--surface-secondary)",color:value === item.id ? "var(--text-inverse)" : "var(--text-primary)",boxShadow:"var(--shadow-sm)"}}
           >
             {item.label}
           </button>
         ))}
       </div>
-      {endText && <div style={{ marginTop: 9, color: "#6B7280", fontSize: 13 }}>{endText}</div>}
+      {endText && <div style={{marginTop:9,color:"var(--text-secondary)",fontSize:13}}>{endText}</div>}
     </>
   );
 }

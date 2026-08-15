@@ -140,7 +140,7 @@ if (
           >
             <ArrowLeft2
               size="28"
-              color="#2E7BFF"
+              color="var(--brand-primary)"
               variant="Outline"
             />
           </div>
@@ -348,7 +348,7 @@ function Switch({
 
         background:
           active
-          ? "#2AABEE"
+          ? "var(--brand-primary)"
           : "#D7DCE4",
 
         position:"relative",

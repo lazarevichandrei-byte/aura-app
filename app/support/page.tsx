@@ -98,7 +98,7 @@ setMessage("");
           >
             <ArrowLeft2
               size="28"
-              color="#2E7BFF"
+              color="var(--brand-primary)"
             />
           </div>
 
@@ -153,7 +153,7 @@ setMessage("");
         ...chipStyle,
         background:
           category==="bug"
-          ? "#2AABEE"
+          ? "var(--brand-primary)"
           : "#F3F5F8",
 
         color:
@@ -173,7 +173,7 @@ setMessage("");
         ...chipStyle,
         background:
           category==="idea"
-          ? "#2AABEE"
+          ? "var(--brand-primary)"
           : "#F3F5F8",
 
         color:
@@ -193,7 +193,7 @@ setMessage("");
         ...chipStyle,
         background:
           category==="other"
-          ? "#2AABEE"
+          ? "var(--brand-primary)"
           : "#F3F5F8",
 
         color:

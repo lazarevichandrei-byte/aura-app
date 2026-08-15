@@ -23,7 +23,7 @@ export default function PullToRefresh({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#2AABEE",
+            color: "var(--brand-primary)",
             fontWeight: 600,
             fontSize: 14,
           }}
@@ -45,7 +45,7 @@ export default function PullToRefresh({
           <AuraLoader inline size={26} />
           <span
             style={{
-              color: "#2AABEE",
+              color: "var(--brand-primary)",
               fontWeight: 600,
             }}
           >

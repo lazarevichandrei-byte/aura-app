@@ -75,8 +75,8 @@ background:
 pressed
 ? "var(--surface-secondary)"
 : chat.unread_count > 0
-  ? "#F3F8FF"
-  : "#fff",
+  ? "var(--unread-bg)"
+  : "var(--surface)",
 
 boxShadow: chat.unread_count > 0
   ? "0 4px 14px rgba(47,128,255,.08)"
@@ -222,8 +222,8 @@ fontWeight:700
     minHeight: 20,
     padding: "2px 7px",
     borderRadius: 10,
-    background: "#FFF1E8",
-    color: "#D96B20",
+    background: "var(--warning-soft)",
+    color: "var(--warning)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -837,7 +837,7 @@ fontSize:15
           height: 68,
           borderRadius: "50%",
           overflow: "hidden",
-          border: "2px solid #2F80FF",
+          border: "2px solid var(--brand-primary)",
           cursor: "pointer",
         }}
       >

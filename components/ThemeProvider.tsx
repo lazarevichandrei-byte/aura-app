@@ -27,8 +27,8 @@ function systemTheme():EffectiveTheme{
 function syncTelegramTheme(theme:EffectiveTheme){
   const webApp = (window as any)?.Telegram?.WebApp;
   if(!webApp) return;
-  const background = theme === "dark" ? "#0F0F13" : "#F8F9FA";
-  const surface = theme === "dark" ? "#1A1A22" : "#FFFFFF";
+  const background = theme === "dark" ? "#0D0E13" : "#F7F9FC";
+  const surface = theme === "dark" ? "#181A20" : "#FFFFFF";
   try{
     webApp.setHeaderColor?.(surface);
     webApp.setBackgroundColor?.(background);

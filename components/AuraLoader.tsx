@@ -11,7 +11,7 @@ type Props = {
 
 export default function AuraLoader({
   size = 56,
-  color = "#2AABEE",
+  color = "var(--brand-primary)",
   fullscreen = false,
   inline = false,
   compact = false,

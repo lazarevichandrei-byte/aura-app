@@ -2367,8 +2367,8 @@ background:
 style={{
 fontSize:12,
 fontWeight:700,
-color:"#2E7BFF",
-background:"#EEF4FF",
+color:"var(--brand-primary)",
+background:"var(--primary-soft)",
 padding:"5px 12px",
 borderRadius:999,
 whiteSpace:"nowrap"
@@ -2381,7 +2381,7 @@ whiteSpace:"nowrap"
 style={{
 flex:1,
 height:1,
-background:"#E4E9F1"
+background:"var(--border)"
 }}
 />
 
@@ -2402,8 +2402,8 @@ margin:"14px 0 12px"
 
 <div
 style={{
-background:"#F2F4F7",
-color:"#7B8794",
+background:"var(--surface-secondary)",
+color:"var(--text-secondary)",
 fontSize:12,
 fontWeight:600,
 padding:"6px 12px",
@@ -2825,7 +2825,7 @@ cursor:"pointer"
 >
 <ArrowLeft2
   size="28"
-  color="#2E7BFF"
+  color="var(--brand-primary)"
   variant="Outline"
 />
 </div>
@@ -2871,7 +2871,7 @@ cursor:"pointer"
         <div
           style={{
             fontSize:12,
-            color:"#2E7BFF",
+            color:"var(--brand-primary)",
             marginTop:4,
             fontWeight:500
           }}
@@ -3453,7 +3453,7 @@ height:
 borderRadius:"50%",
 background:
   newMessage.trim()
-  ? "#2E7BFF"
+  ? "var(--brand-primary)"
   : "#AEBFD8",
 display:"flex",
 alignItems:"center",
@@ -3637,7 +3637,7 @@ WebkitTapHighlightColor:"transparent"
 .quick-action:hover,
 .quick-action:active{
 
-  color:#2E7BFF;
+  color:var(--brand-primary);
 
   transform:scale(.92);
 

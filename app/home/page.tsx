@@ -886,8 +886,8 @@ height:72,
 borderRadius:"50%",
 border:"none",
 background:skipPressed
-? "linear-gradient(135deg,#FF8CB7,#FF5FA2)"
-:"#fff",
+? "var(--surface-elevated)"
+:"var(--surface)",
 transform:skipPressed?"scale(1.08)":"scale(1)",
 transition:"all .18s ease",
 display:"flex",
@@ -900,7 +900,7 @@ boxShadow:skipPressed
 >
 <X
 size={30}
-color={skipPressed ? "white":"#98A0AE"}
+color="var(--icon-secondary)"
 strokeWidth={2.6}
 />
 </button>
@@ -920,8 +920,8 @@ height:92,
 borderRadius:"50%",
 border:"none",
 background:likePressed
-? "linear-gradient(135deg,#FF5E73,#FF304F)"
-:"linear-gradient(135deg,#4FACFE,#2979FF)",
+? "var(--brand-gradient)"
+:"var(--brand-gradient)",
 transform:likePressed?"scale(1.09)":"scale(1)",
 transition:"all .18s ease",
 display:"flex",
@@ -952,8 +952,8 @@ height:72,
 borderRadius:"50%",
 border:"none",
 background:boostPressed
-? "linear-gradient(135deg,#FFD95A,#FFB800)"
-:"#fff",
+? "var(--primary-soft)"
+:"var(--surface)",
 transform:boostPressed?"scale(1.08)":"scale(1)",
 transition:"all .18s ease",
 display:"flex",
@@ -966,7 +966,7 @@ boxShadow:boostPressed
 >
 <Sparkles
 size={28}
-color={boostPressed ? "white":"#98A0AE"}
+color={boostPressed ? "var(--brand-primary)":"var(--icon-secondary)"}
 strokeWidth={2.3}
 />
 </button>
@@ -1115,7 +1115,7 @@ height:145,
 borderRadius:"50%",
 objectFit:"cover",
 border:"5px solid white",
-boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
+boxShadow:"0 0 0 3px var(--brand-primary),0 18px 40px rgba(47,128,255,.25)"
 }}
 />
 </div>
@@ -1126,7 +1126,7 @@ style={{
 width:68,
 height:68,
 borderRadius:"50%",
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
+background:"var(--brand-gradient)",
 display:"flex",
 alignItems:"center",
 justifyContent:"center",
@@ -1166,7 +1166,7 @@ height:145,
 borderRadius:"50%",
 objectFit:"cover",
 border:"5px solid white",
-boxShadow:"0 0 0 3px #2F80FF,0 18px 40px rgba(47,128,255,.25)"
+boxShadow:"0 0 0 3px var(--brand-primary),0 18px 40px rgba(47,128,255,.25)"
 }}
 />
 </div>
@@ -1209,7 +1209,7 @@ width:"100%",
 height:58,
 border:"none",
 borderRadius:18,
-background:"linear-gradient(135deg,#4FACFE,#2979FF)",
+background:"var(--brand-gradient)",
 color:"#fff",
 fontSize:18,
 fontWeight:600

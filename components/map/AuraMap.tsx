@@ -181,7 +181,7 @@ const AuraMap = forwardRef<AuraMapRef, Props>(function AuraMap({
   }), [showError]);
 
   return (
-    <div style={{ width: "100%", height: "100%", position: "relative", background: "#E9EEF5" }}>
+    <div style={{width:"100%",height:"100%",position:"relative",background:"var(--surface-secondary)"}}>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       {!loaded && !mapError && <div style={statusStyle}>Загрузка карты…</div>}
       {mapError && <div style={statusStyle}>Не удалось загрузить карту</div>}
@@ -251,7 +251,7 @@ async function locateUser(
       localStorage.setItem("aura_last_location", JSON.stringify(coordinates));
       if (!markerRef.current) {
         const element = document.createElement("div");
-        element.style.cssText = "width:18px;height:18px;border-radius:50%;background:#2F80FF;border:4px solid white;box-shadow:0 3px 12px rgba(47,128,255,.45)";
+        element.style.cssText = "width:18px;height:18px;border-radius:50%;background:var(--brand-primary);border:4px solid white;box-shadow:0 3px 12px rgba(47,128,255,.45)";
         markerRef.current = new maplibregl.Marker({ element }).setLngLat([coordinates.lng, coordinates.lat]).addTo(map);
       } else {
         markerRef.current.setLngLat([coordinates.lng, coordinates.lat]);
@@ -270,6 +270,6 @@ async function locateUser(
 }
 
 const centerMarkerStyle = { position: "absolute" as const, left: "50%", top: "50%", transform: "translate(-50%, -100%)", fontSize: 42, pointerEvents: "none" as const, zIndex: 15 };
-const statusStyle = { position: "absolute" as const, inset: 0, display: "grid", placeItems: "center", background: "#E9EEF5", color: "#667085", fontSize: 14, fontWeight: 600, zIndex: 5 };
+const statusStyle = {position:"absolute" as const,inset:0,display:"grid",placeItems:"center",background:"var(--surface-secondary)",color:"var(--text-secondary)",fontSize:14,fontWeight:600,zIndex:5};
 
 export default AuraMap;

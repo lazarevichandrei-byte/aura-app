@@ -446,13 +446,13 @@ const [categoryMenuOpen, setCategoryMenuOpen] =
 
               background:
                 tab === item.id
-                  ? "#2F80FF"
-                  : "#fff",
+                  ? "var(--brand-gradient)"
+                  : "var(--surface-secondary)",
 
               color:
                 tab === item.id
-                  ? "#fff"
-                  : "#5F6675",
+                  ? "var(--text-inverse)"
+                  : "var(--text-secondary)",
 
               display: "flex",
               justifyContent: "center",

@@ -118,16 +118,6 @@ export default function LocationCard({
 
       </div>
 
-      <div
-        style={{
-          fontSize: 24,
-          color: "var(--primary)",
-          fontWeight: 700,
-        }}
-      >
-        ›
-      </div>
-
     </div>
 
   </div>

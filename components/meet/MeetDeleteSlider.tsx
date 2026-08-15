@@ -40,7 +40,7 @@ export default function MeetDeleteSlider({ onDelete }: Props) {
       aria-valuemax={100}
       aria-valuenow={Math.round(offset / Math.max(1, (trackRef.current?.clientWidth ?? 58) - 58) * 100)}
       aria-disabled={deleting}
-      style={{position:"relative",width:"100%",height:54,borderRadius:16,background:"#FEE2E2",overflow:"hidden",touchAction:"none",opacity:deleting?.7:1}}
+      style={{position:"relative",width:"100%",height:54,borderRadius:16,background:"var(--danger-soft)",overflow:"hidden",touchAction:"none",opacity:deleting?.7:1}}
     >
       <div style={{position:"absolute",inset:0,display:"grid",placeItems:"center",color:"#B91C1C",fontSize:14,fontWeight:700,pointerEvents:"none"}}>
         {deleting ? "Удаляем встречу…" : "Свайпните вправо, чтобы удалить →"}

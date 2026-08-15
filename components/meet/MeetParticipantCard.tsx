@@ -155,8 +155,8 @@ export default function MeetParticipantCard({
             gap: 4,
             padding: "3px 8px",
             borderRadius: 999,
-            background: "#FFF6DD",
-            color: "#D89A00",
+            background: "var(--warning-soft)",
+            color: "var(--warning)",
             fontSize: 11,
             fontWeight: 600,
         }}

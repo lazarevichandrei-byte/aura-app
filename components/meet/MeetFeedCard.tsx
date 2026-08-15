@@ -173,7 +173,7 @@ layoutId={event.id}
     >
         <Location
             size="16"
-            color="#2AABEE"
+            color="var(--brand-primary)"
         />
 
         {event.place}
@@ -201,7 +201,7 @@ layoutId={event.id}
     >
         <Calendar
             size="18"
-            color="#2AABEE"
+            color="var(--brand-primary)"
         />
 
         {new Date(event.starts_at).toLocaleDateString(
@@ -222,7 +222,7 @@ layoutId={event.id}
     >
         <Clock
             size="18"
-            color="#2AABEE"
+            color="var(--brand-primary)"
         />
 
         {new Date(event.starts_at).toLocaleTimeString(
@@ -298,7 +298,7 @@ layoutId={event.id}
 
         <People
             size="18"
-            color="#2AABEE"
+            color="var(--brand-primary)"
         />
 
         {guests.length}
@@ -368,7 +368,7 @@ layoutId={event.id}
                             padding: "0 18px",
                             borderRadius: 14,
                             background:
-                                "var(--primary)",
+                                "var(--brand-gradient)",
                             color: "var(--text-inverse)",
                             cursor: "pointer",
                             fontWeight: 700,

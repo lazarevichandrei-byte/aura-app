@@ -389,7 +389,7 @@ position:"relative",
 padding:2,
 borderRadius:"50%",
 
-border:"2px solid #2F80FF"
+border:"2px solid var(--brand-primary)"
 }}
 >
 

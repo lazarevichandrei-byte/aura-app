@@ -533,7 +533,7 @@ onChange={setMaxPeople}
             borderRadius:18,
 
             background:
-              "var(--primary)",
+              "var(--brand-gradient)",
 
             color:"var(--text-inverse)",
 

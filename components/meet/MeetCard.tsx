@@ -156,8 +156,8 @@ useEffect(() => {
               width: expanded ? 52 : 44,
               height: expanded ? 52 : 44,
               borderRadius: "50%",
-              background: "#EDE9FE",
-              color: "#7C3AED",
+              background: "var(--primary-soft)",
+              color: "var(--brand-primary)",
               display: "grid",
               placeItems: "center",
               fontSize: expanded ? 20 : 18,
@@ -372,7 +372,7 @@ lineHeight: 1.25,
       fontSize: 12,
       fontWeight: 600,
       color: isFull ? "#EF4444" : "#10B981",
-      background: isFull ? "#FEE2E2" : "#DCFCE7",
+      background: isFull ? "var(--danger-soft)" : "var(--success-soft)",
       padding: "5px 10px",
       borderRadius: 999,
     }}
@@ -495,7 +495,7 @@ lineHeight: 1.25,
           ? "#EF4444"
           : hasPendingRequest
           ? "#F59E0B"
-          : "var(--primary)",
+          : "var(--brand-gradient)",
         color: "var(--text-inverse)",
         fontSize: 17,
         marginBottom: 16,

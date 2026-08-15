@@ -145,7 +145,7 @@ if (loading) {
 >
     <ArrowLeft2
         size="28"
-        color="#2E7BFF"
+        color="var(--brand-primary)"
         variant="Outline"
     />
 </motion.div>

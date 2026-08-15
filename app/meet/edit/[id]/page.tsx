@@ -198,7 +198,7 @@ if (loading) {
     >
         <ArrowLeft2
             size="28"
-            color="#2E7BFF"
+            color="var(--brand-primary)"
             variant="Outline"
         />
     </motion.div>
@@ -406,7 +406,7 @@ if (loading) {
       height: 52,
       border: "none",
       borderRadius: 14,
-     background: "var(--primary)",
+     background: "var(--brand-gradient)",
       color: "var(--text-inverse)",
       fontSize: 16,
       fontWeight: 600,

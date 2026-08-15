@@ -280,7 +280,7 @@ function Switch({
 
         background:
           active
-          ? "#2AABEE"
+          ? "var(--brand-primary)"
           : "#D7DCE4",
 
         position:"relative",
