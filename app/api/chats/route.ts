@@ -88,14 +88,22 @@ const chatsRaw = [
   );
 
     const chatIds = chatsRaw.map((chat) => chat.id);
-    const { data: unreadRows, error: unreadError } = chatIds.length
+    const { data: personalizedUnreadRows, error: unreadError } = chatIds.length
       ? await supabaseAdmin.rpc("get_chat_unread_counts", {
           p_user_id: user.id,
           p_chat_ids: chatIds,
         })
       : { data: [], error: null };
 
-    if (unreadError) throw unreadError;
+    if (unreadError) {
+      console.warn("CHATS UNREAD FALLBACK:", {
+        currentUserId: user.id,
+        code: unreadError.code,
+        message: unreadError.message,
+      });
+    }
+
+    const unreadRows = unreadError ? [] : personalizedUnreadRows || [];
 
     const unreadByChat = new Map<string, number>();
     for (const row of unreadRows || []) {

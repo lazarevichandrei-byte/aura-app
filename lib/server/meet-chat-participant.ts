@@ -19,3 +19,13 @@ export async function ensureMeetChatParticipant(chatId: string, userId: string) 
     readStateInitialized: Boolean(result.read_state_initialized),
   };
 }
+
+export async function reserveMeetGuestSlot(eventId: string, userId: string) {
+  const { data, error } = await supabaseAdmin.rpc("reserve_meet_guest_slot", {
+    p_event_id: eventId,
+    p_user_id: userId,
+  });
+
+  if (error) throw error;
+  return Boolean(data);
+}

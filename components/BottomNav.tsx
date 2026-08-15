@@ -88,8 +88,16 @@ channel
 
 async function loadUnread(){
 
+const saveUnread = (value:number)=>{
+  setUnread(value);
+  localStorage.setItem("navUnread",String(value));
+};
+
 const initData = await getTelegramInitData();
-if(!initData) return;
+if(!initData){
+  saveUnread(0);
+  return;
+}
 
 const response = await fetch("/api/chats",{
   method:"POST",
@@ -97,23 +105,23 @@ const response = await fetch("/api/chats",{
   body:JSON.stringify({initData})
 });
 
-if(!response.ok) return;
+if(!response.ok){
+  saveUnread(0);
+  return;
+}
 
 const result = await response.json();
-if(!result?.ok) return;
+if(!result?.ok){
+  saveUnread(0);
+  return;
+}
 
 const totalUnread = (result.chats || []).reduce(
   (total, chat) => total + (chat.unread_count || 0),
   0
 );
 
-setUnread(
-totalUnread
-);
-localStorage.setItem(
-"navUnread",
-String(totalUnread)
-);
+saveUnread(totalUnread);
 }
 
 const itemStyle = (active:boolean)=>({

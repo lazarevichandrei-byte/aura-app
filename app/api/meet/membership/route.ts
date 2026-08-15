@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
-import { ensureMeetChatParticipant } from "../../../../lib/server/meet-chat-participant";
+import { ensureMeetChatParticipant, reserveMeetGuestSlot } from "../../../../lib/server/meet-chat-participant";
 
 export const runtime = "nodejs";
 
@@ -61,22 +61,7 @@ async function addParticipant(eventId: string, userId: string) {
   if (eventError || !event) throw eventError ?? new Error("MEET_NOT_FOUND");
   if (event.creator_id === userId) return;
 
-  const { data: meetParticipant, error: meetCheckError } = await supabaseAdmin
-    .from("meet_participants").select("event_id").eq("event_id", eventId).eq("user_id", userId).maybeSingle();
-  if (meetCheckError) throw meetCheckError;
-  let addedMeetParticipant = false;
-  if (!meetParticipant) {
-    const { count, error: countError } = await supabaseAdmin
-      .from("meet_participants")
-      .select("user_id", { count: "exact", head: true })
-      .eq("event_id", eventId)
-      .neq("user_id", event.creator_id);
-    if (countError) throw countError;
-    if ((count ?? 0) >= event.max_people) throw new Error("MEET_FULL");
-    const { error } = await supabaseAdmin.from("meet_participants").insert({ event_id: eventId, user_id: userId });
-    if (error && error.code !== "23505") throw error;
-    addedMeetParticipant = !error;
-  }
+  const addedMeetParticipant = await reserveMeetGuestSlot(eventId, userId);
 
   try {
     const chatId = await getOrCreateMeetChat(eventId);
@@ -180,8 +165,11 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch (error:any) {
     console.error("MEET MEMBERSHIP API ERROR:", error);
+    if (error?.code === "P0001" || error?.message === "MEET_FULL") {
+      return NextResponse.json({ ok: false, error: "MEET_FULL" }, { status: 409 });
+    }
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
   }
 }
