@@ -9,6 +9,7 @@ import {
 import StartupLifecycle from "../components/StartupLifecycle";
 import ThemeProvider from "../components/ThemeProvider";
 import I18nProvider from "../components/I18nProvider";
+import AccountGate from "../components/AccountGate";
 
 
 export default function Providers({
@@ -32,7 +33,7 @@ export default function Providers({
 
         <StartupLifecycle />
 
-        {children}
+        <AccountGate>{children}</AccountGate>
 
       </NotificationProvider>
       </I18nProvider>

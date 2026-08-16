@@ -27,6 +27,14 @@ useState(true);
 useState(false);
   const [deleted,setDeleted]=useState(false);
 
+  useEffect(()=>{
+    if(!deleted)return;
+    const telegram=(window as any)?.Telegram?.WebApp;
+    if(typeof telegram?.close!=="function")return;
+    const timer=window.setTimeout(()=>{sessionStorage.removeItem("aura-delete-farewell-active");sessionStorage.removeItem(DELETED_SESSION_KEY);telegram.close();},1400);
+    return()=>window.clearTimeout(timer);
+  },[deleted]);
+
   useEffect(() => {
   document.body.style.overflowY = "auto";
   document.documentElement.style.overflowY = "auto";
@@ -70,19 +78,14 @@ useState(false);
       const result=await response.json().catch(()=>null);
       if(!response.ok||!result?.ok)throw new Error(result?.error||"DELETE_FAILED");
       clearAuraUserSession();
-      const telegram=(window as any)?.Telegram?.WebApp;
-      if(typeof telegram?.close==="function"){
-        sessionStorage.removeItem(DELETED_SESSION_KEY);
-        telegram.close();
-        return;
-      }
+      sessionStorage.setItem("aura-delete-farewell-active","1");
       setDeleted(true);
     }catch{
       error(t("common.error"),t("account.deleteFailed"));
     }
 }
 
-if(deleted)return <main className="app-page" style={{minHeight:"100dvh",display:"grid",placeItems:"center",padding:"24px"}}><section className="app-card" style={{width:"min(100%,380px)",padding:28,borderRadius:24,textAlign:"center"}}><h1 style={{margin:0,fontSize:28}}>{t("account.deleted")}</h1><p style={{color:"var(--text-secondary)",lineHeight:1.5}}>{t("account.deletedText")}</p><button style={editButtonStyle} onClick={()=>{sessionStorage.removeItem(DELETED_SESSION_KEY);router.replace("/");}}>{t("account.close")}</button></section></main>;
+if(deleted)return <main className="app-page" style={{position:"fixed",inset:0,zIndex:1000,minHeight:"100dvh",display:"grid",placeItems:"center",padding:"24px",background:"var(--app-bg)"}}><section style={{width:"min(100%,380px)",textAlign:"center"}}><div style={{width:72,height:72,margin:"0 auto 20px",borderRadius:"50%",display:"grid",placeItems:"center",fontSize:34,color:"var(--brand-primary)",background:"var(--primary-soft)"}}>✓</div><h1 style={{margin:0,fontSize:28}}>{t("account.deleted")}</h1><p style={{color:"var(--text-secondary)",lineHeight:1.5,margin:"12px 0 4px"}}>{t("account.deletedText")}</p><p style={{color:"var(--text-muted)",lineHeight:1.5,margin:"4px 0 24px"}}>{t("account.farewell")}</p>{typeof window!=="undefined"&&typeof (window as any)?.Telegram?.WebApp?.close!=="function"&&<button style={editButtonStyle} onClick={()=>{sessionStorage.removeItem("aura-delete-farewell-active");sessionStorage.removeItem(DELETED_SESSION_KEY);router.replace("/");}}>{t("account.returnWelcome")}</button>}</section></main>;
 
 if (loading) {
   return <AccountSkeleton />;

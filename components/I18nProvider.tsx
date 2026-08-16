@@ -7,9 +7,10 @@ import {assertDictionariesComplete,dictionaryAudit} from "../lib/i18n/validate";
 
 const STORAGE_KEY="aura-language";
 const MANUAL_KEY="aura-language-manual";
+const SOURCE_KEY="aura-language-source";
 const reportedFallbacks=new Set<string>();
 
-export function hasManualLocalePreference(){return typeof window!=="undefined"&&localStorage.getItem(MANUAL_KEY)==="1";}
+export function hasManualLocalePreference(){return typeof window!=="undefined"&&(localStorage.getItem(SOURCE_KEY)==="manual"||localStorage.getItem(MANUAL_KEY)==="1");}
 
 type TranslationParams=Record<string,string|number>;
 type I18nContextValue={locale:string;intlLocale:string;direction:"ltr"|"rtl";setLocale:(locale:string,manual?:boolean)=>void;t:(key:TranslationKey,params?:TranslationParams)=>string};
@@ -32,7 +33,8 @@ export default function I18nProvider({children}:{children:ReactNode}){
   const setLocale=(nextLocale:string,manual=true)=>{
     const normalized=normalizeLocale(nextLocale);
     localStorage.setItem(STORAGE_KEY,normalized);
-    if(manual) localStorage.setItem(MANUAL_KEY,"1");
+    localStorage.setItem(SOURCE_KEY,manual?"manual":"auto");
+    if(manual)localStorage.setItem(MANUAL_KEY,"1");else localStorage.removeItem(MANUAL_KEY);
     setLocaleState(normalized);
   };
 
@@ -41,11 +43,13 @@ export default function I18nProvider({children}:{children:ReactNode}){
     document.documentElement.lang=metadata.code;
     document.documentElement.dir=metadata.direction;
     document.documentElement.dataset.auraI18nReady="1";
-    if(!hasManualLocalePreference())localStorage.setItem(STORAGE_KEY,locale);
+    if(!hasManualLocalePreference()){localStorage.setItem(STORAGE_KEY,locale);localStorage.setItem(SOURCE_KEY,"auto");}
   },[locale,metadata.code,metadata.direction]);
 
   useEffect(()=>{
     if(process.env.NODE_ENV !== "production"){
+      const telegramLanguage=(window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.language_code||(window as any).__AURA_TELEGRAM_LOCALE__||null;
+      console.info("[I18N_BOOTSTRAP]",{telegramLanguage,browserLanguage:navigator.languages?.[0]||navigator.language,storedLanguage:localStorage.getItem(STORAGE_KEY),storedLanguageSource:localStorage.getItem(SOURCE_KEY),resolvedLanguage:locale,resolutionReason:hasManualLocalePreference()?"manual":telegramLanguage?"telegram":"browser_or_default"});
       assertDictionariesComplete();
       console.info("[I18N_AUDIT]",dictionaryAudit().map(({locale,totalKeys,missing,extra,suspiciousSameAsEnglish,coreSuspiciousSameAsEnglish,sameAsEnglishPercentage})=>({locale,totalKeys,missing:missing.length,extra:extra.length,suspiciousSameAsEnglish:suspiciousSameAsEnglish.length,coreSuspiciousSameAsEnglish:coreSuspiciousSameAsEnglish.length,sameAsEnglishPercentage})));
     }

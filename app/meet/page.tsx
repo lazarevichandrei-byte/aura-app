@@ -137,6 +137,15 @@ useEffect(()=>{
 
 },[]);
 
+useEffect(()=>{
+  if(loading)return;
+  const eventId=new URLSearchParams(window.location.search).get("event");
+  if(!eventId)return;
+  const event=events.find((item)=>item.id===eventId);
+  if(event)setSelectedEvent(event);else showError(t("meet.unavailable"),t("meet.unavailableHint"));
+  window.history.replaceState(null,"","/meet");
+},[events,loading,showError,t]);
+
 async function handleJoin(eventId: string) {
   if (!currentUser) return;
 

@@ -53,12 +53,13 @@ export default function MeetLocationPage() {
   }, [center]);
 
   const selectPlace = () => {
+    if(profileModeRef.current&&!place.city){showError(t("location.updateFailed"),t("location.resolveFailed"));return;}
     if (!place.title && !place.address) {
       showError(t("map.addressPending"), t("map.addressPendingHint"));
       return;
     }
     const location={ ...place, lat: center.lat, lng: center.lng };
-    if(profileModeRef.current)saveProfileLocation(location);else saveMeetLocation(location);
+    if(profileModeRef.current)saveProfileLocation({title:place.city,address:place.city,city:place.city,lat:center.lat,lng:center.lng});else saveMeetLocation(location);
     router.back();
   };
 

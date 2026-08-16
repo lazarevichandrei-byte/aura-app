@@ -22,7 +22,7 @@ import {LOCALE_BY_CODE} from "../../lib/i18n/locales";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const {theme,setTheme} = useTheme();
+  const {theme,effectiveTheme,setTheme} = useTheme();
   const {locale,setLocale,t}=useI18n();
 
   useEffect(() => {
@@ -198,7 +198,7 @@ useState(false);
         ? t("theme.light")
         : theme === "dark"
         ? t("theme.dark")
-        : t("theme.system")
+        : effectiveTheme==="dark"?t("theme.dark"):t("theme.light")
       }
     </div>
 
@@ -352,36 +352,6 @@ useState(false);
       }}
     >
       <span><strong>☾ {t("theme.dark")}</strong><small style={themeDescriptionStyle}>{t("theme.darkHint")}</small></span><span>{theme === "dark" ? "●" : "○"}</span>
-    </div>
-
-    <div
-      style={{
-        ...sheetItem,
-        background:
-          theme === "system"
-            ? "var(--primary-soft)"
-            : "var(--surface-secondary)",
-        border:
-          theme === "system"
-            ? "1px solid var(--primary)"
-            : "1px solid transparent"
-      }}
-      onClick={async()=>{
-
-         selection();
-
-        setTheme("system");
-
-        await saveSetting(
-          "theme",
-          "system"
-        );
-
-        setShowThemeModal(false);
-
-      }}
-    >
-      <span><strong>◐ {t("theme.system")}</strong><small style={themeDescriptionStyle}>{t("theme.systemHint")}</small></span><span>{theme === "system" ? "●" : "○"}</span>
     </div>
 
   </div>

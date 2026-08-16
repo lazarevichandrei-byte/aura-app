@@ -25,6 +25,8 @@ export function clearAuraUserSession(){
   currentUserRequest=null;
   for(const key of [SNAPSHOT_KEY,"profile_cache","navUnread","aura-notification-preferences","my_name","aura_last_location"])localStorage.removeItem(key);
   localStorage.removeItem("aura-theme");
+  const languageIsManual=localStorage.getItem("aura-language-source")==="manual"||localStorage.getItem("aura-language-manual")==="1";
+  if(!languageIsManual){localStorage.removeItem("aura-language");localStorage.removeItem("aura-language-source");localStorage.removeItem("aura-language-manual");}
   sessionStorage.clear();
   sessionStorage.setItem(DELETED_SESSION_KEY,"1");
   window.dispatchEvent(new CustomEvent("aura-account-deleted"));
@@ -56,12 +58,13 @@ export function readCurrentUserSnapshot(){
 export function useCurrentUser(){
   const [user,setUser]=useState<CurrentUser|null>(null);
   const [loading,setLoading]=useState(true);
+  const [error,setError]=useState<Error|null>(null);
   useEffect(()=>{
     let active=true;
     const update=(event:Event)=>{if(active)setUser((event as CustomEvent<CurrentUser|null>).detail??null);};
     window.addEventListener("aura-current-user-changed",update);
-    loadCurrentUser().then((value)=>{if(active)setUser(value);}).finally(()=>{if(active)setLoading(false);});
+    loadCurrentUser().then((value)=>{if(active)setUser(value);}).catch((reason)=>{if(active)setError(reason instanceof Error?reason:new Error("AUTH_CHECK_FAILED"));}).finally(()=>{if(active)setLoading(false);});
     return()=>{active=false;window.removeEventListener("aura-current-user-changed",update);};
   },[]);
-  return {user,loading};
+  return {user,loading,error};
 }

@@ -18,10 +18,8 @@ export async function reverseGeocode(
     if (!data.features?.length) throw new Error("GEOCODER_EMPTY_RESULT");
 
     const place = data.features[0];
-    const context = place.context ?? [];
-    const cityFeature = [place, ...context].find((item: any) =>
-      ["municipality", "place", "locality"].some((type) => item.id?.startsWith(`${type}.`))
-    );
+    const candidates=data.features.flatMap((feature:any)=>[feature,...(feature.context||[])]);
+    const cityFeature=["place","town","locality","municipality","village"].map((type)=>candidates.find((item:any)=>item.id?.startsWith(`${type}.`))).find(Boolean);
 
     const title = place.text || place.properties?.name || place.place_name?.split(",")[0] || "";
     const address = place.place_name || place.properties?.label || title;
@@ -29,7 +27,7 @@ export async function reverseGeocode(
     return {
       title,
       address,
-      city: cityFeature?.text || ""
+      city: normalizeProfileCity(cityFeature?.text || cityFeature?.properties?.name || "")
     };
 
   } catch (error) {
@@ -39,3 +37,5 @@ export async function reverseGeocode(
 
   }
 }
+
+export function normalizeProfileCity(value:string){return value.replace(/^город\s+/i,"").replace(/\s+/g," ").trim();}

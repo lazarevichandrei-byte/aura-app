@@ -12,6 +12,8 @@ import { INTERESTS, interestId, interestLabel } from "../../lib/i18n/interests";
 import {getReliableLocation,type LocationFailure} from "../../lib/location/reliableLocation";
 import {reverseGeocode} from "../../lib/map/reverseGeocode";
 import {consumeProfileLocation,prepareMeetLocation} from "../../lib/meet/locationStore";
+import {consumePendingRoute} from "../../lib/auth/pendingRoute";
+import {loadCurrentUser} from "../../lib/useCurrentUser";
 
 
 const Cropper:any = dynamic(
@@ -72,6 +74,7 @@ const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
+const [onboardingStep,setOnboardingStep]=useState(0);
 
 const router = useRouter();
 
@@ -213,6 +216,11 @@ setIsOnboarding(!data.onboarding_completed);
     setPhotos([data.avatar_url]);
   }
 
+  try{
+    const draft=JSON.parse(sessionStorage.getItem("aura-onboarding-draft")||"null");
+    if(draft){setName(draft.name??data.name??user.first_name??"");setAge(draft.age??data.age??22);setGender(draft.gender??data.gender??"female");setSearch(draft.search??data.looking??"female");setCity(draft.city??data.city??"");setLatitude(draft.latitude??data.latitude??null);setLongitude(draft.longitude??data.longitude??null);setBio(draft.bio??data.bio??"");setSelected(draft.selected??data.interests??[]);setPhotos(draft.photos??data.photos??[]);setOnboardingStep(draft.step??0);}
+  }catch{sessionStorage.removeItem("aura-onboarding-draft");}
+
   localStorage.setItem(
     "profile_cache",
     JSON.stringify(data)
@@ -228,6 +236,11 @@ setLoading(false);
 
 init();
 }, []);
+
+useEffect(()=>{
+  if(!isOnboarding||loading)return;
+  sessionStorage.setItem("aura-onboarding-draft",JSON.stringify({name,age,gender,search,city,latitude,longitude,bio,selected,photos,step:onboardingStep}));
+},[age,bio,city,gender,isOnboarding,latitude,loading,longitude,name,onboardingStep,photos,search,selected]);
 
 useEffect(()=>{
   if(!telegramId)return;
@@ -631,7 +644,9 @@ setSavingProfile(false);
 setUploading(false);
 
 if (isOnboarding) {
-  router.push("/home");
+  sessionStorage.removeItem("aura-onboarding-draft");
+  await loadCurrentUser({force:true});
+  router.push(consumePendingRoute()||"/home");
 } else {
   router.push("/account");
 }
@@ -666,7 +681,8 @@ if (isOnboarding) {
     setLocationStatus("resolving_place");
     try{
       const place=await reverseGeocode(coordinates.lat,coordinates.lng);
-      await persistLocation(coordinates.lat,coordinates.lng,place.city||place.title||undefined);
+      if(!place.city)throw new Error("CITY_NOT_RESOLVED");
+      await persistLocation(coordinates.lat,coordinates.lng,place.city);
       success(t("common.saved"),t("profile.locationUpdated"));
     }catch{warning(t("location.coordinatesFound"),t("location.resolveFailed"));}
     finally{setLocationStatus("idle");}
@@ -677,12 +693,28 @@ if (isOnboarding) {
     router.push("/meet/location?source=profile");
   }
 
+  const onboardingSteps=["profile.name","profile.age","profile.gender","profile.lookingFor","profile.location","profile.bio","profile.interests","profile.photos"] as const;
+  const stepCanContinue=[name.trim().length>0,age>=16,Boolean(gender),Boolean(search),city.trim().length>0,true,true,true][onboardingStep];
+
+  function onboardingControl(){
+    if(onboardingStep===0)return <input autoFocus value={name} onChange={(event)=>setName(event.target.value)} style={styles.input} placeholder={t("profile.name")}/>;
+    if(onboardingStep===1)return <div><div style={{fontSize:42,fontWeight:800,textAlign:"center",marginBottom:18}}>{age}</div><input type="range" min="16" max="60" value={age} onChange={(event)=>setAge(Number(event.target.value))} style={styles.slider}/></div>;
+    if(onboardingStep===2)return <div style={styles.buttons}><button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button><button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button></div>;
+    if(onboardingStep===3)return <div style={styles.buttons}>{["male","female","any"].map((item)=><button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>{item==="male"?t("profile.man"):item==="female"?t("profile.woman"):t("profile.anyone")}</button>)}</div>;
+    if(onboardingStep===4)return <div><div style={{padding:18,borderRadius:18,background:"var(--surface-secondary)",textAlign:"center"}}><div style={{fontSize:17,fontWeight:750}}>📍 {city||t("onboarding.cityPlaceholder")}</div><div style={{fontSize:12,color:"var(--text-secondary)",marginTop:7}}>{city?t("onboarding.cityDetected"):t("onboarding.locationHint")}</div></div><button type="button" disabled={locationStatus!=="idle"} onClick={updateLocation} style={{...styles.submit,marginTop:16}}>{locationStatus==="idle"?t("location.detectAutomatically"):t(locationStatus==="locating"?"location.detecting":"location.resolving")}</button><button type="button" onClick={chooseLocationManually} style={{width:"100%",border:0,background:"transparent",color:"var(--primary)",fontWeight:700,padding:14}}>{t("location.chooseManually")}</button><p style={{fontSize:12,color:"var(--text-secondary)",textAlign:"center"}}>{t("onboarding.locationPrivacy")}</p></div>;
+    if(onboardingStep===5)return <textarea autoFocus value={bio} onChange={(event)=>setBio(event.target.value)} style={{...styles.textarea,minHeight:160}}/>;
+    if(onboardingStep===6)return <div style={styles.tags}>{[...base,...extra].map((interest)=>{const active=selected.some((value)=>interestId(value)===interestId(interest));return <button type="button" key={interest} onClick={()=>toggle(interest)} style={{...styles.tag,...(active&&styles.tagActive),border:"1px solid var(--border-subtle)"}}>{interestLabel(interest,t)}</button>;})}</div>;
+    return <div style={{textAlign:"center"}}>{photos[0]?<img src={photos[mainIndex]||photos[0]} alt="" style={{width:180,height:180,borderRadius:28,objectFit:"cover",marginBottom:16}}/>:<div style={{width:180,height:180,borderRadius:28,display:"grid",placeItems:"center",fontSize:48,background:"var(--surface-secondary)",margin:"0 auto 16px"}}>👤</div>}<label style={{display:"inline-flex",padding:"13px 18px",borderRadius:14,background:"var(--primary-soft)",color:"var(--primary)",fontWeight:700,cursor:"pointer"}}>{t("profile.photos")}<input hidden type="file" accept="image/*" onChange={(event)=>{const file=event.target.files?.[0];if(file)void uploadPhoto(file);event.target.value="";}}/></label></div>;
+  }
+
   
 
 
   if (loading) {
   return <ProfileSkeleton />;
 }
+
+if(isOnboarding)return <main style={{minHeight:"var(--tg-viewport-stable-height,100dvh)",background:"var(--app-bg)",color:"var(--text-primary)",padding:"calc(14px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))",display:"flex",flexDirection:"column"}}><header style={{maxWidth:480,width:"100%",margin:"0 auto"}}><div style={{display:"flex",alignItems:"center",gap:12}}><button type="button" aria-label={t("common.back")} disabled={onboardingStep===0} onClick={()=>setOnboardingStep((step)=>Math.max(0,step-1))} style={{width:42,height:42,borderRadius:21,border:"1px solid var(--border-subtle)",background:"var(--surface)",color:"var(--text-primary)",opacity:onboardingStep===0?0:1}}>←</button><div style={{flex:1}}><div style={{fontSize:13,color:"var(--text-secondary)"}}>{t("onboarding.progress",{current:onboardingStep+1,total:onboardingSteps.length})}</div><div style={{height:5,borderRadius:99,background:"var(--surface-secondary)",marginTop:7,overflow:"hidden"}}><div style={{height:"100%",width:`${((onboardingStep+1)/onboardingSteps.length)*100}%`,background:"var(--brand-gradient)",transition:"width .25s ease"}}/></div></div></div></header><section style={{flex:1,width:"100%",maxWidth:480,margin:"0 auto",display:"flex",flexDirection:"column",justifyContent:"center",padding:"24px 0"}}><h1 style={{fontSize:30,lineHeight:1.15,margin:"0 0 8px"}}>{t(onboardingSteps[onboardingStep])}</h1><p style={{margin:"0 0 28px",color:"var(--text-secondary)",lineHeight:1.5}}>{t(`onboarding.hint${onboardingStep+1}` as any)}</p>{onboardingControl()}</section><footer style={{width:"100%",maxWidth:480,margin:"0 auto"}}>{onboardingStep>=5&&onboardingStep<7&&<button type="button" onClick={()=>setOnboardingStep((step)=>step+1)} style={{width:"100%",border:0,background:"transparent",color:"var(--text-secondary)",padding:12,fontWeight:650}}>{t("onboarding.skip")}</button>}<button type="button" disabled={!stepCanContinue||savingProfile||uploading} onClick={()=>{if(onboardingStep<onboardingSteps.length-1)setOnboardingStep((step)=>step+1);else void handleSubmit();}} style={{...styles.submit,opacity:stepCanContinue?1:.5}}>{savingProfile?t("common.saving"):onboardingStep===onboardingSteps.length-1?t("onboarding.finish"):t("common.continue")}</button></footer></main>;
 
 
 
@@ -800,9 +832,9 @@ if (isOnboarding) {
               <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
                 {
  item==="male"
- ? t("profile.boy")
+ ? t("profile.man")
  : item==="female"
- ? t("profile.girl")
+ ? t("profile.woman")
  : t("profile.anyone")
 }
               </button>
@@ -863,8 +895,10 @@ if (isOnboarding) {
     {locationStatus==="locating"?t("location.detecting"):locationStatus==="resolving_place"?t("location.resolving"):t(city?"profile.updateLocation":"location.detectAutomatically")}
   </button>
 </div>
+{city&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.cityDetected")}</p>}
 {!city&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("location.permissionRequired")}</p>}
 <button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"10px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button>
+<p style={{margin:"0 2px 14px",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.locationPrivacy")}</p>
 
 
         <div style={styles.inputBox}>

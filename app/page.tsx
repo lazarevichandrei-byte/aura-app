@@ -63,6 +63,7 @@ export default function Page(){
     </section>
     <footer className="welcome-footer">
       <button type="button" onClick={()=>setLanguageOpen(true)}>🌐 <span dir="auto">{LOCALE_BY_CODE.get(locale)?.nativeName||locale}</span></button>
+      <button type="button" className="welcome-legal" onClick={()=>router.push("/privacy-policy")}>{t("account.privacyPolicy")}</button>
     </footer>
     <LanguagePickerSheet open={languageOpen} onClose={()=>setLanguageOpen(false)}/>
     <style jsx>{`
@@ -73,8 +74,9 @@ export default function Page(){
       p{max-width:320px;margin:12px 0 34px;color:var(--text-secondary);font-size:16px;line-height:1.5}
       .welcome-cta{width:min(100%,340px);min-height:56px;padding:0 20px;border:0;border-radius:18px;background:var(--brand-gradient);color:var(--text-inverse);font-size:16px;font-weight:750;cursor:pointer;box-shadow:0 12px 28px color-mix(in srgb,var(--brand-primary) 22%,transparent)}
       .welcome-cta:disabled{opacity:.65;cursor:default}
-      .welcome-footer{display:flex;justify-content:center;flex-shrink:0}
+      .welcome-footer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
       .welcome-footer button{min-height:44px;padding:8px 16px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-primary);font-weight:650;cursor:pointer}
+      .welcome-footer .welcome-legal{min-height:36px;border:0;background:transparent;color:var(--text-secondary);font-size:12px}
     `}</style>
   </main>;
 }
