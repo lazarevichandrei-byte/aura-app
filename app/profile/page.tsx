@@ -25,6 +25,19 @@ import { supabase } from "../../lib/supabase";
 const BASE_INTERESTS = INTERESTS.slice(0,4).map((item)=>item.legacy);
 const EXTRA_INTERESTS = INTERESTS.slice(4).map((item)=>item.legacy);
 
+async function createCroppedFile(source:string,area:{x:number;y:number;width:number;height:number},name:string){
+  const image=await new Promise<HTMLImageElement>((resolve,reject)=>{const element=new Image();element.onload=()=>resolve(element);element.onerror=()=>reject(new Error("PHOTO_DECODE_FAILED"));element.src=source;});
+  const canvas=document.createElement("canvas");
+  canvas.width=Math.max(1,Math.round(area.width));
+  canvas.height=Math.max(1,Math.round(area.height));
+  const context=canvas.getContext("2d");
+  if(!context)throw new Error("PHOTO_CANVAS_FAILED");
+  context.drawImage(image,area.x,area.y,area.width,area.height,0,0,canvas.width,canvas.height);
+  const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob((value)=>value?resolve(value):reject(new Error("PHOTO_CROP_FAILED")),"image/jpeg",.88));
+  const baseName=name.replace(/\.[^.]+$/,"")||"photo";
+  return new File([blob],`${baseName}.jpg`,{type:"image/jpeg"});
+}
+
 export default function Profile() {
   const {t,locale}=useI18n();
   const [loading, setLoading] = useState(true);
@@ -63,20 +76,21 @@ const [lastSaveTime,setLastSaveTime] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(false);
 
-  const [activePhoto, setActivePhoto] = useState(false);
   const [cropOpen,setCropOpen] = useState(false);
   const [avatarPreview,setAvatarPreview] = useState("");
 const [editingPhoto,setEditingPhoto] = useState("");
 
 const [crop,setCrop] = useState({x:0,y:0});
 const [zoom,setZoom] = useState(1.2);
-const [croppedAreaPixels,setCroppedAreaPixels] = useState(null);
+const [croppedAreaPixels,setCroppedAreaPixels] = useState<{x:number;y:number;width:number;height:number}|null>(null);
 const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
 const [onboardingStep,setOnboardingStep]=useState(0);
 const photoInputRef=useRef<HTMLInputElement>(null);
+const [profileLoaded,setProfileLoaded]=useState(false);
+const [pendingPhoto,setPendingPhoto]=useState<{file:File;slot:number}|null>(null);
 
 const router = useRouter();
 
@@ -148,6 +162,17 @@ if(!currentUser){
 
 setTelegramId(currentUser.telegram_id);
 setName(user.first_name || "");
+if(currentUser.onboarding_completed!==true){
+  setLoading(false);
+  if(typeof performance!=="undefined"){
+    performance.mark("PROFILE_SHELL_READY");
+    if(process.env.NODE_ENV!=="production"){
+      const start=performance.getEntriesByName("PROFILE_BOOTSTRAP_START").at(-1)?.startTime;
+      const shell=performance.getEntriesByName("PROFILE_SHELL_READY").at(-1)?.startTime;
+      console.info("[AURA_BOOT]",{registrationShellReadyMs:start===undefined||shell===undefined?null:Math.max(0,shell-start)});
+    }
+  }
+}
 const { data } =
 await supabase
   .from("users")
@@ -225,6 +250,7 @@ else{
 }
 
 setLoading(false);
+setProfileLoaded(true);
 if(typeof performance!=="undefined"){
   performance.mark("PROFILE_BOOTSTRAP_END");
   if(process.env.NODE_ENV!=="production"){
@@ -245,7 +271,7 @@ useEffect(()=>{
 },[age,bio,city,gender,isOnboarding,latitude,loading,longitude,name,onboardingStep,photos,search,selected]);
 
 useEffect(()=>{
-  if(!telegramId)return;
+ if(!telegramId)return;
   const applySelected=async()=>{
     const selectedLocation=consumeProfileLocation();
     if(!selectedLocation)return;
@@ -261,7 +287,7 @@ useEffect(()=>{
 
 useEffect(()=>{
 
- if(!telegramId) return;
+ if(!telegramId||!profileLoaded) return;
 
  const timer = setTimeout(async()=>{
   const payload = JSON.stringify({
@@ -352,7 +378,8 @@ photos,
 mainIndex,
 avatarPreview,
 telegramId,
-photoEdits
+photoEdits,
+profileLoaded
 ]);
 
 
@@ -533,32 +560,9 @@ if (rpcError) {
 const { data } = supabase.storage
   .from("avatars")
   .getPublicUrl(
-    fileName + "?v=" + Date.now()
+    fileName
   );
-
-setPhotos(prev=>{
-
- const updated=[...prev,data.publicUrl];
-
- localStorage.setItem(
-   "profile_cache",
-   JSON.stringify({
-     name,
-     age,
-     gender,
-     looking:search,
-     city,
-     bio,
-     interests:selected,
-     photos: updated, // ✅ ВОТ ЭТО ВАЖНО
-     photo_edits:photoEdits
-   })
- );
-
- return updated;
-});
-
-const uploadedUrl=data.publicUrl;
+const uploadedUrl=`${data.publicUrl}?v=${Date.now()}`;
 
 setUploadProgress(80);
 
@@ -573,23 +577,19 @@ setUploadProgress(0);
 return uploadedUrl;
 };
 
-  const handlePhotoSelection=async(files:FileList|null)=>{
+  const handlePhotoSelection=async(files:FileList|null,slot:number)=>{
     if(!files?.length)return;
-    const selectedFiles=Array.from(files);
-    if(selectedFiles.some((file)=>file.size>10*1024*1024)){warning(t("profile.fileTooLarge"),t("profile.fileLimit"));return;}
-    if(photos.length+selectedFiles.length>6){warning(t("profile.photoLimit"),t("profile.photosRemaining",{count:6-photos.length}));return;}
-    for(const file of selectedFiles){
-      const nextIndex=photos.length;
-      const uploadedUrl=await uploadPhoto(file);
-      if(typeof uploadedUrl==="string"){
-        setMainIndex(nextIndex);
-        setEditingPhoto(uploadedUrl);
-        setCrop({x:0,y:0});
-        setZoom(1.2);
-        setActivePhoto(false);
-        setCropOpen(true);
-      }
-    }
+    const file=files[0];
+    if(file.size>10*1024*1024){warning(t("profile.fileTooLarge"),t("profile.fileLimit"));return;}
+    const localImage=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>typeof reader.result==="string"?resolve(reader.result):reject(new Error("PHOTO_READ_FAILED"));reader.onerror=()=>reject(reader.error||new Error("PHOTO_READ_FAILED"));reader.readAsDataURL(file);}).catch(()=>"");
+    if(!localImage){error(t("common.error"),t("profile.uploadFailed"));return;}
+    const decoded=await new Promise<boolean>((resolve)=>{const image=new Image();image.onload=()=>resolve(true);image.onerror=()=>resolve(false);image.src=localImage;});
+    if(!decoded){error(t("common.error"),t("profile.uploadFailed"));return;}
+    setPendingPhoto({file,slot});
+    setEditingPhoto(localImage);
+    setCrop({x:0,y:0});
+    setZoom(1.2);
+    setCropOpen(true);
   };
 
 
@@ -707,7 +707,7 @@ if (isOnboarding) {
       if(resolvedCity)await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
       else warning(t("location.coordinatesFound"),t("location.resolveFailed"));
     }
-    finally{setLocationStatus("idle");}
+    finally{setLocationStatus("idle");if(isOnboarding&&onboardingStep===4)setOnboardingStep(5);}
   }
 
   async function resolveSecondaryCity(lat:number,lng:number){
@@ -721,13 +721,18 @@ if (isOnboarding) {
     router.push("/meet/location?source=profile");
   }
 
-  const guideStyle=(section:number)=>isOnboarding&&onboardingStep<7?{opacity:onboardingStep===section?1:.78,transform:onboardingStep===section?"translateY(-2px)":"none",outline:onboardingStep===section?"2px solid color-mix(in srgb,var(--brand-primary) 42%,transparent)":"2px solid transparent",boxShadow:onboardingStep===section?"0 12px 28px color-mix(in srgb,var(--brand-primary) 12%,transparent)":"none",transition:"opacity .2s ease, transform .2s ease, box-shadow .2s ease, outline-color .2s ease"}:{};
-  const guideCanContinue=onboardingStep===0?Boolean(name.trim()):onboardingStep===3?hasLocation:true;
-  const advanceGuide=()=>{if(guideCanContinue)setOnboardingStep((step)=>Math.min(7,step+1));};
-  const guideAction=(section:number)=>isOnboarding&&onboardingStep===section?<div style={{marginTop:10}}><p style={{margin:"0 0 10px",fontSize:13,lineHeight:1.45,color:"var(--text-secondary)"}}>{t(`onboarding.formHint${section+1}` as any)}</p><button type="button" disabled={!guideCanContinue} onClick={(event)=>{event.stopPropagation();advanceGuide();}} style={{width:"100%",border:0,borderRadius:12,padding:"11px 14px",background:"var(--primary)",color:"var(--text-inverse)",fontWeight:750,opacity:guideCanContinue?1:.45}}>{section===4||section===5?t("onboarding.skip"):t("common.continue")}</button></div>:null;
+  const guideStyle=(section:number)=>isOnboarding&&onboardingStep<8?{opacity:onboardingStep===section?1:.92,transform:onboardingStep===section?"translateY(-1px)":"none",outline:onboardingStep===section?"2px solid color-mix(in srgb,var(--brand-primary) 38%,transparent)":"2px solid transparent",boxShadow:onboardingStep===section?"0 10px 24px color-mix(in srgb,var(--brand-primary) 10%,transparent)":"none",transition:"opacity .2s ease, transform .2s ease, box-shadow .2s ease, outline-color .2s ease"}:{};
+  const guideHint=(section:number)=>isOnboarding&&onboardingStep===section?<div style={{position:"relative",marginTop:8,padding:"9px 11px",borderRadius:12,background:"var(--primary-soft)",color:"var(--text-secondary)",fontSize:12,lineHeight:1.4}}>{t(`onboarding.hint${section+1}` as any)}</div>:null;
+  const selectGuide=(section:number)=>{if(isOnboarding&&onboardingStep<8)setOnboardingStep(section);};
+  const openPhotoSlot=(slot:number)=>{selectGuide(7);photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
+  const removePhotoAt=(slot:number)=>{
+    setPhotos((current)=>current.filter((_,index)=>index!==slot));
+    setMainIndex((current)=>current===slot?0:current>slot?current-1:current);
+    setPhotoEdits((current)=>Object.fromEntries(Object.entries(current).flatMap(([key,value])=>{const index=Number(key);if(index===slot)return[];return [[index>slot?index-1:index,value]];})));
+  };
 
   useEffect(()=>{
-    if(!isOnboarding||onboardingStep>=7)return;
+    if(!isOnboarding||onboardingStep>=8)return;
     window.setTimeout(()=>document.querySelector(`[data-guide-section="${onboardingStep}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),60);
   },[isOnboarding,onboardingStep]);
 
@@ -781,56 +786,16 @@ if (isOnboarding) {
 </div>
 </div>
 
-{isOnboarding&&<div style={{position:"sticky",top:"max(8px, env(safe-area-inset-top))",zIndex:20,marginBottom:18,padding:"10px 12px",borderRadius:16,background:"color-mix(in srgb,var(--surface-elevated) 94%,transparent)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-sm)",backdropFilter:"blur(12px)"}}><div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:5}}>{Array.from({length:7},(_,index)=><span key={index} style={{height:5,borderRadius:99,background:index<=Math.min(onboardingStep,6)?"var(--primary)":"var(--border-subtle)"}}/>)}</div><div style={{marginTop:7,textAlign:"center",fontSize:12,fontWeight:700,color:"var(--text-secondary)"}}>{onboardingStep<7?t("onboarding.progress",{current:onboardingStep+1,total:7}):t("onboarding.review")}</div></div>}
-
-    <div data-guide-section="6" onClick={()=>{if(isOnboarding){setOnboardingStep(6);photoInputRef.current?.click();}else setActivePhoto(true);}} style={{...styles.avatarWrapper,...guideStyle(6),cursor:"pointer",flexDirection:"column",alignItems:"center"}}>
-      {photos.length > 0 ? (
-        <div
-          style={styles.avatarMask}
-          onClick={(event) => {event.stopPropagation();if(isOnboarding)photoInputRef.current?.click();else setActivePhoto(true);}}
-        >
-
-          <img
-            src={avatarPreview || photos[mainIndex]}
-            loading="lazy"
-            decoding="async"
-            style={{
-              ...styles.avatarImage,
-              transform: photoEdits[mainIndex]?.crop
-  ? `translate(
-      ${photoEdits[mainIndex].crop.x / 6}px,
-      ${photoEdits[mainIndex].crop.y / 6}px
-    )
-    scale(${photoEdits[mainIndex].zoom || 1})`
-  : "none",
-              transformOrigin:"center center"
-            }}
-          />
-
-        </div>
-      ) : (
-        <div
-          style={styles.avatar}
-          onClick={(event) => {event.stopPropagation();if(isOnboarding)photoInputRef.current?.click();else setActivePhoto(true);}}
-        >
-          👤
-        </div>
-      )}
-
-      <div style={styles.plus}>+</div>
-      {uploading&&<div style={{marginTop:8,fontSize:12,color:"var(--primary)",fontWeight:700}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
-      {guideAction(6)}
-      <input ref={photoInputRef} type="file" accept="image/*" hidden disabled={uploading} onChange={async(event)=>{await handlePhotoSelection(event.target.files);event.target.value="";}}/>
-    </div>
+{isOnboarding&&onboardingStep<8&&<div style={{position:"sticky",top:"max(8px, env(safe-area-inset-top))",zIndex:20,marginBottom:18,padding:"9px 11px",borderRadius:15,background:"color-mix(in srgb,var(--surface-elevated) 94%,transparent)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-sm)",backdropFilter:"blur(12px)"}}><div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>{Array.from({length:8},(_,index)=><span key={index} style={{height:4,borderRadius:99,background:index<=onboardingStep?"var(--primary)":"var(--border-subtle)"}}/>)}</div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}><span style={{fontSize:11,fontWeight:700,color:"var(--text-secondary)"}}>{t("onboarding.progress",{current:onboardingStep+1,total:8})}</span><button type="button" onClick={()=>setOnboardingStep(8)} style={{border:0,background:"transparent",padding:"2px 0",color:"var(--primary)",fontSize:11,fontWeight:700}}>{t("onboarding.skip")}</button></div></div>}
 
         <div style={isOnboarding?{display:"block"}:styles.row}>
-          <div data-guide-section="0" onClick={()=>isOnboarding&&setOnboardingStep(0)} style={{...styles.inputBox,...guideStyle(0)}}>
+          <div data-guide-section="0" onClick={()=>selectGuide(0)} style={{...styles.inputBox,...guideStyle(0)}}>
             <p style={styles.label}>{t("profile.name")}</p>
-            <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
-            {guideAction(0)}
+            <input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>{if(onboardingStep===0&&name.trim())setOnboardingStep(1);}} style={styles.input}/>
+            {guideHint(0)}
           </div>
 
-          <div data-guide-section="1" onClick={()=>isOnboarding&&setOnboardingStep(1)} style={{...styles.inputBox,...guideStyle(1)}}>
+          <div data-guide-section="1" onClick={()=>selectGuide(1)} style={{...styles.inputBox,...guideStyle(1)}}>
             <p style={styles.label}>{t("profile.age")}</p>
 <div style={{fontSize:14, marginBottom:4}}>{age}</div><input
  type="range"
@@ -838,36 +803,38 @@ if (isOnboarding) {
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
+ onPointerUp={()=>{if(onboardingStep===1)setOnboardingStep(2);}}
  style={styles.slider}
 />
-            {guideAction(1)}
+            {guideHint(1)}
           </div>
         </div>
 
-        <div data-guide-section="2" onClick={()=>isOnboarding&&setOnboardingStep(2)} style={{...styles.block,...guideStyle(2)}}>
+        <div data-guide-section="2" onClick={()=>selectGuide(2)} style={{...styles.block,...guideStyle(2)}}>
           <p style={styles.label}>{t("profile.gender")}</p>
           <div style={styles.buttons}>
-            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button>
-            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button>
+            <button onClick={()=>{setGender("female");if(onboardingStep===2)setOnboardingStep(3);}} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button>
+            <button onClick={()=>{setGender("male");if(onboardingStep===2)setOnboardingStep(3);}} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button>
           </div>
-          {guideAction(2)}
+          {guideHint(2)}
         </div>
 
-        <div style={styles.block}>
+        <div data-guide-section="3" onClick={()=>selectGuide(3)} style={{...styles.block,...guideStyle(3)}}>
           <p style={styles.label}>{t("profile.lookingFor")}</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
-              <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
+              <button key={item} onClick={()=>{setSearch(item);if(onboardingStep===3)setOnboardingStep(4);}} style={{...styles.option,...(search===item&&styles.active)}}>
                 {
  item==="male"
- ? t("profile.man")
+ ? t("profile.boy")
  : item==="female"
- ? t("profile.woman")
+ ? t("profile.girl")
  : t("profile.anyone")
 }
               </button>
             ))}
           </div>
+          {guideHint(3)}
         </div>
 
 
@@ -875,14 +842,14 @@ if (isOnboarding) {
         
 
         <div
-  data-guide-section="3"
-  onClick={()=>isOnboarding&&setOnboardingStep(3)}
+  data-guide-section="4"
+  onClick={()=>selectGuide(4)}
   style={{
     marginTop:"14px",
     padding:"14px 16px",
     background:"var(--surface-secondary)",
     borderRadius:"16px",
-    ...guideStyle(3),
+    ...guideStyle(4),
 
     display:"flex",
     alignItems:"center",
@@ -926,47 +893,64 @@ if (isOnboarding) {
     {locationStatus==="locating"?t("location.detecting"):locationStatus==="resolving_place"?t("location.resolving"):t(city?"profile.updateLocation":"location.detectAutomatically")}
   </button>
 </div>
-{city&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.cityDetected")}</p>}
 {!hasLocation&&!locationFailed&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("location.permissionRequired")}</p>}
 {locationFailed&&<div style={{marginTop:10}}><p style={{margin:"0 0 8px",fontSize:12,color:"var(--text-secondary)"}}>{t("location.unavailable")}</p><button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"8px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button></div>}
 <p style={{margin:"0 2px 14px",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.locationPrivacy")}</p>
-{guideAction(3)}
+{guideHint(4)}
 
 
-        <div data-guide-section="4" onClick={()=>isOnboarding&&setOnboardingStep(4)} style={{...styles.inputBox,...guideStyle(4)}}>
+        <div data-guide-section="5" onClick={()=>selectGuide(5)} style={{...styles.inputBox,...guideStyle(5)}}>
           <p style={styles.label}>{t("profile.bio")}</p>
-          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
-          {guideAction(4)}
+          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} onBlur={()=>{if(onboardingStep===5)setOnboardingStep(6);}} style={styles.textarea}/>
+          {guideHint(5)}
         </div>
 
-        <div data-guide-section="5" onClick={()=>isOnboarding&&setOnboardingStep(5)} style={{...styles.block,...guideStyle(5)}}>
+        <div data-guide-section="6" onClick={()=>selectGuide(6)} style={{...styles.block,...guideStyle(6)}}>
           <p style={styles.label}>{t("profile.interests")}</p>
           <div style={styles.tags}>
             {[...base, ...(showMore ? extra : [])].map((interest) => {
               const active = selected.some((value)=>interestId(value)===interestId(interest));
               return (
-                <span key={interest} onClick={() => toggle(interest)} style={{...styles.tag,...(active && styles.tagActive)}}>
+                <span key={interest} onClick={() => {toggle(interest);if(onboardingStep===6)setOnboardingStep(7);}} style={{...styles.tag,...(active && styles.tagActive)}}>
                   {interestLabel(interest,t)}
                 </span>
               );
             })}
             {!showMore && <span style={styles.tag} onClick={() => setShowMore(true)}>+</span>}
           </div>
-          {guideAction(5)}
+          {guideHint(6)}
           
+        </div>
+
+        <div data-guide-section="7" onClick={()=>selectGuide(7)} style={{...styles.photoManager,...guideStyle(7)}}>
+          <p style={styles.label}>{t("profile.photos")}</p>
+          <div style={styles.photoSlots}>
+            {Array.from({length:6},(_,slot)=>{
+              const photo=photos[slot];
+              return <button key={slot} type="button" onClick={(event)=>{event.stopPropagation();if(photo)setMainIndex(slot);else openPhotoSlot(slot);}} style={{...styles.photoSlot,...(slot===0?styles.photoSlotMain:{}),...(photo?{padding:0}:{})}}>
+                {photo?<img src={slot===mainIndex&&avatarPreview?avatarPreview:photo} alt="" style={styles.photoSlotImage}/>:<span style={{fontSize:28,color:"var(--primary)"}}>+</span>}
+                {photo&&slot===mainIndex&&<span style={styles.photoMainBadge}>★ {t("profile.mainPhoto")}</span>}
+                {photo&&<span onClick={(event)=>{event.stopPropagation();removePhotoAt(slot);}} style={styles.photoRemove}>×</span>}
+              </button>;
+            })}
+          </div>
+          {uploading&&<div style={{marginTop:8,fontSize:12,color:"var(--primary)",fontWeight:700}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
+          {guideHint(7)}
+          <input ref={photoInputRef} type="file" accept="image/*" hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
         </div>
         
 
         <button
   disabled={
   !isValid ||
-  (isOnboarding && onboardingStep<7) ||
+  !profileLoaded ||
   uploading ||
   savingProfile
 }
   style={{
     ...styles.submit,
-    opacity:isValid&&(!isOnboarding||onboardingStep>=7) ? 1 : 0.5
+    opacity:isValid&&profileLoaded ? 1 : 0.5,
+    boxShadow:isOnboarding&&isValid&&onboardingStep>=8?"0 10px 26px color-mix(in srgb,var(--brand-primary) 24%,transparent)":"none"
   }}
   onClick={handleSubmit}
 >
@@ -1015,7 +999,7 @@ color:"var(--text-secondary)"
    justifyContent:"center",
    alignItems:"center"
  }}
- onClick={()=>setCropOpen(false)}
+ onClick={()=>{setCropOpen(false);setPendingPhoto(null);}}
 >
 
 <div
@@ -1036,7 +1020,7 @@ color:"var(--text-secondary)"
 style={{
  position:"relative",
  width:"100%",
- height:"320px",
+   height:"min(320px, 48vh)",
  overflow:"hidden",
  borderRadius:"18px",
  background:"var(--surface-secondary)"
@@ -1085,15 +1069,27 @@ style={{
 
 <button
  style={styles.submit}
+ disabled={uploading}
  onClick={async()=>{
-
- setPhotoEdits(prev=>({
- ...prev,
- [mainIndex]:{
-   crop,
-   zoom
+ const targetSlot=pendingPhoto?.slot??mainIndex;
+ let nextPhotos=photos;
+ if(pendingPhoto){
+   if(!croppedAreaPixels)return;
+   const croppedFile=await createCroppedFile(editingPhoto,croppedAreaPixels,pendingPhoto.file.name).catch(()=>null);
+   if(!croppedFile){error(t("common.error"),t("profile.uploadFailed"));return;}
+   const uploadedUrl=await uploadPhoto(croppedFile);
+   if(typeof uploadedUrl!=="string")return;
+   nextPhotos=[...photos];
+   nextPhotos[targetSlot]=uploadedUrl;
+   nextPhotos=nextPhotos.filter(Boolean);
+   setPhotos(nextPhotos);
+   if(photos.length===0)setMainIndex(0);
  }
-}));
+ const nextPhotoEdits={
+ ...photoEdits,
+ [targetSlot]:pendingPhoto?{crop:{x:0,y:0},zoom:1}:{crop,zoom}
+};
+ setPhotoEdits(nextPhotoEdits);
 
 localStorage.setItem(
  "profile_cache",
@@ -1106,18 +1102,14 @@ search_radius:searchRadius,
 city,
 bio,
    interests:selected,
-   photos,
-   photo_edits:{
-     ...photoEdits,
-     [mainIndex]:{
-       crop,
-       zoom
-     }
-   }
+   photos:nextPhotos,
+   photo_edits:nextPhotoEdits
  })
 );
 
 setCropOpen(false);
+setPendingPhoto(null);
+if(isOnboarding&&onboardingStep===7)setOnboardingStep(8);
 
 }}
 >
@@ -1127,144 +1119,6 @@ setCropOpen(false);
 </div>
 </div>
 )}
-      {/* 🔥 ВОТ ФИКС ГАЛЕРЕИ */}
-      {activePhoto && !cropOpen && (
-        <div style={styles.viewer} onClick={() => setActivePhoto(false)}>
-          <div
-            style={photos.length === 0 ? styles.galleryEmpty : styles.gallery}
-            onClick={(e)=>e.stopPropagation()}
-          >
-
-            <label style={styles.addPhoto}>
-              +
-              <input
- type="file"
- multiple
- accept="image/*"
- hidden
- onChange={async (e)=>{
-   const files = e.target.files;
-
-
-
-
-   for (let f of Array.from(files || [])) {
- if (f.size > 10 * 1024 * 1024){
-   warning(
-  t("profile.fileTooLarge"),
-  t("profile.fileLimit")
-);
-   return;
- }
-}
-   if (!files) return;
-
-   if (!files) return;
-
-const selectedFiles = Array.from(files);
-
-if (photos.length + selectedFiles.length > 6) {
-
-  warning(
-    t("profile.photoLimit"),
-    t("profile.photosRemaining",{count:6-photos.length})
-  );
-
-  return;
-
-}
-
-   for (const file of selectedFiles) {
-  await uploadPhoto(file);
-}
-
-   e.target.value="";
- }}
-/>
-            </label>
-
-            {photos.map((p,i)=>(
-  <div key={i} style={styles.galleryItem}>
-
-    <img
-      src={p}
-      loading="lazy"
-decoding="async"
-      onClick={()=>{
- setMainIndex(i);
- console.log("Главная фото:", i);
-}}
-      style={{
-        ...styles.galleryImg,
-        border: i===mainIndex
-          ? "3px solid var(--brand-primary)"
-          : "none"
-      }}
-    />
-
-    {i===mainIndex && (
-      <div style={styles.mainBadge}>
-        ★ {t("profile.mainPhoto")}
-      </div>
-    )}
-
-    {i===mainIndex && (
-<button
- onClick={(e)=>{
-   e.stopPropagation();
-   setEditingPhoto(p);
-
-if(photoEdits[i]){
- setCrop(photoEdits[i].crop);
- setZoom(photoEdits[i].zoom);
-}else{
- setCrop({x:0,y:0});
- setZoom(1.2);
-}
-
-setActivePhoto(false);
-setCropOpen(true);
- }}
- style={{
-   position:"absolute",
-   right:"-10px",
-   bottom:"-10px",
-   width:"34px",
-   height:"34px",
-   borderRadius:"50%",
-   border:"2px solid var(--surface)",
-   background:"var(--surface)",
-   color:"var(--text-primary)",
-   boxShadow:"0 4px 12px rgba(0,0,0,.18)",
-   zIndex:9999
- }}
->
- ✎
-</button>
-)}
-
-    <button
-      style={styles.deleteBtn}
-      onClick={()=>{
- setPhotos(prev =>
-   prev.filter((_,index)=>index!==i)
- );
-
- if(i===mainIndex){
-   setMainIndex(0);
- }
-}}
-    >
-      ✕
-    </button>
-
-  </div>
-))}
-      
-
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -1282,6 +1136,14 @@ const styles:any = {
  WebkitOverflowScrolling:"touch"
 },
   card:{background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
+
+photoManager:{marginBottom:18,padding:12,borderRadius:18,background:"var(--surface-secondary)"},
+photoSlots:{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gridAutoRows:"92px",gap:8},
+photoSlot:{position:"relative",minWidth:0,border:"1px dashed var(--border-strong)",borderRadius:14,background:"var(--surface)",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"},
+photoSlotMain:{gridColumn:"span 2",gridRow:"span 2"},
+photoSlotImage:{width:"100%",height:"100%",objectFit:"cover",display:"block"},
+photoMainBadge:{position:"absolute",left:7,bottom:7,padding:"3px 7px",borderRadius:999,background:"var(--primary)",color:"var(--text-inverse)",fontSize:10,fontWeight:700},
+photoRemove:{position:"absolute",right:6,top:6,width:24,height:24,borderRadius:12,background:"color-mix(in srgb,var(--surface) 88%,transparent)",color:"var(--text-primary)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:700},
 
 avatarWrapper:{
  display:"flex",

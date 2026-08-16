@@ -218,7 +218,7 @@ const ru:Dictionary = {
   "category.dating":"Знакомство", "category.creative":"Творчество", "category.other":"Другое",
   "category.label":"Категория", "category.choose":"Выберите категорию", "category.all":"Все категории", "category.backToGroups":"Назад к группам категорий",
   "profile.title":"Профиль", "profile.name":"Имя", "profile.age":"Возраст", "profile.gender":"Я", "profile.woman":"Женщина",
-  "profile.man":"Мужчина", "profile.lookingFor":"Кого ищешь", "profile.boy":"Парень", "profile.girl":"Девушка", "profile.anyone":"Любой",
+  "profile.man":"Мужчина", "profile.lookingFor":"Кого ищешь", "profile.boy":"Мужчину", "profile.girl":"Женщину", "profile.anyone":"Любого",
   "profile.updateLocation":"Обновить", "profile.searchRadius":"Радиус поиска", "profile.kilometers":"{count} км",
   "profile.radiusHint":"Будут показаны люди в радиусе {count} км", "profile.radiusToggle":"Показывать анкеты в выбранном радиусе",
   "profile.bio":"О себе", "profile.savingPhoto":"Загрузка {progress}%", "profile.complete":"Заполните профиль",
