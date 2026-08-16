@@ -778,15 +778,20 @@ if (isOnboarding) {
     input.dataset.slot=String(Math.min(slot,photos.length));
     showFilePicker(input);
   };
-  const openCameraSlot=(slot:number)=>{
-    closePhotoMenu();
-    const input=cameraInputRef.current;
-    if(!input)return;
-    input.setAttribute("capture","user");
-    input.multiple=false;
-    input.dataset.slot=String(Math.min(slot,photos.length));
-    showFilePicker(input);
-  };
+  const openCameraSlot = (slot: number) => {
+  closePhotoMenu();
+
+  const input = cameraInputRef.current;
+  if (!input) return;
+
+  input.value = "";
+  input.dataset.slot = String(Math.min(slot, photos.length));
+
+  // Важно: для камеры не используем showPicker().
+  // На Android / Telegram WebView вызываем отдельный
+  // file input с capture напрямую через click().
+  input.click();
+};
   const chooseMainPhoto=(slot:number)=>{
     if(!photos[slot])return;
     setMainIndex(slot);
