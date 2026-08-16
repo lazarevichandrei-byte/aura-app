@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
 import {
   ArrowLeft2
 } from "iconsax-react";
@@ -16,6 +15,7 @@ import { useTheme } from "../../components/ThemeProvider";
 import {hasManualLocalePreference,useI18n} from "../../components/I18nProvider";
 import LanguagePickerSheet from "../../components/LanguagePickerSheet";
 import {LOCALE_BY_CODE} from "../../lib/i18n/locales";
+import {loadAccountSettings,saveAccountSetting} from "../../lib/account-settings";
 
 
 
@@ -31,25 +31,7 @@ export default function SettingsPage() {
 
 async function loadSettings(){
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId) return;
-
-  const { data } =
-    await supabase
-      .from("users")
-      .select(`
-theme,
-language,
-show_online,
-show_last_seen
-`)
-      .eq("telegram_id", telegramId)
-      .single();
+  const data=await loadAccountSettings().catch(()=>null);
 
   if(data){
 
@@ -77,23 +59,7 @@ async function saveSetting(
   value:any
 ){
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if(!telegramId) return;
-
-  await supabase
-    .from("users")
-    .update({
-      [field]: value
-    })
-    .eq(
-      "telegram_id",
-      telegramId
-    );
+  await saveAccountSetting(field,value);
 
 }
 

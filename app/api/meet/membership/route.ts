@@ -130,13 +130,13 @@ export async function POST(request: Request) {
           return NextResponse.json({ ok: false, error: "CREATOR_CANNOT_LEAVE" }, { status: 403 });
         }
         const { data: chat } = await supabaseAdmin.from("chats").select("id").eq("event_id", event.id).maybeSingle();
-        const { error: meetError } = await supabaseAdmin.from("meet_participants").delete().eq("event_id", event.id).eq("user_id", user.id);
+        const { data: removedParticipants, error: meetError } = await supabaseAdmin.from("meet_participants").delete().eq("event_id", event.id).eq("user_id", user.id).select("user_id");
         if (meetError) throw meetError;
         if (chat) {
           const { error: chatError } = await supabaseAdmin.from("chat_participants").delete().eq("chat_id", chat.id).eq("user_id", user.id);
           if (chatError) throw chatError;
         }
-        await deliverTelegramNotification({eventType:"meet_participant_left",recipientUserId:event.creator_id,dedupeKey:`participant_left:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
+        if(removedParticipants?.length)await deliverTelegramNotification({eventType:"meet_participant_left",recipientUserId:event.creator_id,dedupeKey:`participant_left:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
       }
     } else if (action === "approve" || action === "reject") {
       const { data: joinRequest } = await supabaseAdmin
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error:any) {
-    console.error("MEET MEMBERSHIP API ERROR:", error);
+    console.error("MEET MEMBERSHIP API ERROR:", {code:error?.code,message:error?.message});
     if (error?.code === "P0001" || error?.message === "MEET_FULL") {
       return NextResponse.json({ ok: false, error: "MEET_FULL" }, { status: 409 });
     }

@@ -34,7 +34,10 @@ export async function POST(request:Request){
     const action=body.action==="create"?"create":"check";
     const {data:existingUser,error:lookupError}=await supabaseAdmin.from("users").select(USER_FIELDS).eq("telegram_id",identity.user.id).maybeSingle();
     if(lookupError)return NextResponse.json({ok:false,error:"USER_LOOKUP_FAILED"},{status:500});
-    if(existingUser)return NextResponse.json({ok:true,exists:true,user:existingUser,telegramLanguage});
+    if(existingUser){
+      await supabaseAdmin.from("users").update({last_seen:new Date().toISOString()}).eq("id",existingUser.id);
+      return NextResponse.json({ok:true,exists:true,user:existingUser,telegramLanguage});
+    }
     if(action==="check")return NextResponse.json({ok:true,exists:false,user:null,telegramLanguage});
 
     const {data:newUser,error:createError}=await supabaseAdmin.from("users").insert({
@@ -43,6 +46,10 @@ export async function POST(request:Request){
       avatar_url:identity.user.photo_url||null,
       language:normalizeLocale(typeof body.language==="string"?body.language:identity.user.language_code),
     }).select(USER_FIELDS).single();
+    if(createError?.code==="23505"){
+      const {data:concurrentUser,error:retryError}=await supabaseAdmin.from("users").select(USER_FIELDS).eq("telegram_id",identity.user.id).maybeSingle();
+      if(!retryError&&concurrentUser)return NextResponse.json({ok:true,exists:true,user:concurrentUser,telegramLanguage});
+    }
     if(createError||!newUser)return NextResponse.json({ok:false,error:"USER_CREATE_FAILED"},{status:500});
     return NextResponse.json({ok:true,exists:true,user:newUser,telegramLanguage});
   }catch(error){

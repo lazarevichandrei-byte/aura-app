@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
 import PageWrapper from "../../components/PageWrapper";
 import PageHeader from "../../components/PageHeader";
 import { selection } from "../../lib/haptic";
 import {useI18n} from "../../components/I18nProvider";
+import {loadAccountSettings,saveAccountSetting} from "../../lib/account-settings";
 
 export default function PrivacyPage() {
   const {t}=useI18n();
@@ -30,22 +30,7 @@ useEffect(() => {
 
 async function loadSettings() {
 
-  const tg =
-    (window as any)?.Telegram?.WebApp;
-
-  const telegramId =
-    tg?.initDataUnsafe?.user?.id;
-
-  if (!telegramId) return;
-
-  const { data } = await supabase
-    .from("users")
-    .select(`
-      show_online,
-hide_profile
-    `)
-    .eq("telegram_id", telegramId)
-    .single();
+  const data=await loadAccountSettings().catch(()=>null);
 
   if (!data){
 
@@ -75,38 +60,7 @@ async function saveSetting(
 
   try{
 
-    const tg =
-      (window as any)?.Telegram?.WebApp;
-
-    const telegramId =
-      tg?.initDataUnsafe?.user?.id;
-
-    if(!telegramId) return;
-
-    const { error } =
-  await supabase
-    .from("users")
-    .update({
-
-  [field]: value,
-
-  ...(field === "show_online"
-    ? {
-        show_last_seen: value
-      }
-    : {})
-
-})
-    .eq(
-      "telegram_id",
-      telegramId
-    );
-
-if (error) {
-
-  console.error(error);
-
-}
+    await saveAccountSetting(field,value);
 
   } finally {
 

@@ -4,14 +4,14 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useEffect } from "react";
 import { supabase } from "../../lib/supabase";
-import { sendMatchNotification } from "../../lib/notifications/matches";
+import {performLikeAction} from "../../lib/likes/api";
 import { GridSkeleton } from "../../components/AppSkeletons";
 import { useNotification } from "../../components/NotificationContext";
 import {useI18n} from "../../components/I18nProvider";
 export default function LikesPage(){
 
 const router = useRouter();
-const { info } = useNotification();
+const { info,error:showError } = useNotification();
 const {t}=useI18n();
 
 
@@ -94,10 +94,8 @@ async function loadLikes(userId:string,showLoader=true){
     .eq("to_user_id", userId)
 .eq("status","pending");
 
-console.log("LIKES RAW:", likes);
-
-  if(error){
-    console.log("LOAD LIKES ERROR:", error);
+if(error){
+    console.error("LOAD LIKES ERROR:", {code:error.code});
     return;
   }
 
@@ -491,13 +489,8 @@ minWidth:42
 onClick={async (e)=>{
   e.stopPropagation();
 
-  await supabase
-    .from("likes")
-    .update({
-      status:"dismissed"
-    })
-    .eq("from_user_id", user.from_user_id)
-    .eq("to_user_id", myId);
+  const dismissed=await performLikeAction("dismiss",user.from_user_id).then(()=>true).catch(()=>false);
+  if(!dismissed){showError(t("common.error"),t("home.likeFailed"));return;}
 
   await loadLikes(myId!);
 }}
@@ -527,54 +520,13 @@ onClick={async (e)=>{
   if(!myId) return;
 
 
-  console.log(
-  "MATCH LIKE",
-  myId,
-  user.from_user_id
-);
-
-console.log(
-  "MATCH CLICKED",
-  myId,
-  user.from_user_id
-);
-
-  const { data: chatId, error } =
-await supabase.rpc("like_user", {
-  from_id: myId,
-  to_id: user.from_user_id
-});
-
-console.log("MATCH RESULT:", chatId);
-console.log("MATCH ERROR:", error);
-
-if(error){
-  console.log(error);
-  return;
-}
+  const result=await performLikeAction("like",user.from_user_id).catch(()=>null);
+  if(!result){showError(t("common.error"),t("home.likeFailed"));return;}
+  const {chatId}=result;
 
 // await loadLikes(myId);
 
 if (chatId) {
-
-  console.log("✅ MATCH CREATED:", chatId);
-
-  try {
-
-    console.log("📤 Sending notification...");
-
-    const result =
-      await sendMatchNotification(
-        user.from_user_id
-      );
-
-    console.log("✅ Notification result:", result);
-
-  } catch (err) {
-
-    console.error("❌ Notification error:", err);
-
-  }
 
   setPeople(prev =>
     prev.filter(

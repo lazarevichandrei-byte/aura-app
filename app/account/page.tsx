@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import BottomNav from "../../components/BottomNav";
 import BottomSheet from "../../components/BottomSheet";
@@ -11,6 +10,7 @@ import { warning } from "../../lib/haptic";
 import {useI18n} from "../../components/I18nProvider";
 import {getTelegramInitData} from "../../lib/telegram-init-data";
 import {clearAuraUserSession,DELETED_SESSION_KEY} from "../../lib/useCurrentUser";
+import {loadAccountSettings} from "../../lib/account-settings";
 
 
 export default function AccountPage() {
@@ -53,16 +53,7 @@ useState(false);
 
   async function loadProfile() {
     setLoading(true);
-    const tg = (window as any)?.Telegram?.WebApp;
-    const tgId = tg?.initDataUnsafe?.user?.id;
-
-    if (!tgId) return;
-
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .eq("telegram_id", tgId)
-      .single();
+    const data=await loadAccountSettings().catch(()=>null);
 
     if (data) {
       setProfile(data);

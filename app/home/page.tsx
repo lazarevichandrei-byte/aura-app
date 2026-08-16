@@ -21,15 +21,14 @@ import {
   success
 } from "../../lib/haptic";
 
-import { sendNotification } from "../../lib/notifications/index";
-import { NotificationType } from "../../lib/constants/notificationTypes";
+import {performLikeAction} from "../../lib/likes/api";
+import {loadCurrentUser} from "../../lib/useCurrentUser";
 import {useI18n} from "../../components/I18nProvider";
 import {interestLabel} from "../../lib/i18n/interests";
 
 
 
 export default function Home() {
-  console.log("HOME RENDER");
 const router = useRouter();  
 const {t}=useI18n();
 
@@ -89,7 +88,6 @@ const startX=useRef(0);
 const [myId, setMyId] = useState<string | null>(null);
 
 useEffect(() => {
-  console.log("MYID CHANGED:", myId);
 }, [myId]);
 
 
@@ -97,94 +95,11 @@ useEffect(() => {
 
 
 
-useEffect(() => {
-
-  const waitTelegram = () => {
-
-    const tg =
-      (window as any)?.Telegram?.WebApp;
-
-    const tgId =
-      tg?.initDataUnsafe?.user?.id;
-
-    if(tgId){
-      initUser(tgId);
-    } else {
-      setTimeout(waitTelegram,300);
-    }
-  };
-
-  waitTelegram();
-
+useEffect(()=>{
+  let active=true;
+  loadCurrentUser({force:true}).then((user)=>{if(active&&user){localStorage.setItem("my_id",user.id);setMyId(user.id);}}).catch(()=>{if(active)setLoadingFeed(false);});
+  return()=>{active=false;};
 },[]);
-
-  
-
-
-async function initUser(tgId:number){
-
-  console.log(
-    "INIT USER RUN",
-    Date.now()
-  );
-
-  const { data: user } = 
-  await supabase
-    .from("users")
-    .select("*")
-    .eq("telegram_id", tgId)
-    .single();
-
-  if(user){
-
-    await supabase
-  .from("users")
-  .update({
-    last_seen: new Date().toISOString()
-  })
-  .eq("id", user.id);
-
-  localStorage.setItem(
-    "my_id",
-    String(user.id)
-  );
-
-  setMyId(user.id);
-
-console.log("SET MYID:", user.id);
-  
-
-  return;
-}
-
-  const { data: newUser } = await supabase
-    .from("users")
-    .insert({
-      telegram_id: tgId,
-      name: t("home.newUser")
-    })
-    .select()
-    .single();
-
- if(newUser){
-
-  await supabase
-  .from("users")
-  .update({
-    last_seen: new Date().toISOString()
-  })
-  .eq("id", newUser.id);
-
-  localStorage.setItem(
-    "my_id",
-    String(newUser.id)
-  );
-
-  setMyId(newUser.id);
-
-console.log("SET MYID NEW:", newUser.id);
-}
-}
 
 useEffect(()=>{
   if(myId){
@@ -385,68 +300,21 @@ async function handleLike(){
 
   impact("medium");
 
-  console.log("LIKE CLICK START", Date.now());
-
-
-
-
   if(!myId || !currentUser?.id){
     return;
   }
 
-  console.log("MY ID:", myId);
-  console.log("TARGET ID:", currentUser.id);
-
-  console.log("RPC CALL");
-
-  const response = await supabase
-    .rpc("like_user", {
-      from_id: myId,
-      to_id: currentUser.id
-    });
-
-    console.log("RPC DATA:", response.data);
-console.log("RPC ERROR:", response.error);
-
-  console.log("RPC DONE");
-
-  console.log("RPC RESPONSE:", response);
-
-const chatId = response?.data;
-const rpcError = response?.error;
-
-console.log("CHAT ID:", chatId);
-
-console.log(
-  "ERROR:",
-  JSON.stringify(error, null, 2)
-);
-
-if(rpcError){
-
-  console.log("FULL ERROR", rpcError);
-
-  error(
-    t("common.error"),
-    rpcError.message ?? t("home.likeFailed")
-  );
-
+let chatId:string|null=null;
+try{
+  ({chatId}=await performLikeAction("like",currentUser.id));
+}catch(actionError){
+  error(t("common.error"),t("home.likeFailed"));
   return;
-
-};
+}
 
 
 
 if(chatId){
-
-  await sendNotification({
-
-    userId: currentUser.id,
-
-    type: NotificationType.MATCH
-
-  });
-
   success();
 
   setMatchedUser(currentUser);
@@ -455,18 +323,6 @@ if(chatId){
 
   return;
 }
-
-console.log("❤️ SEND LIKE NOTIFICATION");
-
-await sendNotification({
-
-  userId: currentUser.id,
-
-  type: NotificationType.LIKE
-
-});
-
-console.log("❤️ NOTIFICATION SENT");
 
 nextUser();
 }
@@ -481,12 +337,7 @@ async function handleSkip(){
     return;
   }
 
-  await supabase
-    .from("likes")
-    .delete()
-    .or(
-      `and(from_user_id.eq.${myId},to_user_id.eq.${currentUser.id}),and(from_user_id.eq.${currentUser.id},to_user_id.eq.${myId})`
-    );
+  try{await performLikeAction("skip",currentUser.id);}catch{return;}
 
   
 
@@ -977,7 +828,6 @@ strokeWidth={2.3}
 
 </div>
 
-{console.log("RENDER SHOWMATCH =", showMatch)}
 
 {showMatch && (
 <div

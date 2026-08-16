@@ -927,31 +927,20 @@ useEffect(()=>{
 useEffect(()=>{
 
   async function setOnline(){
-
-    if(userId === null) return;
-
-    await supabase
-      .from("users")
-      .update({
-        is_online:true,
-        last_seen:new Date().toISOString()
-      })
-      .eq("id",userId);
+    await setPresence(true);
 
   }
 
   async function setOffline(){
+    await setPresence(false);
 
-    if(userId === null) return;
+  }
 
-    await supabase
-      .from("users")
-      .update({
-        is_online:false,
-        last_seen:new Date().toISOString()
-      })
-      .eq("id",userId);
-
+  async function setPresence(online:boolean){
+    if(userId===null)return;
+    const initData=await getTelegramInitData();
+    if(!initData)return;
+    await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,chatId,action:"presence",body:online})});
   }
 
   async function loadChat(){

@@ -20,6 +20,7 @@ export default function RealtimeNotificationBridge(){
   const [settings,setSettings] = useState<NotificationPreferences>(()=>{try{return normalizeNotificationPreferences(JSON.parse(localStorage.getItem("aura-notification-preferences")||"null"));}catch{return DEFAULT_NOTIFICATION_PREFERENCES;}});
   const reconcileTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatsRef = useRef<any[]>([]);
+  const reconcileSequence = useRef(0);
 
   useEffect(()=>{ if(user?.id) performance.mark("REALTIME_START"); },[user?.id]);
 
@@ -37,6 +38,7 @@ export default function RealtimeNotificationBridge(){
   const creatorMeetChats = useMemo(()=>meetChats.filter((chat)=>chat.is_meet_creator),[meetChats]);
 
   async function reconcile(){
+    const sequence=++reconcileSequence.current;
     const initData = await getTelegramInitData();
     if(!initData) return;
     const response = await fetch("/api/chats",{
@@ -46,7 +48,7 @@ export default function RealtimeNotificationBridge(){
     });
     if(!response.ok) return;
     const result = await response.json();
-    if(result?.ok) setChats(result.chats || []);
+    if(result?.ok&&sequence===reconcileSequence.current) setChats(result.chats || []);
   }
 
   useEffect(()=>{

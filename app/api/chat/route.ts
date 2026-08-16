@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     ]);
     const { data: user } = userResult;
     if (!user) {
-      console.error("CHAT API USER ERROR:", { stage: "load-user", chatId, telegramId: validation.user.id });
+      console.error("CHAT API USER ERROR:", { stage: "load-user", chatId });
       return NextResponse.json({ ok: false, error: "USER_NOT_FOUND" }, { status: 404 });
     }
     const { data: chat, error: chatError } = chatResult;
@@ -200,6 +200,13 @@ export async function POST(request: Request) {
     if (!allowed) {
       console.error("CHAT API ACCESS DENIED:", { chatId, eventId: chat.event_id, userId: user.id });
       return NextResponse.json({ ok: false, error: "CHAT_ACCESS_DENIED" }, { status: 403 });
+    }
+
+    if(action==="presence"){
+      if(typeof body!=="boolean")return NextResponse.json({ok:false,error:"INVALID_PRESENCE"},{status:400});
+      const {error:presenceError}=await supabaseAdmin.from("users").update({is_online:body,last_seen:new Date().toISOString()}).eq("id",user.id);
+      if(presenceError)throw presenceError;
+      return NextResponse.json({ok:true});
     }
 
     if (action === "mark_read") {

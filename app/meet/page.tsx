@@ -36,6 +36,7 @@ export default function MeetPage() {
     const router = useRouter();
     const { error: showError, success } = useNotification();
     const mapRef = useRef<AuraMapRef>(null);
+    const syncSequenceRef = useRef(new Map<string,number>());
 
 
     const { user: currentUser } = useCurrentUser();
@@ -70,8 +71,11 @@ const sortAndFilterEvents = useCallback((items: any[]) => {
 }, []);
 
 const syncEvent = useCallback(async (eventId: string) => {
+  const sequence=(syncSequenceRef.current.get(eventId)||0)+1;
+  syncSequenceRef.current.set(eventId,sequence);
   try {
     const event = await loadMeetEventCard(eventId);
+    if(syncSequenceRef.current.get(eventId)!==sequence)return;
     setEvents((current) => {
       if (!event || !event.is_active || new Date(event.expires_at).getTime() <= Date.now()) {
         return current.filter((item) => item.id !== eventId);
@@ -94,6 +98,7 @@ useEffect(() => {
       const eventId = payload.new?.id || payload.old?.id;
       if (!eventId) return;
       if (payload.eventType === "DELETE") {
+        syncSequenceRef.current.set(eventId,(syncSequenceRef.current.get(eventId)||0)+1);
         setEvents((current) => current.filter((event) => event.id !== eventId));
         setSelectedEvent((current) => current?.id === eventId ? null : current);
         return;

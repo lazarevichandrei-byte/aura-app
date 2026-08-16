@@ -7,6 +7,7 @@ usePathname
 
 import {
 useEffect,
+useRef,
 useState
 } from "react";
 
@@ -52,6 +53,7 @@ localStorage.getItem(
 return 0;
 }
 );
+const unreadRequestSequence=useRef(0);
 
 useEffect(()=>{
 
@@ -117,14 +119,16 @@ channel
 
 async function loadUnread(){
 
+const sequence=++unreadRequestSequence.current;
+
 const saveUnread = (value:number)=>{
+  if(sequence!==unreadRequestSequence.current)return;
   setUnread(value);
   localStorage.setItem("navUnread",String(value));
 };
 
 const initData = await getTelegramInitData();
 if(!initData){
-  saveUnread(0);
   return;
 }
 
@@ -135,13 +139,11 @@ const response = await fetch("/api/chats",{
 });
 
 if(!response.ok){
-  saveUnread(0);
   return;
 }
 
 const result = await response.json();
 if(!result?.ok){
-  saveUnread(0);
   return;
 }
 

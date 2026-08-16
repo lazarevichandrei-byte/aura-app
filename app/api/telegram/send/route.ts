@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 
 export async function POST(request:Request){
   try{
-    const {initData,userId,type,text,chatId,entityId} = await request.json();
+    const {initData,userId,type,text} = await request.json();
     if(!initData || !userId || !type || !text){
       return NextResponse.json({ok:false,error:"MISSING_DATA"},{status:400});
     }
@@ -50,17 +50,8 @@ export async function POST(request:Request){
         .maybeSingle();
       allowed = Boolean(data);
       eventType="match_created";deliveryEntityId=data?.id;dedupeEntityId=data?.id;
-    }else if(type === "message" && typeof chatId === "string"){
-      const {data} = await supabaseAdmin
-        .from("chats")
-        .select("id,user1_id,user2_id,event_id")
-        .eq("id",chatId)
-        .maybeSingle();
-      if(data?.event_id){
-        const {data:members}=await supabaseAdmin.from("chat_participants").select("user_id").eq("chat_id",chatId).in("user_id",[actor.id,userId]);
-        allowed=(members?.length??0)===2;eventType="meet_chat_message";
-      }else{allowed=Boolean(data&&((data.user1_id===actor.id&&data.user2_id===userId)||(data.user2_id===actor.id&&data.user1_id===userId)));eventType="private_message";}
-      deliveryEntityId=chatId;dedupeEntityId=typeof entityId==="string"?entityId:undefined;
+    }else if(type === "message"){
+      return NextResponse.json({ok:false,error:"USE_VERIFIED_MESSAGE_ENDPOINT"},{status:410});
     }else{
       return NextResponse.json({ok:false,error:"UNKNOWN_NOTIFICATION_TYPE"},{status:400});
     }
@@ -82,11 +73,6 @@ export async function POST(request:Request){
       return NextResponse.json({ok:true,skipped:true,reason:disabled ? "SETTING_DISABLED" : "RECIPIENT_ONLINE"});
     }
 
-    if((eventType==="private_message"||eventType==="meet_chat_message")&&deliveryEntityId){
-      const since=new Date(Date.now()-15_000).toISOString();
-      const {data:recent}=await supabaseAdmin.from("notification_deliveries").select("id").eq("recipient_user_id",userId).eq("notification_type",eventType).eq("entity_id",deliveryEntityId).gte("delivered_at",since).limit(1).maybeSingle();
-      if(recent)return NextResponse.json({ok:true,skipped:true,reason:"RATE_LIMITED"});
-    }
     const dedupeKey=dedupeEntityId?`${eventType}:${dedupeEntityId}:${userId}`:null;
     if(dedupeKey){
       const {error:reserveError}=await supabaseAdmin.from("notification_deliveries").insert({dedupe_key:dedupeKey,notification_type:eventType,recipient_user_id:userId,entity_id:deliveryEntityId??dedupeEntityId});
