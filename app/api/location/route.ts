@@ -1,6 +1,9 @@
 import {NextResponse} from "next/server";
+import {normalizeGeocodedPlace,type GeocodedAddress} from "../../../lib/location/normalizeGeocodedPlace";
 
-function cityFromAddress(address:any){return String(address?.city||address?.town||address?.municipality||address?.village||address?.locality||"").replace(/^город\s+/i,"").trim();}
+type NominatimResult={address?:GeocodedAddress;name?:string;lat?:string;lon?:string};
+
+function cityFromAddress(address:unknown){return normalizeGeocodedPlace((address&&typeof address==="object"?address:{}) as GeocodedAddress);}
 
 export async function GET(request:Request){
   const url=new URL(request.url);
@@ -21,7 +24,7 @@ export async function GET(request:Request){
       const response=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&featuretype=city&accept-language=${encodeURIComponent(language)}`,{headers:{Accept:"application/json","User-Agent":"AURA Mini App city search"},cache:"no-store"});
       if(!response.ok)throw new Error(`SEARCH_${response.status}`);
       const data=await response.json();
-      const results=(Array.isArray(data)?data:[]).map((item:any)=>({city:cityFromAddress(item.address)||String(item.name||"").trim(),lat:Number(item.lat),lng:Number(item.lon)})).filter((item:any)=>item.city&&Number.isFinite(item.lat)&&Number.isFinite(item.lng));
+      const results=(Array.isArray(data)?data as NominatimResult[]:[]).map((item)=>({city:cityFromAddress(item.address)||String(item.name||"").trim(),lat:Number(item.lat),lng:Number(item.lon)})).filter((item)=>item.city&&Number.isFinite(item.lat)&&Number.isFinite(item.lng));
       return NextResponse.json({ok:true,results});
     }
     return NextResponse.json({ok:false,error:"LOCATION_PARAMS_REQUIRED"},{status:400});

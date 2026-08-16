@@ -101,9 +101,9 @@ const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
 const photoInputRef=useRef<HTMLInputElement>(null);
 const cameraInputRef=useRef<HTMLInputElement>(null);
+const locationRequestRef=useRef<{sequence:number;controller:AbortController|null;locked:boolean}>({sequence:0,controller:null,locked:false});
 const [profileLoaded,setProfileLoaded]=useState(false);
 const [pendingPhoto,setPendingPhoto]=useState<{file:File;slot:number}|null>(null);
-const [pendingPhotoQueue,setPendingPhotoQueue]=useState<Array<{file:File;slot:number}>>([]);
 const [photoMenuIndex,setPhotoMenuIndex]=useState<number|null>(null);
 const [photoMenuPosition,setPhotoMenuPosition]=useState<{top:number;left:number;originX:number;originY:string}|null>(null);
 const [photoPreparing,setPhotoPreparing]=useState(false);
@@ -524,25 +524,10 @@ canvas.height = img.height * scale;
 
 });
   const uploadPhoto = async (file: File) => {
-    if(uploading){
-  warning(
-  t("common.loading"),
-  t("profile.photoUploading")
-);
-  return;
-}
  if (!telegramId) return;
-setUploading(true);
-
- 
- setUploadProgress(10);
-
- setTimeout(()=>{
-   setUploadProgress(35);
- },150);
 
  const fileName =
-`${telegramId}/${Date.now()}.jpg`;
+`${telegramId}/${Date.now()}-${crypto.randomUUID()}.jpg`;
 
  const compressedFile =
   await compressImage(file);
@@ -556,8 +541,6 @@ setUploading(true);
 
 if (rpcError) {
   error(t("profile.uploadFailed"),rpcError.message);
-  setUploading(false);
-  setUploadProgress(0);
   return;
 }
 
@@ -567,19 +550,44 @@ const { data } = supabase.storage
     fileName
   );
 const uploadedUrl=`${data.publicUrl}?v=${Date.now()}`;
-
-setUploadProgress(80);
-
-setTimeout(()=>{
- setUploadProgress(100);
-},150);
-
-setTimeout(()=>{
-setUploading(false);
-setUploadProgress(0);
-},500);
 return uploadedUrl;
 };
+
+  const persistPhotos=async(nextPhotos:string[],nextMainIndex:number,nextPhotoEdits=photoEdits)=>{
+    setPhotos(nextPhotos);
+    setMainIndex(nextMainIndex);
+    setPhotoEdits(nextPhotoEdits);
+    if(telegramId){
+      const {error:updateError}=await supabase.from("users").update({photos:nextPhotos,photo_edits:nextPhotoEdits,main_photo_index:nextMainIndex,avatar_url:nextPhotos[nextMainIndex]||null}).eq("telegram_id",telegramId);
+      if(updateError)throw updateError;
+    }
+    localStorage.setItem("profile_cache",JSON.stringify({name,age,gender,looking:search,search_radius:searchRadius,city,bio,interests:selected,photos:nextPhotos,photo_edits:nextPhotoEdits,main_photo_index:nextMainIndex}));
+  };
+
+  const uploadMultiplePhotos=async(files:File[],slot:number)=>{
+    if(uploading||photoPreparing)return;
+    setUploading(true);
+    setUploadProgress(0);
+    try{
+      const uploaded:string[]=[];
+      for(const [index,file] of files.entries()){
+        const url=await uploadPhoto(file);
+        if(!url)throw new Error("PHOTO_UPLOAD_FAILED");
+        uploaded.push(url);
+        setUploadProgress(Math.round(((index+1)/files.length)*100));
+      }
+      const nextPhotos=[...photos];
+      uploaded.forEach((url,index)=>{nextPhotos[slot+index]=url;});
+      const compactPhotos=nextPhotos.filter(Boolean).slice(0,6);
+      const nextMainIndex=photos.length===0?0:Math.min(mainIndex,compactPhotos.length-1);
+      await persistPhotos(compactPhotos,nextMainIndex);
+    }catch(uploadError){
+      if(uploadError instanceof Error&&uploadError.message!=="PHOTO_UPLOAD_FAILED")error(t("common.error"),t("profile.uploadFailed"));
+    }finally{
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
 
   const preparePhotoCrop=async(file:File,slot:number)=>{
     if(photoPreparing||uploading)return;
@@ -605,9 +613,8 @@ return uploadedUrl;
     const selectedFiles=Array.from(files).slice(0,available);
     if(!selectedFiles.length)return;
     if(selectedFiles.some((file)=>file.size>10*1024*1024)){warning(t("profile.fileTooLarge"),t("profile.fileLimit"));return;}
-    const queue=selectedFiles.slice(1).map((file,index)=>({file,slot:Math.min(5,slot+index+1)}));
-    setPendingPhotoQueue(queue);
-    await preparePhotoCrop(selectedFiles[0],slot);
+    if(selectedFiles.length===1)await preparePhotoCrop(selectedFiles[0],slot);
+    else await uploadMultiplePhotos(selectedFiles,slot);
   };
 
 
@@ -695,7 +702,12 @@ if (isOnboarding) {
   }
 
   async function updateLocation(){
-    if(locationStatus!=="idle")return;
+    if(locationRequestRef.current.locked)return;
+    locationRequestRef.current.locked=true;
+    locationRequestRef.current.controller?.abort();
+    const sequence=locationRequestRef.current.sequence+1;
+    const controller=new AbortController();
+    locationRequestRef.current={sequence,controller,locked:true};
     setLocationFailed(false);
     setLocationStatus("locating");
     let coordinates;
@@ -708,30 +720,27 @@ if (isOnboarding) {
       setLocationFailed(true);
       setLocationFailureCount((count)=>count+1);
       setLocationStatus("idle");
+      locationRequestRef.current.locked=false;
       return;
     }
-    try{
-      await persistLocation(coordinates.lat,coordinates.lng);
-    }catch{error(t("common.error"),t("location.updateFailed"));setLocationStatus("idle");return;}
     setLocationStatus("resolving_place");
     try{
-      const place=await reverseGeocode(coordinates.lat,coordinates.lng);
-      const resolvedCity=place.city||await resolveSecondaryCity(coordinates.lat,coordinates.lng);
-      if(resolvedCity)await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
-      else warning(t("location.coordinatesFound"),t("location.resolveFailed"));
+      const resolvedCity=await resolveSecondaryCity(coordinates.lat,coordinates.lng,controller.signal)
+        ||(await reverseGeocode(coordinates.lat,coordinates.lng,controller.signal,locale)).city;
+      if(sequence!==locationRequestRef.current.sequence)return;
+      if(!resolvedCity){warning(t("location.coordinatesFound"),t("location.resolveFailed"));return;}
+      await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
       success(t("common.saved"),t("profile.locationUpdated"));
       setLocationFailed(false);
       setLocationFailureCount(0);
-    }catch{
-      const resolvedCity=await resolveSecondaryCity(coordinates.lat,coordinates.lng).catch(()=>"");
-      if(resolvedCity)await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
-      else warning(t("location.coordinatesFound"),t("location.resolveFailed"));
+    }catch(locationError){
+      if(!(locationError instanceof DOMException&&locationError.name==="AbortError"))warning(t("location.coordinatesFound"),t("location.resolveFailed"));
     }
-    finally{setLocationStatus("idle");}
+    finally{if(sequence===locationRequestRef.current.sequence){locationRequestRef.current.locked=false;locationRequestRef.current.controller=null;setLocationStatus("idle");}}
   }
 
-  async function resolveSecondaryCity(lat:number,lng:number){
-    const response=await fetch(`/api/location?lat=${lat}&lng=${lng}&language=${encodeURIComponent(locale)}`);
+  async function resolveSecondaryCity(lat:number,lng:number,signal?:AbortSignal){
+    const response=await fetch(`/api/location?lat=${lat}&lng=${lng}&language=${encodeURIComponent(locale)}`,{signal});
     const result=await response.json().catch(()=>null);
     return response.ok&&result?.ok&&typeof result.city==="string"?result.city.trim():"";
   }
@@ -754,8 +763,30 @@ if (isOnboarding) {
     setPhotoMenuPosition({top,left,originX:Math.min(width-18,Math.max(18,rect.left+rect.width/2-left)),originY:placeBelow?"top":"bottom"});
     setPhotoMenuIndex(slot);
   };
-  const openPhotoSlot=(slot:number)=>{closePhotoMenu();photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
-  const openCameraSlot=(slot:number)=>{closePhotoMenu();cameraInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));cameraInputRef.current?.click();};
+  const showFilePicker=(input:HTMLInputElement)=>{
+    try{
+      if(typeof input.showPicker==="function"){input.showPicker();return;}
+    }catch{}
+    input.click();
+  };
+  const openPhotoSlot=(slot:number)=>{
+    closePhotoMenu();
+    const input=photoInputRef.current;
+    if(!input)return;
+    input.removeAttribute("capture");
+    input.multiple=true;
+    input.dataset.slot=String(Math.min(slot,photos.length));
+    showFilePicker(input);
+  };
+  const openCameraSlot=(slot:number)=>{
+    closePhotoMenu();
+    const input=cameraInputRef.current;
+    if(!input)return;
+    input.setAttribute("capture","user");
+    input.multiple=false;
+    input.dataset.slot=String(Math.min(slot,photos.length));
+    showFilePicker(input);
+  };
   const chooseMainPhoto=(slot:number)=>{
     if(!photos[slot])return;
     setMainIndex(slot);
@@ -791,29 +822,28 @@ if (isOnboarding) {
 
   const saveCroppedPhoto=async()=>{
     if(!pendingPhoto||!croppedAreaPixels||uploading)return;
-    const targetSlot=pendingPhoto.slot;
-    const croppedFile=await createCroppedFile(editingPhoto,croppedAreaPixels,pendingPhoto.file.name,rotation).catch(()=>null);
-    if(!croppedFile){error(t("common.error"),t("profile.uploadFailed"));return;}
-    const uploadedUrl=await uploadPhoto(croppedFile);
-    if(typeof uploadedUrl!=="string")return;
-    const nextPhotos=[...photos];
-    nextPhotos[targetSlot]=uploadedUrl;
-    const compactPhotos=nextPhotos.filter(Boolean).slice(0,6);
-    const nextPhotoEdits={...photoEdits,[targetSlot]:{crop:{x:0,y:0},zoom:1}};
-    setPhotos(compactPhotos);
-    setPhotoEdits(nextPhotoEdits);
-    if(photos.length===0)setMainIndex(0);
-    const persistedMainIndex=photos.length===0?0:Math.min(mainIndex,compactPhotos.length-1);
-    if(telegramId)await supabase.from("users").update({photos:compactPhotos,photo_edits:nextPhotoEdits,main_photo_index:persistedMainIndex,avatar_url:compactPhotos[persistedMainIndex]||null}).eq("telegram_id",telegramId);
-    localStorage.setItem("profile_cache",JSON.stringify({name,age,gender,looking:search,search_radius:searchRadius,city,bio,interests:selected,photos:compactPhotos,photo_edits:nextPhotoEdits}));
-    const [next,...remaining]=pendingPhotoQueue;
-    setPendingPhotoQueue(remaining);
-    if(next)await preparePhotoCrop(next.file,next.slot);
-    else{setCropOpen(false);setPendingPhoto(null);}
+    setUploading(true);
+    setUploadProgress(0);
+    try{
+      const targetSlot=pendingPhoto.slot;
+      const croppedFile=await createCroppedFile(editingPhoto,croppedAreaPixels,pendingPhoto.file.name,rotation);
+      const uploadedUrl=await uploadPhoto(croppedFile);
+      if(typeof uploadedUrl!=="string")return;
+      const nextPhotos=[...photos];
+      nextPhotos[targetSlot]=uploadedUrl;
+      const compactPhotos=nextPhotos.filter(Boolean).slice(0,6);
+      const nextPhotoEdits={...photoEdits,[targetSlot]:{crop:{x:0,y:0},zoom:1}};
+      const persistedMainIndex=photos.length===0?0:Math.min(mainIndex,compactPhotos.length-1);
+      await persistPhotos(compactPhotos,persistedMainIndex,nextPhotoEdits);
+      setUploadProgress(100);
+      setCropOpen(false);
+      setPendingPhoto(null);
+    }catch{error(t("common.error"),t("profile.uploadFailed"));}
+    finally{setUploading(false);setUploadProgress(0);}
   };
 
-  useEffect(()=>{
-    if(photoMenuIndex===null)return;
+useEffect(()=>{
+  if(photoMenuIndex===null)return;
     const dismiss=()=>closePhotoMenu();
     const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){event.preventDefault();dismiss();}};
     const onPointerDown=(event:PointerEvent)=>{const target=event.target as HTMLElement|null;if(!target?.closest("[data-photo-menu]")&&!target?.closest("[data-photo-pencil]"))dismiss();};
@@ -824,6 +854,8 @@ if (isOnboarding) {
     telegramBack?.onClick?.(dismiss);
     return()=>{window.removeEventListener("keydown",onKeyDown);window.removeEventListener("scroll",dismiss,true);document.removeEventListener("pointerdown",onPointerDown,true);telegramBack?.offClick?.(dismiss);};
   },[photoMenuIndex]);
+
+  useEffect(()=>()=>locationRequestRef.current.controller?.abort(),[]);
 
   if (loading) {
   return <ProfileSkeleton />;
@@ -877,7 +909,7 @@ if (isOnboarding) {
 
         <div style={styles.photoManager}>
           <div style={styles.mainPhotoArea}>
-            <div style={styles.mainPhotoButton} onClick={()=>{if(!photos.length)openPhotoSlot(0);}}>
+            <div style={styles.mainPhotoButton} onClick={(event)=>{if(!photos.length)openPhotoMenu(0,event.currentTarget);}}>
               {photos[mainIndex]?<img src={avatarPreview||photos[mainIndex]} alt="" style={styles.mainPhotoImage}/>:<span style={styles.mainPhotoPlaceholder}>👤</span>}
               {uploading&&<span style={styles.photoUploadOverlay}>{uploadProgress}%</span>}
               {photoPreparing&&<span style={styles.photoUploadOverlay}><AuraLoader inline size={22}/></span>}
@@ -892,16 +924,16 @@ if (isOnboarding) {
                 <img src={photo} alt="" style={styles.photoThumbnailImage}/>
                 {index===mainIndex&&<span style={styles.photoThumbnailStar}>★</span>}
               </button>
-              <button data-photo-pencil type="button" onClick={(event)=>openPhotoMenu(index,event.currentTarget)} style={styles.photoThumbnailEdit}>✎</button>
             </div>)}
             {photos.length<6&&<button data-photo-pencil type="button" onClick={(event)=>openPhotoMenu(photos.length,event.currentTarget)} style={styles.photoAddButton}>+</button>}
           </div>
+          {photos.length>1&&<div aria-label={`${mainIndex+1} / ${photos.length}`} style={styles.photoIndicators}>{photos.map((_,index)=><span key={index} style={{...styles.photoIndicator,...(index===mainIndex?styles.photoIndicatorActive:{})}}/>)}</div>}
           <div style={styles.photoCount}>{photos.length} / 6 {t("profile.photos")}</div>
           <input ref={photoInputRef} type="file" accept="image/*" multiple hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
-          <input ref={cameraInputRef} type="file" accept="image/*" capture="user" hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="user" multiple={false} hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
           <AnimatePresence>
             {photoMenuIndex!==null&&photoMenuPosition&&<>
-              <motion.div aria-hidden style={styles.photoMenuBackdrop} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:reduceMotion?0:.16}}/>
+              <motion.div aria-hidden style={styles.photoMenuBackdrop} onClick={closePhotoMenu} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:reduceMotion?0:.16}}/>
               <motion.div data-photo-menu style={{...styles.photoActionMenu,top:photoMenuPosition.top,left:photoMenuPosition.left,transformOrigin:`${photoMenuPosition.originX}px ${photoMenuPosition.originY}`}} initial={{opacity:0,scale:reduceMotion?0.94:0.72,y:photoMenuPosition.originY==="top"?-7:7,borderRadius:26}} animate={{opacity:1,scale:1,y:0,borderRadius:14}} exit={{opacity:0,scale:reduceMotion?0.96:0.76,y:photoMenuPosition.originY==="top"?-5:5,borderRadius:24}} transition={reduceMotion?{duration:.12}:{type:"spring",stiffness:420,damping:32,mass:.72}}>
                 <button type="button" onClick={()=>openCameraSlot(photoMenuIndex)} style={styles.photoActionButton}>📷 {t("profile.takePhoto")}</button>
                 <button type="button" onClick={()=>openPhotoSlot(photoMenuIndex)} style={styles.photoActionButton}>🖼 {t("profile.chooseGallery")}</button>
@@ -1085,13 +1117,13 @@ color:"var(--text-secondary)"
  style={{
    position:"fixed",
    inset:0,
-   background:"#000",
+   background:"#090b0f",
    zIndex:999999,
    display:"flex",
    justifyContent:"center",
-   alignItems:"center"
+   alignItems:"stretch"
  }}
- onClick={()=>{setCropOpen(false);setPendingPhoto(null);setPendingPhotoQueue([]);}}
+ onClick={()=>{if(!uploading){setCropOpen(false);setPendingPhoto(null);}}}
 >
 
 <div
@@ -1099,29 +1131,33 @@ color:"var(--text-secondary)"
  style={{
    width:"100%",
    maxWidth:"430px",
-   maxHeight:"calc(100dvh - 20px)",
+   minHeight:"100dvh",
    background:"#101318",
    color:"#fff",
-   borderRadius:"24px",
-   padding:"14px 16px calc(14px + env(safe-area-inset-bottom))",
+   padding:"calc(8px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom))",
    position:"relative",
-   overflow:"hidden"
+   overflow:"hidden",
+   display:"flex",
+   flexDirection:"column"
  }}
 >
 
-<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-  <button type="button" onClick={()=>{setCropOpen(false);setPendingPhoto(null);setPendingPhotoQueue([]);}} style={{border:0,background:"transparent",color:"#ff5b61",padding:8,fontWeight:700}}>{t("common.cancel")}</button>
-  <strong>{t("account.edit")}</strong>
-  <button type="button" disabled={uploading||!croppedAreaPixels} onClick={()=>void saveCroppedPhoto()} style={{border:0,background:"transparent",color:"#2f80ff",padding:8,fontWeight:750,opacity:uploading||!croppedAreaPixels?0.6:1}}>{t("common.save")}</button>
+<div style={styles.cropHeader}>
+  <button aria-label={t("common.cancel")} type="button" disabled={uploading} onClick={()=>{setCropOpen(false);setPendingPhoto(null);}} style={styles.cropHeaderButton}>×</button>
+  <strong style={styles.cropTitle}>{t("profile.editPhoto")}</strong>
+  <button aria-label={t("common.save")} type="button" disabled={uploading||!croppedAreaPixels} onClick={()=>void saveCroppedPhoto()} style={{...styles.cropHeaderButton,color:"#52a7ff",opacity:uploading||!croppedAreaPixels?0.45:1}}>{uploading?<AuraLoader inline size={18}/>:"✓"}</button>
 </div>
+{uploading&&<div style={styles.cropSavingLine}/>}
 
 <div
 style={{
  position:"relative",
  width:"100%",
-   height:"min(320px, 48vh)",
+ flex:"1 1 auto",
+ minHeight:280,
+ maxHeight:"calc(100dvh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
  overflow:"hidden",
- borderRadius:"18px",
+ borderRadius:"16px",
  background:"#07090d"
 }}
 >
@@ -1156,13 +1192,10 @@ style={{
 
 </div>
 
-<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:16}}>
-  <button type="button" onClick={()=>setRotation((value)=>(value+90)%360)} style={styles.cropControl}>↻<small>90°</small></button>
-  <div style={{...styles.cropControl,color:"#2f80ff"}}>⌗<small>{t("account.edit")}</small></div>
-  <label style={styles.cropControl}>⌕<small>{Math.round(zoom*100)}%</small></label>
+<div style={styles.cropToolbar}>
+  <button type="button" disabled={uploading} onClick={()=>setRotation((value)=>(value+90)%360)} style={styles.cropToolButton}><span style={{fontSize:20}}>↻</span><small>{rotation}°</small></button>
+  <label style={styles.cropZoomLabel}><span style={{fontSize:18}}>−</span><input aria-label="Zoom" disabled={uploading} type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event)=>setZoom(Number(event.target.value))} style={styles.cropSlider}/><span style={{fontSize:18}}>＋</span><small>{Math.round(zoom*100)}%</small></label>
 </div>
-<input type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event)=>setZoom(Number(event.target.value))} style={{...styles.slider,marginTop:12}}/>
-{uploading&&<div style={{marginTop:12,textAlign:"center",color:"#9ba7b8",fontSize:12}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
 
 </div>
 </div>
@@ -1195,18 +1228,27 @@ photoEditButton:{position:"absolute",top:120,left:"calc(50% + 43px)",width:36,he
 photoDescription:{margin:"12px 8px 10px",maxWidth:280,textAlign:"center",fontSize:11,lineHeight:1.4,color:"var(--text-secondary)"},
 photoUploadOverlay:{position:"absolute",inset:0,display:"grid",placeItems:"center",background:"rgba(5,10,18,.52)",color:"#fff",fontWeight:800,fontSize:18},
 photoCarousel:{display:"flex",gap:10,overflowX:"auto",padding:"4px 2px 8px",scrollbarWidth:"none",WebkitOverflowScrolling:"touch"},
-photoThumbnailWrap:{position:"relative",width:58,minWidth:58,height:62,paddingTop:2},
+photoThumbnailWrap:{position:"relative",width:54,minWidth:54,height:56,paddingTop:2},
 photoThumbnail:{position:"relative",width:54,height:54,minWidth:54,borderRadius:"50%",padding:0,border:"2px solid transparent",background:"var(--surface)",overflow:"hidden"},
 photoThumbnailMain:{border:"2px solid var(--primary)",boxShadow:"0 0 0 2px var(--primary-soft)"},
 photoThumbnailImage:{width:"100%",height:"100%",objectFit:"cover",display:"block"},
 photoThumbnailStar:{position:"absolute",right:1,bottom:0,width:17,height:17,borderRadius:9,display:"grid",placeItems:"center",background:"var(--primary)",color:"#fff",fontSize:9},
-photoThumbnailEdit:{position:"absolute",right:0,bottom:2,width:22,height:22,borderRadius:11,border:"2px solid var(--app-bg)",background:"var(--surface)",color:"var(--text-primary)",fontSize:10,padding:0,boxShadow:"var(--shadow-sm)"},
 photoAddButton:{width:54,height:54,minWidth:54,borderRadius:"50%",border:"1.5px dashed var(--primary)",background:"var(--surface)",color:"var(--primary)",fontSize:28},
+photoIndicators:{display:"flex",justifyContent:"center",alignItems:"center",gap:5,minHeight:12,marginTop:2},
+photoIndicator:{display:"block",width:5,height:5,borderRadius:999,background:"var(--border-strong)",transition:"width .18s ease, background .18s ease"},
+photoIndicatorActive:{width:16,background:"var(--primary)"},
 photoCount:{textAlign:"center",fontSize:11,color:"var(--text-secondary)",marginTop:2},
-photoMenuBackdrop:{position:"fixed",inset:0,zIndex:99990,pointerEvents:"none",background:"color-mix(in srgb,var(--app-bg) 8%,transparent)",backdropFilter:"blur(1px)"},
+photoMenuBackdrop:{position:"fixed",inset:0,zIndex:99990,pointerEvents:"auto",background:"color-mix(in srgb,var(--app-bg) 5%,transparent)",backdropFilter:"blur(.5px)"},
 photoActionMenu:{position:"fixed",zIndex:99991,width:224,maxWidth:"calc(100vw - 24px)",padding:6,borderRadius:14,background:"var(--surface-elevated)",border:"1px solid var(--border-subtle)",boxShadow:"0 18px 48px rgba(10,20,35,.22)"},
 photoActionButton:{display:"block",width:"100%",border:0,background:"transparent",color:"var(--text-primary)",padding:"10px 12px",textAlign:"left",fontWeight:650,fontSize:13},
-cropControl:{border:0,borderRadius:12,background:"#1a2029",color:"#fff",minHeight:54,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:3,fontSize:20},
+cropHeader:{height:48,display:"grid",gridTemplateColumns:"48px 1fr 48px",alignItems:"center",marginBottom:8},
+cropHeaderButton:{width:44,height:44,border:0,borderRadius:22,background:"transparent",color:"#fff",fontSize:25,display:"grid",placeItems:"center",padding:0},
+cropTitle:{fontSize:18,lineHeight:1.2,textAlign:"center",fontWeight:700},
+cropSavingLine:{position:"absolute",top:"calc(56px + env(safe-area-inset-top))",left:14,right:14,height:2,borderRadius:2,background:"linear-gradient(90deg,transparent,#52a7ff,transparent)",animation:"aura-shimmer 1.1s linear infinite"},
+cropToolbar:{flex:"0 0 auto",display:"flex",alignItems:"center",gap:12,padding:"14px 2px 2px"},
+cropToolButton:{width:58,height:48,border:0,borderRadius:12,background:"#1a2029",color:"#fff",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1},
+cropZoomLabel:{height:48,flex:1,borderRadius:12,background:"#1a2029",color:"#fff",display:"grid",gridTemplateColumns:"24px 1fr 24px 42px",alignItems:"center",gap:5,padding:"0 10px"},
+cropSlider:{width:"100%",accentColor:"#52a7ff"},
 
 avatarWrapper:{
  display:"flex",
