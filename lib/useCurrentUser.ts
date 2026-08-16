@@ -41,9 +41,20 @@ export function loadCurrentUser(options?:{force?:boolean}){
     const initData=await getTelegramInitData();
     if(!initData)return null;
     mark("INITDATA_AVAILABLE");
-    const response=await fetch("/api/auth/telegram",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,action:"check"})});
+    const localeDiagnostic={
+      browserLanguage:navigator.languages?.[0]||navigator.language||null,
+      storedLanguage:localStorage.getItem("aura-language"),
+      storedSource:localStorage.getItem("aura-language-source"),
+      resolvedLanguage:document.documentElement.lang||null,
+      resolutionReason:localStorage.getItem("aura-language-source")==="manual"?"manual":"pre_auth_bootstrap",
+    };
+    const response=await fetch("/api/auth/telegram",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,action:"check",localeDiagnostic})});
     const result=await response.json().catch(()=>null);
     if(!response.ok||!result?.ok)throw new Error(result?.error||"AUTH_CHECK_FAILED");
+    if(typeof result.telegramLanguage==="string"){
+      (window as any).__AURA_TELEGRAM_LOCALE__=result.telegramLanguage;
+      window.dispatchEvent(new CustomEvent("aura-telegram-language-resolved",{detail:result.telegramLanguage}));
+    }
     setCurrentUserCache(result.exists?result.user:null);
     return result.exists?result.user:null;
   })().finally(()=>{mark("USER_BOOTSTRAP_END");currentUserRequest=null;});

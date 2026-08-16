@@ -321,7 +321,7 @@ useState(false);
 
       }}
     >
-      <span><strong>☀️ {t("theme.light")}</strong><small style={themeDescriptionStyle}>{t("theme.lightHint")}</small></span><span>{theme === "light" ? "●" : "○"}</span>
+      <span><strong>☀️ {t("theme.light")}</strong><small style={themeDescriptionStyle}>{t("theme.lightHint")}</small></span>{theme === "light"&&<span style={{color:"var(--primary)",fontWeight:800}}>✓</span>}
     </div>
 
     <div
@@ -351,7 +351,7 @@ useState(false);
 
       }}
     >
-      <span><strong>☾ {t("theme.dark")}</strong><small style={themeDescriptionStyle}>{t("theme.darkHint")}</small></span><span>{theme === "dark" ? "●" : "○"}</span>
+      <span><strong>🌙 {t("theme.dark")}</strong><small style={themeDescriptionStyle}>{t("theme.darkHint")}</small></span>{theme === "dark"&&<span style={{color:"var(--primary)",fontWeight:800}}>✓</span>}
     </div>
 
   </div>

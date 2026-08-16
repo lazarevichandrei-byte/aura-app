@@ -42,7 +42,7 @@ useState(50);
   const [latitude,setLatitude]=useState<number|null>(null);
   const [longitude,setLongitude]=useState<number|null>(null);
   const [locationStatus,setLocationStatus]=useState<"idle"|"locating"|"resolving_place">("idle");
-  const [manualCity,setManualCity]=useState("");
+  const [locationFailed,setLocationFailed]=useState(false);
 const [bio, setBio] = useState("");
 
 const [isEditing,setIsEditing] =
@@ -76,6 +76,7 @@ const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
 const [onboardingStep,setOnboardingStep]=useState(0);
+const photoInputRef=useRef<HTMLInputElement>(null);
 
 const router = useRouter();
 
@@ -96,6 +97,7 @@ useEffect(() => {
   document.documentElement.style.overflowY = "auto";
 
   const init = async () => {
+    if(typeof performance!=="undefined")performance.mark("PROFILE_BOOTSTRAP_START");
 
     const cached = localStorage.getItem("profile_cache");
 
@@ -138,23 +140,13 @@ if (!user) {
 
 
 
-const authResponse=await fetch("/api/auth/telegram", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-  initData: tg.initData,
-  action:"check"
-}),
-});
-const authResult=await authResponse.json().catch(()=>null);
-if(!authResponse.ok||!authResult?.ok||!authResult.exists){
+const currentUser=await loadCurrentUser();
+if(!currentUser){
   router.replace("/");
   return;
 }
 
-setTelegramId(user.id);
+setTelegramId(currentUser.telegram_id);
 setName(user.first_name || "");
 const { data } =
 await supabase
@@ -233,6 +225,14 @@ else{
 }
 
 setLoading(false);
+if(typeof performance!=="undefined"){
+  performance.mark("PROFILE_BOOTSTRAP_END");
+  if(process.env.NODE_ENV!=="production"){
+    const start=performance.getEntriesByName("PROFILE_BOOTSTRAP_START").at(-1)?.startTime;
+    const end=performance.getEntriesByName("PROFILE_BOOTSTRAP_END").at(-1)?.startTime;
+    console.info("[AURA_BOOT]",{profileResolvedMs:start===undefined||end===undefined?null:Math.max(0,end-start)});
+  }
+}
 
 };
 
@@ -523,18 +523,10 @@ setUploading(true);
       compressedFile
    );
 
-   if (!rpcError) {
-
-    if (rpcError) {
-
-  error(
-    t("profile.uploadFailed"),
-    rpcError.message
-  );
-
+if (rpcError) {
+  error(t("profile.uploadFailed"),rpcError.message);
   setUploading(false);
   setUploadProgress(0);
-
   return;
 }
 
@@ -566,19 +558,39 @@ setPhotos(prev=>{
  return updated;
 });
 
+const uploadedUrl=data.publicUrl;
+
 setUploadProgress(80);
 
 setTimeout(()=>{
  setUploadProgress(100);
 },150);
 
-} // закрывает if (!error)
-
 setTimeout(()=>{
- setUploading(false);
- setUploadProgress(0);
+setUploading(false);
+setUploadProgress(0);
 },500);
+return uploadedUrl;
 };
+
+  const handlePhotoSelection=async(files:FileList|null)=>{
+    if(!files?.length)return;
+    const selectedFiles=Array.from(files);
+    if(selectedFiles.some((file)=>file.size>10*1024*1024)){warning(t("profile.fileTooLarge"),t("profile.fileLimit"));return;}
+    if(photos.length+selectedFiles.length>6){warning(t("profile.photoLimit"),t("profile.photosRemaining",{count:6-photos.length}));return;}
+    for(const file of selectedFiles){
+      const nextIndex=photos.length;
+      const uploadedUrl=await uploadPhoto(file);
+      if(typeof uploadedUrl==="string"){
+        setMainIndex(nextIndex);
+        setEditingPhoto(uploadedUrl);
+        setCrop({x:0,y:0});
+        setZoom(1.2);
+        setActivePhoto(false);
+        setCropOpen(true);
+      }
+    }
+  };
 
 
 
@@ -666,6 +678,7 @@ if (isOnboarding) {
 
   async function updateLocation(){
     if(locationStatus!=="idle")return;
+    setLocationFailed(false);
     setLocationStatus("locating");
     let coordinates;
     try{
@@ -674,6 +687,7 @@ if (isOnboarding) {
       const failure=(locationError instanceof Error?locationError.message:"unavailable") as LocationFailure;
       const key=failure==="permission_denied"?"location.permissionDenied":failure==="timeout"?"location.timeout":"location.unavailable";
       error(t("common.error"),t(key));
+      setLocationFailed(true);
       setLocationStatus("idle");
       return;
     }
@@ -687,6 +701,7 @@ if (isOnboarding) {
       if(resolvedCity)await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
       else warning(t("location.coordinatesFound"),t("location.resolveFailed"));
       success(t("common.saved"),t("profile.locationUpdated"));
+      setLocationFailed(false);
     }catch{
       const resolvedCity=await resolveSecondaryCity(coordinates.lat,coordinates.lng).catch(()=>"");
       if(resolvedCity)await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
@@ -701,29 +716,19 @@ if (isOnboarding) {
     return response.ok&&result?.ok&&typeof result.city==="string"?result.city.trim():"";
   }
 
-  async function chooseCityByName(){
-    if(!manualCity.trim()||locationStatus!=="idle")return;
-    setLocationStatus("resolving_place");
-    try{
-      const response=await fetch(`/api/location?city=${encodeURIComponent(manualCity.trim())}&language=${encodeURIComponent(locale)}`);
-      const result=await response.json().catch(()=>null);const match=result?.results?.[0];
-      if(!response.ok||!match)throw new Error("CITY_NOT_FOUND");
-      await persistLocation(match.lat,match.lng,match.city);setManualCity("");success(t("common.saved"),t("profile.locationUpdated"));
-    }catch{error(t("common.error"),t("location.cityNotFound"));}finally{setLocationStatus("idle");}
-  }
-
   function chooseLocationManually(){
     prepareMeetLocation(latitude!==null&&longitude!==null?{title:city,address:city,city,lat:latitude,lng:longitude}:null);
     router.push("/meet/location?source=profile");
   }
 
-  const guideStyle=(section:number)=>isOnboarding&&onboardingStep<7?{opacity:onboardingStep===section?1:.38,transform:onboardingStep===section?"translateY(-2px)":"none",boxShadow:onboardingStep===section?"0 14px 34px color-mix(in srgb,var(--brand-primary) 14%,transparent)":"none",transition:"opacity .2s ease, transform .2s ease, box-shadow .2s ease"}:{};
+  const guideStyle=(section:number)=>isOnboarding&&onboardingStep<7?{opacity:onboardingStep===section?1:.78,transform:onboardingStep===section?"translateY(-2px)":"none",outline:onboardingStep===section?"2px solid color-mix(in srgb,var(--brand-primary) 42%,transparent)":"2px solid transparent",boxShadow:onboardingStep===section?"0 12px 28px color-mix(in srgb,var(--brand-primary) 12%,transparent)":"none",transition:"opacity .2s ease, transform .2s ease, box-shadow .2s ease, outline-color .2s ease"}:{};
   const guideCanContinue=onboardingStep===0?Boolean(name.trim()):onboardingStep===3?hasLocation:true;
   const advanceGuide=()=>{if(guideCanContinue)setOnboardingStep((step)=>Math.min(7,step+1));};
+  const guideAction=(section:number)=>isOnboarding&&onboardingStep===section?<div style={{marginTop:10}}><p style={{margin:"0 0 10px",fontSize:13,lineHeight:1.45,color:"var(--text-secondary)"}}>{t(`onboarding.formHint${section+1}` as any)}</p><button type="button" disabled={!guideCanContinue} onClick={(event)=>{event.stopPropagation();advanceGuide();}} style={{width:"100%",border:0,borderRadius:12,padding:"11px 14px",background:"var(--primary)",color:"var(--text-inverse)",fontWeight:750,opacity:guideCanContinue?1:.45}}>{section===4||section===5?t("onboarding.skip"):t("common.continue")}</button></div>:null;
 
   useEffect(()=>{
     if(!isOnboarding||onboardingStep>=7)return;
-    document.querySelector(`[data-guide-section="${onboardingStep}"]`)?.scrollIntoView({behavior:"smooth",block:"center"});
+    window.setTimeout(()=>document.querySelector(`[data-guide-section="${onboardingStep}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),60);
   },[isOnboarding,onboardingStep]);
 
   if (loading) {
@@ -776,13 +781,13 @@ if (isOnboarding) {
 </div>
 </div>
 
-{isOnboarding&&<div style={{position:"sticky",top:8,zIndex:20,marginBottom:18,padding:14,borderRadius:18,background:"var(--surface-elevated)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-md)"}}><div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center"}}><div><strong style={{display:"block",fontSize:14}}>{onboardingStep<7?t("onboarding.progress",{current:onboardingStep+1,total:7}):t("onboarding.review")}</strong><span style={{display:"block",fontSize:12,color:"var(--text-secondary)",marginTop:4}}>{onboardingStep<7?t(`onboarding.formHint${onboardingStep+1}` as any):t("onboarding.reviewHint")}</span></div>{onboardingStep<7&&<button type="button" disabled={!guideCanContinue} onClick={advanceGuide} style={{border:0,borderRadius:12,padding:"10px 14px",background:"var(--primary)",color:"var(--text-inverse)",fontWeight:750,opacity:guideCanContinue?1:.5}}>{t("common.continue")}</button>}</div></div>}
+{isOnboarding&&<div style={{position:"sticky",top:"max(8px, env(safe-area-inset-top))",zIndex:20,marginBottom:18,padding:"10px 12px",borderRadius:16,background:"color-mix(in srgb,var(--surface-elevated) 94%,transparent)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-sm)",backdropFilter:"blur(12px)"}}><div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:5}}>{Array.from({length:7},(_,index)=><span key={index} style={{height:5,borderRadius:99,background:index<=Math.min(onboardingStep,6)?"var(--primary)":"var(--border-subtle)"}}/>)}</div><div style={{marginTop:7,textAlign:"center",fontSize:12,fontWeight:700,color:"var(--text-secondary)"}}>{onboardingStep<7?t("onboarding.progress",{current:onboardingStep+1,total:7}):t("onboarding.review")}</div></div>}
 
-    <div data-guide-section="6" onClick={()=>isOnboarding&&setOnboardingStep(6)} style={{...styles.avatarWrapper,...guideStyle(6)}}>
+    <div data-guide-section="6" onClick={()=>{if(isOnboarding){setOnboardingStep(6);photoInputRef.current?.click();}else setActivePhoto(true);}} style={{...styles.avatarWrapper,...guideStyle(6),cursor:"pointer",flexDirection:"column",alignItems:"center"}}>
       {photos.length > 0 ? (
         <div
           style={styles.avatarMask}
-          onClick={() => setActivePhoto(true)}
+          onClick={(event) => {event.stopPropagation();if(isOnboarding)photoInputRef.current?.click();else setActivePhoto(true);}}
         >
 
           <img
@@ -806,19 +811,23 @@ if (isOnboarding) {
       ) : (
         <div
           style={styles.avatar}
-          onClick={() => setActivePhoto(true)}
+          onClick={(event) => {event.stopPropagation();if(isOnboarding)photoInputRef.current?.click();else setActivePhoto(true);}}
         >
           👤
         </div>
       )}
 
       <div style={styles.plus}>+</div>
+      {uploading&&<div style={{marginTop:8,fontSize:12,color:"var(--primary)",fontWeight:700}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
+      {guideAction(6)}
+      <input ref={photoInputRef} type="file" accept="image/*" hidden disabled={uploading} onChange={async(event)=>{await handlePhotoSelection(event.target.files);event.target.value="";}}/>
     </div>
 
-        <div style={styles.row}>
+        <div style={isOnboarding?{display:"block"}:styles.row}>
           <div data-guide-section="0" onClick={()=>isOnboarding&&setOnboardingStep(0)} style={{...styles.inputBox,...guideStyle(0)}}>
             <p style={styles.label}>{t("profile.name")}</p>
             <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
+            {guideAction(0)}
           </div>
 
           <div data-guide-section="1" onClick={()=>isOnboarding&&setOnboardingStep(1)} style={{...styles.inputBox,...guideStyle(1)}}>
@@ -831,6 +840,7 @@ if (isOnboarding) {
  onChange={(e)=>setAge(Number(e.target.value))}
  style={styles.slider}
 />
+            {guideAction(1)}
           </div>
         </div>
 
@@ -840,6 +850,7 @@ if (isOnboarding) {
             <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button>
             <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button>
           </div>
+          {guideAction(2)}
         </div>
 
         <div style={styles.block}>
@@ -916,16 +927,16 @@ if (isOnboarding) {
   </button>
 </div>
 {city&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.cityDetected")}</p>}
-{!city&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("location.permissionRequired")}</p>}
-<button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"10px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button>
-<div style={{display:"flex",gap:8,margin:"2px 0 8px"}}><input value={manualCity} onChange={(event)=>setManualCity(event.target.value)} placeholder={t("location.cityPlaceholder")} style={{...styles.input,flex:1}}/><button type="button" disabled={!manualCity.trim()||locationStatus!=="idle"} onClick={()=>void chooseCityByName()} style={{border:0,borderRadius:12,padding:"0 14px",background:"var(--primary-soft)",color:"var(--primary)",fontWeight:700}}>{t("common.save")}</button></div>
+{!hasLocation&&!locationFailed&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("location.permissionRequired")}</p>}
+{locationFailed&&<div style={{marginTop:10}}><p style={{margin:"0 0 8px",fontSize:12,color:"var(--text-secondary)"}}>{t("location.unavailable")}</p><button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"8px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button></div>}
 <p style={{margin:"0 2px 14px",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.locationPrivacy")}</p>
-<p style={{margin:"0 2px 14px",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.locationPrivacy")}</p>
+{guideAction(3)}
 
 
         <div data-guide-section="4" onClick={()=>isOnboarding&&setOnboardingStep(4)} style={{...styles.inputBox,...guideStyle(4)}}>
           <p style={styles.label}>{t("profile.bio")}</p>
           <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
+          {guideAction(4)}
         </div>
 
         <div data-guide-section="5" onClick={()=>isOnboarding&&setOnboardingStep(5)} style={{...styles.block,...guideStyle(5)}}>
@@ -941,6 +952,7 @@ if (isOnboarding) {
             })}
             {!showMore && <span style={styles.tag} onClick={() => setShowMore(true)}>+</span>}
           </div>
+          {guideAction(5)}
           
         </div>
         

@@ -6,6 +6,7 @@ import {validateTelegramInitData} from "../../../../lib/telegram-auth";
 export const runtime="nodejs";
 
 const USER_FIELDS="id,telegram_id,name,avatar_url,onboarding_completed";
+const localeValue=(value:unknown)=>typeof value==="string"&&/^[A-Za-z]{2,3}(?:[-_][A-Za-z]{2,8})?$/.test(value)?value:null;
 
 function validatedTelegramUser(initData:unknown){
   if(typeof initData!=="string"||!initData)return {response:NextResponse.json({ok:false,error:"NO_INIT_DATA"},{status:400})};
@@ -19,11 +20,22 @@ export async function POST(request:Request){
     const body=await request.json().catch(()=>({}));
     const identity=validatedTelegramUser(body.initData);
     if(identity.response)return identity.response;
+    const telegramLanguage=typeof identity.user.language_code==="string"?identity.user.language_code:null;
+    const diagnostic=body.localeDiagnostic&&typeof body.localeDiagnostic==="object"?body.localeDiagnostic:{};
+    console.info("[AURA_LANGUAGE]",{
+      telegramLanguage,
+      telegramSourceAvailable:Boolean(telegramLanguage),
+      browserLanguage:localeValue(diagnostic.browserLanguage),
+      storedLanguage:localeValue(diagnostic.storedLanguage),
+      storedSource:diagnostic.storedSource==="manual"||diagnostic.storedSource==="auto"?diagnostic.storedSource:null,
+      resolvedLanguage:localeValue(diagnostic.resolvedLanguage),
+      resolutionReason:diagnostic.resolutionReason==="manual"||diagnostic.resolutionReason==="pre_auth_bootstrap"?diagnostic.resolutionReason:null,
+    });
     const action=body.action==="create"?"create":"check";
     const {data:existingUser,error:lookupError}=await supabaseAdmin.from("users").select(USER_FIELDS).eq("telegram_id",identity.user.id).maybeSingle();
     if(lookupError)return NextResponse.json({ok:false,error:"USER_LOOKUP_FAILED"},{status:500});
-    if(existingUser)return NextResponse.json({ok:true,exists:true,user:existingUser});
-    if(action==="check")return NextResponse.json({ok:true,exists:false,user:null});
+    if(existingUser)return NextResponse.json({ok:true,exists:true,user:existingUser,telegramLanguage});
+    if(action==="check")return NextResponse.json({ok:true,exists:false,user:null,telegramLanguage});
 
     const {data:newUser,error:createError}=await supabaseAdmin.from("users").insert({
       telegram_id:identity.user.id,
@@ -32,7 +44,7 @@ export async function POST(request:Request){
       language:normalizeLocale(typeof body.language==="string"?body.language:identity.user.language_code),
     }).select(USER_FIELDS).single();
     if(createError||!newUser)return NextResponse.json({ok:false,error:"USER_CREATE_FAILED"},{status:500});
-    return NextResponse.json({ok:true,exists:true,user:newUser});
+    return NextResponse.json({ok:true,exists:true,user:newUser,telegramLanguage});
   }catch(error){
     console.error("AUTH ERROR",{message:error instanceof Error?error.message:"unknown"});
     return NextResponse.json({ok:false,error:"AUTH_FAILED"},{status:500});

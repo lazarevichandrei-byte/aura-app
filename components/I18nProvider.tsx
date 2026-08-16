@@ -58,6 +58,22 @@ export default function I18nProvider({children}:{children:ReactNode}){
   },[localeResolved]);
 
   useEffect(()=>{
+    const applyValidatedTelegramLocale=(event:Event)=>{
+      if(hasManualLocalePreference())return;
+      const telegramLanguage=(event as CustomEvent<string>).detail;
+      const resolved=resolveSupportedLocale(telegramLanguage);
+      (window as any).__AURA_TELEGRAM_LOCALE__=telegramLanguage;
+      localStorage.setItem(STORAGE_KEY,resolved);
+      localStorage.setItem(SOURCE_KEY,"auto");
+      localStorage.removeItem(MANUAL_KEY);
+      setLocaleState(resolved);
+      setLocaleResolved(true);
+    };
+    window.addEventListener("aura-telegram-language-resolved",applyValidatedTelegramLocale);
+    return()=>window.removeEventListener("aura-telegram-language-resolved",applyValidatedTelegramLocale);
+  },[]);
+
+  useEffect(()=>{
     if(!localeResolved)return;
     if(!performance.getEntriesByName("I18N_READY").length) performance.mark("I18N_READY");
     document.documentElement.lang=metadata.code;
