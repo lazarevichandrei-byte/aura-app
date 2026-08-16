@@ -56,6 +56,7 @@ useState(50);
   const [longitude,setLongitude]=useState<number|null>(null);
   const [locationStatus,setLocationStatus]=useState<"idle"|"locating"|"resolving_place">("idle");
   const [locationFailed,setLocationFailed]=useState(false);
+  const [locationFailureCount,setLocationFailureCount]=useState(0);
 const [bio, setBio] = useState("");
 
 const [isEditing,setIsEditing] =
@@ -87,7 +88,6 @@ const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
-const [onboardingStep,setOnboardingStep]=useState(0);
 const photoInputRef=useRef<HTMLInputElement>(null);
 const [profileLoaded,setProfileLoaded]=useState(false);
 const [pendingPhoto,setPendingPhoto]=useState<{file:File;slot:number}|null>(null);
@@ -237,7 +237,7 @@ setIsOnboarding(!data.onboarding_completed);
 
   try{
     const draft=JSON.parse(sessionStorage.getItem("aura-onboarding-draft")||"null");
-    if(draft){setName(draft.name??data.name??user.first_name??"");setAge(draft.age??data.age??22);setGender(draft.gender??data.gender??"female");setSearch(draft.search??data.looking??"female");setCity(draft.city??data.city??"");setLatitude(draft.latitude??data.latitude??null);setLongitude(draft.longitude??data.longitude??null);setBio(draft.bio??data.bio??"");setSelected(draft.selected??data.interests??[]);setPhotos(draft.photos??data.photos??[]);setOnboardingStep(draft.step??0);}
+    if(draft){setName(draft.name??data.name??user.first_name??"");setAge(draft.age??data.age??22);setGender(draft.gender??data.gender??"female");setSearch(draft.search??data.looking??"female");setCity(draft.city??data.city??"");setLatitude(draft.latitude??data.latitude??null);setLongitude(draft.longitude??data.longitude??null);setBio(draft.bio??data.bio??"");setSelected(draft.selected??data.interests??[]);setPhotos(draft.photos??data.photos??[]);}
   }catch{sessionStorage.removeItem("aura-onboarding-draft");}
 
   localStorage.setItem(
@@ -267,8 +267,8 @@ init();
 
 useEffect(()=>{
   if(!isOnboarding||loading)return;
-  sessionStorage.setItem("aura-onboarding-draft",JSON.stringify({name,age,gender,search,city,latitude,longitude,bio,selected,photos,step:onboardingStep}));
-},[age,bio,city,gender,isOnboarding,latitude,loading,longitude,name,onboardingStep,photos,search,selected]);
+  sessionStorage.setItem("aura-onboarding-draft",JSON.stringify({name,age,gender,search,city,latitude,longitude,bio,selected,photos}));
+},[age,bio,city,gender,isOnboarding,latitude,loading,longitude,name,photos,search,selected]);
 
 useEffect(()=>{
  if(!telegramId)return;
@@ -688,6 +688,7 @@ if (isOnboarding) {
       const key=failure==="permission_denied"?"location.permissionDenied":failure==="timeout"?"location.timeout":"location.unavailable";
       error(t("common.error"),t(key));
       setLocationFailed(true);
+      setLocationFailureCount((count)=>count+1);
       setLocationStatus("idle");
       return;
     }
@@ -702,12 +703,13 @@ if (isOnboarding) {
       else warning(t("location.coordinatesFound"),t("location.resolveFailed"));
       success(t("common.saved"),t("profile.locationUpdated"));
       setLocationFailed(false);
+      setLocationFailureCount(0);
     }catch{
       const resolvedCity=await resolveSecondaryCity(coordinates.lat,coordinates.lng).catch(()=>"");
       if(resolvedCity)await persistLocation(coordinates.lat,coordinates.lng,resolvedCity);
       else warning(t("location.coordinatesFound"),t("location.resolveFailed"));
     }
-    finally{setLocationStatus("idle");if(isOnboarding&&onboardingStep===4)setOnboardingStep(5);}
+    finally{setLocationStatus("idle");}
   }
 
   async function resolveSecondaryCity(lat:number,lng:number){
@@ -721,20 +723,12 @@ if (isOnboarding) {
     router.push("/meet/location?source=profile");
   }
 
-  const guideStyle=(section:number)=>isOnboarding&&onboardingStep<8?{opacity:onboardingStep===section?1:.92,transform:onboardingStep===section?"translateY(-1px)":"none",outline:onboardingStep===section?"2px solid color-mix(in srgb,var(--brand-primary) 38%,transparent)":"2px solid transparent",boxShadow:onboardingStep===section?"0 10px 24px color-mix(in srgb,var(--brand-primary) 10%,transparent)":"none",transition:"opacity .2s ease, transform .2s ease, box-shadow .2s ease, outline-color .2s ease"}:{};
-  const guideHint=(section:number)=>isOnboarding&&onboardingStep===section?<div style={{position:"relative",marginTop:8,padding:"9px 11px",borderRadius:12,background:"var(--primary-soft)",color:"var(--text-secondary)",fontSize:12,lineHeight:1.4}}>{t(`onboarding.hint${section+1}` as any)}</div>:null;
-  const selectGuide=(section:number)=>{if(isOnboarding&&onboardingStep<8)setOnboardingStep(section);};
-  const openPhotoSlot=(slot:number)=>{selectGuide(7);photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
+  const openPhotoSlot=(slot:number)=>{photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
   const removePhotoAt=(slot:number)=>{
     setPhotos((current)=>current.filter((_,index)=>index!==slot));
     setMainIndex((current)=>current===slot?0:current>slot?current-1:current);
     setPhotoEdits((current)=>Object.fromEntries(Object.entries(current).flatMap(([key,value])=>{const index=Number(key);if(index===slot)return[];return [[index>slot?index-1:index,value]];})));
   };
-
-  useEffect(()=>{
-    if(!isOnboarding||onboardingStep>=8)return;
-    window.setTimeout(()=>document.querySelector(`[data-guide-section="${onboardingStep}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}),60);
-  },[isOnboarding,onboardingStep]);
 
   if (loading) {
   return <ProfileSkeleton />;
@@ -786,16 +780,13 @@ if (isOnboarding) {
 </div>
 </div>
 
-{isOnboarding&&onboardingStep<8&&<div style={{position:"sticky",top:"max(8px, env(safe-area-inset-top))",zIndex:20,marginBottom:18,padding:"9px 11px",borderRadius:15,background:"color-mix(in srgb,var(--surface-elevated) 94%,transparent)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-sm)",backdropFilter:"blur(12px)"}}><div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>{Array.from({length:8},(_,index)=><span key={index} style={{height:4,borderRadius:99,background:index<=onboardingStep?"var(--primary)":"var(--border-subtle)"}}/>)}</div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}><span style={{fontSize:11,fontWeight:700,color:"var(--text-secondary)"}}>{t("onboarding.progress",{current:onboardingStep+1,total:8})}</span><button type="button" onClick={()=>setOnboardingStep(8)} style={{border:0,background:"transparent",padding:"2px 0",color:"var(--primary)",fontSize:11,fontWeight:700}}>{t("onboarding.skip")}</button></div></div>}
-
         <div style={isOnboarding?{display:"block"}:styles.row}>
-          <div data-guide-section="0" onClick={()=>selectGuide(0)} style={{...styles.inputBox,...guideStyle(0)}}>
+          <div style={styles.inputBox}>
             <p style={styles.label}>{t("profile.name")}</p>
-            <input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>{if(onboardingStep===0&&name.trim())setOnboardingStep(1);}} style={styles.input}/>
-            {guideHint(0)}
+            <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
           </div>
 
-          <div data-guide-section="1" onClick={()=>selectGuide(1)} style={{...styles.inputBox,...guideStyle(1)}}>
+          <div style={styles.inputBox}>
             <p style={styles.label}>{t("profile.age")}</p>
 <div style={{fontSize:14, marginBottom:4}}>{age}</div><input
  type="range"
@@ -803,27 +794,24 @@ if (isOnboarding) {
  max="60"
  value={age}
  onChange={(e)=>setAge(Number(e.target.value))}
- onPointerUp={()=>{if(onboardingStep===1)setOnboardingStep(2);}}
  style={styles.slider}
 />
-            {guideHint(1)}
           </div>
         </div>
 
-        <div data-guide-section="2" onClick={()=>selectGuide(2)} style={{...styles.block,...guideStyle(2)}}>
+        <div style={styles.block}>
           <p style={styles.label}>{t("profile.gender")}</p>
           <div style={styles.buttons}>
-            <button onClick={()=>{setGender("female");if(onboardingStep===2)setOnboardingStep(3);}} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button>
-            <button onClick={()=>{setGender("male");if(onboardingStep===2)setOnboardingStep(3);}} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button>
+            <button onClick={()=>setGender("female")} style={{...styles.option,...(gender==="female"&&styles.active)}}>{t("profile.woman")}</button>
+            <button onClick={()=>setGender("male")} style={{...styles.option,...(gender==="male"&&styles.active)}}>{t("profile.man")}</button>
           </div>
-          {guideHint(2)}
         </div>
 
-        <div data-guide-section="3" onClick={()=>selectGuide(3)} style={{...styles.block,...guideStyle(3)}}>
+        <div style={styles.block}>
           <p style={styles.label}>{t("profile.lookingFor")}</p>
           <div style={styles.buttons}>
             {["male","female","any"].map(item=>(
-              <button key={item} onClick={()=>{setSearch(item);if(onboardingStep===3)setOnboardingStep(4);}} style={{...styles.option,...(search===item&&styles.active)}}>
+              <button key={item} onClick={()=>setSearch(item)} style={{...styles.option,...(search===item&&styles.active)}}>
                 {
  item==="male"
  ? t("profile.boy")
@@ -834,7 +822,6 @@ if (isOnboarding) {
               </button>
             ))}
           </div>
-          {guideHint(3)}
         </div>
 
 
@@ -842,14 +829,11 @@ if (isOnboarding) {
         
 
         <div
-  data-guide-section="4"
-  onClick={()=>selectGuide(4)}
   style={{
     marginTop:"14px",
     padding:"14px 16px",
     background:"var(--surface-secondary)",
     borderRadius:"16px",
-    ...guideStyle(4),
 
     display:"flex",
     alignItems:"center",
@@ -890,52 +874,47 @@ if (isOnboarding) {
       fontWeight:600
     }}
   >
-    {locationStatus==="locating"?t("location.detecting"):locationStatus==="resolving_place"?t("location.resolving"):t(city?"profile.updateLocation":"location.detectAutomatically")}
+    {locationStatus==="locating"||locationStatus==="resolving_place"?t("location.detecting"):locationFailed?t("common.retry"):t(city?"profile.updateLocation":"location.detectAutomatically")}
   </button>
 </div>
-{!hasLocation&&!locationFailed&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("location.permissionRequired")}</p>}
-{locationFailed&&<div style={{marginTop:10}}><p style={{margin:"0 0 8px",fontSize:12,color:"var(--text-secondary)"}}>{t("location.unavailable")}</p><button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"8px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button></div>}
-<p style={{margin:"0 2px 14px",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("onboarding.locationPrivacy")}</p>
-{guideHint(4)}
+{locationFailed&&<div style={{marginTop:10}}><p style={{margin:"0 0 8px",fontSize:12,color:"var(--text-secondary)"}}>{t("profile.locationFailed")}</p>{locationFailureCount>=2&&<button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"8px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button>}</div>}
 
 
-        <div data-guide-section="5" onClick={()=>selectGuide(5)} style={{...styles.inputBox,...guideStyle(5)}}>
+        <div style={styles.inputBox}>
           <p style={styles.label}>{t("profile.bio")}</p>
-          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} onBlur={()=>{if(onboardingStep===5)setOnboardingStep(6);}} style={styles.textarea}/>
-          {guideHint(5)}
+          <textarea value={bio} onChange={(e)=>setBio(e.target.value)} style={styles.textarea}/>
         </div>
 
-        <div data-guide-section="6" onClick={()=>selectGuide(6)} style={{...styles.block,...guideStyle(6)}}>
+        <div style={styles.block}>
           <p style={styles.label}>{t("profile.interests")}</p>
           <div style={styles.tags}>
             {[...base, ...(showMore ? extra : [])].map((interest) => {
               const active = selected.some((value)=>interestId(value)===interestId(interest));
               return (
-                <span key={interest} onClick={() => {toggle(interest);if(onboardingStep===6)setOnboardingStep(7);}} style={{...styles.tag,...(active && styles.tagActive)}}>
+                <span key={interest} onClick={() => toggle(interest)} style={{...styles.tag,...(active && styles.tagActive)}}>
                   {interestLabel(interest,t)}
                 </span>
               );
             })}
             {!showMore && <span style={styles.tag} onClick={() => setShowMore(true)}>+</span>}
           </div>
-          {guideHint(6)}
           
         </div>
 
-        <div data-guide-section="7" onClick={()=>selectGuide(7)} style={{...styles.photoManager,...guideStyle(7)}}>
+        <div style={styles.photoManager}>
           <p style={styles.label}>{t("profile.photos")}</p>
           <div style={styles.photoSlots}>
             {Array.from({length:6},(_,slot)=>{
               const photo=photos[slot];
-              return <button key={slot} type="button" onClick={(event)=>{event.stopPropagation();if(photo)setMainIndex(slot);else openPhotoSlot(slot);}} style={{...styles.photoSlot,...(slot===0?styles.photoSlotMain:{}),...(photo?{padding:0}:{})}}>
+              return <button key={slot} type="button" onClick={(event)=>{event.stopPropagation();openPhotoSlot(slot);}} style={{...styles.photoSlot,...(slot===mainIndex?styles.photoSlotMain:{}),...(photo?{padding:0}:{})}}>
                 {photo?<img src={slot===mainIndex&&avatarPreview?avatarPreview:photo} alt="" style={styles.photoSlotImage}/>:<span style={{fontSize:28,color:"var(--primary)"}}>+</span>}
                 {photo&&slot===mainIndex&&<span style={styles.photoMainBadge}>★ {t("profile.mainPhoto")}</span>}
+                {photo&&slot!==mainIndex&&<span onClick={(event)=>{event.stopPropagation();setMainIndex(slot);}} style={styles.photoMainAction}>★</span>}
                 {photo&&<span onClick={(event)=>{event.stopPropagation();removePhotoAt(slot);}} style={styles.photoRemove}>×</span>}
               </button>;
             })}
           </div>
           {uploading&&<div style={{marginTop:8,fontSize:12,color:"var(--primary)",fontWeight:700}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
-          {guideHint(7)}
           <input ref={photoInputRef} type="file" accept="image/*" hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
         </div>
         
@@ -950,7 +929,7 @@ if (isOnboarding) {
   style={{
     ...styles.submit,
     opacity:isValid&&profileLoaded ? 1 : 0.5,
-    boxShadow:isOnboarding&&isValid&&onboardingStep>=8?"0 10px 26px color-mix(in srgb,var(--brand-primary) 24%,transparent)":"none"
+    boxShadow:isOnboarding&&isValid?"0 10px 26px color-mix(in srgb,var(--brand-primary) 18%,transparent)":"none"
   }}
   onClick={handleSubmit}
 >
@@ -1109,7 +1088,6 @@ bio,
 
 setCropOpen(false);
 setPendingPhoto(null);
-if(isOnboarding&&onboardingStep===7)setOnboardingStep(8);
 
 }}
 >
@@ -1143,6 +1121,7 @@ photoSlot:{position:"relative",minWidth:0,border:"1px dashed var(--border-strong
 photoSlotMain:{gridColumn:"span 2",gridRow:"span 2"},
 photoSlotImage:{width:"100%",height:"100%",objectFit:"cover",display:"block"},
 photoMainBadge:{position:"absolute",left:7,bottom:7,padding:"3px 7px",borderRadius:999,background:"var(--primary)",color:"var(--text-inverse)",fontSize:10,fontWeight:700},
+photoMainAction:{position:"absolute",left:6,bottom:6,width:26,height:26,borderRadius:13,background:"color-mix(in srgb,var(--surface) 88%,transparent)",color:"var(--primary)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14},
 photoRemove:{position:"absolute",right:6,top:6,width:24,height:24,borderRadius:12,background:"color-mix(in srgb,var(--surface) 88%,transparent)",color:"var(--text-primary)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:700},
 
 avatarWrapper:{

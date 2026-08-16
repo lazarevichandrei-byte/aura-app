@@ -22,7 +22,7 @@ function telegramLocation():Promise<LocationCoordinates|null>{
   return new Promise((resolve)=>{
     let settled=false;
     const finish=(value:LocationCoordinates|null)=>{if(settled)return;settled=true;window.clearTimeout(timer);resolve(value);};
-    const timer=window.setTimeout(()=>finish(null),10000);
+    const timer=window.setTimeout(()=>finish(null),4500);
     manager.init(()=>{
       if(manager.isLocationAvailable===false){finish(null);return;}
       manager.getLocation((location:any)=>finish(location&&Number.isFinite(location.latitude)&&Number.isFinite(location.longitude)?{lat:location.latitude,lng:location.longitude,accuracy:Number.isFinite(location.horizontal_accuracy)?location.horizontal_accuracy:null}:null));
@@ -42,11 +42,11 @@ function watchPosition():Promise<LocationCoordinates>{
   return new Promise((resolve,reject)=>{
     let watchId:number|undefined;
     const finish=(callback:()=>void)=>{if(watchId!==undefined)navigator.geolocation.clearWatch(watchId);window.clearTimeout(timer);callback();};
-    const timer=window.setTimeout(()=>finish(()=>reject({code:3})),6000);
+    const timer=window.setTimeout(()=>finish(()=>reject({code:3})),4000);
     watchId=navigator.geolocation.watchPosition(
       ({coords})=>finish(()=>resolve({lat:coords.latitude,lng:coords.longitude,accuracy:Number.isFinite(coords.accuracy)?coords.accuracy:null})),
       (error)=>finish(()=>reject(error)),
-      {enableHighAccuracy:false,timeout:5500,maximumAge:10*60*1000}
+      {enableHighAccuracy:false,timeout:3500,maximumAge:10*60*1000}
     );
   });
 }
@@ -54,17 +54,29 @@ function watchPosition():Promise<LocationCoordinates>{
 export async function getReliableLocation():Promise<LocationCoordinates>{
   const cached=cachedLocation();
   if(cached)return cached;
-  const telegram=await telegramLocation();
-  if(telegram){remember(telegram);return telegram;}
+  const attempts:Promise<LocationCoordinates>[]=[];
+  const telegram=telegramLocation().then((coordinates)=>coordinates||Promise.reject({code:2}));
+  attempts.push(telegram);
+  if(navigator.geolocation){
+    attempts.push(browserPosition({enableHighAccuracy:false,timeout:3500,maximumAge:10*60*1000}));
+    attempts.push(new Promise((resolve,reject)=>window.setTimeout(()=>browserPosition({enableHighAccuracy:true,timeout:5000,maximumAge:60000}).then(resolve,reject),500)));
+  }
+  try{
+    const coordinates=await Promise.any(attempts);
+    remember(coordinates);
+    return coordinates;
+  }catch(aggregateError){
+    const errors=aggregateError instanceof AggregateError?aggregateError.errors:[];
+    const permissionDenied=errors.some((error)=>(error as GeolocationPositionError)?.code===1);
+    if(permissionDenied)throw new Error("permission_denied" satisfies LocationFailure);
+  }
   if(!navigator.geolocation)throw new Error("unavailable" satisfies LocationFailure);
   let lastError:any;
-  for(const attempt of [
-    ()=>browserPosition({enableHighAccuracy:true,timeout:9000,maximumAge:60000}),
-    ()=>browserPosition({enableHighAccuracy:false,timeout:6500,maximumAge:10*60*1000}),
-    watchPosition,
-  ]){
-    try{const coordinates=await attempt();remember(coordinates);return coordinates;}catch(error){lastError=error;if((error as GeolocationPositionError)?.code===1)break;}
-  }
+  try{
+    const coordinates=await watchPosition();
+    remember(coordinates);
+    return coordinates;
+  }catch(error){lastError=error;}
   const code=(lastError as GeolocationPositionError)?.code;
   throw new Error((code===1?"permission_denied":code===3?"timeout":"unavailable") satisfies LocationFailure);
 }
