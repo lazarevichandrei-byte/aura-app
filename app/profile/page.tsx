@@ -103,6 +103,7 @@ const [profileLoaded,setProfileLoaded]=useState(false);
 const [pendingPhoto,setPendingPhoto]=useState<{file:File;slot:number}|null>(null);
 const [pendingPhotoQueue,setPendingPhotoQueue]=useState<Array<{file:File;slot:number}>>([]);
 const [photoMenuIndex,setPhotoMenuIndex]=useState<number|null>(null);
+const [photoPreparing,setPhotoPreparing]=useState(false);
 
 const router = useRouter();
 
@@ -577,11 +578,13 @@ return uploadedUrl;
 };
 
   const preparePhotoCrop=async(file:File,slot:number)=>{
-    if(file.size>10*1024*1024){warning(t("profile.fileTooLarge"),t("profile.fileLimit"));return;}
+    if(photoPreparing||uploading)return;
+    setPhotoPreparing(true);
+    if(file.size>10*1024*1024){setPhotoPreparing(false);warning(t("profile.fileTooLarge"),t("profile.fileLimit"));return;}
     const localImage=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>typeof reader.result==="string"?resolve(reader.result):reject(new Error("PHOTO_READ_FAILED"));reader.onerror=()=>reject(reader.error||new Error("PHOTO_READ_FAILED"));reader.readAsDataURL(file);}).catch(()=>"");
-    if(!localImage){error(t("common.error"),t("profile.uploadFailed"));return;}
+    if(!localImage){setPhotoPreparing(false);error(t("common.error"),t("profile.uploadFailed"));return;}
     const decoded=await new Promise<boolean>((resolve)=>{const image=new Image();image.onload=()=>resolve(true);image.onerror=()=>resolve(false);image.src=localImage;});
-    if(!decoded){error(t("common.error"),t("profile.uploadFailed"));return;}
+    if(!decoded){setPhotoPreparing(false);error(t("common.error"),t("profile.uploadFailed"));return;}
     setPendingPhoto({file,slot});
     setEditingPhoto(localImage);
     setCrop({x:0,y:0});
@@ -589,6 +592,7 @@ return uploadedUrl;
     setRotation(0);
     setCroppedAreaPixels(null);
     setCropOpen(true);
+    setPhotoPreparing(false);
   };
 
   const handlePhotoSelection=async(files:FileList|null,slot:number)=>{
@@ -734,11 +738,37 @@ if (isOnboarding) {
   }
 
   const openPhotoSlot=(slot:number)=>{setPhotoMenuIndex(null);photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
+  const chooseMainPhoto=(slot:number)=>{
+    if(!photos[slot])return;
+    setMainIndex(slot);
+    setPhotoMenuIndex(null);
+    if(telegramId)void supabase.from("users").update({main_photo_index:slot,avatar_url:photos[slot]}).eq("telegram_id",telegramId);
+  };
+  const editExistingPhoto=async(slot:number)=>{
+    const source=photos[slot];
+    if(!source||photoPreparing||uploading)return;
+    setPhotoMenuIndex(null);
+    setPhotoPreparing(true);
+    try{
+      const response=await fetch(source,{cache:"no-store"});
+      if(!response.ok)throw new Error("PHOTO_FETCH_FAILED");
+      const blob=await response.blob();
+      const extension=blob.type.split("/")[1]||"jpg";
+      const file=new File([blob],`photo-${slot}.${extension}`,{type:blob.type||"image/jpeg"});
+      setPhotoPreparing(false);
+      await preparePhotoCrop(file,slot);
+    }catch{
+      setPhotoPreparing(false);
+      error(t("common.error"),t("profile.uploadFailed"));
+    }
+  };
   const removePhotoAt=(slot:number)=>{
     if(photos.length<=1)return;
-    setPhotos((current)=>current.filter((_,index)=>index!==slot));
-    setMainIndex((current)=>current===slot?0:current>slot?current-1:current);
-    setPhotoEdits((current)=>Object.fromEntries(Object.entries(current).flatMap(([key,value])=>{const index=Number(key);if(index===slot)return[];return [[index>slot?index-1:index,value]];})));
+    const nextPhotos=photos.filter((_,index)=>index!==slot);
+    const nextMainIndex=mainIndex===slot?0:mainIndex>slot?mainIndex-1:mainIndex;
+    const nextPhotoEdits=Object.fromEntries(Object.entries(photoEdits).flatMap(([key,value])=>{const index=Number(key);if(index===slot)return[];return [[index>slot?index-1:index,value]];}));
+    setPhotos(nextPhotos);setMainIndex(nextMainIndex);setPhotoEdits(nextPhotoEdits);
+    if(telegramId)void supabase.from("users").update({photos:nextPhotos,photo_edits:nextPhotoEdits,main_photo_index:nextMainIndex,avatar_url:nextPhotos[nextMainIndex]||null}).eq("telegram_id",telegramId);
   };
 
   const saveCroppedPhoto=async()=>{
@@ -755,6 +785,8 @@ if (isOnboarding) {
     setPhotos(compactPhotos);
     setPhotoEdits(nextPhotoEdits);
     if(photos.length===0)setMainIndex(0);
+    const persistedMainIndex=photos.length===0?0:Math.min(mainIndex,compactPhotos.length-1);
+    if(telegramId)await supabase.from("users").update({photos:compactPhotos,photo_edits:nextPhotoEdits,main_photo_index:persistedMainIndex,avatar_url:compactPhotos[persistedMainIndex]||null}).eq("telegram_id",telegramId);
     localStorage.setItem("profile_cache",JSON.stringify({name,age,gender,looking:search,search_radius:searchRadius,city,bio,interests:selected,photos:compactPhotos,photo_edits:nextPhotoEdits}));
     const [next,...remaining]=pendingPhotoQueue;
     setPendingPhotoQueue(remaining);
@@ -814,16 +846,17 @@ if (isOnboarding) {
 
         <div style={styles.photoManager}>
           <div style={styles.mainPhotoArea}>
-            <button type="button" onClick={()=>openPhotoSlot(mainIndex)} style={styles.mainPhotoButton}>
+            <div style={styles.mainPhotoButton} onClick={()=>{if(!photos.length)openPhotoSlot(0);}}>
               {photos[mainIndex]?<img src={avatarPreview||photos[mainIndex]} alt="" style={styles.mainPhotoImage}/>:<span style={styles.mainPhotoPlaceholder}>👤</span>}
-              {photos.length>0&&<span style={styles.mainPhotoBadge}>★ {t("profile.mainPhoto")}</span>}
               {uploading&&<span style={styles.photoUploadOverlay}>{uploadProgress}%</span>}
-            </button>
-            <button type="button" onClick={()=>openPhotoSlot(mainIndex)} style={styles.photoEditButton}>✎</button>
+              {photoPreparing&&<span style={styles.photoUploadOverlay}><AuraLoader inline size={22}/></span>}
+            </div>
+            {photos.length>0&&<span style={styles.mainPhotoBadge}>★ {t("profile.mainPhoto")}</span>}
+            <button type="button" disabled={photoPreparing||uploading} onClick={()=>setPhotoMenuIndex((current)=>current===mainIndex?null:mainIndex)} style={styles.photoEditButton}>✎</button>
             <p style={styles.photoDescription}>{t("onboarding.hint8")}</p>
           </div>
           <div style={styles.photoCarousel}>
-            {photos.map((photo,index)=><button key={`${photo}-${index}`} type="button" onClick={()=>setPhotoMenuIndex((current)=>current===index?null:index)} style={{...styles.photoThumbnail,...(index===mainIndex?styles.photoThumbnailMain:{})}}>
+            {photos.map((photo,index)=><button key={`${photo}-${index}`} type="button" onClick={()=>chooseMainPhoto(index)} style={{...styles.photoThumbnail,...(index===mainIndex?styles.photoThumbnailMain:{})}}>
               <img src={photo} alt="" style={styles.photoThumbnailImage}/>
               {index===mainIndex&&<span style={styles.photoThumbnailStar}>★</span>}
             </button>)}
@@ -831,8 +864,8 @@ if (isOnboarding) {
           </div>
           <div style={styles.photoCount}>{photos.length} / 6 {t("profile.photos")}</div>
           {photoMenuIndex!==null&&photos[photoMenuIndex]&&<div style={styles.photoActionMenu}>
-            {photoMenuIndex!==mainIndex&&<button type="button" onClick={()=>{setMainIndex(photoMenuIndex);setPhotoMenuIndex(null);}} style={styles.photoActionButton}>☆ {t("profile.mainPhoto")}</button>}
-            <button type="button" onClick={()=>openPhotoSlot(photoMenuIndex)} style={styles.photoActionButton}>✎ {t("account.edit")}</button>
+            <button type="button" onClick={()=>openPhotoSlot(photos.length)} disabled={photos.length>=6} style={styles.photoActionButton}>📷 {t("profile.photos")}</button>
+            <button type="button" onClick={()=>void editExistingPhoto(photoMenuIndex)} style={styles.photoActionButton}>✎ {t("account.edit")}</button>
             {photos.length>1&&<button type="button" onClick={()=>{removePhotoAt(photoMenuIndex);setPhotoMenuIndex(null);}} style={{...styles.photoActionButton,color:"var(--danger)"}}>× {t("common.delete")}</button>}
           </div>}
           <input ref={photoInputRef} type="file" accept="image/*" multiple hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
@@ -1025,11 +1058,11 @@ color:"var(--text-secondary)"
  style={{
    width:"100%",
    maxWidth:"430px",
-   minHeight:"min(100dvh,680px)",
+   maxHeight:"calc(100dvh - 20px)",
    background:"#101318",
    color:"#fff",
    borderRadius:"24px",
-   padding:"calc(14px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom))",
+   padding:"14px 16px calc(14px + env(safe-area-inset-bottom))",
    position:"relative",
    overflow:"hidden"
  }}
@@ -1111,13 +1144,13 @@ const styles:any = {
 },
   card:{background:"var(--surface)",border:"1px solid var(--border-subtle)",borderRadius:"24px",padding:"20px",maxWidth:"420px",margin:"0 auto"},
 
-photoManager:{position:"relative",marginBottom:18,padding:"14px 10px",borderRadius:20,background:"var(--surface-secondary)"},
-mainPhotoArea:{display:"flex",flexDirection:"column",alignItems:"center"},
+photoManager:{position:"relative",marginBottom:18,padding:"4px 0 12px"},
+mainPhotoArea:{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"},
 mainPhotoButton:{position:"relative",width:156,height:156,borderRadius:"50%",border:"none",padding:0,background:"var(--primary-soft)",overflow:"hidden",boxShadow:"0 8px 24px color-mix(in srgb,var(--brand-primary) 15%,transparent)"},
 mainPhotoImage:{width:"100%",height:"100%",objectFit:"cover",display:"block"},
 mainPhotoPlaceholder:{width:"100%",height:"100%",display:"grid",placeItems:"center",fontSize:58},
-mainPhotoBadge:{position:"absolute",left:10,bottom:8,padding:"4px 8px",borderRadius:999,background:"var(--primary)",color:"var(--text-inverse)",fontSize:10,fontWeight:750},
-photoEditButton:{position:"absolute",top:128,left:"calc(50% + 48px)",width:36,height:36,borderRadius:"50%",border:"3px solid var(--surface-secondary)",background:"var(--surface)",color:"var(--text-primary)",boxShadow:"var(--shadow-sm)",fontSize:16},
+mainPhotoBadge:{position:"relative",zIndex:2,marginTop:-11,padding:"4px 8px",borderRadius:999,background:"var(--primary)",color:"var(--text-inverse)",fontSize:10,fontWeight:750},
+photoEditButton:{position:"absolute",top:120,left:"calc(50% + 43px)",width:36,height:36,borderRadius:"50%",border:"3px solid var(--app-bg)",background:"var(--surface)",color:"var(--text-primary)",boxShadow:"var(--shadow-sm)",fontSize:16,zIndex:3},
 photoDescription:{margin:"12px 8px 10px",maxWidth:280,textAlign:"center",fontSize:11,lineHeight:1.4,color:"var(--text-secondary)"},
 photoUploadOverlay:{position:"absolute",inset:0,display:"grid",placeItems:"center",background:"rgba(5,10,18,.52)",color:"#fff",fontWeight:800,fontSize:18},
 photoCarousel:{display:"flex",gap:10,overflowX:"auto",padding:"4px 2px 8px",scrollbarWidth:"none",WebkitOverflowScrolling:"touch"},
@@ -1127,7 +1160,7 @@ photoThumbnailImage:{width:"100%",height:"100%",objectFit:"cover",display:"block
 photoThumbnailStar:{position:"absolute",right:1,bottom:0,width:17,height:17,borderRadius:9,display:"grid",placeItems:"center",background:"var(--primary)",color:"#fff",fontSize:9},
 photoAddButton:{width:54,height:54,minWidth:54,borderRadius:"50%",border:"1.5px dashed var(--primary)",background:"var(--surface)",color:"var(--primary)",fontSize:28},
 photoCount:{textAlign:"center",fontSize:11,color:"var(--text-secondary)",marginTop:2},
-photoActionMenu:{position:"absolute",zIndex:30,right:12,top:190,minWidth:180,padding:6,borderRadius:14,background:"var(--surface-elevated)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-lg)"},
+photoActionMenu:{position:"absolute",zIndex:30,right:8,top:166,minWidth:190,maxWidth:"calc(100% - 16px)",padding:6,borderRadius:14,background:"var(--surface-elevated)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-lg)"},
 photoActionButton:{display:"block",width:"100%",border:0,background:"transparent",color:"var(--text-primary)",padding:"10px 12px",textAlign:"left",fontWeight:650,fontSize:13},
 cropControl:{border:0,borderRadius:12,background:"#1a2029",color:"#fff",minHeight:54,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:3,fontSize:20},
 
