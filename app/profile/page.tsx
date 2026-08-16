@@ -99,8 +99,14 @@ const [photoEdits,setPhotoEdits] = useState<any>({});
 const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
-const photoInputRef=useRef<HTMLInputElement>(null);
-const cameraInputRef=useRef<HTMLInputElement>(null);
+const photoInputRef = useRef<HTMLInputElement>(null);
+
+const cameraVideoRef = useRef<HTMLVideoElement>(null);
+const cameraStreamRef = useRef<MediaStream | null>(null);
+
+const [cameraOpen, setCameraOpen] = useState(false);
+const [cameraSlot, setCameraSlot] = useState(0);
+const [cameraStarting, setCameraStarting] = useState(false);
 const locationRequestRef=useRef<{sequence:number;controller:AbortController|null;locked:boolean}>({sequence:0,controller:null,locked:false});
 const [profileLoaded,setProfileLoaded]=useState(false);
 const [pendingPhoto,setPendingPhoto]=useState<{file:File;slot:number}|null>(null);
@@ -763,34 +769,115 @@ if (isOnboarding) {
     setPhotoMenuPosition({top,left,originX:Math.min(width-18,Math.max(18,rect.left+rect.width/2-left)),originY:placeBelow?"top":"bottom"});
     setPhotoMenuIndex(slot);
   };
-  const showFilePicker=(input:HTMLInputElement)=>{
-    try{
-      if(typeof input.showPicker==="function"){input.showPicker();return;}
-    }catch{}
-    input.click();
-  };
-  const openPhotoSlot=(slot:number)=>{
-    closePhotoMenu();
-    const input=photoInputRef.current;
-    if(!input)return;
-    input.removeAttribute("capture");
-    input.multiple=true;
-    input.dataset.slot=String(Math.min(slot,photos.length));
-    showFilePicker(input);
-  };
-  const openCameraSlot = (slot: number) => {
+  const showFilePicker = (input: HTMLInputElement) => {
+  try {
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+      return;
+    }
+  } catch {}
+
+  input.click();
+};
+
+const openPhotoSlot = (slot: number) => {
   closePhotoMenu();
 
-  const input = cameraInputRef.current;
+  const input = photoInputRef.current;
   if (!input) return;
 
   input.value = "";
+  input.multiple = true;
   input.dataset.slot = String(Math.min(slot, photos.length));
 
-  // Важно: для камеры не используем showPicker().
-  // На Android / Telegram WebView вызываем отдельный
-  // file input с capture напрямую через click().
-  input.click();
+  showFilePicker(input);
+};
+
+const stopCamera = () => {
+  const stream = cameraStreamRef.current;
+
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+  }
+
+  cameraStreamRef.current = null;
+
+  if (cameraVideoRef.current) {
+    cameraVideoRef.current.srcObject = null;
+  }
+
+  setCameraOpen(false);
+  setCameraStarting(false);
+};
+
+const openCameraSlot = async (slot: number) => {
+  closePhotoMenu();
+
+  if (
+    !navigator.mediaDevices ||
+    typeof navigator.mediaDevices.getUserMedia !== "function"
+  ) {
+    error(
+      t("common.error"),
+      "Камера недоступна на этом устройстве"
+    );
+    return;
+  }
+
+  setCameraSlot(Math.min(slot, photos.length));
+  setCameraStarting(true);
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: {
+          ideal: "user"
+        },
+        width: {
+          ideal: 1280
+        },
+        height: {
+          ideal: 1280
+        }
+      },
+      audio: false
+    });
+
+    cameraStreamRef.current = stream;
+
+    setCameraOpen(true);
+
+    requestAnimationFrame(() => {
+      const video = cameraVideoRef.current;
+
+      if (!video) return;
+
+      video.srcObject = stream;
+
+      video
+        .play()
+        .catch((cameraPlayError) => {
+          console.error(
+            "[PROFILE_CAMERA_PLAY]",
+            cameraPlayError
+          );
+        });
+    });
+  } catch (cameraError) {
+    console.error(
+      "[PROFILE_CAMERA_OPEN]",
+      cameraError
+    );
+
+    stopCamera();
+
+    error(
+      t("common.error"),
+      "Не удалось открыть камеру. Проверьте разрешение на доступ к камере."
+    );
+  } finally {
+    setCameraStarting(false);
+  }
 };
   const chooseMainPhoto=(slot:number)=>{
     if(!photos[slot])return;
@@ -935,7 +1022,6 @@ useEffect(()=>{
           {photos.length>1&&<div aria-label={`${mainIndex+1} / ${photos.length}`} style={styles.photoIndicators}>{photos.map((_,index)=><span key={index} style={{...styles.photoIndicator,...(index===mainIndex?styles.photoIndicatorActive:{})}}/>)}</div>}
           <div style={styles.photoCount}>{photos.length} / 6 {t("profile.photos")}</div>
           <input ref={photoInputRef} type="file" accept="image/*" multiple hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
-          <input ref={cameraInputRef} type="file" accept="image/*" capture="user" multiple={false} hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
           <AnimatePresence>
             {photoMenuIndex!==null&&photoMenuPosition&&<>
               <motion.div aria-hidden style={styles.photoMenuBackdrop} onClick={closePhotoMenu} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:reduceMotion?0:.16}}/>
