@@ -25,7 +25,7 @@ export function clearAuraUserSession(){
   currentUserRequest=null;
   for(const key of [SNAPSHOT_KEY,"profile_cache","navUnread","aura-notification-preferences","my_name","aura_last_location"])localStorage.removeItem(key);
   localStorage.removeItem("aura-theme");
-  const languageIsManual=localStorage.getItem("aura-language-source")==="manual"||localStorage.getItem("aura-language-manual")==="1";
+  const languageIsManual=localStorage.getItem("aura-language-source")==="manual";
   if(!languageIsManual){localStorage.removeItem("aura-language");localStorage.removeItem("aura-language-source");localStorage.removeItem("aura-language-manual");}
   sessionStorage.clear();
   sessionStorage.setItem(DELETED_SESSION_KEY,"1");

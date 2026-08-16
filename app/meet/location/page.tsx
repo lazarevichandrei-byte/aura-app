@@ -16,7 +16,7 @@ import {useI18n} from "../../../components/I18nProvider";
 export default function MeetLocationPage() {
   const router = useRouter();
   const { error: showError } = useNotification();
-  const {t}=useI18n();
+  const {t,locale}=useI18n();
   const mapRef = useRef<AuraMapRef>(null);
   const initialLocationRef = useRef(
     typeof window === "undefined" ? null : consumeInitialMeetLocation()
@@ -52,14 +52,18 @@ export default function MeetLocationPage() {
     };
   }, [center]);
 
-  const selectPlace = () => {
-    if(profileModeRef.current&&!place.city){showError(t("location.updateFailed"),t("location.resolveFailed"));return;}
-    if (!place.title && !place.address) {
+  const selectPlace = async () => {
+    let profileCity=place.city;
+    if(profileModeRef.current&&!profileCity){
+      const response=await fetch(`/api/location?lat=${center.lat}&lng=${center.lng}&language=${encodeURIComponent(locale)}`);
+      const result=await response.json().catch(()=>null);profileCity=response.ok&&result?.ok?result.city||"":"";
+    }
+    if (!profileModeRef.current&&!place.title && !place.address) {
       showError(t("map.addressPending"), t("map.addressPendingHint"));
       return;
     }
     const location={ ...place, lat: center.lat, lng: center.lng };
-    if(profileModeRef.current)saveProfileLocation({title:place.city,address:place.city,city:place.city,lat:center.lat,lng:center.lng});else saveMeetLocation(location);
+    if(profileModeRef.current)saveProfileLocation({title:profileCity,address:profileCity,city:profileCity,lat:center.lat,lng:center.lng});else saveMeetLocation(location);
     router.back();
   };
 
@@ -85,7 +89,7 @@ export default function MeetLocationPage() {
           onZoomOut={() => mapRef.current?.zoomOut()}
         />
 
-        <PlaceBottomCard title={place.title} address={place.address} onSelect={selectPlace} />
+        <PlaceBottomCard title={profileModeRef.current?(place.city||t("location.coordinatesFound")):place.title} address={profileModeRef.current?t("onboarding.locationPrivacy"):place.address} onSelect={()=>void selectPlace()} />
 
         <header style={headerStyle}>
           <button type="button" onClick={() => router.back()} aria-label={t("common.back")} style={backButtonStyle}>

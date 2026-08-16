@@ -10,7 +10,7 @@ const MANUAL_KEY="aura-language-manual";
 const SOURCE_KEY="aura-language-source";
 const reportedFallbacks=new Set<string>();
 
-export function hasManualLocalePreference(){return typeof window!=="undefined"&&(localStorage.getItem(SOURCE_KEY)==="manual"||localStorage.getItem(MANUAL_KEY)==="1");}
+export function hasManualLocalePreference(){return typeof window!=="undefined"&&localStorage.getItem(SOURCE_KEY)==="manual";}
 
 type TranslationParams=Record<string,string|number>;
 type I18nContextValue={locale:string;intlLocale:string;direction:"ltr"|"rtl";setLocale:(locale:string,manual?:boolean)=>void;t:(key:TranslationKey,params?:TranslationParams)=>string};
@@ -28,6 +28,7 @@ function initialLocale(){
 
 export default function I18nProvider({children}:{children:ReactNode}){
   const [locale,setLocaleState]=useState(initialLocale);
+  const [localeResolved,setLocaleResolved]=useState(()=>typeof window==="undefined"||hasManualLocalePreference()||Boolean((window as any).__AURA_TELEGRAM_LOCALE__));
   const metadata=LOCALE_BY_CODE.get(locale) || LOCALE_BY_CODE.get(DEFAULT_LOCALE)!;
 
   const setLocale=(nextLocale:string,manual=true)=>{
@@ -36,24 +37,45 @@ export default function I18nProvider({children}:{children:ReactNode}){
     localStorage.setItem(SOURCE_KEY,manual?"manual":"auto");
     if(manual)localStorage.setItem(MANUAL_KEY,"1");else localStorage.removeItem(MANUAL_KEY);
     setLocaleState(normalized);
+    setLocaleResolved(true);
   };
 
   useEffect(()=>{
+    if(localeResolved)return;
+    let stopped=false;
+    const started=Date.now();
+    const resolve=()=>{
+      const telegram=(window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.language_code||(window as any).__AURA_TELEGRAM_LOCALE__;
+      if(telegram||Date.now()-started>=400){
+        const resolved=resolveSupportedLocale(telegram,...(navigator.languages||[]),navigator.language);
+        localStorage.setItem(STORAGE_KEY,resolved);localStorage.setItem(SOURCE_KEY,"auto");localStorage.removeItem(MANUAL_KEY);
+        if(!stopped){setLocaleState(resolved);setLocaleResolved(true);}return;
+      }
+      window.setTimeout(resolve,40);
+    };
+    resolve();
+    return()=>{stopped=true;};
+  },[localeResolved]);
+
+  useEffect(()=>{
+    if(!localeResolved)return;
     if(!performance.getEntriesByName("I18N_READY").length) performance.mark("I18N_READY");
     document.documentElement.lang=metadata.code;
     document.documentElement.dir=metadata.direction;
     document.documentElement.dataset.auraI18nReady="1";
     if(!hasManualLocalePreference()){localStorage.setItem(STORAGE_KEY,locale);localStorage.setItem(SOURCE_KEY,"auto");}
-  },[locale,metadata.code,metadata.direction]);
+  },[locale,localeResolved,metadata.code,metadata.direction]);
 
   useEffect(()=>{
+    if(!localeResolved)return;
     if(process.env.NODE_ENV !== "production"){
       const telegramLanguage=(window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.language_code||(window as any).__AURA_TELEGRAM_LOCALE__||null;
-      console.info("[I18N_BOOTSTRAP]",{telegramLanguage,browserLanguage:navigator.languages?.[0]||navigator.language,storedLanguage:localStorage.getItem(STORAGE_KEY),storedLanguageSource:localStorage.getItem(SOURCE_KEY),resolvedLanguage:locale,resolutionReason:hasManualLocalePreference()?"manual":telegramLanguage?"telegram":"browser_or_default"});
+      let cachedUserLanguage=null;try{cachedUserLanguage=JSON.parse(localStorage.getItem("aura-current-user-snapshot")||"null")?.language||null;}catch{}
+      console.info("[I18N_BOOTSTRAP]",{telegramLanguage,browserLanguages:[...(navigator.languages||[]),navigator.language].filter(Boolean),storedLanguage:localStorage.getItem(STORAGE_KEY),storedLanguageSource:localStorage.getItem(SOURCE_KEY),cachedUserLanguage,resolvedLanguage:locale,resolutionReason:hasManualLocalePreference()?"manual":telegramLanguage?"telegram":"browser_or_default"});
       assertDictionariesComplete();
       console.info("[I18N_AUDIT]",dictionaryAudit().map(({locale,totalKeys,missing,extra,suspiciousSameAsEnglish,coreSuspiciousSameAsEnglish,sameAsEnglishPercentage})=>({locale,totalKeys,missing:missing.length,extra:extra.length,suspiciousSameAsEnglish:suspiciousSameAsEnglish.length,coreSuspiciousSameAsEnglish:coreSuspiciousSameAsEnglish.length,sameAsEnglishPercentage})));
     }
-  },[]);
+  },[locale,localeResolved]);
 
   const value=useMemo(()=>({locale,intlLocale:metadata.intlLocale,direction:metadata.direction,setLocale,t:(key:TranslationKey,params?:TranslationParams)=>{
     const localized=dictionaryFor(locale)[key];

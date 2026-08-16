@@ -31,8 +31,10 @@ useState(false);
     if(!deleted)return;
     const telegram=(window as any)?.Telegram?.WebApp;
     if(typeof telegram?.close!=="function")return;
-    const timer=window.setTimeout(()=>{sessionStorage.removeItem("aura-delete-farewell-active");sessionStorage.removeItem(DELETED_SESSION_KEY);telegram.close();},1400);
-    return()=>window.clearTimeout(timer);
+    let timer=0;
+    let secondFrame=0;
+    const firstFrame=window.requestAnimationFrame(()=>{secondFrame=window.requestAnimationFrame(()=>{timer=window.setTimeout(()=>{sessionStorage.removeItem("aura-delete-farewell-active");sessionStorage.removeItem(DELETED_SESSION_KEY);telegram.close();},1400);});});
+    return()=>{window.cancelAnimationFrame(firstFrame);window.cancelAnimationFrame(secondFrame);window.clearTimeout(timer);};
   },[deleted]);
 
   useEffect(() => {
