@@ -1203,6 +1203,188 @@ color:"var(--text-secondary)"
 </div>
 
       </div>
+
+{cameraOpen && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 999998,
+      background: "#000",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "stretch"
+    }}
+  >
+    <div
+      style={{
+        padding: "calc(10px + env(safe-area-inset-top)) 16px 10px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        color: "#fff"
+      }}
+    >
+      <button
+        type="button"
+        onClick={stopCamera}
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          border: 0,
+          background: "rgba(255,255,255,.12)",
+          color: "#fff",
+          fontSize: 24,
+          display: "grid",
+          placeItems: "center"
+        }}
+      >
+        ×
+      </button>
+
+      <div
+        style={{
+          fontSize: 16,
+          fontWeight: 700
+        }}
+      >
+        {t("profile.takePhoto")}
+      </div>
+
+      <div style={{ width: 44 }} />
+    </div>
+
+    <div
+      style={{
+        position: "relative",
+        flex: 1,
+        overflow: "hidden",
+        background: "#000"
+      }}
+    >
+      <video
+        ref={cameraVideoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: "scaleX(-1)"
+        }}
+      />
+
+      {cameraStarting && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            background: "rgba(0,0,0,.35)"
+          }}
+        >
+          <AuraLoader inline size={28} />
+        </div>
+      )}
+    </div>
+
+    <div
+      style={{
+        padding: "18px 20px calc(22px + env(safe-area-inset-bottom))",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#000"
+      }}
+    >
+      <button
+        type="button"
+        disabled={cameraStarting}
+        onClick={async () => {
+          const video = cameraVideoRef.current;
+          if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+            return;
+          }
+
+          const canvas = document.createElement("canvas");
+
+          const size = Math.min(
+            video.videoWidth,
+            video.videoHeight
+          );
+
+          canvas.width = size;
+          canvas.height = size;
+
+          const context = canvas.getContext("2d");
+
+          if (!context) return;
+
+          const sx = (video.videoWidth - size) / 2;
+          const sy = (video.videoHeight - size) / 2;
+
+          context.save();
+
+          // Фронтальная камера отображается зеркально,
+          // поэтому зеркалим и сам снимок.
+          context.translate(size, 0);
+          context.scale(-1, 1);
+
+          context.drawImage(
+            video,
+            sx,
+            sy,
+            size,
+            size,
+            0,
+            0,
+            size,
+            size
+          );
+
+          context.restore();
+
+          const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(
+              resolve,
+              "image/jpeg",
+              0.92
+            );
+          });
+
+          if (!blob) return;
+
+          const file = new File(
+            [blob],
+            `camera-${Date.now()}.jpg`,
+            {
+              type: "image/jpeg"
+            }
+          );
+
+          stopCamera();
+
+          await preparePhotoCrop(
+            file,
+            cameraSlot
+          );
+        }}
+        style={{
+          width: 76,
+          height: 76,
+          borderRadius: "50%",
+          border: "5px solid rgba(255,255,255,.9)",
+          background: "#fff",
+          boxShadow: "0 0 0 4px rgba(255,255,255,.18)"
+        }}
+      />
+    </div>
+  </div>
+)}
+
 {cropOpen && (
 <div
  style={{
