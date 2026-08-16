@@ -24,6 +24,7 @@ export function clearAuraUserSession(){
   cachedUser=null;
   currentUserRequest=null;
   for(const key of [SNAPSHOT_KEY,"profile_cache","navUnread","aura-notification-preferences","my_name","aura_last_location"])localStorage.removeItem(key);
+  localStorage.removeItem("aura-theme");
   sessionStorage.clear();
   sessionStorage.setItem(DELETED_SESSION_KEY,"1");
   window.dispatchEvent(new CustomEvent("aura-account-deleted"));

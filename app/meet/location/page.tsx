@@ -8,7 +8,7 @@ import AuraMap, { type AuraMapRef } from "../../../components/map/AuraMap";
 import MapControls from "../../../components/map/MapControls";
 import PlaceBottomCard from "../../../components/map/PlaceBottomCard";
 import { reverseGeocode } from "../../../lib/map/reverseGeocode";
-import { consumeInitialMeetLocation, saveMeetLocation } from "../../../lib/meet/locationStore";
+import { consumeInitialMeetLocation, saveMeetLocation, saveProfileLocation } from "../../../lib/meet/locationStore";
 import { useNotification } from "../../../components/NotificationContext";
 import { DEFAULT_CENTER } from "../../../lib/map/map";
 import {useI18n} from "../../../components/I18nProvider";
@@ -22,6 +22,7 @@ export default function MeetLocationPage() {
     typeof window === "undefined" ? null : consumeInitialMeetLocation()
   );
   const requestSequenceRef = useRef(0);
+  const profileModeRef=useRef(typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("source")==="profile");
   const [center, setCenter] = useState(() => initialLocationRef.current
     ? { lat: initialLocationRef.current.lat, lng: initialLocationRef.current.lng }
     : DEFAULT_CENTER);
@@ -56,7 +57,8 @@ export default function MeetLocationPage() {
       showError(t("map.addressPending"), t("map.addressPendingHint"));
       return;
     }
-    saveMeetLocation({ ...place, lat: center.lat, lng: center.lng });
+    const location={ ...place, lat: center.lat, lng: center.lng };
+    if(profileModeRef.current)saveProfileLocation(location);else saveMeetLocation(location);
     router.back();
   };
 
@@ -89,7 +91,7 @@ export default function MeetLocationPage() {
             <ArrowLeft2 size="22" color="var(--brand-primary)" />
           </button>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{t("map.where")}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{t(profileModeRef.current?"location.chooseManually":"map.where")}</div>
             <div style={{ marginTop: 3, color: "var(--text-secondary)", fontSize: 12 }}>{t("map.whereHint")}</div>
           </div>
         </header>

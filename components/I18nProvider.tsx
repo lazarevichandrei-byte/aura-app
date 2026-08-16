@@ -2,7 +2,7 @@
 
 import {createContext,ReactNode,useContext,useEffect,useMemo,useState} from "react";
 import {dictionaryFor,TranslationKey} from "../lib/i18n/dictionary";
-import {DEFAULT_LOCALE,LOCALE_BY_CODE,normalizeLocale} from "../lib/i18n/locales";
+import {DEFAULT_LOCALE,LOCALE_BY_CODE,normalizeLocale,resolveSupportedLocale} from "../lib/i18n/locales";
 import {assertDictionariesComplete,dictionaryAudit} from "../lib/i18n/validate";
 
 const STORAGE_KEY="aura-language";
@@ -18,9 +18,11 @@ const I18nContext=createContext<I18nContextValue|null>(null);
 function initialLocale(){
   if(typeof window==="undefined") return DEFAULT_LOCALE;
   const stored=window.localStorage.getItem(STORAGE_KEY);
-  if(stored) return normalizeLocale(stored);
+  if(hasManualLocalePreference()&&stored)return normalizeLocale(stored);
+  const bootstrapped=(window as any).__AURA_INITIAL_LOCALE__;
+  if(bootstrapped)return normalizeLocale(bootstrapped);
   const telegram=(window as any)?.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
-  return normalizeLocale(telegram || navigator.language);
+  return resolveSupportedLocale(telegram,...(navigator.languages||[]),navigator.language);
 }
 
 export default function I18nProvider({children}:{children:ReactNode}){
@@ -38,7 +40,8 @@ export default function I18nProvider({children}:{children:ReactNode}){
     if(!performance.getEntriesByName("I18N_READY").length) performance.mark("I18N_READY");
     document.documentElement.lang=metadata.code;
     document.documentElement.dir=metadata.direction;
-    if(!localStorage.getItem(STORAGE_KEY)) localStorage.setItem(STORAGE_KEY,locale);
+    document.documentElement.dataset.auraI18nReady="1";
+    if(!hasManualLocalePreference())localStorage.setItem(STORAGE_KEY,locale);
   },[locale,metadata.code,metadata.direction]);
 
   useEffect(()=>{

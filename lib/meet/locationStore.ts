@@ -8,6 +8,7 @@ export type MeetLocation = {
 
 const SELECTED_LOCATION_KEY = "meet_location";
 const INITIAL_LOCATION_KEY = "meet_location_initial";
+const PROFILE_LOCATION_KEY = "profile_location";
 
 export function readMeetLocation(key = SELECTED_LOCATION_KEY): MeetLocation | null {
   try {
@@ -41,3 +42,6 @@ export function consumeInitialMeetLocation() {
   sessionStorage.removeItem(INITIAL_LOCATION_KEY);
   return location;
 }
+
+export function saveProfileLocation(location:MeetLocation){sessionStorage.setItem(PROFILE_LOCATION_KEY,JSON.stringify(location));}
+export function consumeProfileLocation(){const location=readMeetLocation(PROFILE_LOCATION_KEY);sessionStorage.removeItem(PROFILE_LOCATION_KEY);return location;}

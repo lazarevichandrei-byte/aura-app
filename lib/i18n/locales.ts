@@ -36,8 +36,8 @@ export const SUPPORTED_LOCALES:SupportedLocale[] = [
 
 export const LOCALE_BY_CODE = new Map(SUPPORTED_LOCALES.map((locale)=>[locale.code,locale]));
 
-export function normalizeLocale(input?:string|null):string{
-  if(!input) return DEFAULT_LOCALE;
+function supportedLocale(input?:string|null):string|null{
+  if(!input||typeof input!=="string")return null;
   const normalized = input.replace("_","-");
   const lower = normalized.toLowerCase();
   if(lower === "zh-hans" || lower === "zh-cn" || lower === "zh-sg") return "zh-CN";
@@ -45,5 +45,17 @@ export function normalizeLocale(input?:string|null):string{
   const exact = SUPPORTED_LOCALES.find((locale)=>locale.code.toLowerCase()===lower);
   if(exact) return exact.code;
   const base = lower.split("-")[0];
-  return SUPPORTED_LOCALES.find((locale)=>locale.code.toLowerCase()===base)?.code || DEFAULT_LOCALE;
+  return SUPPORTED_LOCALES.find((locale)=>locale.code.toLowerCase()===base)?.code||null;
+}
+
+export function resolveSupportedLocale(...candidates:(string|null|undefined)[]):string{
+  for(const candidate of candidates){const locale=supportedLocale(candidate);if(locale)return locale;}
+  return DEFAULT_LOCALE;
+}
+
+export function normalizeLocale(input?:string|null):string{return resolveSupportedLocale(input);}
+
+export function localeBootstrapScript(){
+  const supported=JSON.stringify(SUPPORTED_LOCALES.map(({code})=>code));
+  return `(function(){try{var s=${supported},m=localStorage.getItem('aura-language-manual')==='1',v=m?localStorage.getItem('aura-language'):null,t=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.user&&Telegram.WebApp.initDataUnsafe.user.language_code,b=(navigator.languages&&navigator.languages[0])||navigator.language||'en';function r(x){if(!x)return null;var n=String(x).replace('_','-'),l=n.toLowerCase();if(/^zh-(hans|cn|sg)/.test(l))return'zh-CN';if(/^zh-(hant|tw|hk|mo)/.test(l))return'zh-TW';for(var i=0;i<s.length;i++)if(s[i].toLowerCase()===l)return s[i];var q=l.split('-')[0];for(var j=0;j<s.length;j++)if(s[j].toLowerCase()===q)return s[j];return null}var z=r(v)||r(t)||r(b)||'en',d=/^(ar|he|fa)$/.test(z);document.documentElement.lang=z;document.documentElement.dir=d?'rtl':'ltr';window.__AURA_INITIAL_LOCALE__=z}catch(e){}})();`;
 }

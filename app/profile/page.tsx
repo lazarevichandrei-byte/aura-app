@@ -9,6 +9,9 @@ import AuraLoader from "../../components/AuraLoader";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
 import {useI18n} from "../../components/I18nProvider";
 import { INTERESTS, interestId, interestLabel } from "../../lib/i18n/interests";
+import {getReliableLocation,type LocationFailure} from "../../lib/location/reliableLocation";
+import {reverseGeocode} from "../../lib/map/reverseGeocode";
+import {consumeProfileLocation,prepareMeetLocation} from "../../lib/meet/locationStore";
 
 
 const Cropper:any = dynamic(
@@ -21,7 +24,7 @@ const BASE_INTERESTS = INTERESTS.slice(0,4).map((item)=>item.legacy);
 const EXTRA_INTERESTS = INTERESTS.slice(4).map((item)=>item.legacy);
 
 export default function Profile() {
-  const {t,locale}=useI18n();
+  const {t}=useI18n();
   const [loading, setLoading] = useState(true);
   const [telegramId, setTelegramId] = useState<number | null>(null);
 
@@ -34,6 +37,9 @@ useState(50);
 
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
+  const [latitude,setLatitude]=useState<number|null>(null);
+  const [longitude,setLongitude]=useState<number|null>(null);
+  const [locationStatus,setLocationStatus]=useState<"idle"|"locating"|"resolving_place">("idle");
 const [bio, setBio] = useState("");
 
 const [isEditing,setIsEditing] =
@@ -72,8 +78,7 @@ const router = useRouter();
 const {
   success,
   error,
-  warning,
-  info
+  warning
 } = useNotification();
 
 const base = BASE_INTERESTS;
@@ -158,6 +163,8 @@ gender,
 looking,
 search_radius,
 city,
+latitude,
+longitude,
 bio,
 interests,
 avatar_url,
@@ -193,6 +200,8 @@ if (!data) {
 );
 
   setCity(data.city || "");
+  setLatitude(Number.isFinite(data.latitude)?data.latitude:null);
+  setLongitude(Number.isFinite(data.longitude)?data.longitude:null);
   setBio(data.bio || "");
   setSelected(data.interests || []);
   setPhotoEdits(data.photo_edits || {});
@@ -219,6 +228,22 @@ setLoading(false);
 
 init();
 }, []);
+
+useEffect(()=>{
+  if(!telegramId)return;
+  const applySelected=async()=>{
+    const selectedLocation=consumeProfileLocation();
+    if(!selectedLocation)return;
+    try{
+      await persistLocation(selectedLocation.lat,selectedLocation.lng,selectedLocation.city||selectedLocation.title||undefined);
+      success(t("common.saved"),t("profile.locationUpdated"));
+    }catch{error(t("common.error"),t("location.updateFailed"));}
+  };
+  void applySelected();
+  window.addEventListener("pageshow",applySelected);
+  return()=>window.removeEventListener("pageshow",applySelected);
+},[telegramId]);
+
 useEffect(()=>{
 
  if(!telegramId) return;
@@ -613,160 +638,44 @@ if (isOnboarding) {
   };
 
 
-  async function updateLocation(){
-
-  if(!navigator.geolocation){
-    error(
-  t("common.error"),
-  t("profile.geoUnsupported")
-);
-    return;
+  async function persistLocation(lat:number,lng:number,nextCity?:string){
+    if(!telegramId)return;
+    const values:{latitude:number;longitude:number;city?:string}={latitude:lat,longitude:lng};
+    if(nextCity)values.city=nextCity;
+    const {error:updateError}=await supabase.from("users").update(values).eq("telegram_id",telegramId);
+    if(updateError)throw updateError;
+    setLatitude(lat);setLongitude(lng);if(nextCity)setCity(nextCity);
   }
 
-  
-
-  navigator.geolocation.getCurrentPosition(
-
-    async(position)=>{
-
-      console.log("GPS OK");
-console.log(position.coords.latitude);
-console.log(position.coords.longitude);
-
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      // 1. Сразу сохраняем координаты
-      await supabase
-        .from("users")
-        .update({
-          latitude: lat,
-          longitude: lng
-        })
-        .eq("telegram_id", telegramId);
-
-      // 2. Пытаемся определить город
-      try{
-
-       const url =
-`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-
-const response = await fetch(url,{
-  headers:{
-    Accept:"application/json",
-    "Accept-Language":locale
-  },
-  cache:"no-store"
-});
-
-console.log("FETCH STATUS", response.status);
-
-if(!response.ok){
-  throw new Error("Nominatim error");
-}
-
-        const geo = await response.json();
-
-        console.log(geo);
-
-        const detectedCity =
-          geo.address?.city ||
-          geo.address?.town ||
-          geo.address?.village ||
-          geo.address?.municipality ||
-          geo.address?.county ||
-          city;
-
-        if(detectedCity){
-
-          await supabase
-            .from("users")
-            .update({
-              city: detectedCity
-            })
-            .eq("telegram_id", telegramId);
-
-          setCity(detectedCity);
-        }
-
-        info(
-  t("profile.cityDetected"),
-  detectedCity
-);
-
-      }catch(e){
-
-        console.log(e);
-
-warning(
-  t("common.error"),
-  t("profile.cityFailed")
-);
-
-      }
-
-      success(
-  t("common.saved"),
-  t("profile.locationUpdated")
-);
-
-    },
-
-    async (locationError) => {
-
-  console.log(locationError);
-
-  try{
-
-    const response =
-      await fetch("/api/location");
-
-    const geo =
-      await response.json();
-
-    console.log("IP GEO:", geo);
-
-    if(geo.city){
-
-      await supabase
-        .from("users")
-        .update({
-          city: geo.city
-        })
-        .eq("telegram_id", telegramId);
-
-      setCity(geo.city);
-
-      info(
-  t("profile.cityDetected"),
-  geo.city
-);
-
+  async function updateLocation(){
+    if(locationStatus!=="idle")return;
+    setLocationStatus("locating");
+    let coordinates;
+    try{
+      coordinates=await getReliableLocation();
+    }catch(locationError){
+      const failure=(locationError instanceof Error?locationError.message:"unavailable") as LocationFailure;
+      const key=failure==="permission_denied"?"location.permissionDenied":failure==="timeout"?"location.timeout":"location.unavailable";
+      error(t("common.error"),t(key));
+      setLocationStatus("idle");
       return;
     }
-
-  }catch(e){
-
-    console.log(e);
-
+    try{
+      await persistLocation(coordinates.lat,coordinates.lng);
+    }catch{error(t("common.error"),t("location.updateFailed"));setLocationStatus("idle");return;}
+    setLocationStatus("resolving_place");
+    try{
+      const place=await reverseGeocode(coordinates.lat,coordinates.lng);
+      await persistLocation(coordinates.lat,coordinates.lng,place.city||place.title||undefined);
+      success(t("common.saved"),t("profile.locationUpdated"));
+    }catch{warning(t("location.coordinatesFound"),t("location.resolveFailed"));}
+    finally{setLocationStatus("idle");}
   }
 
-  error(
-  t("common.error"),
-  t("profile.locationFailed")
-);
-
-},
-
- {
-  enableHighAccuracy: false,
-  timeout: 3000,
-  maximumAge: 600000
-}
-
-  );
-
-}
+  function chooseLocationManually(){
+    prepareMeetLocation(latitude!==null&&longitude!==null?{title:city,address:city,city,lat:latitude,lng:longitude}:null);
+    router.push("/meet/location?source=profile");
+  }
 
   
 
@@ -940,6 +849,7 @@ warning(
 
   <button
     onClick={updateLocation}
+    disabled={locationStatus!=="idle"}
     style={{
       border:"none",
       background:"var(--primary-soft)",
@@ -950,76 +860,11 @@ warning(
       fontWeight:600
     }}
   >
-    {t("profile.updateLocation")}
+    {locationStatus==="locating"?t("location.detecting"):locationStatus==="resolving_place"?t("location.resolving"):t(city?"profile.updateLocation":"location.detectAutomatically")}
   </button>
 </div>
-
-
-<div style={styles.block}>
-
-  <p style={styles.label}>
-  🔎 {t("profile.searchRadius")}
-</p>
-
-  <div
-    style={{
-      fontSize:14,
-      fontWeight:600,
-      marginBottom:8
-    }}
-  >
-    {t("profile.kilometers",{count:searchRadius})}
-    <p
-  style={{
-    fontSize:"12px",
-    color:"var(--text-secondary)",
-    marginBottom:"10px"
-  }}
->
-  {t("profile.radiusHint",{count:searchRadius})}
-</p>
-  </div>
-
-  <p
-    style={{
-      fontSize:12,
-      color:"var(--text-secondary)",
-      marginBottom:10
-    }}
-  >
-    {t("profile.radiusToggle")}
-  </p>
-
-  <input
-    type="range"
-    min="2"
-    max="200"
-    step="1"
-    value={searchRadius}
-    onChange={(e)=>
-      setSearchRadius(
-        Number(e.target.value)
-      )
-    }
-    style={styles.slider}
-  />
-
-  <div
-    style={{
-      display:"flex",
-      justifyContent:"space-between",
-      marginTop:6,
-      fontSize:12,
-      color:"var(--text-secondary)"
-    }}
-  >
-    <span>{t("profile.kilometers",{count:2})}</span>
-    <span>50</span>
-    <span>100</span>
-    <span>200+</span>
-  </div>
-
-</div>
+{!city&&<p style={{margin:"8px 2px 0",fontSize:12,lineHeight:1.45,color:"var(--text-secondary)"}}>{t("location.permissionRequired")}</p>}
+<button type="button" onClick={chooseLocationManually} style={{border:0,background:"transparent",color:"var(--primary)",fontWeight:650,padding:"10px 2px",cursor:"pointer"}}>{t("location.chooseManually")}</button>
 
 
         <div style={styles.inputBox}>
