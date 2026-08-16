@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ArrowLeft2 } from "iconsax-react";
+import {AnimatePresence,motion,useReducedMotion} from "framer-motion";
 import { useNotification } from "../../components/NotificationContext";
 import AuraLoader from "../../components/AuraLoader";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
@@ -99,11 +100,14 @@ const lastSavedRef = useRef("");
 const [matches, setMatches] = useState<any[]>([]);
 const [isOnboarding, setIsOnboarding] = useState(true);
 const photoInputRef=useRef<HTMLInputElement>(null);
+const cameraInputRef=useRef<HTMLInputElement>(null);
 const [profileLoaded,setProfileLoaded]=useState(false);
 const [pendingPhoto,setPendingPhoto]=useState<{file:File;slot:number}|null>(null);
 const [pendingPhotoQueue,setPendingPhotoQueue]=useState<Array<{file:File;slot:number}>>([]);
 const [photoMenuIndex,setPhotoMenuIndex]=useState<number|null>(null);
+const [photoMenuPosition,setPhotoMenuPosition]=useState<{top:number;left:number;originX:number;originY:string}|null>(null);
 const [photoPreparing,setPhotoPreparing]=useState(false);
+const reduceMotion=useReducedMotion();
 
 const router = useRouter();
 
@@ -737,7 +741,21 @@ if (isOnboarding) {
     router.push("/meet/location?source=profile");
   }
 
-  const openPhotoSlot=(slot:number)=>{setPhotoMenuIndex(null);photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
+  const closePhotoMenu=()=>{setPhotoMenuIndex(null);setPhotoMenuPosition(null);};
+  const openPhotoMenu=(slot:number,anchor:HTMLElement)=>{
+    if(photoMenuIndex===slot){closePhotoMenu();return;}
+    const rect=anchor.getBoundingClientRect();
+    const width=Math.min(224,window.innerWidth-24);
+    const estimatedHeight=photos[slot]?176:104;
+    const belowTop=rect.bottom+8;
+    const placeBelow=belowTop+estimatedHeight<=window.innerHeight-12;
+    const top=placeBelow?belowTop:Math.max(12,rect.top-estimatedHeight-8);
+    const left=Math.min(window.innerWidth-width-12,Math.max(12,rect.left+rect.width/2-width/2));
+    setPhotoMenuPosition({top,left,originX:Math.min(width-18,Math.max(18,rect.left+rect.width/2-left)),originY:placeBelow?"top":"bottom"});
+    setPhotoMenuIndex(slot);
+  };
+  const openPhotoSlot=(slot:number)=>{closePhotoMenu();photoInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));photoInputRef.current?.click();};
+  const openCameraSlot=(slot:number)=>{closePhotoMenu();cameraInputRef.current?.setAttribute("data-slot",String(Math.min(slot,photos.length)));cameraInputRef.current?.click();};
   const chooseMainPhoto=(slot:number)=>{
     if(!photos[slot])return;
     setMainIndex(slot);
@@ -793,6 +811,19 @@ if (isOnboarding) {
     if(next)await preparePhotoCrop(next.file,next.slot);
     else{setCropOpen(false);setPendingPhoto(null);}
   };
+
+  useEffect(()=>{
+    if(photoMenuIndex===null)return;
+    const dismiss=()=>closePhotoMenu();
+    const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){event.preventDefault();dismiss();}};
+    const onPointerDown=(event:PointerEvent)=>{const target=event.target as HTMLElement|null;if(!target?.closest("[data-photo-menu]")&&!target?.closest("[data-photo-pencil]"))dismiss();};
+    const telegramBack=(window as any)?.Telegram?.WebApp?.BackButton;
+    window.addEventListener("keydown",onKeyDown);
+    window.addEventListener("scroll",dismiss,{capture:true,passive:true});
+    document.addEventListener("pointerdown",onPointerDown,true);
+    telegramBack?.onClick?.(dismiss);
+    return()=>{window.removeEventListener("keydown",onKeyDown);window.removeEventListener("scroll",dismiss,true);document.removeEventListener("pointerdown",onPointerDown,true);telegramBack?.offClick?.(dismiss);};
+  },[photoMenuIndex]);
 
   if (loading) {
   return <ProfileSkeleton />;
@@ -852,23 +883,33 @@ if (isOnboarding) {
               {photoPreparing&&<span style={styles.photoUploadOverlay}><AuraLoader inline size={22}/></span>}
             </div>
             {photos.length>0&&<span style={styles.mainPhotoBadge}>★ {t("profile.mainPhoto")}</span>}
-            <button type="button" disabled={photoPreparing||uploading} onClick={()=>setPhotoMenuIndex((current)=>current===mainIndex?null:mainIndex)} style={styles.photoEditButton}>✎</button>
+            <button data-photo-pencil type="button" disabled={photoPreparing||uploading} onClick={(event)=>openPhotoMenu(mainIndex,event.currentTarget)} style={styles.photoEditButton}>✎</button>
             <p style={styles.photoDescription}>{t("onboarding.hint8")}</p>
           </div>
           <div style={styles.photoCarousel}>
-            {photos.map((photo,index)=><button key={`${photo}-${index}`} type="button" onClick={()=>chooseMainPhoto(index)} style={{...styles.photoThumbnail,...(index===mainIndex?styles.photoThumbnailMain:{})}}>
-              <img src={photo} alt="" style={styles.photoThumbnailImage}/>
-              {index===mainIndex&&<span style={styles.photoThumbnailStar}>★</span>}
-            </button>)}
-            {photos.length<6&&<button type="button" onClick={()=>openPhotoSlot(photos.length)} style={styles.photoAddButton}>+</button>}
+            {photos.map((photo,index)=><div key={`${photo}-${index}`} style={styles.photoThumbnailWrap}>
+              <button type="button" onClick={()=>chooseMainPhoto(index)} style={{...styles.photoThumbnail,...(index===mainIndex?styles.photoThumbnailMain:{})}}>
+                <img src={photo} alt="" style={styles.photoThumbnailImage}/>
+                {index===mainIndex&&<span style={styles.photoThumbnailStar}>★</span>}
+              </button>
+              <button data-photo-pencil type="button" onClick={(event)=>openPhotoMenu(index,event.currentTarget)} style={styles.photoThumbnailEdit}>✎</button>
+            </div>)}
+            {photos.length<6&&<button data-photo-pencil type="button" onClick={(event)=>openPhotoMenu(photos.length,event.currentTarget)} style={styles.photoAddButton}>+</button>}
           </div>
           <div style={styles.photoCount}>{photos.length} / 6 {t("profile.photos")}</div>
-          {photoMenuIndex!==null&&photos[photoMenuIndex]&&<div style={styles.photoActionMenu}>
-            <button type="button" onClick={()=>openPhotoSlot(photos.length)} disabled={photos.length>=6} style={styles.photoActionButton}>📷 {t("profile.photos")}</button>
-            <button type="button" onClick={()=>void editExistingPhoto(photoMenuIndex)} style={styles.photoActionButton}>✎ {t("account.edit")}</button>
-            {photos.length>1&&<button type="button" onClick={()=>{removePhotoAt(photoMenuIndex);setPhotoMenuIndex(null);}} style={{...styles.photoActionButton,color:"var(--danger)"}}>× {t("common.delete")}</button>}
-          </div>}
           <input ref={photoInputRef} type="file" accept="image/*" multiple hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="user" hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
+          <AnimatePresence>
+            {photoMenuIndex!==null&&photoMenuPosition&&<>
+              <motion.div aria-hidden style={styles.photoMenuBackdrop} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:reduceMotion?0:.16}}/>
+              <motion.div data-photo-menu style={{...styles.photoActionMenu,top:photoMenuPosition.top,left:photoMenuPosition.left,transformOrigin:`${photoMenuPosition.originX}px ${photoMenuPosition.originY}`}} initial={{opacity:0,scale:reduceMotion?0.94:0.72,y:photoMenuPosition.originY==="top"?-7:7,borderRadius:26}} animate={{opacity:1,scale:1,y:0,borderRadius:14}} exit={{opacity:0,scale:reduceMotion?0.96:0.76,y:photoMenuPosition.originY==="top"?-5:5,borderRadius:24}} transition={reduceMotion?{duration:.12}:{type:"spring",stiffness:420,damping:32,mass:.72}}>
+                <button type="button" onClick={()=>openCameraSlot(photoMenuIndex)} style={styles.photoActionButton}>📷 {t("profile.takePhoto")}</button>
+                <button type="button" onClick={()=>openPhotoSlot(photoMenuIndex)} style={styles.photoActionButton}>🖼 {t("profile.chooseGallery")}</button>
+                {photos[photoMenuIndex]&&<button type="button" onClick={()=>void editExistingPhoto(photoMenuIndex)} style={styles.photoActionButton}>✎ {t("profile.editPhoto")}</button>}
+                {photos[photoMenuIndex]&&photos.length>1&&<button type="button" onClick={()=>{removePhotoAt(photoMenuIndex);closePhotoMenu();}} style={{...styles.photoActionButton,color:"var(--danger)"}}>× {t("common.delete")}</button>}
+              </motion.div>
+            </>}
+          </AnimatePresence>
         </div>
 
         <div style={styles.row}>
@@ -1154,13 +1195,16 @@ photoEditButton:{position:"absolute",top:120,left:"calc(50% + 43px)",width:36,he
 photoDescription:{margin:"12px 8px 10px",maxWidth:280,textAlign:"center",fontSize:11,lineHeight:1.4,color:"var(--text-secondary)"},
 photoUploadOverlay:{position:"absolute",inset:0,display:"grid",placeItems:"center",background:"rgba(5,10,18,.52)",color:"#fff",fontWeight:800,fontSize:18},
 photoCarousel:{display:"flex",gap:10,overflowX:"auto",padding:"4px 2px 8px",scrollbarWidth:"none",WebkitOverflowScrolling:"touch"},
+photoThumbnailWrap:{position:"relative",width:58,minWidth:58,height:62,paddingTop:2},
 photoThumbnail:{position:"relative",width:54,height:54,minWidth:54,borderRadius:"50%",padding:0,border:"2px solid transparent",background:"var(--surface)",overflow:"hidden"},
 photoThumbnailMain:{border:"2px solid var(--primary)",boxShadow:"0 0 0 2px var(--primary-soft)"},
 photoThumbnailImage:{width:"100%",height:"100%",objectFit:"cover",display:"block"},
 photoThumbnailStar:{position:"absolute",right:1,bottom:0,width:17,height:17,borderRadius:9,display:"grid",placeItems:"center",background:"var(--primary)",color:"#fff",fontSize:9},
+photoThumbnailEdit:{position:"absolute",right:0,bottom:2,width:22,height:22,borderRadius:11,border:"2px solid var(--app-bg)",background:"var(--surface)",color:"var(--text-primary)",fontSize:10,padding:0,boxShadow:"var(--shadow-sm)"},
 photoAddButton:{width:54,height:54,minWidth:54,borderRadius:"50%",border:"1.5px dashed var(--primary)",background:"var(--surface)",color:"var(--primary)",fontSize:28},
 photoCount:{textAlign:"center",fontSize:11,color:"var(--text-secondary)",marginTop:2},
-photoActionMenu:{position:"absolute",zIndex:30,right:8,top:166,minWidth:190,maxWidth:"calc(100% - 16px)",padding:6,borderRadius:14,background:"var(--surface-elevated)",border:"1px solid var(--border-subtle)",boxShadow:"var(--shadow-lg)"},
+photoMenuBackdrop:{position:"fixed",inset:0,zIndex:99990,pointerEvents:"none",background:"color-mix(in srgb,var(--app-bg) 8%,transparent)",backdropFilter:"blur(1px)"},
+photoActionMenu:{position:"fixed",zIndex:99991,width:224,maxWidth:"calc(100vw - 24px)",padding:6,borderRadius:14,background:"var(--surface-elevated)",border:"1px solid var(--border-subtle)",boxShadow:"0 18px 48px rgba(10,20,35,.22)"},
 photoActionButton:{display:"block",width:"100%",border:0,background:"transparent",color:"var(--text-primary)",padding:"10px 12px",textAlign:"left",fontWeight:650,fontSize:13},
 cropControl:{border:0,borderRadius:12,background:"#1a2029",color:"#fff",minHeight:54,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:3,fontSize:20},
 
