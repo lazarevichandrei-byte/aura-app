@@ -780,7 +780,24 @@ if (isOnboarding) {
 </div>
 </div>
 
-        <div style={isOnboarding?{display:"block"}:styles.row}>
+        <div style={styles.photoManager}>
+          <p style={styles.label}>{t("profile.photos")}</p>
+          <div style={styles.photoSlots}>
+            {Array.from({length:6},(_,slot)=>{
+              const photo=photos[slot];
+              return <button key={slot} type="button" onClick={(event)=>{event.stopPropagation();openPhotoSlot(slot);}} style={{...styles.photoSlot,...(slot===mainIndex?styles.photoSlotMain:{}),...(photo?{padding:0}:{})}}>
+                {photo?<img src={slot===mainIndex&&avatarPreview?avatarPreview:photo} alt="" style={styles.photoSlotImage}/>:<span style={{fontSize:28,color:"var(--primary)"}}>+</span>}
+                {photo&&slot===mainIndex&&<span style={styles.photoMainBadge}>★ {t("profile.mainPhoto")}</span>}
+                {photo&&slot!==mainIndex&&<span onClick={(event)=>{event.stopPropagation();setMainIndex(slot);}} style={styles.photoMainAction}>★</span>}
+                {photo&&<span onClick={(event)=>{event.stopPropagation();removePhotoAt(slot);}} style={styles.photoRemove}>×</span>}
+              </button>;
+            })}
+          </div>
+          {uploading&&<div style={{marginTop:8,fontSize:12,color:"var(--primary)",fontWeight:700}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
+          <input ref={photoInputRef} type="file" accept="image/*" hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
+        </div>
+
+        <div style={styles.row}>
           <div style={styles.inputBox}>
             <p style={styles.label}>{t("profile.name")}</p>
             <input value={name} onChange={(e)=>setName(e.target.value)} style={styles.input}/>
@@ -901,24 +918,6 @@ if (isOnboarding) {
           
         </div>
 
-        <div style={styles.photoManager}>
-          <p style={styles.label}>{t("profile.photos")}</p>
-          <div style={styles.photoSlots}>
-            {Array.from({length:6},(_,slot)=>{
-              const photo=photos[slot];
-              return <button key={slot} type="button" onClick={(event)=>{event.stopPropagation();openPhotoSlot(slot);}} style={{...styles.photoSlot,...(slot===mainIndex?styles.photoSlotMain:{}),...(photo?{padding:0}:{})}}>
-                {photo?<img src={slot===mainIndex&&avatarPreview?avatarPreview:photo} alt="" style={styles.photoSlotImage}/>:<span style={{fontSize:28,color:"var(--primary)"}}>+</span>}
-                {photo&&slot===mainIndex&&<span style={styles.photoMainBadge}>★ {t("profile.mainPhoto")}</span>}
-                {photo&&slot!==mainIndex&&<span onClick={(event)=>{event.stopPropagation();setMainIndex(slot);}} style={styles.photoMainAction}>★</span>}
-                {photo&&<span onClick={(event)=>{event.stopPropagation();removePhotoAt(slot);}} style={styles.photoRemove}>×</span>}
-              </button>;
-            })}
-          </div>
-          {uploading&&<div style={{marginTop:8,fontSize:12,color:"var(--primary)",fontWeight:700}}>{t("profile.savingPhoto",{progress:uploadProgress})}</div>}
-          <input ref={photoInputRef} type="file" accept="image/*" hidden disabled={uploading} onChange={async(event)=>{const slot=Number(event.currentTarget.dataset.slot||photos.length);await handlePhotoSelection(event.target.files,slot);event.target.value="";}}/>
-        </div>
-        
-
         <button
   disabled={
   !isValid ||
@@ -928,8 +927,7 @@ if (isOnboarding) {
 }
   style={{
     ...styles.submit,
-    opacity:isValid&&profileLoaded ? 1 : 0.5,
-    boxShadow:isOnboarding&&isValid?"0 10px 26px color-mix(in srgb,var(--brand-primary) 18%,transparent)":"none"
+    opacity:isValid&&profileLoaded ? 1 : 0.5
   }}
   onClick={handleSubmit}
 >
