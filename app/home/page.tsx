@@ -7,7 +7,7 @@ import AuraLoader from "../../components/AuraLoader";
 import HomeSkeleton from "../../components/HomeSkeleton";
 import PullToRefresh from "../../components/PullToRefresh";
 import AuraSkeleton from "../../components/AuraSkeleton";
-import { X, Heart, Sparkles } from "lucide-react";
+import { X, Heart, Sparkles, ChevronRight } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
@@ -558,12 +558,20 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
 }}
 >
 
-<div>
+<div
+  style={{
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"space-between",
+    gap:"12px"
+  }}
+>
   <div
     style={{
       display:"flex",
       alignItems:"center",
-      gap:"8px"
+      gap:"8px",
+      minWidth:0
     }}
   >
     <h2
@@ -575,7 +583,10 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
         margin:0,
         fontSize:18,
         fontWeight:700,
-        cursor:"pointer"
+        cursor:"pointer",
+        whiteSpace:"nowrap",
+        overflow:"hidden",
+        textOverflow:"ellipsis"
       }}
     >
       {currentUser.name}, {currentUser.age}
@@ -586,6 +597,7 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
         style={{
           width:"18px",
           height:"18px",
+          minWidth:"18px",
           borderRadius:"50%",
           background:"var(--primary)",
           display:"flex",
@@ -603,22 +615,45 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
 
   <button
     type="button"
+    aria-label={t("home.viewProfile")}
     onClick={(e) => {
       e.stopPropagation();
       router.push(`/user/${currentUser.id}`);
     }}
     style={{
-      marginTop:4,
+      width:32,
+      height:32,
+      minWidth:32,
+      borderRadius:"50%",
+      border:"1px solid rgba(255,255,255,.22)",
+      background:"rgba(255,255,255,.14)",
+      color:"#fff",
+      display:"grid",
+      placeItems:"center",
       padding:0,
-      border:"none",
-      background:"transparent",
-      color:"rgba(255,255,255,.74)",
-      fontSize:11.5,
-      fontWeight:600,
-      cursor:"pointer"
+      cursor:"pointer",
+      backdropFilter:"blur(10px)",
+      WebkitBackdropFilter:"blur(10px)",
+      boxShadow:"0 4px 14px rgba(0,0,0,.16)",
+      transition:"transform .16s ease, background .16s ease"
+    }}
+    onPointerDown={(e) => {
+      e.currentTarget.style.transform="scale(.94)";
+      e.currentTarget.style.background="rgba(255,255,255,.22)";
+    }}
+    onPointerUp={(e) => {
+      e.currentTarget.style.transform="scale(1)";
+      e.currentTarget.style.background="rgba(255,255,255,.14)";
+    }}
+    onPointerLeave={(e) => {
+      e.currentTarget.style.transform="scale(1)";
+      e.currentTarget.style.background="rgba(255,255,255,.14)";
     }}
   >
-    {t("home.viewProfile")} →
+    <ChevronRight
+      size={18}
+      strokeWidth={2.2}
+    />
   </button>
 </div>
 
@@ -673,10 +708,7 @@ currentUser.last_seen
 </span>
 </div>
 
-{currentUser.distance
-  ? ` • ${t("home.distance",{distance:Math.round(currentUser.distance)})}`
-  : ""
-}
+
 </div>
 
 {currentUser.bio && (
@@ -693,31 +725,7 @@ currentUser.last_seen
   </div>
 )}
 
-<button
-  onClick={() =>
-    router.push(
-      `/user/${currentUser.id}`
-    )
-  }
-  style={{
-    marginTop:"14px",
-    marginBottom:"12px",
 
-    height:"42px",
-    padding:"0 18px",
-
-    border:"none",
-    borderRadius:"999px",
-
-    background:"var(--primary-soft)",
-    color:"var(--primary)",
-
-    fontWeight:600,
-    cursor:"pointer"
-  }}
->
-  {t("home.viewProfile")}
-</button>
 
 <div
   style={{
