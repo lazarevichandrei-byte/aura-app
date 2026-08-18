@@ -562,57 +562,9 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
   style={{
     display:"flex",
     alignItems:"center",
-    justifyContent:"space-between",
-    gap:"12px"
+    gap:"7px"
   }}
 >
-  <div
-    style={{
-      display:"flex",
-      alignItems:"center",
-      gap:"8px",
-      minWidth:0
-    }}
-  >
-    <h2
-      onClick={(e) => {
-        e.stopPropagation();
-        router.push(`/user/${currentUser.id}`);
-      }}
-      style={{
-        margin:0,
-        fontSize:18,
-        fontWeight:700,
-        cursor:"pointer",
-        whiteSpace:"nowrap",
-        overflow:"hidden",
-        textOverflow:"ellipsis"
-      }}
-    >
-      {currentUser.name}, {currentUser.age}
-    </h2>
-
-    {currentUser.is_verified && (
-      <div
-        style={{
-          width:"18px",
-          height:"18px",
-          minWidth:"18px",
-          borderRadius:"50%",
-          background:"var(--primary)",
-          display:"flex",
-          alignItems:"center",
-          justifyContent:"center",
-          color:"#fff",
-          fontSize:"11px",
-          fontWeight:700
-        }}
-      >
-        ✓
-      </div>
-    )}
-  </div>
-
   <button
     type="button"
     aria-label={t("home.viewProfile")}
@@ -621,40 +573,72 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
       router.push(`/user/${currentUser.id}`);
     }}
     style={{
-      width:32,
-      height:32,
-      minWidth:32,
-      borderRadius:"50%",
-      border:"1px solid rgba(255,255,255,.22)",
-      background:"rgba(255,255,255,.14)",
-      color:"#fff",
-      display:"grid",
-      placeItems:"center",
+      display:"inline-flex",
+      alignItems:"center",
+      gap:"5px",
       padding:0,
+      margin:0,
+      border:"none",
+      background:"transparent",
+      color:"inherit",
       cursor:"pointer",
-      backdropFilter:"blur(10px)",
-      WebkitBackdropFilter:"blur(10px)",
-      boxShadow:"0 4px 14px rgba(0,0,0,.16)",
-      transition:"transform .16s ease, background .16s ease"
-    }}
-    onPointerDown={(e) => {
-      e.currentTarget.style.transform="scale(.94)";
-      e.currentTarget.style.background="rgba(255,255,255,.22)";
-    }}
-    onPointerUp={(e) => {
-      e.currentTarget.style.transform="scale(1)";
-      e.currentTarget.style.background="rgba(255,255,255,.14)";
-    }}
-    onPointerLeave={(e) => {
-      e.currentTarget.style.transform="scale(1)";
-      e.currentTarget.style.background="rgba(255,255,255,.14)";
+      minWidth:0
     }}
   >
-    <ChevronRight
-      size={18}
-      strokeWidth={2.2}
-    />
+    <h2
+      style={{
+        margin:0,
+        fontSize:18,
+        fontWeight:700,
+        lineHeight:1.2,
+        whiteSpace:"nowrap",
+        overflow:"hidden",
+        textOverflow:"ellipsis"
+      }}
+    >
+      {currentUser.name}, {currentUser.age}
+    </h2>
+
+    <span
+      style={{
+        width:22,
+        height:22,
+        minWidth:22,
+        borderRadius:"50%",
+        display:"grid",
+        placeItems:"center",
+        background:"rgba(255,255,255,.12)",
+        border:"1px solid rgba(255,255,255,.16)",
+        backdropFilter:"blur(8px)",
+        WebkitBackdropFilter:"blur(8px)"
+      }}
+    >
+      <ChevronRight
+        size={14}
+        strokeWidth={2.4}
+      />
+    </span>
   </button>
+
+  {currentUser.is_verified && (
+    <div
+      style={{
+        width:"18px",
+        height:"18px",
+        minWidth:"18px",
+        borderRadius:"50%",
+        background:"var(--primary)",
+        display:"flex",
+        alignItems:"center",
+        justifyContent:"center",
+        color:"#fff",
+        fontSize:"11px",
+        fontWeight:700
+      }}
+    >
+      ✓
+    </div>
+  )}
 </div>
 
 
