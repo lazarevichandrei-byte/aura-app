@@ -1002,7 +1002,18 @@ useEffect(()=>{
         <div style={styles.photoManager}>
           <div style={styles.mainPhotoArea}>
             <div style={styles.mainPhotoButton} onClick={(event)=>{if(!photos.length)openPhotoMenu(0,event.currentTarget);}}>
-              {photos[mainIndex]?<img src={avatarPreview||photos[mainIndex]} alt="" style={styles.mainPhotoImage}/>:<span style={styles.mainPhotoPlaceholder}>👤</span>}
+              {photos[mainIndex] ? (
+  <img
+    src={avatarPreview || photos[mainIndex]}
+    alt=""
+    style={styles.mainPhotoImage}
+  />
+) : (
+  <div style={styles.mainPhotoPlaceholder}>
+    <div style={styles.placeholderHead} />
+    <div style={styles.placeholderBody} />
+  </div>
+)}
               {uploading&&<span style={styles.photoUploadOverlay}>{uploadProgress}%</span>}
               {photoPreparing&&<span style={styles.photoUploadOverlay}><AuraLoader inline size={22}/></span>}
             </div>
@@ -1495,7 +1506,32 @@ photoManager:{position:"relative",marginBottom:18,padding:"4px 0 12px"},
 mainPhotoArea:{position:"relative",display:"flex",flexDirection:"column",alignItems:"center"},
 mainPhotoButton:{position:"relative",width:156,height:156,borderRadius:"50%",border:"none",padding:0,background:"var(--primary-soft)",overflow:"hidden",boxShadow:"0 8px 24px color-mix(in srgb,var(--brand-primary) 15%,transparent)"},
 mainPhotoImage:{width:"100%",height:"100%",objectFit:"cover",display:"block"},
-mainPhotoPlaceholder:{width:"100%",height:"100%",display:"grid",placeItems:"center",fontSize:58},
+mainPhotoPlaceholder:{
+  width:"100%",
+  height:"100%",
+  display:"flex",
+  flexDirection:"column",
+  alignItems:"center",
+  justifyContent:"center",
+  background:"var(--primary-soft)",
+  position:"relative",
+  overflow:"hidden"
+},
+
+placeholderHead:{
+  width:46,
+  height:46,
+  borderRadius:"50%",
+  background:"color-mix(in srgb, var(--primary) 32%, var(--surface))",
+  marginBottom:8
+},
+
+placeholderBody:{
+  width:88,
+  height:52,
+  borderRadius:"48px 48px 18px 18px",
+  background:"color-mix(in srgb, var(--primary) 32%, var(--surface))"
+},
 mainPhotoBadge:{position:"relative",zIndex:2,marginTop:-11,padding:"4px 8px",borderRadius:999,background:"var(--primary)",color:"var(--text-inverse)",fontSize:10,fontWeight:750},
 photoEditButton:{position:"absolute",top:120,left:"calc(50% + 43px)",width:36,height:36,borderRadius:"50%",border:"3px solid var(--app-bg)",background:"var(--surface)",color:"var(--text-primary)",boxShadow:"var(--shadow-sm)",fontSize:16,zIndex:3},
 photoDescription:{margin:"12px 8px 10px",maxWidth:280,textAlign:"center",fontSize:11,lineHeight:1.4,color:"var(--text-secondary)"},
