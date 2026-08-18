@@ -1659,7 +1659,20 @@ label:{fontSize:"12px",color:"var(--text-secondary)"},
   tag:{padding:"6px 10px",borderRadius:"999px",border:"1px solid var(--primary)",color:"var(--primary)",background:"var(--surface)"},
   tagActive:{background:"var(--primary)",color:"var(--text-inverse)"},
 
-  submit:{marginTop:"20px",width:"100%",height:"56px",borderRadius:"18px",border:"none",color:"var(--text-inverse)",background:"var(--primary)"},
+submit:{
+  marginTop:"20px",
+  width:"100%",
+  height:"56px",
+  borderRadius:"18px",
+  border:"none",
+  color:"#fff",
+  background:"var(--brand-gradient)",
+  boxShadow:"0 10px 24px rgba(41,121,255,.22)",
+  fontWeight:700,
+  cursor:"pointer",
+  transition:"transform .16s ease, opacity .16s ease, box-shadow .16s ease"
+},
+
 
   viewer:{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center"},
 
