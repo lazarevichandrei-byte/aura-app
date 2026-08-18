@@ -380,15 +380,21 @@ setDragX(0);
 }
 function changePhoto(e:any){
 
-if(!photos.length) return;
+e.stopPropagation();
+
+if(photos.length <= 1) return;
 
 const rect=e.currentTarget.getBoundingClientRect();
 const x=e.clientX-rect.left;
 
-if(x<rect.width/2){
-setPhotoIndex(p=>p===0 ? photos.length-1 : p-1);
+if(x < rect.width / 2){
+  setPhotoIndex(p =>
+    p === 0 ? photos.length - 1 : p - 1
+  );
 }else{
-setPhotoIndex(p=>p===photos.length-1 ? 0 : p+1);
+  setPhotoIndex(p =>
+    p === photos.length - 1 ? 0 : p + 1
+  );
 }
 
 }
@@ -560,14 +566,19 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
   }}
 >
   <h2
-    style={{
-      margin:0,
-      fontSize:18,
-      fontWeight:700
-    }}
-  >
-    {currentUser.name}, {currentUser.age}
-  </h2>
+  onClick={(e) => {
+    e.stopPropagation();
+    router.push(`/user/${currentUser.id}`);
+  }}
+  style={{
+    margin:0,
+    fontSize:18,
+    fontWeight:700,
+    cursor:"pointer"
+  }}
+>
+  {currentUser.name}, {currentUser.age}
+</h2>
 
   
 
