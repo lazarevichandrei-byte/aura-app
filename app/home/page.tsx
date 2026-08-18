@@ -558,50 +558,68 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
 }}
 >
 
-<div
-  style={{
-    display:"flex",
-    alignItems:"center",
-    gap:"8px"
-  }}
->
-  <h2
-  onClick={(e) => {
-    e.stopPropagation();
-    router.push(`/user/${currentUser.id}`);
-  }}
-  style={{
-    margin:0,
-    fontSize:18,
-    fontWeight:700,
-    cursor:"pointer"
-  }}
->
-  {currentUser.name}, {currentUser.age}
-</h2>
-
-  
-
-  {currentUser.is_verified && (
-    <div
+<div>
+  <div
+    style={{
+      display:"flex",
+      alignItems:"center",
+      gap:"8px"
+    }}
+  >
+    <h2
+      onClick={(e) => {
+        e.stopPropagation();
+        router.push(`/user/${currentUser.id}`);
+      }}
       style={{
-        width:"18px",
-        height:"18px",
-        borderRadius:"50%",
-        background:"var(--primary)",
-
-        display:"flex",
-        alignItems:"center",
-        justifyContent:"center",
-
-        color:"#fff",
-        fontSize:"11px",
-        fontWeight:700
+        margin:0,
+        fontSize:18,
+        fontWeight:700,
+        cursor:"pointer"
       }}
     >
-      ✓
-    </div>
-  )}
+      {currentUser.name}, {currentUser.age}
+    </h2>
+
+    {currentUser.is_verified && (
+      <div
+        style={{
+          width:"18px",
+          height:"18px",
+          borderRadius:"50%",
+          background:"var(--primary)",
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center",
+          color:"#fff",
+          fontSize:"11px",
+          fontWeight:700
+        }}
+      >
+        ✓
+      </div>
+    )}
+  </div>
+
+  <button
+    type="button"
+    onClick={(e) => {
+      e.stopPropagation();
+      router.push(`/user/${currentUser.id}`);
+    }}
+    style={{
+      marginTop:4,
+      padding:0,
+      border:"none",
+      background:"transparent",
+      color:"rgba(255,255,255,.74)",
+      fontSize:11.5,
+      fontWeight:600,
+      cursor:"pointer"
+    }}
+  >
+    {t("home.viewProfile")} →
+  </button>
 </div>
 
 
