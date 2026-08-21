@@ -1168,16 +1168,14 @@ useEffect(()=>{
         </div>
 
         <button
+  type="button"
+  className="aura-primary-button"
   disabled={
-  !isValid ||
-  !profileLoaded ||
-  uploading ||
-  savingProfile
-}
-  style={{
-    ...styles.submit,
-    opacity:isValid&&profileLoaded ? 1 : 0.5
-  }}
+    !isValid ||
+    !profileLoaded ||
+    uploading ||
+    savingProfile
+  }
   onClick={handleSubmit}
 >
   {savingProfile || uploading ? (
