@@ -2,6 +2,9 @@
 
 import {useEffect,useState} from "react";
 import {getTelegramInitData} from "./telegram-init-data";
+import {clearChatsBootstrapCache} from "./chats/bootstrap";
+import {clearAccountSettingsCache} from "./account-settings";
+import {clearNotificationPreferencesCache} from "./notifications/settings-api";
 
 export type CurrentUser={id:string;telegram_id:number;name:string;avatar_url:string|null;onboarding_completed:boolean|null};
 
@@ -23,6 +26,9 @@ export function setCurrentUserCache(user:CurrentUser|null){
 export function clearAuraUserSession(){
   cachedUser=null;
   currentUserRequest=null;
+  clearChatsBootstrapCache();
+  clearAccountSettingsCache();
+  clearNotificationPreferencesCache();
   for(const key of [SNAPSHOT_KEY,"profile_cache","navUnread","aura-notification-preferences","my_name","aura_last_location"])localStorage.removeItem(key);
   localStorage.removeItem("aura-theme");
   const languageIsManual=localStorage.getItem("aura-language-source")==="manual";

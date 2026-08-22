@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getTelegramInitData } from "../lib/telegram-init-data";
+import {loadChatsBootstrap} from "../lib/chats/bootstrap";
 import { supabase } from "../lib/supabase";
 import { useCurrentUser } from "../lib/useCurrentUser";
 import { useNotification } from "./NotificationContext";
 import {useI18n} from "./I18nProvider";
 import {formatDateTime} from "../lib/i18n/format";
 import {DEFAULT_NOTIFICATION_PREFERENCES,notificationEnabled,normalizeNotificationPreferences,type NotificationPreferences} from "../lib/notifications/preferences";
+import {loadNotificationPreferences} from "../lib/notifications/settings-api";
 
 export default function RealtimeNotificationBridge(){
   const pathname = usePathname();
@@ -39,21 +40,14 @@ export default function RealtimeNotificationBridge(){
 
   async function reconcile(){
     const sequence=++reconcileSequence.current;
-    const initData = await getTelegramInitData();
-    if(!initData) return;
-    const response = await fetch("/api/chats",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({initData})
-    });
-    if(!response.ok) return;
-    const result = await response.json();
+    const result=await loadChatsBootstrap({force:true}).catch(()=>null);
+    if(!result)return;
     if(result?.ok&&sequence===reconcileSequence.current) setChats(result.chats || []);
   }
 
   useEffect(()=>{
     void reconcile();
-    void getTelegramInitData().then(async(initData)=>{if(!initData)return;const response=await fetch("/api/notification-settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData})});const result=await response.json().catch(()=>null);if(response.ok&&result?.ok){setSettings(result.preferences);localStorage.setItem("aura-notification-preferences",JSON.stringify(result.preferences));}});
+    void loadNotificationPreferences().then(setSettings).catch(()=>null);
   },[user?.id]);
 
   useEffect(()=>{const update=(event:Event)=>setSettings(normalizeNotificationPreferences((event as CustomEvent).detail));window.addEventListener("notification-preferences-updated",update);return()=>window.removeEventListener("notification-preferences-updated",update);},[]);

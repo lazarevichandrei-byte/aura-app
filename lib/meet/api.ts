@@ -1,6 +1,7 @@
 import { supabase } from "../supabase";
 import { calculateMeetExpiration } from "./time";
 import { getTelegramInitData } from "../telegram-init-data";
+import type {MeetEvent} from "./types";
 
 async function updateMeetMembership(action: string, values: Record<string, string>) {
   const initData = await getTelegramInitData();
@@ -77,7 +78,7 @@ export async function loadMeetEvents() {
     await supabase
       .from("meet_events")
       .select(`
-        *,
+        id,creator_id,title,description,category,city,place,latitude,longitude,starts_at,duration,join_type,expires_at,max_people,is_premium,is_active,created_at,
        users(
   id,
   name,
@@ -111,14 +112,14 @@ meet_join_requests(user_id,status)
     throw error;
   }
 
-  return data;
+  return data as unknown as MeetEvent[];
 }
 
 export async function loadMeetEventCard(eventId: string) {
   const { data, error } = await supabase
     .from("meet_events")
     .select(`
-      *,
+      id,creator_id,title,description,category,city,place,latitude,longitude,starts_at,duration,join_type,expires_at,max_people,is_premium,is_active,created_at,
       users(id,name,age,city,avatar_url,photos,is_online,last_seen,show_online,show_last_seen),
       meet_participants(joined_at,users(id,name,avatar_url,photos)),
       meet_join_requests(user_id,status)
@@ -127,7 +128,7 @@ export async function loadMeetEventCard(eventId: string) {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data as unknown as MeetEvent|null;
 }
 
 // 👇 ДОБАВИТЬ ОТСЮДА
@@ -149,7 +150,7 @@ export async function getMeetEvent(eventId: string) {
   const { data, error } = await supabase
     .from("meet_events")
     .select(`
-      *,
+      id,creator_id,title,description,category,city,place,latitude,longitude,starts_at,duration,join_type,expires_at,max_people,is_premium,is_active,created_at,
       users(
   id,
   name,

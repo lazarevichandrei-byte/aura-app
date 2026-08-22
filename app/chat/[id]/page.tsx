@@ -817,7 +817,7 @@ async function fetchChatUser(){
   if (initialMessages.length) {
     oldestMessageRef.current = initialMessages[0].created_at;
     latestMessageDateRef.current = initialMessages[initialMessages.length - 1].created_at;
-    await markChatRead(String(initialMessages[initialMessages.length - 1].id));
+    void markChatRead(String(initialMessages[initialMessages.length - 1].id));
   }
 
   // =========================
@@ -947,7 +947,8 @@ useEffect(()=>{
     setChatLoaded(false);
     setChatLoadError(null);
     try {
-      await Promise.all([setOnline(), fetchChatUser()]);
+      await fetchChatUser();
+      void setOnline();
     } catch (error) {
       console.error("CHAT INITIALIZATION ERROR:", error);
       setChatLoadError(error instanceof Error ? error.message : t("chat.loadFailed"));

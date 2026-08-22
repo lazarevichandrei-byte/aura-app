@@ -42,8 +42,9 @@ const [feedQueue,setFeedQueue] =
 useState<any[]>([]);
 
 
-const QUEUE_SIZE = 80;
+const QUEUE_SIZE = 30;
 const LOAD_MORE_AT = 15;
+const loadUsersRequest=useRef<Promise<void>|null>(null);
 
 const [isLoadingMore,setIsLoadingMore] =
 useState(false);
@@ -97,7 +98,7 @@ useEffect(() => {
 
 useEffect(()=>{
   let active=true;
-  loadCurrentUser({force:true}).then((user)=>{if(active&&user){localStorage.setItem("my_id",user.id);setMyId(user.id);}}).catch(()=>{if(active)setLoadingFeed(false);});
+  loadCurrentUser().then((user)=>{if(active&&user){localStorage.setItem("my_id",user.id);setMyId(user.id);}}).catch(()=>{if(active)setLoadingFeed(false);});
   return()=>{active=false;};
 },[]);
 
@@ -149,13 +150,13 @@ function mergeUsers(
 async function loadUsers(){
 
   if(!myId) return;
+  if(loadUsersRequest.current)return loadUsersRequest.current;
 
-  setLoadingFeed(true);
+  loadUsersRequest.current=(async()=>{
+    setLoadingFeed(true);
 
-
-const { data: me } = await supabase
-  .from("users")
-  .select(`
+    const [profileResult,feedResult]=await Promise.all([
+      supabase.from("users").select(`
     id,
     age,
     gender,
@@ -168,46 +169,21 @@ const { data: me } = await supabase
     longitude,
     search_radius
 `)
-  .eq("id", myId)
-  .single();
+      .eq("id",myId).single(),
+      supabase.rpc("get_feed",{p_user_id:myId,p_limit:QUEUE_SIZE}),
+    ]);
+
+    const me=profileResult.data;
+    const data=feedResult.data;
 
 if(me){
   setMyProfile(me);
 }
 
-const myInterests = me?.interests || [];
-
-
-
-  
- 
-
-
-
-
-
-const { data } = await supabase.rpc(
-  "get_feed",
-  {
-    p_user_id: myId,
-    p_limit: QUEUE_SIZE
-  }
-);
-
-  console.log("ВСЕГО В БАЗЕ:", data?.length);
-
 if(data){
 
   const feed = data;
 
-
-
-
-
-console.log(
-  "После сортировки:",
-  feed.length
-);
 
 setFeedQueue(prev => {
 
@@ -223,7 +199,8 @@ setFeedQueue(prev => {
 
 }
 
-setLoadingFeed(false);
+  })().finally(()=>{setLoadingFeed(false);loadUsersRequest.current=null;});
+  return loadUsersRequest.current;
 
 }
 

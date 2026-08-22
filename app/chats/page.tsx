@@ -15,6 +15,7 @@ import { createChatIfNotExists } from "../../lib/chat/api";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 import MeetCategoryAvatar from "../../components/meet/MeetCategoryAvatar";
 import {useI18n} from "../../components/I18nProvider";
+import {loadChatsBootstrap} from "../../lib/chats/bootstrap";
 
 const MAX_LIST_PRESENCE_CHATS = 20;
 
@@ -612,31 +613,7 @@ async function loadChats(showLoader = true){
 
   try{
 
-    const tg =
-      (window as any)?.Telegram?.WebApp;
-
-    if(!tg?.initData){
-      return;
-    }
-
-    const res = await fetch(
-      "/api/chats",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-          initData: tg.initData
-        })
-      }
-    );
-
-    const result = await res.json();
-
-    if(!result?.ok){
-      return;
-    }
+    const result=await loadChatsBootstrap({force:!showLoader});
 
   setChats(sortChats(result.chats || []));
 

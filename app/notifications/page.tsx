@@ -8,8 +8,8 @@ import {ListSkeleton} from "../../components/AppSkeletons";
 import {useI18n} from "../../components/I18nProvider";
 import {useNotification} from "../../components/NotificationContext";
 import {selection} from "../../lib/haptic";
-import {getTelegramInitData} from "../../lib/telegram-init-data";
 import {DEFAULT_NOTIFICATION_PREFERENCES,type NotificationPreferences} from "../../lib/notifications/preferences";
+import {loadNotificationPreferences,saveNotificationPreferences,updateNotificationPreferencesCache} from "../../lib/notifications/settings-api";
 
 const CACHE_KEY="aura-notification-preferences";
 type PreferenceKey=keyof NotificationPreferences;
@@ -42,11 +42,11 @@ export default function NotificationsPage(){
   const [preferences,setPreferences]=useState<NotificationPreferences|null>(()=>typeof window==="undefined"?null:cachedPreferences());
   const [loadError,setLoadError]=useState(false);const saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);const lastSaved=useRef<NotificationPreferences|null>(preferences);
 
-  const load=useCallback(async()=>{setLoadError(false);try{const initData=await getTelegramInitData();if(!initData)throw new Error("AUTH_REQUIRED");const response=await fetch("/api/notification-settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData})});const result=await response.json();if(!response.ok||!result?.ok)throw new Error(result?.error);setPreferences(result.preferences);lastSaved.current=result.preferences;localStorage.setItem(CACHE_KEY,JSON.stringify(result.preferences));}catch{setLoadError(true);}},[]);
+  const load=useCallback(async()=>{setLoadError(false);try{const result=await loadNotificationPreferences();setPreferences(result);lastSaved.current=result;}catch{setLoadError(true);}},[]);
   useEffect(()=>{void load();return()=>{if(saveTimer.current)clearTimeout(saveTimer.current);};},[load]);
 
-  const save=(next:NotificationPreferences)=>{if(saveTimer.current)clearTimeout(saveTimer.current);saveTimer.current=setTimeout(async()=>{try{const initData=await getTelegramInitData();if(!initData)throw new Error("AUTH_REQUIRED");const response=await fetch("/api/notification-settings",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,preferences:next})});const result=await response.json();if(!response.ok||!result?.ok)throw new Error(result?.error);lastSaved.current=result.preferences;localStorage.setItem(CACHE_KEY,JSON.stringify(result.preferences));window.dispatchEvent(new CustomEvent("notification-preferences-updated",{detail:result.preferences}));}catch{if(lastSaved.current)setPreferences(lastSaved.current);showError(t("common.error"),t("support.sendFailed"));}},350);};
-  const toggle=(key:PreferenceKey)=>{if(!preferences)return;selection();const next={...preferences,[key]:!preferences[key]};setPreferences(next);localStorage.setItem(CACHE_KEY,JSON.stringify(next));window.dispatchEvent(new CustomEvent("notification-preferences-updated",{detail:next}));save(next);};
+  const save=(next:NotificationPreferences)=>{if(saveTimer.current)clearTimeout(saveTimer.current);saveTimer.current=setTimeout(async()=>{try{const result=await saveNotificationPreferences(next);lastSaved.current=result;window.dispatchEvent(new CustomEvent("notification-preferences-updated",{detail:result}));}catch{if(lastSaved.current)setPreferences(lastSaved.current);showError(t("common.error"),t("support.sendFailed"));}},350);};
+  const toggle=(key:PreferenceKey)=>{if(!preferences)return;selection();const next={...preferences,[key]:!preferences[key]};setPreferences(next);updateNotificationPreferencesCache(next);window.dispatchEvent(new CustomEvent("notification-preferences-updated",{detail:next}));save(next);};
 
   if(!preferences&&!loadError)return <ListSkeleton rows={8}/>;
   if(!preferences)return <main className="app-page" style={{display:"grid",placeItems:"center",padding:24,textAlign:"center"}}><div><p>{t("common.error")}</p><button onClick={()=>void load()} style={retryStyle}>{t("common.retry")}</button></div></main>;

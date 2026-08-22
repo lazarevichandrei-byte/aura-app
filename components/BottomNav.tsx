@@ -13,8 +13,7 @@ useState
 
 import { supabase }
 from "../lib/supabase";
-import { getTelegramInitData }
-from "../lib/telegram-init-data";
+import {loadChatsBootstrap} from "../lib/chats/bootstrap";
 import { useCurrentUser } from "../lib/useCurrentUser";
 import {
   Home,
@@ -57,27 +56,28 @@ const unreadRequestSequence=useRef(0);
 
 useEffect(()=>{
 
-router.prefetch("/chats");
+for(const route of ["/home","/meet","/chats","/account"])router.prefetch(route);
 
 loadUnread();
+
+if(!currentUser?.id)return;
 
 let channel =
 supabase
-.channel("nav-unread")
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"chats"
-},
-()=>{
-loadUnread();
-}
-);
+.channel(`nav-unread-${currentUser.id}`);
 
-if(currentUser?.id){
-channel = channel.on(
+channel = channel
+.on(
+  "postgres_changes",
+  {event:"*",schema:"public",table:"chats",filter:`user1_id=eq.${currentUser.id}`},
+  ()=>{loadUnread(true);}
+)
+.on(
+  "postgres_changes",
+  {event:"*",schema:"public",table:"chats",filter:`user2_id=eq.${currentUser.id}`},
+  ()=>{loadUnread(true);}
+)
+.on(
   "postgres_changes",
   {
     event:"*",
@@ -85,28 +85,30 @@ channel = channel.on(
     table:"chat_participants",
     filter:`user_id=eq.${currentUser.id}`
   },
-  ()=>{loadUnread();}
+  ()=>{loadUnread(true);}
 );
-}
 
 channel.subscribe((status)=>{
 if(status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
-loadUnread();
+loadUnread(status!=="SUBSCRIBED");
 }
 });
 
 const handleReadStateUpdated = ()=>{
-  void loadUnread();
+  void loadUnread(true);
 };
+const handleChatMessage=()=>{void loadUnread(true);};
 window.addEventListener("chat-read-state-updated",handleReadStateUpdated);
+window.addEventListener("aura-chat-message",handleChatMessage);
 const handleResume = ()=>{
-  if(!document.hidden) void loadUnread();
+  if(!document.hidden) void loadUnread(true);
 };
 document.addEventListener("visibilitychange",handleResume);
 window.addEventListener("online",handleResume);
 
 return ()=>{
 window.removeEventListener("chat-read-state-updated",handleReadStateUpdated);
+window.removeEventListener("aura-chat-message",handleChatMessage);
 document.removeEventListener("visibilitychange",handleResume);
 window.removeEventListener("online",handleResume);
 supabase.removeChannel(
@@ -117,7 +119,7 @@ channel
 },[currentUser?.id]);
 
 
-async function loadUnread(){
+async function loadUnread(force=false){
 
 const sequence=++unreadRequestSequence.current;
 
@@ -127,25 +129,8 @@ const saveUnread = (value:number)=>{
   localStorage.setItem("navUnread",String(value));
 };
 
-const initData = await getTelegramInitData();
-if(!initData){
-  return;
-}
-
-const response = await fetch("/api/chats",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({initData})
-});
-
-if(!response.ok){
-  return;
-}
-
-const result = await response.json();
-if(!result?.ok){
-  return;
-}
+const result=await loadChatsBootstrap({force}).catch(()=>null);
+if(!result)return;
 
 const totalUnread = (result.chats || []).reduce(
   (total, chat) => total + (chat.unread_count || 0),
