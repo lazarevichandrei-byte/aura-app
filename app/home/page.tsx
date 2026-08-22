@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "../../lib/supabase";
 import BottomNav from "../../components/BottomNav";
 import AuraLoader from "../../components/AuraLoader";
 import HomeSkeleton from "../../components/HomeSkeleton";
@@ -25,6 +24,8 @@ import {performLikeAction} from "../../lib/likes/api";
 import {loadCurrentUser} from "../../lib/useCurrentUser";
 import {useI18n} from "../../components/I18nProvider";
 import {interestLabel} from "../../lib/i18n/interests";
+import {getTelegramInitData} from "../../lib/telegram-init-data";
+import {clearDiscoverySession,readDiscoverySession,saveDiscoverySession} from "../../lib/discovery/session";
 
 
 
@@ -45,6 +46,8 @@ useState<any[]>([]);
 const QUEUE_SIZE = 30;
 const LOAD_MORE_AT = 15;
 const loadUsersRequest=useRef<Promise<void>|null>(null);
+const consumedIds=useRef<string[]>([]);
+const filterSnapshot=useRef("");
 
 const [isLoadingMore,setIsLoadingMore] =
 useState(false);
@@ -147,57 +150,28 @@ function mergeUsers(
 
 
 
-async function loadUsers(){
+async function loadUsers(reset=false){
 
   if(!myId) return;
   if(loadUsersRequest.current)return loadUsersRequest.current;
 
   loadUsersRequest.current=(async()=>{
     setLoadingFeed(true);
-
-    const [profileResult,feedResult]=await Promise.all([
-      supabase.from("users").select(`
-    id,
-    age,
-    gender,
-    looking,
-    interests,
-    avatar_url,
-    photos,
-    main_photo_index,
-    latitude,
-    longitude,
-    search_radius
-`)
-      .eq("id",myId).single(),
-      supabase.rpc("get_feed",{p_user_id:myId,p_limit:QUEUE_SIZE}),
-    ]);
-
-    const me=profileResult.data;
-    const data=feedResult.data;
-
-if(me){
-  setMyProfile(me);
-}
-
-if(data){
-
-  const feed = data;
-
-
-setFeedQueue(prev => {
-
-  const merged =
-    mergeUsers(
-      prev,
-      feed
-    );
-
-  return merged;
-
-});
-
-}
+    const existing=reset?null:readDiscoverySession(myId);
+    if(existing&&existing.queue.length>0&&feedQueue.length===0){
+      consumedIds.current=existing.consumedIds;filterSnapshot.current=existing.filterSnapshot;
+      setFeedQueue(existing.queue);setPhotoIndex(existing.photoIndex);setLoadingFeed(false);return;
+    }
+    const initData=await getTelegramInitData();
+    if(!initData)throw new Error("AUTH_REQUIRED");
+    const response=await fetch("/api/discovery",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,limit:QUEUE_SIZE,excludeIds:reset?[]:[...consumedIds.current,...feedQueue.map((candidate)=>candidate.id)]})});
+    const result=await response.json().catch(()=>null);
+    if(!response.ok||!result?.ok)throw new Error(result?.error||"DISCOVERY_FAILED");
+    const nextFilterSnapshot=JSON.stringify(result.filterSnapshot);
+    if(filterSnapshot.current&&filterSnapshot.current!==nextFilterSnapshot){consumedIds.current=[];setFeedQueue([]);}
+    filterSnapshot.current=nextFilterSnapshot;
+    setMyProfile(result.filterSnapshot);
+    setFeedQueue((previous)=>reset?(result.candidates??[]):mergeUsers(previous,result.candidates??[]));
 
   })().finally(()=>{setLoadingFeed(false);loadUsersRequest.current=null;});
   return loadUsersRequest.current;
@@ -205,10 +179,10 @@ setFeedQueue(prev => {
 }
 
 async function refreshFeed(){
-
+  clearDiscoverySession();consumedIds.current=[];filterSnapshot.current="";
   setFeedQueue([]);
 
-  await loadUsers();
+  await loadUsers(true);
 
 }
 
@@ -218,6 +192,11 @@ const currentUser =
 feedQueue.length > 0
 ? feedQueue[0]
 : null;
+
+useEffect(()=>{
+  if(!myId||!filterSnapshot.current)return;
+  saveDiscoverySession({userId:myId,filterSnapshot:filterSnapshot.current,queue:feedQueue,consumedIds:consumedIds.current,photoIndex,updatedAt:Date.now()});
+},[feedQueue,myId,photoIndex]);
 
 useEffect(() => {
 
@@ -247,6 +226,7 @@ async function nextUser(){
 
   setPhotoIndex(0);
   setDragX(0);
+  consumedIds.current=[...new Set([...consumedIds.current,currentUser.id])];
 
   setFeedQueue(prev => {
 
@@ -296,6 +276,7 @@ if(chatId){
 
   setMatchedUser(currentUser);
   setMatchChatId(chatId);
+  await nextUser();
   setShowMatch(true);
 
   return;
@@ -547,7 +528,7 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
     aria-label={t("home.viewProfile")}
     onClick={(e) => {
       e.stopPropagation();
-      router.push(`/user/${currentUser.id}`);
+      router.push(`/user/${currentUser.id}?from=home`);
     }}
     style={{
       display:"inline-flex",
@@ -1043,13 +1024,6 @@ onClick={async ()=>{
 
   if(matchChatId){
 
-    await supabase
-      .from("chats")
-      .update({
-        is_new_match:false
-      })
-      .eq("id", matchChatId);
-
     router.push(`/chat/${matchChatId}`);
   }
 
@@ -1073,13 +1047,6 @@ fontWeight:600
 onClick={async ()=>{
 
   if(matchChatId){
-
-    await supabase
-      .from("chats")
-      .update({
-        is_new_match:false
-      })
-      .eq("id", matchChatId);
 
   }
 setShowMatch(false);

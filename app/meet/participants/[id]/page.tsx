@@ -19,7 +19,7 @@ import {
     removeMeetParticipant,
 } from "../../../../lib/meet/api";
 import MeetParticipantCard from "../../../../components/meet/MeetParticipantCard";
-import { createChatIfNotExists } from "../../../../lib/chat/api";
+import { getOrCreateDirectChat } from "../../../../lib/chat/api";
 import {useI18n} from "../../../../components/I18nProvider";
 
 export default function MeetParticipantsPage() {
@@ -180,7 +180,7 @@ if (loading) {
 
         if (!currentUser) return;
 
-        const chatId = await createChatIfNotExists(
+        const chatId = await getOrCreateDirectChat(
             currentUser.id,
             event.users.id
         );
@@ -224,7 +224,7 @@ if (loading) {
 
         if (!currentUser) return;
 
-        const chatId = await createChatIfNotExists(
+        const chatId = await getOrCreateDirectChat(
             currentUser.id,
             participant.users.id
         );

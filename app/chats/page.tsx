@@ -11,11 +11,12 @@ import { supabase } from "../../lib/supabase";
 import { joinChatPresence } from "../../lib/presence";
 import BottomNav from "../../components/BottomNav";
 import { ChatListSkeleton } from "../../components/AppSkeletons";
-import { createChatIfNotExists } from "../../lib/chat/api";
 import { useCurrentUser } from "../../lib/useCurrentUser";
 import MeetCategoryAvatar from "../../components/meet/MeetCategoryAvatar";
 import {useI18n} from "../../components/I18nProvider";
-import {loadChatsBootstrap} from "../../lib/chats/bootstrap";
+import {loadLikesInbox} from "../../lib/likes/api";
+import {hideChatForMe,loadChatsBootstrap} from "../../lib/chats/bootstrap";
+import {Trash2} from "lucide-react";
 
 const MAX_LIST_PRESENCE_CHATS = 20;
 
@@ -31,7 +32,8 @@ function ChatCard({
 chat,
 typing,
 router,
-index
+index,
+onHide
 }:any){
 const {t,intlLocale}=useI18n();
 
@@ -98,7 +100,6 @@ chat.unread_count > 0
 cursor:"pointer"
 }}
 >
-
 {chat.is_meet_chat ? (
   <MeetCategoryAvatar category={chat.event_category} size={60} />
 ) : (
@@ -238,6 +239,8 @@ fontWeight:700
   </div>
 )}
 
+{!chat.is_meet_chat&&<button type="button" aria-label={t("common.delete")} onClick={(event)=>{event.stopPropagation();onHide(chat.id);}} style={{width:30,height:30,borderRadius:"50%",display:"grid",placeItems:"center",background:"transparent",color:"var(--text-muted)",flexShrink:0}}><Trash2 size={15}/></button>}
+
 </div>
 
 </div>
@@ -280,6 +283,7 @@ useState<any[]>([]);
 
 const [loading,setLoading] =
 useState(true);
+const [incomingLikeCount,setIncomingLikeCount]=useState(0);
 const matches = chats.filter(c => c.is_new_match);
 
 const [search,setSearch] =
@@ -317,6 +321,7 @@ const channelsRef = useRef<Record<string, any>>({});
 useEffect(()=>{
   loadChats();
 },[]);
+useEffect(()=>{void loadLikesInbox().then((inbox)=>setIncomingLikeCount(inbox.count)).catch(()=>setIncomingLikeCount(0));},[]);
 
 
 const presenceChatIds = useMemo(
@@ -385,9 +390,11 @@ useEffect(() => {
         )));
   };
   window.addEventListener("aura-chat-message",handleMessage);
+  window.addEventListener("aura-dating-state-changed",handleMessage);
 
   return () => {
     window.removeEventListener("aura-chat-message",handleMessage);
+    window.removeEventListener("aura-dating-state-changed",handleMessage);
   };
 }, [myId]);
 
@@ -841,7 +848,7 @@ fontSize:15
             border: "2px solid var(--surface)",
           }}
         >
-          12
+          {incomingLikeCount}
         </div>
       </div>
 
@@ -868,18 +875,6 @@ fontSize:15
       : c
   )
 );
-
-          const { data, error } = await supabase
-  .from("chats")
-  .update({
-    is_new_match: false,
-    unread_count: 0
-  })
-  .eq("id", chat.id)
-  .select();
-
-console.log("UPDATE RESULT:", data);
-console.log("UPDATE ERROR:", error);
 
           router.push(`/chat/${chat.id}`);
         }}
@@ -965,6 +960,7 @@ console.log("UPDATE ERROR:", error);
   typing={typingChats[chat.id]}
   router={router}
   index={index}
+  onHide={async(chatId:string)=>{await hideChatForMe(chatId);setChats((current)=>current.filter((item)=>item.id!==chatId));}}
 />
   ))
 )}

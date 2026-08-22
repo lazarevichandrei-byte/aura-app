@@ -100,6 +100,7 @@ const handleReadStateUpdated = ()=>{
 const handleChatMessage=()=>{void loadUnread(true);};
 window.addEventListener("chat-read-state-updated",handleReadStateUpdated);
 window.addEventListener("aura-chat-message",handleChatMessage);
+window.addEventListener("aura-dating-state-changed",handleChatMessage);
 const handleResume = ()=>{
   if(!document.hidden) void loadUnread(true);
 };
@@ -109,6 +110,7 @@ window.addEventListener("online",handleResume);
 return ()=>{
 window.removeEventListener("chat-read-state-updated",handleReadStateUpdated);
 window.removeEventListener("aura-chat-message",handleChatMessage);
+window.removeEventListener("aura-dating-state-changed",handleChatMessage);
 document.removeEventListener("visibilitychange",handleResume);
 window.removeEventListener("online",handleResume);
 supabase.removeChannel(

@@ -31,25 +31,8 @@ export async function POST(request:Request){
     let eventType:NotificationEventType|null=null;
     let deliveryEntityId:string|undefined;
     let dedupeEntityId:string|undefined;
-    if(type === "like"){
-      const {data} = await supabaseAdmin
-        .from("likes")
-        .select("id,from_user_id")
-        .eq("from_user_id",actor.id)
-        .eq("to_user_id",userId)
-        .limit(1)
-        .maybeSingle();
-      allowed = Boolean(data);
-      eventType="like_received";deliveryEntityId=data?.id;dedupeEntityId=data?.id;
-    }else if(type === "match"){
-      const {data} = await supabaseAdmin
-        .from("chats")
-        .select("id")
-        .or(`and(user1_id.eq.${actor.id},user2_id.eq.${userId}),and(user1_id.eq.${userId},user2_id.eq.${actor.id})`)
-        .limit(1)
-        .maybeSingle();
-      allowed = Boolean(data);
-      eventType="match_created";deliveryEntityId=data?.id;dedupeEntityId=data?.id;
+    if(type === "like" || type === "match"){
+      return NextResponse.json({ok:false,error:"USE_DATING_ACTION_ENDPOINT"},{status:410});
     }else if(type === "message"){
       return NextResponse.json({ok:false,error:"USE_VERIFIED_MESSAGE_ENDPOINT"},{status:410});
     }else{

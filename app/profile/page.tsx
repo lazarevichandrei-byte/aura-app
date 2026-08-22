@@ -9,6 +9,7 @@ import { useNotification } from "../../components/NotificationContext";
 import AuraLoader from "../../components/AuraLoader";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
 import {useI18n} from "../../components/I18nProvider";
+import {clearDiscoverySession} from "../../lib/discovery/session";
 import { INTERESTS, interestId, interestLabel } from "../../lib/i18n/interests";
 import {getReliableLocation,type LocationFailure} from "../../lib/location/reliableLocation";
 import {reverseGeocode} from "../../lib/map/reverseGeocode";
@@ -363,6 +364,7 @@ avatar_url:
 }).eq("telegram_id",telegramId);
 
    if(!error){
+    clearDiscoverySession();
     lastSavedRef.current = payload;
 
  localStorage.setItem(
@@ -421,26 +423,6 @@ useEffect(() => {
     }
 
 let { data, error } = await query.limit(20);
-
-
-
-// 🔥 получаем кто лайкнул тебя
-const { data: likedYou } = await supabase
-  .from("likes")
-  .select("from_user_id")
-.eq("to_user_id", telegramId);
-
-// список id
-const likedIds = (likedYou || []).map(l => l.from_user_id);
-
-// 🔥 сортируем: сначала те кто лайкнул
-data = (data || []).sort((a, b) => {
-  const aLiked = likedIds.includes(a.telegram_id);
-  const bLiked = likedIds.includes(b.telegram_id);
-
-  if (aLiked === bLiked) return 0;
-  return aLiked ? -1 : 1;
-});
 
 if (error) {
   console.log("match error", error);
@@ -549,6 +531,8 @@ if (rpcError) {
   error(t("profile.uploadFailed"),rpcError.message);
   return;
 }
+
+clearDiscoverySession();
 
 const { data } = supabase.storage
   .from("avatars")
@@ -704,6 +688,7 @@ if (isOnboarding) {
     if(nextCity)values.city=nextCity;
     const {error:updateError}=await supabase.from("users").update(values).eq("telegram_id",telegramId);
     if(updateError)throw updateError;
+    clearDiscoverySession();
     setLatitude(lat);setLongitude(lng);if(nextCity)setCity(nextCity);
   }
 

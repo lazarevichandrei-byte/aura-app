@@ -131,27 +131,6 @@ export default function RealtimeNotificationBridge(){
           href:`/meet/${payload.new.event_id}`,
         });
       })
-      .on("postgres_changes",{event:"INSERT",schema:"public",table:"likes",filter:`to_user_id=eq.${user.id}`},(payload:any)=>{
-        if(!ready) return;
-        window.dispatchEvent(new CustomEvent("aura-like-realtime",{detail:payload}));
-        if(!notificationEnabled(settings,"like_received") || payload.new?.from_user_id === user.id) return;
-        notifyRef.current({id:`like:${payload.new.id}`,title:t("notifications.newLike"),text:t("notifications.newLikeText"),icon:"❤️",type:"info",href:"/likes"});
-      })
-      .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
-    return ()=>{ void supabase.removeChannel(channel); };
-  },[settings,user?.id]);
-
-  useEffect(()=>{
-    if(!user?.id) return;
-    let ready = false;
-    const channel = supabase
-      .channel(`notification-matches-${user.id}`)
-      .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user1_id=eq.${user.id}`},(payload:any)=>{
-        if(ready && notificationEnabled(settings,"match_created") && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
-      })
-      .on("postgres_changes",{event:"INSERT",schema:"public",table:"chats",filter:`user2_id=eq.${user.id}`},(payload:any)=>{
-        if(ready && notificationEnabled(settings,"match_created") && payload.new?.is_new_match) notifyRef.current({id:`match:${payload.new.id}`,title:t("notifications.newMatch"),text:t("notifications.newMatchText"),icon:"💙",type:"success",href:`/chat/${payload.new.id}`});
-      })
       .subscribe((status)=>{ if(status === "SUBSCRIBED") ready = true; });
     return ()=>{ void supabase.removeChannel(channel); };
   },[settings,user?.id]);

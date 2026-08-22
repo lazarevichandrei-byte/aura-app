@@ -202,6 +202,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "CHAT_ACCESS_DENIED" }, { status: 403 });
     }
 
+    if(!chat.event_id&&action==="load"){
+      const timestamp=new Date().toISOString();
+      const {error:stateError}=await supabaseAdmin.from("chat_user_state").upsert({chat_id:chat.id,user_id:user.id,hidden_at:null,match_seen_at:timestamp,updated_at:timestamp},{onConflict:"chat_id,user_id"});
+      if(stateError)throw stateError;
+    }
+
     if(action==="presence"){
       if(typeof body!=="boolean")return NextResponse.json({ok:false,error:"INVALID_PRESENCE"},{status:400});
       const {error:presenceError}=await supabaseAdmin.from("users").update({is_online:body,last_seen:new Date().toISOString()}).eq("id",user.id);
@@ -277,12 +283,13 @@ export async function POST(request: Request) {
     if (messagesError) throw messagesError;
 
     return NextResponse.json({ ok: true, currentUserId: user.id, chat, event: null, participantCount: null, otherUser: otherUserResult.data, messages: messages ?? [] });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const chatError=error as {code?:string;message?:string;details?:string;hint?:string};
     console.error("CHAT API ERROR:", {
-      code: error?.code,
-      message: error?.message,
-      details: error?.details,
-      hint: error?.hint,
+      code: chatError.code,
+      message: chatError.message,
+      details: chatError.details,
+      hint: chatError.hint,
     });
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
   }

@@ -3,8 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useEffect } from "react";
-import { supabase } from "../../lib/supabase";
-import {performLikeAction} from "../../lib/likes/api";
+import {loadLikesInbox,performLikeAction} from "../../lib/likes/api";
 import { GridSkeleton } from "../../components/AppSkeletons";
 import { useNotification } from "../../components/NotificationContext";
 import {useI18n} from "../../components/I18nProvider";
@@ -15,39 +14,9 @@ const { info,error:showError } = useNotification();
 const {t}=useI18n();
 
 
-const [myId,setMyId] = useState<string | null>(null);
-
-useEffect(()=>{
-
-  const init = async () => {
-
-    const tgId =
-      (window as any)
-      ?.Telegram
-      ?.WebApp
-      ?.initDataUnsafe
-      ?.user
-      ?.id;
-
-    if(!tgId) return;
-
-    const { data:user } = await supabase
-      .from("users")
-      .select("id")
-      .eq("telegram_id", tgId)
-      .single();
-
-    if(user){
-      setMyId(user.id);
-    }
-
-  };
-
-  init();
-
-},[]);
-
 const [people,setPeople] = useState<any[]>([]);
+const [premium,setPremium] = useState(false);
+const [likeCount,setLikeCount] = useState(0);
 const [loading,setLoading] = useState(true);
 const [match,setMatch] = useState<any>(null);
 const [matchChatId,setMatchChatId] = useState<string | null>(null);
@@ -56,17 +25,10 @@ const [matchChatId,setMatchChatId] = useState<string | null>(null);
 const touchStartX = useRef(0);
 
 
-useEffect(() => {
-
-  if (myId) {
-    loadLikes(myId);
-  }
-
-}, [myId]);
+useEffect(() => { void loadLikes(); }, []);
 
 useEffect(() => {
-  if (!myId) return;
-  const reconcile = () => void loadLikes(myId,false);
+  const reconcile = () => void loadLikes(false);
   const handleRealtime = () => reconcile();
 
   const handleResume = () => {
@@ -81,50 +43,21 @@ useEffect(() => {
     document.removeEventListener("visibilitychange", handleResume);
     window.removeEventListener("online", handleResume);
   };
-}, [myId]);
+}, []);
 
 
 
-async function loadLikes(userId:string,showLoader=true){
+async function loadLikes(showLoader=true){
   if(showLoader) setLoading(true);
-
-  const { data: likes, error } = await supabase
-    .from("likes")
-    .select("*")
-    .eq("to_user_id", userId)
-.eq("status","pending");
-
-if(error){
-    console.error("LOAD LIKES ERROR:", {code:error.code});
-    return;
-  }
-
- if(!likes){
-
-  setPeople([]);
-  setLoading(false);
-
-  return;
-
-}
-
-  const ids = likes.map(l => l.from_user_id);
-
-  const { data: users } = await supabase
-    .from("users")
-    .select("*")
-    .in("id", ids);
-
-  const formatted = likes.map(like => ({
-    ...like,
-    users: users?.find(
-      u => u.id === like.from_user_id
-    )
-  }));
-
-  setPeople(formatted);
-  
-  setLoading(false);
+  try{
+    const inbox=await loadLikesInbox();
+    setPremium(inbox.premium);
+    setLikeCount(inbox.count);
+    setPeople(inbox.people);
+  }catch(error){
+    console.error("LOAD LIKES ERROR:",error);
+    setPeople([]);setLikeCount(0);
+  }finally{setLoading(false);}
 }
 
 
@@ -288,7 +221,7 @@ color:"var(--text-secondary)"
 
 
 
-{people.length > 0 && (
+{likeCount > 0 && (
 
 <div
 style={{
@@ -312,7 +245,7 @@ fontSize:19,
 fontWeight:700
 }}
 >
-{t("likes.count",{count:people.length})}
+{t("likes.count",{count:likeCount})}
 </div>
 
 <div
@@ -334,7 +267,15 @@ color:"var(--text-secondary)"
 {/* likes list */}
 <div style={{marginTop:22}}>
 
-{people.length === 0 ? (
+{!premium && likeCount > 0 ? (
+  <div className="app-card" style={{padding:24,borderRadius:24,textAlign:"center"}}>
+    <div aria-hidden style={{display:"flex",justifyContent:"center",gap:10,marginBottom:16}}>
+      {[0,1,2].map((item)=><div key={item} style={{width:64,height:64,borderRadius:"50%",background:"var(--surface-secondary)",filter:"blur(7px)"}} />)}
+    </div>
+    <div style={{fontSize:18,fontWeight:750}}>{t("likes.count",{count:likeCount})}</div>
+    <div style={{marginTop:8,color:"var(--text-secondary)"}}>{t("likes.interest")}</div>
+  </div>
+) : people.length === 0 ? (
 
   <EmptyLikes />
 
@@ -437,9 +378,7 @@ color:"var(--text-secondary)"
 onClick={(e)=>{
 e.stopPropagation();
 
-router.push(
-`/profile/${user.users?.id}`
-);
+router.push(`/user/${user.users?.id}`);
 
 /* если профиля пока нет —
 временно можно:
@@ -492,7 +431,7 @@ onClick={async (e)=>{
   const dismissed=await performLikeAction("dismiss",user.from_user_id).then(()=>true).catch(()=>false);
   if(!dismissed){showError(t("common.error"),t("home.likeFailed"));return;}
 
-  await loadLikes(myId!);
+  await loadLikes(false);
 }}
 
 style={{
@@ -516,9 +455,6 @@ cursor:"pointer"
 <div
 onClick={async (e)=>{
   e.stopPropagation();
-
-  if(!myId) return;
-
 
   const result=await performLikeAction("like",user.from_user_id).catch(()=>null);
   if(!result){showError(t("common.error"),t("home.likeFailed"));return;}

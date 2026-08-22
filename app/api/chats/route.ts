@@ -10,6 +10,8 @@ export async function POST(req: Request){
     const body = await req.json();
 
     const initData = body?.initData;
+    const action = typeof body?.action === "string" ? body.action : "load";
+    const requestedChatId = typeof body?.chatId === "string" ? body.chatId : "";
 
     if(!initData){
       return NextResponse.json(
@@ -55,6 +57,21 @@ if (validation.ok === false) {
 
     }
 
+    if(action==="hide"||action==="seen"){
+      if(!requestedChatId)return NextResponse.json({ok:false,error:"MISSING_CHAT_ID"},{status:400});
+      const {data:directChat,error:chatError}=await supabaseAdmin.from("chats").select("id,event_id,user1_id,user2_id").eq("id",requestedChatId).maybeSingle();
+      if(chatError)throw chatError;
+      if(!directChat||directChat.event_id||![directChat.user1_id,directChat.user2_id].includes(user.id))return NextResponse.json({ok:false,error:"CHAT_ACCESS_DENIED"},{status:403});
+      const timestamp=new Date().toISOString();
+      const stateResult=action==="hide"
+        ? await supabaseAdmin.from("chat_user_state").upsert({chat_id:directChat.id,user_id:user.id,hidden_at:timestamp,updated_at:timestamp},{onConflict:"chat_id,user_id"})
+        : await supabaseAdmin.from("chat_user_state").upsert({chat_id:directChat.id,user_id:user.id,hidden_at:null,match_seen_at:timestamp,updated_at:timestamp},{onConflict:"chat_id,user_id"});
+      const stateError=stateResult.error;
+      if(stateError)throw stateError;
+      return NextResponse.json({ok:true});
+    }
+    if(action!=="load")return NextResponse.json({ok:false,error:"UNKNOWN_ACTION"},{status:400});
+
    const [{ data: personalChats }, { data: participantRows }] = await Promise.all([
      supabaseAdmin
        .from("chats")
@@ -68,10 +85,10 @@ if (validation.ok === false) {
    ]);
 
 const meetChats = (participantRows || [])
-  .map((row: any) => Array.isArray(row.chats) ? row.chats[0] : row.chats)
+  .map((row) => Array.isArray(row.chats) ? row.chats[0] : row.chats)
   .filter(Boolean);
 
-const chatsRaw = [
+const allChatsRaw = [
   ...(personalChats || []),
   ...(meetChats || [])
 ]
@@ -87,6 +104,13 @@ const chatsRaw = [
       new Date(a.last_message_at || a.created_at || 0).getTime()
   );
 
+    const allChatIds = allChatsRaw.map((chat) => chat.id);
+    const {data:chatStateRows,error:chatStateError}=allChatIds.length
+      ? await supabaseAdmin.from("chat_user_state").select("chat_id,hidden_at,new_match_at,match_seen_at").eq("user_id",user.id).in("chat_id",allChatIds)
+      : {data:[],error:null};
+    if(chatStateError)throw chatStateError;
+    const stateByChat=new Map((chatStateRows??[]).map((state)=>[state.chat_id,state]));
+    const chatsRaw=allChatsRaw.filter((chat)=>chat.event_id||!stateByChat.get(chat.id)?.hidden_at);
     const chatIds = chatsRaw.map((chat) => chat.id);
     const { data: personalizedUnreadRows, error: unreadError } = chatIds.length
       ? await supabaseAdmin.rpc("get_chat_unread_counts", {
@@ -237,6 +261,7 @@ const chatsRaw = [
   return {
     ...chat,
     unread_count: unreadByChat.get(chat.id) ?? 0,
+    is_new_match: Boolean(stateByChat.get(chat.id)?.new_match_at&&(!stateByChat.get(chat.id)?.match_seen_at||new Date(stateByChat.get(chat.id)!.new_match_at!).getTime()>new Date(stateByChat.get(chat.id)!.match_seen_at!).getTime())),
 
     is_meet_chat: false,
 

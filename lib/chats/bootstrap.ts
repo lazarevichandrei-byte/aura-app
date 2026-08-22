@@ -24,3 +24,12 @@ export async function loadChatsBootstrap({force=false}:{force?:boolean}={}){
 }
 
 export function clearChatsBootstrapCache(){cached=null;cachedAt=0;inFlight=null;}
+
+export async function hideChatForMe(chatId:string){
+  const initData=await getTelegramInitData();
+  if(!initData)throw new Error("AUTH_REQUIRED");
+  const response=await fetch("/api/chats",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initData,action:"hide",chatId})});
+  const result=await response.json().catch(()=>null);
+  if(!response.ok||!result?.ok)throw new Error(result?.error||"CHAT_HIDE_FAILED");
+  clearChatsBootstrapCache();
+}
