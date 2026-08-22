@@ -8,6 +8,11 @@ import {clearNotificationPreferencesCache} from "./notifications/settings-api";
 import {clearDiscoverySession} from "./discovery/session";
 
 export type CurrentUser={id:string;telegram_id:number;name:string;avatar_url:string|null;onboarding_completed:boolean|null};
+type CurrentUserSnapshot=Pick<CurrentUser,"telegram_id"|"name"|"avatar_url"|"onboarding_completed">;
+type AuraWindow=Window&{
+  __AURA_TELEGRAM_LOCALE__?:string;
+  Telegram?:{WebApp?:{initDataUnsafe?:{user?:{id?:number}}}};
+};
 
 let cachedUser:CurrentUser|null|undefined;
 let currentUserRequest:Promise<CurrentUser|null>|null=null;
@@ -60,7 +65,7 @@ export function loadCurrentUser(options?:{force?:boolean}){
     const result=await response.json().catch(()=>null);
     if(!response.ok||!result?.ok)throw new Error(result?.error||"AUTH_CHECK_FAILED");
     if(typeof result.telegramLanguage==="string"){
-      (window as any).__AURA_TELEGRAM_LOCALE__=result.telegramLanguage;
+      (window as AuraWindow).__AURA_TELEGRAM_LOCALE__=result.telegramLanguage;
       window.dispatchEvent(new CustomEvent("aura-telegram-language-resolved",{detail:result.telegramLanguage}));
     }
     setCurrentUserCache(result.exists?result.user:null);
@@ -71,7 +76,13 @@ export function loadCurrentUser(options?:{force?:boolean}){
 
 export function readCurrentUserSnapshot(){
   if(typeof window==="undefined"||sessionStorage.getItem(DELETED_SESSION_KEY)==="1")return null;
-  try{const value=JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||"null");const telegramId=(window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id;return value?.telegram_id===telegramId?value:null;}catch{return null;}
+  try{
+    const value:unknown=JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||"null");
+    if(!value||typeof value!=="object")return null;
+    const snapshot=value as CurrentUserSnapshot;
+    const telegramId=(window as AuraWindow).Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    return snapshot.telegram_id===telegramId?snapshot:null;
+  }catch{return null;}
 }
 
 export function useCurrentUser(){

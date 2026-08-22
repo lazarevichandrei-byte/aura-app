@@ -32,8 +32,7 @@ export async function POST(request:Request){
       const {data:cycles,error:cyclesError}=await supabaseAdmin.from("dating_interaction_cycles")
         .select("id,initiated_by_user_id,created_at")
         .eq("status","pending")
-        .neq("initiated_by_user_id",actor.id)
-        .or(`user_low_id.eq.${actor.id},user_high_id.eq.${actor.id}`)
+        .eq("recipient_user_id",actor.id)
         .order("created_at",{ascending:false});
       if(cyclesError)throw cyclesError;
       const count=cycles?.length??0;

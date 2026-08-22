@@ -390,13 +390,20 @@ useEffect(() => {
         )));
   };
   window.addEventListener("aura-chat-message",handleMessage);
-  window.addEventListener("aura-dating-state-changed",handleMessage);
 
   return () => {
     window.removeEventListener("aura-chat-message",handleMessage);
-    window.removeEventListener("aura-dating-state-changed",handleMessage);
   };
 }, [myId]);
+
+useEffect(()=>{
+  const reconcileDatingState=()=>{
+    void loadChats(false);
+    void loadLikesInbox().then((inbox)=>setIncomingLikeCount(inbox.count)).catch(()=>null);
+  };
+  window.addEventListener("aura-dating-state-changed",reconcileDatingState);
+  return()=>window.removeEventListener("aura-dating-state-changed",reconcileDatingState);
+},[]);
 
 
 useEffect(() => {
