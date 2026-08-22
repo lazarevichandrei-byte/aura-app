@@ -3,6 +3,7 @@ import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 import { calculateMeetExpiration } from "../../../../lib/meet/time";
 import { ensureMeetChatParticipant } from "../../../../lib/server/meet-chat-participant";
+import {recordServerEventBestEffort} from "../../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -131,8 +132,12 @@ export async function POST(request: Request) {
       throw new Error("CREATOR_PARTICIPANT_NOT_FOUND");
     }
 
+    recordServerEventBestEffort({eventName:"meet_created",actorUserId:user.id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:created:${event.id}`});
+    recordServerEventBestEffort({eventName:"meet_chat_joined",actorUserId:user.id,entityType:"chat",entityId:chat.id,dedupeKey:`meet:chat_joined:${chat.id}:${user.id}`,metadata:{meet_event_id:event.id}});
+
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const databaseError = error as { code?: string; message?: string; details?: string; hint?: string };
     if (createdChatId) {
       const rollbackParticipants = await supabaseAdmin
         .from("chat_participants")
@@ -164,7 +169,7 @@ export async function POST(request: Request) {
         });
       }
     }
-    console.error("MEET CREATE API ERROR:", { step, code: error?.code, message: error?.message, details: error?.details, hint: error?.hint });
+    console.error("MEET CREATE API ERROR:", { step, code: databaseError.code, message: databaseError.message, details: databaseError.details, hint: databaseError.hint });
     const responseError = step.startsWith("creator-participant")
       ? "CREATOR_PARTICIPANT_FAILED"
       : "CREATE_FAILED";

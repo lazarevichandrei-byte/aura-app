@@ -29,6 +29,7 @@ import { getMeetGuestCount } from "../../lib/meet/participants";
 import {useI18n} from "../../components/I18nProvider";
 import type {TranslationKey} from "../../lib/i18n/dictionary";
 import AuraSkeleton from "../../components/AuraSkeleton";
+import {trackAuraEvent} from "../../lib/events/client";
 
 
 export default function MeetPage() {
@@ -37,6 +38,7 @@ export default function MeetPage() {
     const { error: showError, success } = useNotification();
     const mapRef = useRef<AuraMapRef>(null);
     const syncSequenceRef = useRef(new Map<string,number>());
+    const viewedEventsRef=useRef(new Set<string>());
 
 
     const { user: currentUser } = useCurrentUser();
@@ -333,6 +335,12 @@ useEffect(() => {
 
 const [selectedEvent, setSelectedEvent] =
   useState<MeetEvent | null>(null);
+
+useEffect(()=>{
+  if(!selectedEvent?.id||viewedEventsRef.current.has(selectedEvent.id))return;
+  viewedEventsRef.current.add(selectedEvent.id);
+  void trackAuraEvent({eventName:"meet_viewed",entityType:"meet_event",entityId:selectedEvent.id});
+},[selectedEvent?.id]);
 
 const [selectedCategory, setSelectedCategory] =
   useState<string | null>(null);

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:events": "tsc lib/events/catalog.ts lib/events/validate.ts lib/telegram-auth.ts --outDir /tmp/aura-events-test --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-events.mjs /tmp/aura-events-test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.104.0",

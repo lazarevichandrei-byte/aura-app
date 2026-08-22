@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../lib/telegram-auth";
+import {recordServerEventBestEffort} from "../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
         .single(),
       supabaseAdmin
         .from("chats")
-        .select("id,event_id,user1_id,user2_id")
+        .select("id,event_id,user1_id,user2_id,has_messages")
         .eq("id", chatId)
         .single(),
     ]);
@@ -272,6 +273,10 @@ export async function POST(request: Request) {
           hint: metadataError.hint,
         });
       }
+
+      const otherUserId=chat.event_id?null:chat.user1_id===user.id?chat.user2_id:chat.user1_id;
+      recordServerEventBestEffort({eventName:"message_sent_metadata",actorUserId:user.id,entityType:"message",entityId:message.id,dedupeKey:`message:metadata:${message.id}`,metadata:{chat_id:chat.id,is_first_message:!chat.has_messages}});
+      if(!chat.event_id&&!chat.has_messages&&otherUserId)recordServerEventBestEffort({eventName:"chat_started",actorUserId:user.id,targetUserId:otherUserId,entityType:"chat",entityId:chat.id,dedupeKey:`chat:started:${chat.id}`});
 
       return NextResponse.json({ ok: true, message, currentUserId: user.id });
     }

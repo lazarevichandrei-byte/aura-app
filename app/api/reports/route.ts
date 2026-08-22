@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../lib/telegram-auth";
+import {recordServerEventBestEffort} from "../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,7 @@ const REPORT_REASONS = new Set([
   "Неприемлемый контент",
   "Другое",
 ]);
+const REPORT_CATEGORY:Record<string,string>={"Спам":"spam","Фейк аккаунт":"fake_account","Оскорбления":"harassment","Неприемлемый контент":"inappropriate_content","Другое":"other"};
 
 export async function POST(request: Request) {
   let step = "parse_body";
@@ -50,12 +52,13 @@ export async function POST(request: Request) {
     }
 
     step = "insert_report";
-    const { error } = await supabaseAdmin.from("reports").insert({
+    const {data:report, error } = await supabaseAdmin.from("reports").insert({
       reporter_id: reporterResult.data.id,
       reported_user_id: targetResult.data.id,
       reason,
-    });
+    }).select("id").single();
     if (error) throw error;
+    recordServerEventBestEffort({eventName:"report",actorUserId:reporterResult.data.id,targetUserId:targetResult.data.id,entityType:"report",entityId:report.id,dedupeKey:`report:${report.id}`,metadata:{category:REPORT_CATEGORY[reason]}});
 
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -25,6 +25,7 @@ import {interestLabel} from "../../lib/i18n/interests";
 import {getTelegramInitData} from "../../lib/telegram-init-data";
 import {clearDiscoverySession,readDiscoverySession,saveDiscoverySession} from "../../lib/discovery/session";
 import {PROFILE_PLACEHOLDER,resolveProfilePhoto,validPhotoUrls} from "../../lib/discovery/photos";
+import {trackAuraEvent} from "../../lib/events/client";
 
 
 
@@ -81,6 +82,7 @@ const [likePressed,setLikePressed]=useState(false);
 const [boostPressed,setBoostPressed]=useState(false);
 
 const startX=useRef(0);
+const impressionRef=useRef<{candidateId:string;startedAt:number;dwellSent:boolean}|null>(null);
 
 
 
@@ -195,6 +197,28 @@ feedQueue.length > 0
 ? feedQueue[0]
 : null;
 
+function dwellBucket(milliseconds:number){
+  if(milliseconds<2000)return "lt_2s";
+  if(milliseconds<5000)return "2_5s";
+  if(milliseconds<15000)return "5_15s";
+  if(milliseconds<30000)return "15_30s";
+  return "30s_plus";
+}
+
+function recordCurrentDwell(){
+  const impression=impressionRef.current;
+  if(!impression||impression.dwellSent)return;
+  impression.dwellSent=true;
+  void trackAuraEvent({eventName:"profile_dwell_bucket",targetUserId:impression.candidateId,metadata:{source:"home_feed",bucket:dwellBucket(Date.now()-impression.startedAt)}});
+}
+
+function openCurrentProfile(){
+  if(!currentUser)return;
+  sessionStorage.setItem("aura-profile-return-candidate",currentUser.id);
+  void trackAuraEvent({eventName:"profile_open",targetUserId:currentUser.id,metadata:{source:"home_feed"}});
+  router.push(`/user/${currentUser.id}?from=home`);
+}
+
 useEffect(()=>{
   if(!myId||!filterSnapshot.current)return;
   saveDiscoverySession({userId:myId,filterSnapshot:filterSnapshot.current,queue:feedQueue,consumedIds:consumedIds.current,photoIndex,updatedAt:Date.now()});
@@ -204,6 +228,17 @@ useEffect(() => {
 
   if (!currentUser) return;
 
+  const previous=impressionRef.current;
+  if(previous&&previous.candidateId!==currentUser.id)recordCurrentDwell();
+  if(!previous||previous.candidateId!==currentUser.id){
+    impressionRef.current={candidateId:currentUser.id,startedAt:Date.now(),dwellSent:false};
+    void trackAuraEvent({eventName:"profile_impression",targetUserId:currentUser.id,metadata:{source:"home_feed",position_bucket:consumedIds.current.length<5?"0_4":consumedIds.current.length<10?"5_9":"10_plus",photo_index:photoIndex,photo_count:photos.length}});
+    if(sessionStorage.getItem("aura-profile-return-candidate")===currentUser.id){
+      sessionStorage.removeItem("aura-profile-return-candidate");
+      void trackAuraEvent({eventName:"return_to_profile",targetUserId:currentUser.id,metadata:{source:"home_feed"}});
+    }
+  }
+
   setCardVisible(false);
 
   requestAnimationFrame(() => {
@@ -211,6 +246,8 @@ useEffect(() => {
   });
 
 }, [currentUser]);
+
+useEffect(()=>()=>recordCurrentDwell(),[]);
 
 
 
@@ -221,6 +258,7 @@ if(photos.length===0&&typeof currentUser?.avatar_url==="string"&&currentUser.ava
 async function nextUser(){
 
   if(!currentUser) return;
+  recordCurrentDwell();
 
   setPhotoIndex(0);
   setDragX(0);
@@ -378,11 +416,7 @@ padding:"18px 18px 118px"
 <>
 
 <div
-onClick={() =>
-  router.push(
-    `/user/${currentUser.id}?from=home`
-  )
-}
+onClick={openCurrentProfile}
 onTouchStart={touchStart}
 onTouchMove={touchMove}
 onTouchEnd={touchEnd}
@@ -527,7 +561,7 @@ textShadow:"0 1px 8px rgba(0,0,0,.42)"
     aria-label={t("home.viewProfile")}
     onClick={(e) => {
       e.stopPropagation();
-      router.push(`/user/${currentUser.id}?from=home`);
+      openCurrentProfile();
     }}
     style={{
       display:"inline-flex",
@@ -1014,7 +1048,7 @@ marginBottom:38
 onClick={async ()=>{
 
   if(matchChatId){
-
+    void trackAuraEvent({eventName:"match_opened",entityType:"chat",entityId:matchChatId});
     router.push(`/chat/${matchChatId}`);
   }
 

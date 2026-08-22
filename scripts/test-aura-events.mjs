@@ -1,0 +1,41 @@
+import assert from "node:assert/strict";
+import {createRequire} from "node:module";
+import path from "node:path";
+import crypto from "node:crypto";
+
+const outputDirectory=process.argv[2];
+if(!outputDirectory)throw new Error("Compiled events directory is required");
+const require=createRequire(import.meta.url);
+const {validateMetadata,validateOccurredAt,MAX_METADATA_BYTES,hasPrivilegedEventFields}=require(path.resolve(outputDirectory,"events/validate.js"));
+const {isAuraEventName,isClientAuraEventName}=require(path.resolve(outputDirectory,"events/catalog.js"));
+const {validateTelegramInitData}=require(path.resolve(outputDirectory,"telegram-auth.js"));
+
+assert.deepEqual(validateMetadata("profile_open",{source:"home_feed"}),{ok:true,metadata:{source:"home_feed"}});
+assert.equal(validateMetadata("profile_open",{}).error,"MISSING_METADATA_FIELD");
+assert.equal(validateMetadata("profile_open",{source:"home_feed",unknown:true}).error,"UNKNOWN_METADATA_FIELD");
+assert.equal(validateMetadata("profile_open",{source:"home_feed",message_body:"private"}).error,"FORBIDDEN_METADATA");
+assert.equal(validateMetadata("message_sent_metadata",{chat_id:"id",is_first_message:true,body:"private"}).error,"FORBIDDEN_METADATA");
+assert.equal(validateMetadata("profile_open",{source:"x".repeat(MAX_METADATA_BYTES)}).error,"METADATA_TOO_LARGE");
+const now=Date.now();
+assert.equal(validateOccurredAt(new Date(now+6*60*1000).toISOString(),now).error,"EVENT_IN_FUTURE");
+assert.equal(validateOccurredAt(new Date(now-8*24*60*60*1000).toISOString(),now).error,"EVENT_TOO_OLD");
+assert.equal(validateOccurredAt(new Date(now).toISOString(),now).ok,true);
+assert.equal(hasPrivilegedEventFields({actor_user_id:crypto.randomUUID()}),true);
+assert.equal(hasPrivilegedEventFields({dedupe_key:"spoofed"}),true);
+assert.equal(hasPrivilegedEventFields({source_type:"server"}),true);
+assert.equal(hasPrivilegedEventFields({schema_version:1}),true);
+assert.equal(hasPrivilegedEventFields({eventName:"profile_open"}),false);
+assert.equal(isClientAuraEventName("profile_open"),true);
+assert.equal(isClientAuraEventName("match_created"),false);
+assert.equal(isAuraEventName("unknown_event"),false);
+
+process.env.TELEGRAM_BOT_TOKEN="event-test-token";
+const authDate=Math.floor(Date.now()/1000);
+const user=JSON.stringify({id:12345,first_name:"Test"});
+const dataCheckString=`auth_date=${authDate}\nuser=${user}`;
+const secret=crypto.createHmac("sha256","WebAppData").update(process.env.TELEGRAM_BOT_TOKEN).digest();
+const hash=crypto.createHmac("sha256",secret).update(dataCheckString).digest("hex");
+const validInitData=new URLSearchParams({auth_date:String(authDate),user,hash}).toString();
+assert.equal(validateTelegramInitData(validInitData).ok,true);
+assert.equal(validateTelegramInitData(`${validInitData.slice(0,-1)}0`).ok,false);
+console.log("AURA_EVENT_VALIDATOR_TESTS_PASS");
