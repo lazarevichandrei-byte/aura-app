@@ -15,19 +15,12 @@ import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
 import CategoryPicker from "../../../components/meet/CategoryPicker";
 import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
-import MeetTimePicker from "../../../components/meet/MeetTimePicker";
-import MeetDurationSelector from "../../../components/meet/MeetDurationSelector";
 import { useNotification } from "../../../components/NotificationContext";
-import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, nextMeetTimeSuggestion, type MeetDuration } from "../../../lib/meet/time";
-import { getTelegramInitData } from "../../../lib/telegram-init-data";
-import { consumeMeetLocation, prepareMeetLocation } from "../../../lib/meet/locationStore";
-import {useI18n} from "../../../components/I18nProvider";
 export default function CreateMeetPage() {
     
 
   const router = useRouter();
-  const { error: showError, success } = useNotification();
-  const {t}=useI18n();
+  const { error: showError } = useNotification();
   
 
   const [title,setTitle] =
@@ -38,7 +31,6 @@ useState("");
 
 const [place,setPlace] =
 useState("");
-const [address, setAddress] = useState("");
 
 const [latitude,setLatitude] =
 useState<number | null>(null);
@@ -58,7 +50,9 @@ useState("");
 const [maxPeople,setMaxPeople] =
 useState(1);
 
-const [duration, setDuration] = useState<MeetDuration>("1h");
+const [duration, setDuration] = useState<
+  "30m" | "1h" | "2h" | "day"
+>("1h");
 
 const [joinType, setJoinType] = useState<
   "open" | "approval"
@@ -69,19 +63,13 @@ useState(false);
 
   const [category,setCategory] = useState("coffee");
 
-const [categorySheetOpen, setCategorySheetOpen] =
+  const [categorySheetOpen, setCategorySheetOpen] =
 useState(false);
-const [timePickerOpen, setTimePickerOpen] = useState(false);
 
 useEffect(() => {
   const raw = sessionStorage.getItem("meet_draft");
 
-  if (!raw) {
-    const suggestion = nextMeetTimeSuggestion();
-    setDate(suggestion.date);
-    setTime(suggestion.time);
-    return;
-  }
+  if (!raw) return;
 
   try {
     const draft = JSON.parse(raw);
@@ -89,17 +77,11 @@ useEffect(() => {
     setTitle(draft.title ?? "");
     setDescription(draft.description ?? "");
     setCategory(draft.category ?? "coffee");
-    setPlace(draft.place ?? "");
-    setAddress(draft.address ?? "");
-    setCity(draft.city ?? "");
-    setLatitude(draft.latitude ?? null);
-    setLongitude(draft.longitude ?? null);
-    const suggestion = nextMeetTimeSuggestion();
-    setDate(draft.date || suggestion.date);
-    setTime(draft.time || suggestion.time);
+    setDate(draft.date ?? "");
+    setTime(draft.time ?? "");
     setMaxPeople(draft.maxPeople ?? 1);
     setDuration(
-  (draft.duration as MeetDuration) ?? "1h"
+  (draft.duration as "30m" | "1h" | "2h" | "day") ?? "1h"
 );
 
 setJoinType(
@@ -120,11 +102,6 @@ useEffect(() => {
   maxPeople,
   duration,
   joinType,
-  place,
-  address,
-  city,
-  latitude,
-  longitude,
 })
   );
 }, 
@@ -137,22 +114,33 @@ useEffect(() => {
   maxPeople,
   duration,
   joinType,
-  place,
-  address,
-  city,
-  latitude,
-  longitude,
 ]
 );
 
 useEffect(() => {
-  const data = consumeMeetLocation();
-  if (!data) return;
-  setPlace(data.title);
-  setAddress(data.address);
-  setCity(data.city);
-  setLatitude(data.lat);
-  setLongitude(data.lng);
+  const raw = sessionStorage.getItem("meet_location");
+
+
+
+  if (!raw) return;
+
+  try {
+
+    const data = JSON.parse(raw);
+
+    setPlace(data.title || "");
+    setCity(data.address || "");
+    setLatitude(data.lat ?? null);
+    setLongitude(data.lng ?? null);
+
+    sessionStorage.removeItem("meet_location");
+
+  } catch {
+
+    sessionStorage.removeItem("meet_location");
+
+  }
+
 }, []);
 
   
@@ -161,68 +149,134 @@ useEffect(() => {
 
   if(loading) return;
 
-  if(!title || !date || !time){
-    showError(t("meet.invalidData"), t("meet.requiredDate"));
-    return;
-  }
-
-  const startsAt = localMeetDateTimeToIso(date, time);
-  if (!startsAt) {
-    showError(t("meet.invalidDate"), t("meet.invalidDateText"));
-    return;
-  }
-  if (!isMeetStartSafelyFuture(startsAt)) {
-    showError(t("meet.invalidTime"), t("meet.invalidTimeText"));
+  if(
+    !title ||
+    !date ||
+    !time
+  ){
+    showError("Заполните данные", "Укажите название, дату и время встречи.");
     return;
   }
 
   setLoading(true);
-  let operationCompleted = false;
 
   try{
 
-    const initData = await getTelegramInitData();
-    if (!initData) throw new Error(t("meet.telegramFailed"));
-    let eventId = sessionStorage.getItem("meet_create_event_id");
-    if (!eventId) {
-      eventId = crypto.randomUUID();
-      sessionStorage.setItem("meet_create_event_id", eventId);
-    }
+    const tg =
+  (window as any)
+  ?.Telegram
+  ?.WebApp;
 
-    const response = await fetch("/api/meet/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        initData,
-        eventId,
-        values: {
-      title,
-      description,
-      category,
-      city: address || city,
-      place,
-      latitude,
-      longitude,
-      starts_at: startsAt,
-      duration,
-      join_type: joinType,
-      max_people: maxPeople,
-        },
-      }),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.ok) throw new Error(result.message || t("meet.createFailed"));
-    operationCompleted = true;
+const initData = tg?.initData;
 
-    try {
-      sessionStorage.removeItem("meet_draft");
-      sessionStorage.removeItem("meet_location");
-      sessionStorage.removeItem("meet_create_event_id");
-    } catch (cleanupError) {
-      console.error("MEET CREATE CLEANUP ERROR:", cleanupError);
+if (!initData) {
+  showError(
+    "Ошибка Telegram",
+    "Не удалось подтвердить пользователя."
+  );
+  return;
+}
+
+const createResponse = await fetch(
+  "/api/meet/create",
+  {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify({
+      initData,
+
+      values: {
+        title,
+        description,
+        category,
+        city,
+        place,
+        latitude,
+        longitude,
+
+        starts_at:
+          `${date}T${time}:00`,
+
+        duration,
+        join_type: joinType,
+        max_people: maxPeople
+      }
+    })
+  }
+);
+
+const createResult =
+  await createResponse.json();
+
+if (
+  !createResponse.ok ||
+  !createResult.ok
+) {
+  console.error(
+    "MEET CREATE API ERROR:",
+    createResult
+  );
+
+  throw new Error(
+    createResult?.error ||
+    "Не удалось создать встречу"
+  );
+}
+
+const createdMeet =
+  createResult.event;
+
+const chatResponse =
+  await fetch(
+    "/api/meet/chat",
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+          "application/json"
+      },
+
+      body:JSON.stringify({
+
+        initData:
+          tg?.initData,
+
+        eventId:
+          createdMeet.id
+
+      })
+
     }
-    success(t("meet.created"), t("meet.chatReady"));
-    router.replace("/meet");
+  );
+
+const chatResult =
+  await chatResponse.json();
+
+if(
+  !chatResponse.ok ||
+  !chatResult.ok
+){
+  console.error(
+    "MEET CHAT API ERROR:",
+    chatResult
+  );
+
+  throw new Error(
+    "Не удалось создать чат встречи"
+  );
+}
+
+sessionStorage.removeItem(
+  "meet_draft"
+);
+sessionStorage.removeItem("meet_location");
+
+router.replace("/meet");
 
   } catch (err: any) {
 
@@ -232,12 +286,10 @@ useEffect(() => {
   console.error("CREATE MEET ERROR HINT:", err?.hint);
   console.error("CREATE MEET ERROR CODE:", err?.code);
 
-  if (!operationCompleted) {
-    showError(
-      t("meet.createError"),
-      err?.message || t("meet.unknownError")
-    );
-  }
+  showError(
+    "Ошибка создания",
+    err?.message || "Неизвестная ошибка"
+  );
 
 } finally {
   setLoading(false);
@@ -246,6 +298,13 @@ useEffect(() => {
 
 }
 
+const DURATION_OPTIONS = [
+  { id: "30m", label: "30 минут" },
+  { id: "1h", label: "1 час" },
+  { id: "2h", label: "2 часа" },
+  { id: "day", label: "До конца дня" },
+] as const;
+
   return (
 
     <PageWrapper>
@@ -253,19 +312,18 @@ useEffect(() => {
       <div
         style={{
           minHeight:"100vh",
-          background:"var(--app-bg)",
-          color:"var(--text-primary)",
+          background:"#F5F7FB",
           padding:"20px",
           paddingBottom:"120px"
         }}
       >
 
-        <PageHeader title={t("meet.create")} onBack={() => router.back()} />
+        <PageHeader title="Создать встречу" onBack={() => router.back()} />
 
         {/* Название встречи */}
 
         <div style={labelStyle}>
-          {t("meet.name")}
+          Название встречи
         </div>
 
         <input
@@ -273,7 +331,7 @@ value={title}
 onChange={(e)=>
 setTitle(e.target.value)
 }
-placeholder={t("meet.namePlaceholder")}
+placeholder="Например: Вечерний кофе ☕"
 style={inputStyle}
 />
 
@@ -285,7 +343,7 @@ style={inputStyle}
     marginTop: 16,
   }}
 >
-  {t("category.label")}
+  Категория
 </div>
 
 <CategoryPicker
@@ -315,7 +373,7 @@ style={inputStyle}
             marginTop:16
           }}
         >
-          {t("meet.description")}
+          О встрече
         </div>
 
         <textarea
@@ -326,7 +384,9 @@ onChange={(e)=>
 setDescription(e.target.value)
 }
 
-placeholder={t("meet.descriptionPlaceholder")}
+placeholder={`Например:
+Выпьем кофе,погуляем
+и познакомимся ☕`}
 
 style={{
 ...inputStyle,
@@ -353,13 +413,12 @@ flex:1
 >
 
 <div style={labelStyle}>
-📅 {t("meet.date")}
+📅 Дата
 </div>
 
 <input
 
 type="date"
-min={localToday()}
 
 value={date}
 
@@ -380,18 +439,21 @@ flex:1
 >
 
 <div style={labelStyle}>
-🕒 {t("meet.time")}
+🕒 Время
 </div>
 
-<button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",color:time?"var(--text-primary)":"var(--text-muted)",cursor:"pointer"}}>
-  {time || t("meet.chooseTime")}
-</button>
+<input
 
-<MeetTimePicker
-  open={timePickerOpen}
-  value={time}
-  onClose={() => setTimePickerOpen(false)}
-  onChange={setTime}
+type="time"
+
+value={time}
+
+onChange={(e)=>
+setTime(e.target.value)
+}
+
+style={inputStyle}
+
 />
 
 </div>
@@ -404,10 +466,38 @@ flex:1
     marginTop: 16,
   }}
 >
-⏱️ {t("meet.duration")}
+⏱️ Встреча доступна
 </div>
 
-<MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 10,
+  }}
+>
+  {DURATION_OPTIONS.map((item) => (
+    <div
+      key={item.id}
+      onClick={() => setDuration(item.id)}
+      style={{
+        height: 48,
+        borderRadius: 14,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        transition: ".15s",
+        fontWeight: 600,
+        background: duration === item.id ? "#2F80FF" : "#fff",
+        color: duration === item.id ? "#fff" : "#222",
+        boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+      }}
+    >
+      {item.label}
+    </div>
+  ))}
+</div>
 
 <div
   style={{
@@ -415,7 +505,7 @@ flex:1
     marginTop: 16,
   }}
 >
-  {t("meet.joinType")}
+  Тип участия
 </div>
 
 <div
@@ -436,12 +526,12 @@ flex:1
       cursor: "pointer",
       fontWeight: 600,
       transition: ".15s",
-      background: joinType === "open" ? "var(--primary)" : "var(--surface)",
-      color: joinType === "open" ? "var(--text-inverse)" : "var(--text-primary)",
+      background: joinType === "open" ? "#2F80FF" : "#fff",
+      color: joinType === "open" ? "#fff" : "#222",
       boxShadow: "0 2px 8px rgba(0,0,0,.04)",
     }}
   >
-    🌍 {t("meet.open")}
+    🌍 Открытая
   </div>
 
   <div
@@ -455,12 +545,12 @@ flex:1
       cursor: "pointer",
       fontWeight: 600,
       transition: ".15s",
-      background: joinType === "approval" ? "var(--primary)" : "var(--surface)",
-      color: joinType === "approval" ? "var(--text-inverse)" : "var(--text-primary)",
+      background: joinType === "approval" ? "#2F80FF" : "#fff",
+      color: joinType === "approval" ? "#fff" : "#222",
       boxShadow: "0 2px 8px rgba(0,0,0,.04)",
     }}
   >
-    📨 {t("meet.approval")}
+    📨 По заявкам
   </div>
 </div>
 
@@ -471,21 +561,13 @@ style={{
 marginTop:16
 }}
 >
-{t("meet.place")}
+Где встречаемся
 </div>
 
 <LocationCard
   place={place}
   city={city}
-  address={address}
   onMapClick={() => {
-    prepareMeetLocation(latitude !== null && longitude !== null ? {
-      title: place,
-      address,
-      city,
-      lat: latitude,
-      lng: longitude,
-    } : null);
     router.push("/meet/location");
   }}
 />
@@ -504,7 +586,7 @@ marginTop:16
 
 >
 
-{t("meet.capacity")}
+Количество участников
 
 </div>
 
@@ -533,9 +615,9 @@ onChange={setMaxPeople}
             borderRadius:18,
 
             background:
-              "var(--brand-gradient)",
+              "linear-gradient(135deg,#2F80FF,#56CCF2)",
 
-            color:"var(--text-inverse)",
+            color:"#fff",
 
             display:"flex",
             justifyContent:"center",
@@ -551,8 +633,8 @@ onChange={setMaxPeople}
         >
           {
 loading
-? `⏳ ${t("meet.creating")}`
-: `🚀 ${t("meet.create")}`
+? "⏳ Создаем..."
+: "🚀 Создать встречу"
 }
         </div>
 
@@ -593,8 +675,7 @@ const inputStyle = {
   
   padding:"0 16px",
 
-  background:"var(--surface)",
-  color:"var(--text-primary)",
+  background:"#fff",
 
   fontSize:15,
 
