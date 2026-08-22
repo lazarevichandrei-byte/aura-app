@@ -9,7 +9,7 @@ export async function POST(request:Request){
     const body=await request.json().catch(()=>null);
     const validation=validateTelegramInitData(typeof body?.initData==="string"?body.initData:"");
     if(validation.ok===false)return NextResponse.json({ok:false,error:validation.error},{status:validation.error==="BOT_TOKEN_MISSING"?500:403});
-    const {data:user,error:userError}=await supabaseAdmin.from("users").select("id,age,gender,looking,latitude,longitude,search_radius").eq("telegram_id",validation.user.id).maybeSingle();
+    const {data:user,error:userError}=await supabaseAdmin.from("users").select("id,age,gender,looking,latitude,longitude,search_radius,name,avatar_url,photos,main_photo_index").eq("telegram_id",validation.user.id).maybeSingle();
     if(userError)throw userError;
     if(!user)return NextResponse.json({ok:false,error:"USER_NOT_FOUND"},{status:404});
     const excludeIds=Array.isArray(body?.excludeIds)?body.excludeIds.filter((id:unknown)=>typeof id==="string").slice(0,300):[];
@@ -25,7 +25,7 @@ export async function POST(request:Request){
       return Math.round(6371*2*Math.asin(Math.sqrt(value)));
     };
     const candidates=((data??[]) as Array<Record<string,unknown>>).map((candidate)=>({id:candidate.id,name:candidate.name,age:candidate.age,city:candidate.city,bio:candidate.bio,interests:candidate.interests,avatar_url:candidate.avatar_url,photos:candidate.photos,main_photo_index:candidate.main_photo_index,is_verified:candidate.is_verified,is_online:candidate.show_online?candidate.is_online:false,last_seen:candidate.show_last_seen?candidate.last_seen:null,show_online:candidate.show_online,show_last_seen:candidate.show_last_seen,distance:distance(candidate.latitude,candidate.longitude)}));
-    return NextResponse.json({ok:true,currentUserId:user.id,filterSnapshot:{age:user.age,gender:user.gender,looking:user.looking,latitude:user.latitude,longitude:user.longitude,search_radius:user.search_radius},candidates});
+    return NextResponse.json({ok:true,currentUserId:user.id,currentProfile:{name:user.name,avatar_url:user.avatar_url,photos:user.photos,main_photo_index:user.main_photo_index},filterSnapshot:{age:user.age,gender:user.gender,looking:user.looking,latitude:user.latitude,longitude:user.longitude,search_radius:user.search_radius},candidates});
   }catch(error){
     console.error("DISCOVERY API ERROR",{message:error instanceof Error?error.message:"unknown"});
     return NextResponse.json({ok:false,error:"DISCOVERY_FAILED"},{status:500});

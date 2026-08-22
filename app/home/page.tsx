@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import BottomNav from "../../components/BottomNav";
-import AuraLoader from "../../components/AuraLoader";
 import HomeSkeleton from "../../components/HomeSkeleton";
 import PullToRefresh from "../../components/PullToRefresh";
-import AuraSkeleton from "../../components/AuraSkeleton";
 import { X, Heart, Sparkles, ChevronRight } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -26,6 +24,7 @@ import {useI18n} from "../../components/I18nProvider";
 import {interestLabel} from "../../lib/i18n/interests";
 import {getTelegramInitData} from "../../lib/telegram-init-data";
 import {clearDiscoverySession,readDiscoverySession,saveDiscoverySession} from "../../lib/discovery/session";
+import {PROFILE_PLACEHOLDER,resolveProfilePhoto,validPhotoUrls} from "../../lib/discovery/photos";
 
 
 
@@ -34,7 +33,6 @@ const router = useRouter();
 const {t}=useI18n();
 
 const {
-  notify,
   error
 } = useNotification();
 
@@ -101,7 +99,7 @@ useEffect(() => {
 
 useEffect(()=>{
   let active=true;
-  loadCurrentUser().then((user)=>{if(active&&user){localStorage.setItem("my_id",user.id);setMyId(user.id);}}).catch(()=>{if(active)setLoadingFeed(false);});
+  loadCurrentUser().then((user)=>{if(active&&user){localStorage.setItem("my_id",user.id);setMyId(user.id);setMyProfile(user);}}).catch(()=>{if(active)setLoadingFeed(false);});
   return()=>{active=false;};
 },[]);
 
@@ -170,7 +168,7 @@ async function loadUsers(reset=false){
     const nextFilterSnapshot=JSON.stringify(result.filterSnapshot);
     if(filterSnapshot.current&&filterSnapshot.current!==nextFilterSnapshot){consumedIds.current=[];setFeedQueue([]);}
     filterSnapshot.current=nextFilterSnapshot;
-    setMyProfile(result.filterSnapshot);
+    setMyProfile(result.currentProfile);
     setFeedQueue((previous)=>reset?(result.candidates??[]):mergeUsers(previous,result.candidates??[]));
 
   })().finally(()=>{setLoadingFeed(false);loadUsersRequest.current=null;});
@@ -184,6 +182,10 @@ async function refreshFeed(){
 
   await loadUsers(true);
 
+}
+
+async function refillFeed(){
+  await loadUsers();
 }
 
 
@@ -212,12 +214,8 @@ useEffect(() => {
 
 
 
-const photos=
-currentUser?.photos?.length
-? currentUser.photos
-: currentUser?.avatar_url
-? [currentUser.avatar_url]
-: [];
+const photos=validPhotoUrls(currentUser?.photos);
+if(photos.length===0&&typeof currentUser?.avatar_url==="string"&&currentUser.avatar_url.trim())photos.push(currentUser.avatar_url);
 
 
 async function nextUser(){
@@ -264,7 +262,7 @@ async function handleLike(){
 let chatId:string|null=null;
 try{
   ({chatId}=await performLikeAction("like",currentUser.id));
-}catch(actionError){
+}catch{
   error(t("common.error"),t("home.likeFailed"));
   return;
 }
@@ -382,7 +380,7 @@ padding:"18px 18px 118px"
 <div
 onClick={() =>
   router.push(
-    `/user/${currentUser.id}`
+    `/user/${currentUser.id}?from=home`
   )
 }
 onTouchStart={touchStart}
@@ -429,7 +427,8 @@ NOPE
 )}
 
 <img
-src={photos[photoIndex]}
+src={photos[photoIndex] || PROFILE_PLACEHOLDER}
+onError={(event)=>{event.currentTarget.src=PROFILE_PLACEHOLDER;}}
 loading="eager"
 decoding="async"
 alt=""
@@ -933,13 +932,9 @@ zIndex:2
 >
   
 <img
-src={
-  myProfile?.photos?.length
-    ? myProfile.photos[
-        myProfile.main_photo_index || 0
-      ]
-    : myProfile?.avatar_url || "/me.jpg"
-}
+src={resolveProfilePhoto(myProfile)}
+alt=""
+onError={(event)=>{event.currentTarget.src=PROFILE_PLACEHOLDER;}}
 
 
 style={{
@@ -984,13 +979,9 @@ zIndex:2
 }}
 >
 <img
-src={
-  matchedUser?.photos?.length
-    ? matchedUser.photos[
-        matchedUser.main_photo_index || 0
-      ]
-    : matchedUser?.avatar_url || "/noavatar.jpg"
-}
+src={resolveProfilePhoto(matchedUser)}
+alt=""
+onError={(event)=>{event.currentTarget.src=PROFILE_PLACEHOLDER;}}
 
 
 style={{
@@ -1079,6 +1070,17 @@ fontWeight:500
 </div>
 )}
 </>
+)}
+
+{!loadingFeed&&!currentUser&&(
+  <section style={{minHeight:"68vh",display:"grid",placeItems:"center",textAlign:"center",padding:"28px"}}>
+    <div style={{maxWidth:330}}>
+      <div style={{fontSize:46,marginBottom:16}}>✨</div>
+      <h1 style={{margin:"0 0 10px",fontSize:28}}>{t("home.emptyTitle")}</h1>
+      <p style={{margin:"0 0 24px",color:"var(--text-secondary)",lineHeight:1.55}}>{t("home.emptyText")}</p>
+      <button type="button" onClick={()=>void refillFeed()} style={{minHeight:50,padding:"0 22px",border:0,borderRadius:16,background:"var(--brand-gradient)",color:"var(--text-inverse)",fontWeight:700}}>{t("home.checkAgain")}</button>
+    </div>
+  </section>
 )}
 
 <BottomNav />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { ArrowLeft2 } from "iconsax-react";
 import { useNotification } from "../../../components/NotificationContext";
@@ -10,14 +10,10 @@ import UserProfileSkeleton from "../../../components/UserProfileSkeleton";
 import { getTelegramInitData } from "../../../lib/telegram-init-data";
 import {useI18n} from "../../../components/I18nProvider";
 import {interestLabel} from "../../../lib/i18n/interests";
-import {performLikeAction} from "../../../lib/likes/api";
-import {consumeDiscoveryCandidate} from "../../../lib/discovery/session";
-import {loadCurrentUser} from "../../../lib/useCurrentUser";
 export default function UserProfilePage() {
 
   const params = useParams();
   const router = useRouter();
-  const searchParams=useSearchParams();
   const {t}=useI18n();
   const {
   success,
@@ -45,7 +41,6 @@ useState(false);
 const [photoIndex,setPhotoIndex] =
 useState(0);
 const [photoLoaded,setPhotoLoaded] = useState(false);
-const [datingActionLoading,setDatingActionLoading]=useState(false);
 const pointerStart = useRef({x:0,y:0});
 const suppressTapUntil = useRef(0);
 
@@ -142,21 +137,6 @@ async function submitReport(){
 
   const previousPhoto = () => setPhotoIndex((index)=>Math.max(0,index-1));
   const nextPhoto = () => setPhotoIndex((index)=>Math.min(photos.length-1,index+1));
-  const fromHome=searchParams.get("from")==="home";
-  const handleDatingAction=async(action:"like"|"skip")=>{
-    if(datingActionLoading||!user?.id)return;
-    setDatingActionLoading(true);
-    try{
-      const current=await loadCurrentUser();
-      if(!current)throw new Error("AUTH_REQUIRED");
-      const result=await performLikeAction(action,user.id);
-      consumeDiscoveryCandidate(current.id,user.id);
-      if(result.chatId)router.replace(`/chat/${result.chatId}`);else router.back();
-    }catch{
-      error(t("common.error"),t("home.likeFailed"));
-      setDatingActionLoading(false);
-    }
-  };
   const handlePointerDown = (event:React.PointerEvent)=>{
     pointerStart.current = {x:event.clientX,y:event.clientY};
   };
@@ -582,11 +562,6 @@ async function submitReport(){
 
 )}
 
-
-{fromHome&&<div style={{position:"fixed",left:0,right:0,bottom:"calc(env(safe-area-inset-bottom, 0px) + 16px)",zIndex:80,display:"flex",justifyContent:"center",gap:20,pointerEvents:"none"}}>
-  <button type="button" disabled={datingActionLoading} onClick={()=>void handleDatingAction("skip")} aria-label="Dismiss" style={{width:58,height:58,borderRadius:"50%",background:"var(--surface)",color:"var(--danger)",boxShadow:"var(--shadow-md)",fontSize:25,pointerEvents:"auto"}}>✕</button>
-  <button type="button" disabled={datingActionLoading} onClick={()=>void handleDatingAction("like")} aria-label="Like" style={{width:64,height:64,borderRadius:"50%",background:"var(--brand-gradient)",color:"var(--text-inverse)",boxShadow:"var(--shadow-md)",fontSize:28,pointerEvents:"auto"}}>♡</button>
-</div>}
 
 <BottomSheet
 
