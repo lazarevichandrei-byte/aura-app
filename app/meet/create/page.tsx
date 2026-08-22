@@ -177,6 +177,8 @@ if (!initData) {
   return;
 }
 
+const eventId = crypto.randomUUID();
+
 const createResponse = await fetch(
   "/api/meet/create",
   {
@@ -188,6 +190,7 @@ const createResponse = await fetch(
 
     body: JSON.stringify({
       initData,
+      eventId,
 
       values: {
         title,
@@ -222,52 +225,9 @@ if (
   );
 
   throw new Error(
+    createResult?.message ||
     createResult?.error ||
     "Не удалось создать встречу"
-  );
-}
-
-const createdMeet =
-  createResult.event;
-
-const chatResponse =
-  await fetch(
-    "/api/meet/chat",
-    {
-      method:"POST",
-
-      headers:{
-        "Content-Type":
-          "application/json"
-      },
-
-      body:JSON.stringify({
-
-        initData:
-          tg?.initData,
-
-        eventId:
-          createdMeet.id
-
-      })
-
-    }
-  );
-
-const chatResult =
-  await chatResponse.json();
-
-if(
-  !chatResponse.ok ||
-  !chatResult.ok
-){
-  console.error(
-    "MEET CHAT API ERROR:",
-    chatResult
-  );
-
-  throw new Error(
-    "Не удалось создать чат встречи"
   );
 }
 
