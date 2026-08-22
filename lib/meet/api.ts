@@ -1,5 +1,4 @@
 import { supabase } from "../supabase";
-import { calculateMeetExpiration } from "./time";
 import { getTelegramInitData } from "../telegram-init-data";
 import type {MeetEvent} from "./types";
 
@@ -14,63 +13,6 @@ async function updateMeetMembership(action: string, values: Record<string, strin
   });
   const result = await response.json();
   if (!response.ok || !result.ok) throw new Error(result.error || "Операция не выполнена");
-}
-
-export async function createMeetEvent({
-  creator_id,
-  title,
-  description,
-  category,
-  city,
-  place,
-  latitude,
-  longitude,
-  starts_at,
-  duration,
-  join_type,
-  max_people
-}: {
-  creator_id: string;
-  title: string;
-  description: string;
-  category: string;
-  city: string;
-  place: string;
-  latitude: number | null;
-  longitude: number | null;
-  starts_at: string;
-  duration: "30m" | "1h" | "2h" | "day";
-join_type: "open" | "approval";
-max_people: number;
-}) {
-const expiresAt = calculateMeetExpiration(starts_at, duration);
-
-const { data, error } =
-    await supabase
-      .from("meet_events")
-      .insert({
-        creator_id,
-        title,
-        description,
-        category,
-        city,
-        place,
-        latitude,
-        longitude,
-        starts_at,
-duration,
-join_type,
-expires_at: expiresAt,
-max_people
-      })
-      .select()
-      .single();
-
-  if (error) {
-  throw error;
-}
-
-return data;
 }
 
 export async function loadMeetEvents() {
@@ -211,15 +153,7 @@ export async function removeMeetParticipant(
   eventId: string,
   userId: string
 ) {
-  const { error } = await supabase
-    .from("meet_participants")
-    .delete()
-    .eq("event_id", eventId)
-    .eq("user_id", userId);
-
-  if (error) {
-    throw error;
-  }
+  await updateMeetMembership("remove", { eventId, targetUserId: userId });
 }
 
 export async function getMeetParticipants(

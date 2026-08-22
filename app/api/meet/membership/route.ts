@@ -79,7 +79,7 @@ async function addParticipant(eventId: string, userId: string) {
 
 export async function POST(request: Request) {
   try {
-    const { initData, action, eventId, requestId } = await request.json();
+    const { initData, action, eventId, requestId, targetUserId } = await request.json();
     if (!initData || !action) {
       return NextResponse.json({ ok: false, error: "MISSING_DATA" }, { status: 400 });
     }
@@ -138,6 +138,31 @@ export async function POST(request: Request) {
         }
         if(removedParticipants?.length)await deliverTelegramNotification({eventType:"meet_participant_left",recipientUserId:event.creator_id,dedupeKey:`participant_left:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
       }
+    } else if (action === "remove") {
+      if (!eventId || !targetUserId) {
+        return NextResponse.json({ ok: false, error: "MISSING_DATA" }, { status: 400 });
+      }
+
+      const { data: event, error: eventError } = await supabaseAdmin
+        .from("meet_events")
+        .select("id,creator_id")
+        .eq("id", eventId)
+        .maybeSingle();
+      if (eventError) throw eventError;
+      if (!event) return NextResponse.json({ ok: false, error: "MEET_NOT_FOUND" }, { status: 404 });
+      if (event.creator_id !== user.id) {
+        return NextResponse.json({ ok: false, error: "NOT_EVENT_CREATOR" }, { status: 403 });
+      }
+      if (targetUserId === event.creator_id) {
+        return NextResponse.json({ ok: false, error: "CREATOR_CANNOT_BE_REMOVED" }, { status: 403 });
+      }
+
+      const { error: removeError } = await supabaseAdmin
+        .from("meet_participants")
+        .delete()
+        .eq("event_id", event.id)
+        .eq("user_id", targetUserId);
+      if (removeError) throw removeError;
     } else if (action === "approve" || action === "reject") {
       const { data: joinRequest } = await supabaseAdmin
         .from("meet_join_requests")
@@ -173,9 +198,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch (error:any) {
-    console.error("MEET MEMBERSHIP API ERROR:", {code:error?.code,message:error?.message});
-    if (error?.code === "P0001" || error?.message === "MEET_FULL") {
+  } catch (error: unknown) {
+    const routeError = error as { code?: string; message?: string };
+    console.error("MEET MEMBERSHIP API ERROR:", {code:routeError.code,message:routeError.message});
+    if (routeError.code === "P0001" || routeError.message === "MEET_FULL") {
       return NextResponse.json({ ok: false, error: "MEET_FULL" }, { status: 409 });
     }
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
