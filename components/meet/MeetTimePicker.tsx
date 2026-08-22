@@ -7,6 +7,7 @@ import {useI18n} from "../I18nProvider";
 type Props = {
   open: boolean;
   value: string;
+  minimum?: string;
   onClose: () => void;
   onChange: (value: string) => void;
 };
@@ -15,7 +16,7 @@ const HOURS = Array.from({ length: 24 }, (_, index) => String(index).padStart(2,
 const MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
 const ITEM_HEIGHT = 46;
 
-export default function MeetTimePicker({ open, value, onClose, onChange }: Props) {
+export default function MeetTimePicker({ open, value, minimum, onClose, onChange }: Props) {
   const {t}=useI18n();
   const [rendered, setRendered] = useState(open);
   const [closing, setClosing] = useState(false);
@@ -23,6 +24,8 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
   const [minute, setMinute] = useState("00");
   const hoursRef = useRef<HTMLDivElement>(null);
   const minutesRef = useRef<HTMLDivElement>(null);
+  const selectedTime = `${hour}:${minute}`;
+  const selectionAllowed = !minimum || selectedTime >= minimum;
 
   useEffect(() => {
     if (open) {
@@ -43,18 +46,21 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
     if (!open) return;
     const [nextHour = "12", rawMinute = "00"] = value.split(":");
     const roundedMinute = String(Math.min(55, Math.round(Number(rawMinute) / 5) * 5)).padStart(2, "0");
-    setHour(nextHour);
-    setMinute(roundedMinute);
+    const requestedTime = `${nextHour}:${roundedMinute}`;
+    const initialTime = minimum && requestedTime < minimum ? minimum : requestedTime;
+    const [initialHour, initialMinute] = initialTime.split(":");
+    setHour(initialHour);
+    setMinute(initialMinute);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     requestAnimationFrame(() => {
-      hoursRef.current?.scrollTo({ top: HOURS.indexOf(nextHour) * ITEM_HEIGHT });
-      minutesRef.current?.scrollTo({ top: MINUTES.indexOf(roundedMinute) * ITEM_HEIGHT });
+      hoursRef.current?.scrollTo({ top: HOURS.indexOf(initialHour) * ITEM_HEIGHT });
+      minutesRef.current?.scrollTo({ top: MINUTES.indexOf(initialMinute) * ITEM_HEIGHT });
     });
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [open, value]);
+  }, [minimum, open, value]);
 
   if (!rendered) return null;
 
@@ -107,7 +113,7 @@ export default function MeetTimePicker({ open, value, onClose, onChange }: Props
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <button type="button" onClick={onClose} style={cancelStyle}>{t("common.cancel")}</button>
-          <button type="button" onClick={() => { onChange(`${hour}:${minute}`); onClose(); }} style={doneStyle}>{t("common.done")}</button>
+          <button type="button" disabled={!selectionAllowed} onClick={() => { onChange(selectedTime); onClose(); }} style={{...doneStyle,opacity:selectionAllowed?1:.45}}>{t("common.done")}</button>
         </div>
       </div>
     </div>,

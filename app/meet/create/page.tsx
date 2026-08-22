@@ -5,8 +5,7 @@ import {
   useEffect
 } from "react";
 import {
-  useRouter,
-  useSearchParams
+  useRouter
 } from "next/navigation";
 import PageWrapper from "../../../components/PageWrapper";
 import PageHeader from "../../../components/PageHeader";
@@ -15,9 +14,15 @@ import PeopleSelector from "../../../components/meet/PeopleSelector";
 import LocationCard from "../../../components/meet/LocationCard";
 import CategoryPicker from "../../../components/meet/CategoryPicker";
 import CategoryBottomSheet from "../../../components/meet/CategoryBottomSheet";
+import MeetDatePicker from "../../../components/meet/MeetDatePicker";
+import MeetTimePicker from "../../../components/meet/MeetTimePicker";
+import MeetDurationSelector from "../../../components/meet/MeetDurationSelector";
 import { useNotification } from "../../../components/NotificationContext";
+import { getTelegramInitData } from "../../../lib/telegram-init-data";
+import { isMeetStartSafelyFuture, localMeetDateTimeToIso, localToday, nextMeetTimeSuggestion, type MeetDuration } from "../../../lib/meet/time";
+import { useI18n } from "../../../components/I18nProvider";
 export default function CreateMeetPage() {
-    
+  const { t, intlLocale } = useI18n();
 
   const router = useRouter();
   const { error: showError } = useNotification();
@@ -51,7 +56,7 @@ const [maxPeople,setMaxPeople] =
 useState(1);
 
 const [duration, setDuration] = useState<
-  "30m" | "1h" | "2h" | "day"
+  MeetDuration
 >("1h");
 
 const [joinType, setJoinType] = useState<
@@ -63,13 +68,20 @@ useState(false);
 
   const [category,setCategory] = useState("coffee");
 
-  const [categorySheetOpen, setCategorySheetOpen] =
+const [categorySheetOpen, setCategorySheetOpen] =
 useState(false);
+const [datePickerOpen, setDatePickerOpen] = useState(false);
+const [timePickerOpen, setTimePickerOpen] = useState(false);
 
 useEffect(() => {
   const raw = sessionStorage.getItem("meet_draft");
 
-  if (!raw) return;
+  if (!raw) {
+    const suggestion = nextMeetTimeSuggestion();
+    setDate(suggestion.date);
+    setTime(suggestion.time);
+    return;
+  }
 
   try {
     const draft = JSON.parse(raw);
@@ -77,11 +89,12 @@ useEffect(() => {
     setTitle(draft.title ?? "");
     setDescription(draft.description ?? "");
     setCategory(draft.category ?? "coffee");
-    setDate(draft.date ?? "");
-    setTime(draft.time ?? "");
+    const suggestion = nextMeetTimeSuggestion();
+    setDate(draft.date || suggestion.date);
+    setTime(draft.time || suggestion.time);
     setMaxPeople(draft.maxPeople ?? 1);
     setDuration(
-  (draft.duration as "30m" | "1h" | "2h" | "day") ?? "1h"
+  (draft.duration as MeetDuration) ?? "1h"
 );
 
 setJoinType(
@@ -154,7 +167,17 @@ useEffect(() => {
     !date ||
     !time
   ){
-    showError("Заполните данные", "Укажите название, дату и время встречи.");
+    showError(t("meet.invalidData"), t("meet.requiredDate"));
+    return;
+  }
+
+  const startsAt = localMeetDateTimeToIso(date, time);
+  if (!startsAt) {
+    showError(t("meet.invalidDate"), t("meet.invalidDateText"));
+    return;
+  }
+  if (!isMeetStartSafelyFuture(startsAt)) {
+    showError(t("meet.invalidTime"), t("meet.invalidTimeText"));
     return;
   }
 
@@ -162,22 +185,21 @@ useEffect(() => {
 
   try{
 
-    const tg =
-  (window as any)
-  ?.Telegram
-  ?.WebApp;
-
-const initData = tg?.initData;
+const initData = await getTelegramInitData();
 
 if (!initData) {
   showError(
-    "Ошибка Telegram",
-    "Не удалось подтвердить пользователя."
+    t("meet.createError"),
+    t("meet.telegramFailed")
   );
   return;
 }
 
-const eventId = crypto.randomUUID();
+let eventId = sessionStorage.getItem("meet_create_event_id");
+if (!eventId) {
+  eventId = crypto.randomUUID();
+  sessionStorage.setItem("meet_create_event_id", eventId);
+}
 
 const createResponse = await fetch(
   "/api/meet/create",
@@ -201,8 +223,7 @@ const createResponse = await fetch(
         latitude,
         longitude,
 
-        starts_at:
-          `${date}T${time}:00`,
+        starts_at: startsAt,
 
         duration,
         join_type: joinType,
@@ -227,7 +248,7 @@ if (
   throw new Error(
     createResult?.message ||
     createResult?.error ||
-    "Не удалось создать встречу"
+    t("meet.createFailed")
   );
 }
 
@@ -235,20 +256,23 @@ sessionStorage.removeItem(
   "meet_draft"
 );
 sessionStorage.removeItem("meet_location");
+sessionStorage.removeItem("meet_create_event_id");
 
 router.replace("/meet");
 
-  } catch (err: any) {
+  } catch (err: unknown) {
 
-  console.error("CREATE MEET ERROR:", err);
-  console.error("CREATE MEET ERROR MESSAGE:", err?.message);
-  console.error("CREATE MEET ERROR DETAILS:", err?.details);
-  console.error("CREATE MEET ERROR HINT:", err?.hint);
-  console.error("CREATE MEET ERROR CODE:", err?.code);
+  const createError = err as { message?: string; details?: string; hint?: string; code?: string };
+
+  console.error("CREATE MEET ERROR:", createError);
+  console.error("CREATE MEET ERROR MESSAGE:", createError.message);
+  console.error("CREATE MEET ERROR DETAILS:", createError.details);
+  console.error("CREATE MEET ERROR HINT:", createError.hint);
+  console.error("CREATE MEET ERROR CODE:", createError.code);
 
   showError(
-    "Ошибка создания",
-    err?.message || "Неизвестная ошибка"
+    t("meet.createError"),
+    createError.message || t("meet.unknownError")
   );
 
 } finally {
@@ -258,12 +282,11 @@ router.replace("/meet");
 
 }
 
-const DURATION_OPTIONS = [
-  { id: "30m", label: "30 минут" },
-  { id: "1h", label: "1 час" },
-  { id: "2h", label: "2 часа" },
-  { id: "day", label: "До конца дня" },
-] as const;
+const today = localToday();
+const minimumTime = date === today ? nextMeetTimeSuggestion().time : undefined;
+const formattedDate = date
+  ? new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${date}T12:00:00`))
+  : t("meet.date");
 
   return (
 
@@ -272,18 +295,19 @@ const DURATION_OPTIONS = [
       <div
         style={{
           minHeight:"100vh",
-          background:"#F5F7FB",
+          background:"var(--app-bg)",
+          color:"var(--text-primary)",
           padding:"20px",
           paddingBottom:"120px"
         }}
       >
 
-        <PageHeader title="Создать встречу" onBack={() => router.back()} />
+        <PageHeader title={t("meet.create")} onBack={() => router.back()} />
 
         {/* Название встречи */}
 
         <div style={labelStyle}>
-          Название встречи
+          {t("meet.name")}
         </div>
 
         <input
@@ -291,7 +315,7 @@ value={title}
 onChange={(e)=>
 setTitle(e.target.value)
 }
-placeholder="Например: Вечерний кофе ☕"
+placeholder={t("meet.namePlaceholder")}
 style={inputStyle}
 />
 
@@ -303,7 +327,7 @@ style={inputStyle}
     marginTop: 16,
   }}
 >
-  Категория
+  {t("category.label")}
 </div>
 
 <CategoryPicker
@@ -333,7 +357,7 @@ style={inputStyle}
             marginTop:16
           }}
         >
-          О встрече
+          {t("meet.description")}
         </div>
 
         <textarea
@@ -344,9 +368,7 @@ onChange={(e)=>
 setDescription(e.target.value)
 }
 
-placeholder={`Например:
-Выпьем кофе,погуляем
-и познакомимся ☕`}
+placeholder={t("meet.descriptionPlaceholder")}
 
 style={{
 ...inputStyle,
@@ -373,21 +395,24 @@ flex:1
 >
 
 <div style={labelStyle}>
-📅 Дата
+📅 {t("meet.date")}
 </div>
 
-<input
+<button type="button" onClick={() => setDatePickerOpen(true)} style={{...inputStyle,textAlign:"left",cursor:"pointer"}}>
+  {formattedDate}
+</button>
 
-type="date"
-
-value={date}
-
-onChange={(e)=>
-setDate(e.target.value)
-}
-
-style={inputStyle}
-
+<MeetDatePicker
+  open={datePickerOpen}
+  value={date}
+  min={today}
+  onClose={() => setDatePickerOpen(false)}
+  onChange={(nextDate) => {
+    setDate(nextDate);
+    if (nextDate === today && (!time || !isMeetStartSafelyFuture(localMeetDateTimeToIso(nextDate, time) ?? ""))) {
+      setTime(nextMeetTimeSuggestion().time);
+    }
+  }}
 />
 
 </div>
@@ -399,21 +424,19 @@ flex:1
 >
 
 <div style={labelStyle}>
-🕒 Время
+🕒 {t("meet.time")}
 </div>
 
-<input
+<button type="button" onClick={() => setTimePickerOpen(true)} style={{...inputStyle,textAlign:"left",cursor:"pointer"}}>
+  {time || t("meet.chooseTime")}
+</button>
 
-type="time"
-
-value={time}
-
-onChange={(e)=>
-setTime(e.target.value)
-}
-
-style={inputStyle}
-
+<MeetTimePicker
+  open={timePickerOpen}
+  value={time}
+  minimum={minimumTime}
+  onClose={() => setTimePickerOpen(false)}
+  onChange={setTime}
 />
 
 </div>
@@ -426,38 +449,10 @@ style={inputStyle}
     marginTop: 16,
   }}
 >
-⏱️ Встреча доступна
+⏱️ {t("meet.duration")}
 </div>
 
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 10,
-  }}
->
-  {DURATION_OPTIONS.map((item) => (
-    <div
-      key={item.id}
-      onClick={() => setDuration(item.id)}
-      style={{
-        height: 48,
-        borderRadius: 14,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-        transition: ".15s",
-        fontWeight: 600,
-        background: duration === item.id ? "#2F80FF" : "#fff",
-        color: duration === item.id ? "#fff" : "#222",
-        boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-      }}
-    >
-      {item.label}
-    </div>
-  ))}
-</div>
+<MeetDurationSelector value={duration} onChange={setDuration} date={date} time={time} />
 
 <div
   style={{
@@ -465,7 +460,7 @@ style={inputStyle}
     marginTop: 16,
   }}
 >
-  Тип участия
+  {t("meet.joinType")}
 </div>
 
 <div
@@ -486,12 +481,13 @@ style={inputStyle}
       cursor: "pointer",
       fontWeight: 600,
       transition: ".15s",
-      background: joinType === "open" ? "#2F80FF" : "#fff",
-      color: joinType === "open" ? "#fff" : "#222",
-      boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+      background: joinType === "open" ? "var(--brand-gradient)" : "var(--surface)",
+      color: joinType === "open" ? "var(--text-inverse)" : "var(--text-primary)",
+      border: `1px solid ${joinType === "open" ? "var(--brand-primary)" : "var(--border-subtle)"}`,
+      boxShadow: "var(--shadow-sm)",
     }}
   >
-    🌍 Открытая
+    🌍 {t("meet.open")}
   </div>
 
   <div
@@ -505,12 +501,13 @@ style={inputStyle}
       cursor: "pointer",
       fontWeight: 600,
       transition: ".15s",
-      background: joinType === "approval" ? "#2F80FF" : "#fff",
-      color: joinType === "approval" ? "#fff" : "#222",
-      boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+      background: joinType === "approval" ? "var(--brand-gradient)" : "var(--surface)",
+      color: joinType === "approval" ? "var(--text-inverse)" : "var(--text-primary)",
+      border: `1px solid ${joinType === "approval" ? "var(--brand-primary)" : "var(--border-subtle)"}`,
+      boxShadow: "var(--shadow-sm)",
     }}
   >
-    📨 По заявкам
+    📨 {t("meet.approval")}
   </div>
 </div>
 
@@ -521,7 +518,7 @@ style={{
 marginTop:16
 }}
 >
-Где встречаемся
+{t("meet.place")}
 </div>
 
 <LocationCard
@@ -546,7 +543,7 @@ marginTop:16
 
 >
 
-Количество участников
+{t("meet.capacity")}
 
 </div>
 
@@ -562,41 +559,19 @@ onChange={setMaxPeople}
 
         {/* Кнопка */}
 
-        <div
-
-  onClick={createMeet}
-
-  style={{
-
-            marginTop:24,
-
-            height:56,
-
-            borderRadius:18,
-
-            background:
-              "linear-gradient(135deg,#2F80FF,#56CCF2)",
-
-            color:"#fff",
-
-            display:"flex",
-            justifyContent:"center",
-            alignItems:"center",
-
-            fontWeight:700,
-            fontSize:17,
-
-            cursor:"pointer"
-
-          }}
-
+        <button
+          type="button"
+          className="aura-primary-button"
+          disabled={loading}
+          onClick={createMeet}
+          style={{marginTop:24}}
         >
           {
 loading
-? "⏳ Создаем..."
-: "🚀 Создать встречу"
+? `⏳ ${t("meet.creating")}`
+: `🚀 ${t("meet.create")}`
 }
-        </div>
+        </button>
 
       </div>
 
@@ -617,6 +592,8 @@ const labelStyle = {
 
   fontWeight:600,
 
+  color:"var(--text-primary)",
+
   marginBottom:10
 
 };
@@ -627,7 +604,7 @@ const inputStyle = {
 
   height:52,
 
-  border:"none",
+  border:"1px solid var(--border-subtle)",
 
   outline:"none",
 
@@ -635,12 +612,14 @@ const inputStyle = {
   
   padding:"0 16px",
 
-  background:"#fff",
+  background:"var(--surface)",
+
+  color:"var(--text-primary)",
 
   fontSize:15,
 
 
-boxShadow:"0 2px 8px rgba(0,0,0,.03)",
+boxShadow:"var(--shadow-sm)",
 
   boxSizing:"border-box" as const
 

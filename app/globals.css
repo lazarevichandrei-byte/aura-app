@@ -337,6 +337,15 @@ height:44px;
 border-radius:24px;
 }
 
+.chat-input textarea:focus-visible{
+box-shadow:none;
+}
+
+.chat-input:focus-within{
+border-color:var(--brand-border) !important;
+box-shadow:0 0 0 2px color-mix(in srgb,var(--brand-primary) 12%,transparent);
+}
+
 
 /* Floating scroll button */
 .scroll-bottom-btn{

@@ -22,9 +22,9 @@ export default function CategoryPicker({
       style={{
         height: 58,
         borderRadius: 18,
-        background: "var(--surface-secondary)",
+        background: "var(--surface)",
         color:"var(--text-primary)",
-        border:"1px solid var(--border)",
+        border:"1px solid var(--border-subtle)",
         padding: "0 18px",
         display: "flex",
         alignItems: "center",
