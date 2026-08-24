@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {supabaseAdmin} from "../../../lib/supabase-admin";
 import {validateTelegramInitData} from "../../../lib/telegram-auth";
 import {deliverTelegramNotification} from "../../../lib/server/notifications/deliver";
-import {recordServerEventBestEffort} from "../../../lib/server/events/record";
+import {recordServerEvent} from "../../../lib/server/events/record";
 
 export const runtime="nodejs";
 
@@ -60,9 +60,41 @@ export async function POST(request:Request){
     const {data,error}=await supabaseAdmin.rpc("process_dating_action",{p_actor_id:actor.id,p_target_id:target.id,p_action:databaseAction});
     if(error)throw error;
     const result=(Array.isArray(data)?data[0]:data) as {state:string;cycleId:string;matchId:string|null;chatId:string|null;eventCreated:boolean;cooldownUntil:string|null};
-    if(result.state==="pending")recordServerEventBestEffort({eventName:"like",actorUserId:actor.id,targetUserId:target.id,entityType:"dating_cycle",entityId:result.cycleId,dedupeKey:`dating:like:${result.cycleId}:${actor.id}`});
-    if(result.state==="rejected")recordServerEventBestEffort({eventName:"pass",actorUserId:actor.id,targetUserId:target.id,entityType:"dating_cycle",entityId:result.cycleId,dedupeKey:`dating:pass:${result.cycleId}:${actor.id}`});
-    if(result.state==="matched"&&result.matchId)recordServerEventBestEffort({eventName:"match_created",actorUserId:actor.id,targetUserId:target.id,entityType:"dating_match",entityId:result.matchId,dedupeKey:`dating:match:${result.matchId}`,metadata:result.chatId?{chat_id:result.chatId}:{}});
+    if (result.state === "pending") {
+  await recordServerEvent({
+    eventName: "like",
+    actorUserId: actor.id,
+    targetUserId: target.id,
+    entityType: "dating_cycle",
+    entityId: result.cycleId,
+    dedupeKey: `dating:like:${result.cycleId}:${actor.id}`,
+  }).catch(() => null);
+}
+
+if (result.state === "rejected") {
+  await recordServerEvent({
+    eventName: "pass",
+    actorUserId: actor.id,
+    targetUserId: target.id,
+    entityType: "dating_cycle",
+    entityId: result.cycleId,
+    dedupeKey: `dating:pass:${result.cycleId}:${actor.id}`,
+  }).catch(() => null);
+}
+
+if (result.state === "matched" && result.matchId) {
+  await recordServerEvent({
+    eventName: "match_created",
+    actorUserId: actor.id,
+    targetUserId: target.id,
+    entityType: "dating_match",
+    entityId: result.matchId,
+    dedupeKey: `dating:match:${result.matchId}`,
+    metadata: result.chatId
+      ? { chat_id: result.chatId }
+      : {},
+  }).catch(() => null);
+}
     if(result.state==="pending"){
       await deliverTelegramNotification({eventType:"like_received",recipientUserId:target.id,dedupeKey:`like_received:${result.cycleId}:${target.id}`,entityId:result.cycleId,href:"/likes"});
     }else if(result.state==="matched"&&result.matchId){
