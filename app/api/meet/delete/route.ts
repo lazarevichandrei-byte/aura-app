@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 import {deliverTelegramNotification} from "../../../../lib/server/notifications/deliver";
-import {recordServerEventBestEffort} from "../../../../lib/server/events/record";
+import {recordServerEventSafe} from "../../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     if (eventDelete.error) throw eventDelete.error;
 
     await Promise.all((confirmedParticipants??[]).map((participant)=>deliverTelegramNotification({eventType:"meet_cancelled",recipientUserId:participant.user_id,dedupeKey:`meet_cancelled:${event.id}:${participant.user_id}`,entityId:event.id,text:event.title,href:"/meet"})));
-    recordServerEventBestEffort({eventName:"meet_cancelled",actorUserId:user.id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:cancelled:${event.id}`});
+    await recordServerEventSafe({eventName:"meet_cancelled",actorUserId:user.id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:cancelled:${event.id}`});
 
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {

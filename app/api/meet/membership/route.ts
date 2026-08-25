@@ -3,7 +3,7 @@ import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 import { ensureMeetChatParticipant, reserveMeetGuestSlot } from "../../../../lib/server/meet-chat-participant";
 import {deliverTelegramNotification} from "../../../../lib/server/notifications/deliver";
-import {recordServerEventBestEffort} from "../../../../lib/server/events/record";
+import {recordServerEventSafe} from "../../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
           if (error && error.code !== "23505") throw error;
           if(createdRequest){recordedRequestId=createdRequest.id;await deliverTelegramNotification({eventType:"meet_request_new",recipientUserId:event.creator_id,dedupeKey:`meet_request:${createdRequest.id}`,entityId:createdRequest.id,href:`/meet/${event.id}`});}
         }
-        if(recordedRequestId)recordServerEventBestEffort({eventName:"meet_join_request",actorUserId:user.id,targetUserId:event.creator_id,entityType:"meet_request",entityId:recordedRequestId,dedupeKey:`meet:request:${recordedRequestId}`,metadata:{meet_event_id:event.id}});
+        if(recordedRequestId)await recordServerEventSafe({eventName:"meet_join_request",actorUserId:user.id,targetUserId:event.creator_id,entityType:"meet_request",entityId:recordedRequestId,dedupeKey:`meet:request:${recordedRequestId}`,metadata:{meet_event_id:event.id}});
       } else if (action === "cancel-request") {
         const { error } = await supabaseAdmin.from("meet_join_requests").delete().eq("event_id", event.id).eq("user_id", user.id).eq("status", "pending");
         if (error) throw error;
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
           return NextResponse.json({ ok: false, error: "JOIN_NOT_ALLOWED" }, { status: 403 });
         }
         const joined=await addParticipant(event.id, user.id);
-        recordServerEventBestEffort({eventName:"meet_chat_joined",actorUserId:user.id,targetUserId:event.creator_id,entityType:"chat",entityId:joined.chatId,dedupeKey:`meet:chat_joined:${joined.chatId}:${user.id}`,metadata:{meet_event_id:event.id}});
+        await recordServerEventSafe({eventName:"meet_chat_joined",actorUserId:user.id,targetUserId:event.creator_id,entityType:"chat",entityId:joined.chatId,dedupeKey:`meet:chat_joined:${joined.chatId}:${user.id}`,metadata:{meet_event_id:event.id}});
         if(joined.added)await deliverTelegramNotification({eventType:"meet_participant_joined",recipientUserId:event.creator_id,dedupeKey:`participant_joined:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
       } else {
         if (event.creator_id === user.id) {
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
           if (chatError) throw chatError;
         }
         if(removedParticipants?.length)await deliverTelegramNotification({eventType:"meet_participant_left",recipientUserId:event.creator_id,dedupeKey:`participant_left:${event.id}:${user.id}:${Date.now()}`,entityId:event.id,href:`/meet/${event.id}`});
-        if(removedParticipants?.length)recordServerEventBestEffort({eventName:"meet_participant_left",actorUserId:user.id,targetUserId:event.creator_id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:left:${event.id}:${user.id}:${Date.now()}`});
+        if(removedParticipants?.length)await recordServerEventSafe({eventName:"meet_participant_left",actorUserId:user.id,targetUserId:event.creator_id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:left:${event.id}:${user.id}:${Date.now()}`});
       }
     } else if (action === "remove") {
       if (!eventId || !targetUserId) {
@@ -195,8 +195,10 @@ export async function POST(request: Request) {
           .eq("id", joinRequest.id);
         if (error) throw error;
         await deliverTelegramNotification({eventType:"meet_request_approved",recipientUserId:joinRequest.user_id,dedupeKey:`request_approved:${joinRequest.id}`,entityId:joinRequest.id,href:`/meet/${joinRequest.event_id}`});
-        recordServerEventBestEffort({eventName:"meet_join_accepted",actorUserId:user.id,targetUserId:joinRequest.user_id,entityType:"meet_request",entityId:joinRequest.id,dedupeKey:`meet:request_accepted:${joinRequest.id}`,metadata:{meet_event_id:joinRequest.event_id}});
-        recordServerEventBestEffort({eventName:"meet_chat_joined",actorUserId:joinRequest.user_id,targetUserId:user.id,entityType:"chat",entityId:joined.chatId,dedupeKey:`meet:chat_joined:${joined.chatId}:${joinRequest.user_id}`,metadata:{meet_event_id:joinRequest.event_id}});
+        await Promise.allSettled([
+          recordServerEventSafe({eventName:"meet_join_accepted",actorUserId:user.id,targetUserId:joinRequest.user_id,entityType:"meet_request",entityId:joinRequest.id,dedupeKey:`meet:request_accepted:${joinRequest.id}`,metadata:{meet_event_id:joinRequest.event_id}}),
+          recordServerEventSafe({eventName:"meet_chat_joined",actorUserId:joinRequest.user_id,targetUserId:user.id,entityType:"chat",entityId:joined.chatId,dedupeKey:`meet:chat_joined:${joined.chatId}:${joinRequest.user_id}`,metadata:{meet_event_id:joinRequest.event_id}}),
+        ]);
       } else if (action === "reject" && joinRequest.status === "pending") {
         const { error } = await supabaseAdmin
           .from("meet_join_requests")
@@ -204,7 +206,7 @@ export async function POST(request: Request) {
           .eq("id", joinRequest.id);
         if (error) throw error;
         await deliverTelegramNotification({eventType:"meet_request_rejected",recipientUserId:joinRequest.user_id,dedupeKey:`request_rejected:${joinRequest.id}`,entityId:joinRequest.id,href:`/meet/${joinRequest.event_id}`});
-        recordServerEventBestEffort({eventName:"meet_join_rejected",actorUserId:user.id,targetUserId:joinRequest.user_id,entityType:"meet_request",entityId:joinRequest.id,dedupeKey:`meet:request_rejected:${joinRequest.id}`,metadata:{meet_event_id:joinRequest.event_id}});
+        await recordServerEventSafe({eventName:"meet_join_rejected",actorUserId:user.id,targetUserId:joinRequest.user_id,entityType:"meet_request",entityId:joinRequest.id,dedupeKey:`meet:request_rejected:${joinRequest.id}`,metadata:{meet_event_id:joinRequest.event_id}});
       }
     } else {
       return NextResponse.json({ ok: false, error: "UNKNOWN_ACTION" }, { status: 400 });

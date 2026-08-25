@@ -28,6 +28,10 @@ export async function recordServerEvent(input:ServerEventInput):Promise<EventRec
   return error&&!duplicate?{ok:false,error:"EVENT_INSERT_FAILED"}:{ok:true,duplicate};
 }
 
-export function recordServerEventBestEffort(input:ServerEventInput){
-  void recordServerEvent(input).catch(()=>console.error("[AURA_EVENT]",{event_name:input.eventName,schema_version:1,source_type:"server",result:"failed",correlation_id:crypto.randomUUID(),latency_bucket:"unknown"}));
+export async function recordServerEventSafe(input:ServerEventInput){
+  try{return await recordServerEvent(input);}
+  catch{
+    console.error("[AURA_EVENT]",{event_name:input.eventName,schema_version:1,source_type:"server",result:"failed",correlation_id:crypto.randomUUID(),latency_bucket:"unknown"});
+    return null;
+  }
 }

@@ -3,7 +3,7 @@ import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 import { calculateMeetExpiration } from "../../../../lib/meet/time";
 import { ensureMeetChatParticipant } from "../../../../lib/server/meet-chat-participant";
-import {recordServerEventBestEffort} from "../../../../lib/server/events/record";
+import {recordServerEventSafe} from "../../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -132,8 +132,10 @@ export async function POST(request: Request) {
       throw new Error("CREATOR_PARTICIPANT_NOT_FOUND");
     }
 
-    recordServerEventBestEffort({eventName:"meet_created",actorUserId:user.id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:created:${event.id}`});
-    recordServerEventBestEffort({eventName:"meet_chat_joined",actorUserId:user.id,entityType:"chat",entityId:chat.id,dedupeKey:`meet:chat_joined:${chat.id}:${user.id}`,metadata:{meet_event_id:event.id}});
+    await Promise.allSettled([
+      recordServerEventSafe({eventName:"meet_created",actorUserId:user.id,entityType:"meet_event",entityId:event.id,dedupeKey:`meet:created:${event.id}`}),
+      recordServerEventSafe({eventName:"meet_chat_joined",actorUserId:user.id,entityType:"chat",entityId:chat.id,dedupeKey:`meet:chat_joined:${chat.id}:${user.id}`,metadata:{meet_event_id:event.id}}),
+    ]);
 
     return NextResponse.json({ ok: true, eventId: event.id, chatId: chat.id });
   } catch (error: unknown) {

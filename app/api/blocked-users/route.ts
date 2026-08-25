@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../lib/telegram-auth";
-import {recordServerEventBestEffort} from "../../../lib/server/events/record";
+import {recordServerEventSafe} from "../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       blocked_user_id: targetUser.id,
     }).select("id").maybeSingle();
     if (error && error.code !== "23505") throw error;
-    if(block)recordServerEventBestEffort({eventName:"block",actorUserId:currentUser.id,targetUserId:targetUser.id,entityType:"block",entityId:block.id,dedupeKey:`block:${block.id}`});
+    if(block)await recordServerEventSafe({eventName:"block",actorUserId:currentUser.id,targetUserId:targetUser.id,entityType:"block",entityId:block.id,dedupeKey:`block:${block.id}`});
 
     return NextResponse.json({ ok: true });
   } catch (error) {

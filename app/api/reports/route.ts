@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../lib/supabase-admin";
 import { validateTelegramInitData } from "../../../lib/telegram-auth";
-import {recordServerEventBestEffort} from "../../../lib/server/events/record";
+import {recordServerEventSafe} from "../../../lib/server/events/record";
 
 export const runtime = "nodejs";
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       reason,
     }).select("id").single();
     if (error) throw error;
-    recordServerEventBestEffort({eventName:"report",actorUserId:reporterResult.data.id,targetUserId:targetResult.data.id,entityType:"report",entityId:report.id,dedupeKey:`report:${report.id}`,metadata:{category:REPORT_CATEGORY[reason]}});
+    await recordServerEventSafe({eventName:"report",actorUserId:reporterResult.data.id,targetUserId:targetResult.data.id,entityType:"report",entityId:report.id,dedupeKey:`report:${report.id}`,metadata:{category:REPORT_CATEGORY[reason]}});
 
     return NextResponse.json({ ok: true });
   } catch (error) {
