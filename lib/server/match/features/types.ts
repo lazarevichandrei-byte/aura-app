@@ -13,50 +13,12 @@ export type DwellBucket=typeof DWELL_BUCKETS[number];
 export type CycleStatus=typeof CYCLE_STATUSES[number];
 
 export interface AuraUserFeaturesV1{
-  photo_count:number;
-  has_bio:boolean;
-  has_city:boolean;
-  profile_completeness_bucket:ProfileCompletenessBucket;
-  likes_7d:number;
-  passes_7d:number;
-  matches_30d:number;
-  profile_impressions_received_7d:number;
-  profile_opens_received_7d:number;
-  active_days_7d:number;
-  active_days_30d:number;
-  last_activity_age_bucket:ActivityAgeBucket;
-  chats_started_30d:number;
-  messages_sent_30d:number;
-  meet_created_30d:number;
-  meet_join_requests_30d:number;
-  meet_join_accepted_30d:number;
-  meet_participations_30d:number;
-  blocks_created_90d:number;
-  reports_created_90d:number;
+  photo_count:number;has_bio:boolean;has_city:boolean;profile_completeness_bucket:ProfileCompletenessBucket;likes_7d:number;passes_7d:number;matches_30d:number;profile_impressions_received_7d:number;profile_opens_received_7d:number;active_days_7d:number;active_days_30d:number;last_activity_age_bucket:ActivityAgeBucket;chats_started_30d:number;messages_sent_30d:number;meet_created_30d:number;meet_join_requests_30d:number;meet_join_accepted_30d:number;meet_participations_30d:number;blocks_created_90d:number;reports_created_90d:number;
 }
 
 export interface AuraPairFeaturesV1{
-  impressions_7d:number;
-  impressions_30d:number;
-  opens_7d:number;
-  opens_30d:number;
-  return_to_profile_30d:number;
-  max_dwell_bucket_30d:DwellBucket;
-  recent_impression_age_bucket:ImpressionAgeBucket;
-  prior_like_from_viewer:boolean;
-  prior_like_from_candidate:boolean;
-  prior_match:boolean;
-  prior_reject:boolean;
-  current_cycle_status:CycleStatus;
-  cooldown_active:boolean;
-  has_existing_direct_chat:boolean;
-  prior_chat_started:boolean;
-  shared_meet_count_90d:number;
-  viewer_joined_candidate_meet_90d:boolean;
-  candidate_joined_viewer_meet_90d:boolean;
-  age_difference:number|null;
-  same_city:boolean|null;
+  impressions_7d:number;impressions_30d:number;opens_7d:number;opens_30d:number;return_to_profile_30d:number;max_dwell_bucket_30d:DwellBucket;recent_impression_age_bucket:ImpressionAgeBucket;prior_like_from_viewer:boolean;prior_like_from_candidate:boolean;prior_match:boolean;prior_reject:boolean;current_cycle_status:CycleStatus;cooldown_active:boolean;has_existing_direct_chat:boolean;prior_chat_started:boolean;shared_meet_count_90d:number;viewer_joined_candidate_meet_90d:boolean;candidate_joined_viewer_meet_90d:boolean;age_difference:number|null;same_city:boolean|null;
+  direct_message_count_30d:number;viewer_message_count_30d:number;candidate_message_count_30d:number;viewer_avg_message_chars_30d:number;candidate_avg_message_chars_30d:number;viewer_median_message_chars_30d:number;candidate_median_message_chars_30d:number;viewer_long_messages_30d:number;candidate_long_messages_30d:number;viewer_short_messages_30d:number;candidate_short_messages_30d:number;viewer_question_messages_30d:number;candidate_question_messages_30d:number;viewer_meet_intent_messages_30d:number;candidate_meet_intent_messages_30d:number;viewer_median_reply_seconds_30d:number|null;candidate_median_reply_seconds_30d:number|null;active_chat_days_30d:number;conversation_span_days:number;longest_viewer_burst:number;longest_candidate_burst:number;message_balance_ratio:number;viewer_started_conversation:boolean;candidate_started_conversation:boolean;mutual_conversation:boolean;
 }
 
 export type FeatureSnapshot<T>={featureSchemaVersion:1;snapshotAt:string;features:T};
-
