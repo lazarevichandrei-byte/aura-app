@@ -30,7 +30,7 @@ export type BuiltAuraOutcomeV1={
   windowEndsAt:string;
   evaluatedAt:string;
   scoreSnapshotId:string|null;
-  scoreVersion:1|null;
+  scoreVersion:1|2|null;
   featureSchemaVersion:1|null;
   anchorContext:AuraOutcomeAnchorContextV1;
   outcomes:AuraOutcomeValuesV1;
