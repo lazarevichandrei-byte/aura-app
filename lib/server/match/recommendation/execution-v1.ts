@@ -1,7 +1,7 @@
 import type {AuraPairFeaturesV1,AuraUserFeaturesV1,FeatureSnapshot} from "../features/types";
 import {persistPairFeatureSnapshot,persistUserFeatureSnapshot} from "../features/snapshot";
-import {persistAuraScoreV1} from "../score/persistence";
-import {scoreAuraMatchV1} from "../score/score-v1";
+import {persistAuraScore} from "../score/persistence";
+import {scoreAuraMatchV2} from "../score/score-v2";
 import {AURA_RANKING_V1} from "./rank-v1";
 import type {CandidateAuraScoreV1,RankableCandidate} from "./types";
 
@@ -25,8 +25,8 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
       persistUserFeatureSnapshot(candidate.id,candidateSnapshot),
       persistPairFeatureSnapshot(viewerId,candidate.id,pairSnapshot),
     ]);
-    const score=scoreAuraMatchV1({viewerFeatures:viewerSnapshot.features,candidateFeatures:candidateSnapshot.features,pairFeatures:pairSnapshot.features,featureSchemaVersion:1,snapshotAt});
-    await persistAuraScoreV1(viewerId,candidate.id,score);
+    const score=scoreAuraMatchV2({viewerFeatures:viewerSnapshot.features,candidateFeatures:candidateSnapshot.features,pairFeatures:pairSnapshot.features,featureSchemaVersion:1,snapshotAt});
+    await persistAuraScore(viewerId,candidate.id,score);
     return {candidateId:candidate.id,totalScore:score.totalScore};
   }));
 }
