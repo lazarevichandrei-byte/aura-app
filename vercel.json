@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/aura-outcomes",
-      "schedule": "15 * * * *"
+      "schedule": "15 3 * * *"
     }
   ]
 }
