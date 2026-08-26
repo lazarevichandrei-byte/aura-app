@@ -16,7 +16,10 @@ export function evaluateAuraOutcomeV1({anchor,windowType,evaluatedAt,events,scor
   const has=(name:string,actor?:string)=>directional.some(event=>event.eventName===name&&(!actor||event.actorUserId===actor));
   const viewerJoined=has("meet_join_accepted",candidate);const candidateJoined=has("meet_join_accepted",viewer);
   const messages=inWindow.filter(event=>event.eventName==="message_sent_metadata"&&event.isDirectPairMessage&&(event.actorUserId===viewer||event.actorUserId===candidate));
-  const linked=scoreSnapshots.filter(score=>score.viewerUserId===viewer&&score.candidateUserId===candidate&&score.featureSchemaVersion===1&&score.scoreVersion===1&&new Date(score.snapshotAt).getTime()<=anchorTime).sort((left,right)=>new Date(right.snapshotAt).getTime()-new Date(left.snapshotAt).getTime())[0];
+  const linked=scoreSnapshots.filter(score=>score.viewerUserId===viewer&&score.candidateUserId===candidate&&score.featureSchemaVersion===1&&(score.scoreVersion===1||score.scoreVersion===2)&&new Date(score.snapshotAt).getTime()<=anchorTime).sort((left,right)=>{
+    const timeDiff=new Date(right.snapshotAt).getTime()-new Date(left.snapshotAt).getTime();
+    return timeDiff!==0?timeDiff:right.scoreVersion-left.scoreVersion;
+  })[0];
   return {windowEndsAt:new Date(windowEnd).toISOString(),scoreSnapshotId:linked?.id??null,outcomes:{
     profile_opened:has("profile_open",viewer),return_to_profile:has("return_to_profile",viewer),liked:has("like",viewer),passed:has("pass",viewer),matched:has("match_created"),chat_started:has("chat_started"),messages_sent_by_viewer:messages.filter(event=>event.actorUserId===viewer).length,messages_sent_by_candidate:messages.filter(event=>event.actorUserId===candidate).length,shared_meet_activity:viewerJoined||candidateJoined,viewer_joined_candidate_meet:viewerJoined,candidate_joined_viewer_meet:candidateJoined,blocked:has("block",viewer),reported:has("report",viewer),
   }};
