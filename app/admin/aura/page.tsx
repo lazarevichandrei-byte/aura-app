@@ -1,6 +1,7 @@
 "use client";
 
 import {useCallback,useEffect,useMemo,useState} from "react";
+import {useRouter} from "next/navigation";
 import {getTelegramInitData} from "../../../lib/telegram-init-data";
 import type {AuraAdminHealth,AuraAdminOverviewV1} from "../../../lib/server/admin/aura/types";
 
@@ -28,6 +29,7 @@ function MiniBar({value}:{value:number}){
 }
 
 export default function AuraAdminPage(){
+  const router=useRouter();
   const [timeframe,setTimeframe]=useState<(typeof WINDOWS)[number]>("7d");
   const [outcomeWindow,setOutcomeWindow]=useState<(typeof WINDOWS)[number]>("24h");
   const [overview,setOverview]=useState<AuraAdminOverviewV1|null>(null);
@@ -69,7 +71,7 @@ export default function AuraAdminPage(){
           <p style={{...muted,margin:"6px 0 0",maxWidth:520}}>Состояние умного подбора, качество данных и реальные результаты рекомендаций.</p>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-          {overview&&<Status value={systemHealth}/>}<button onClick={()=>setRefreshKey(v=>v+1)} disabled={state==="loading"} style={{border:"1px solid rgba(255,255,255,.1)",background:"rgba(255,255,255,.06)",color:"#fff",borderRadius:13,padding:"9px 12px",fontWeight:800}}>{state==="loading"?"Обновление…":"↻ Обновить"}</button>
+          {overview&&<Status value={systemHealth}/>}<button onClick={()=>router.push("/admin/aura/conversations")} style={{border:"1px solid rgba(125,139,255,.28)",background:"rgba(125,139,255,.13)",color:"#c4caff",borderRadius:13,padding:"9px 12px",fontWeight:800}}>Диалоги</button><button onClick={()=>setRefreshKey(v=>v+1)} disabled={state==="loading"} style={{border:"1px solid rgba(255,255,255,.1)",background:"rgba(255,255,255,.06)",color:"#fff",borderRadius:13,padding:"9px 12px",fontWeight:800}}>{state==="loading"?"Обновление…":"↻ Обновить"}</button>
         </div>
       </header>
 
