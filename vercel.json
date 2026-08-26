@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/aura-outcomes",
+      "schedule": "15 3 * * *"
+    }
+  ]
+}
