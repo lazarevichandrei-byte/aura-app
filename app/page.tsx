@@ -26,12 +26,12 @@ export default function Page(){
     telegram?.ready?.();
     telegram?.expand?.();
 
-    // Telegram Mini App deep links expose ?startapp=admin as start_param.
-    // Route the admin launch before the normal user startup flow so the
-    // admin page can validate the signed Telegram initData itself.
+    // Temporary admin diagnostics: a Telegram Mini App launch with
+    // startapp=admin is routed here so we can inspect the actual signed
+    // Telegram context before the normal admin guard hides the page.
     const startParam=telegram?.initDataUnsafe?.start_param||new URLSearchParams(window.location.search).get("tgWebAppStartParam")||new URLSearchParams(window.location.search).get("startapp");
     if(startParam==="admin"){
-      getTelegramInitData().finally(()=>router.replace("/admin/aura"));
+      getTelegramInitData().finally(()=>router.replace("/admin/aura/debug"));
       return;
     }
 
