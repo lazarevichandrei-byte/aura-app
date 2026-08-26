@@ -47,6 +47,7 @@ export async function POST(request:Request){
 
     const viewerUserId=typeof body?.viewerUserId==="string"?body.viewerUserId:"";
     const candidateUserId=typeof body?.candidateUserId==="string"?body.candidateUserId:"";
+    const includeMessages=body?.includeMessages===true;
     if(!viewerUserId||!candidateUserId||viewerUserId===candidateUserId)return NextResponse.json({ok:false,error:"INVALID_PAIR"},{status:400});
 
     const [usersResult,pairResult,scoresResult,chatResult]=await Promise.all([
@@ -57,13 +58,13 @@ export async function POST(request:Request){
     ]);
     if(usersResult.error)throw usersResult.error;if(pairResult.error)throw pairResult.error;if(scoresResult.error)throw scoresResult.error;if(chatResult.error)throw chatResult.error;
     let messages:any[]=[];
-    if(chatResult.data?.id){
+    if(includeMessages&&chatResult.data?.id){
       const messageResult=await supabaseAdmin.from("messages").select("id,sender_id,body,created_at,message_type").eq("chat_id",chatResult.data.id).order("created_at",{ascending:false}).limit(100);
       if(messageResult.error)throw messageResult.error;
       messages=(messageResult.data??[]).reverse();
+      console.info("AURA_ADMIN_RAW_MESSAGES_REVEALED",{adminTelegramId:authorization.telegramId,viewerUserId,candidateUserId,messageCount:messages.length});
     }
-    console.info("AURA_ADMIN_CONVERSATION_VIEW",{adminTelegramId:authorization.telegramId,viewerUserId,candidateUserId,messageCount:messages.length});
-    return NextResponse.json({ok:true,detail:{users:usersResult.data??[],pairSnapshots:pairResult.data??[],scores:scoresResult.data??[],chat:chatResult.data??null,messages}});
+    return NextResponse.json({ok:true,detail:{users:usersResult.data??[],pairSnapshots:pairResult.data??[],scores:scoresResult.data??[],chat:chatResult.data??null,messages,messagesIncluded:includeMessages}});
   }catch(error){
     console.error("AURA_ADMIN_CONVERSATIONS_ERROR",{code:error instanceof Error?error.message:"UNKNOWN"});
     return NextResponse.json({ok:false,error:"CONVERSATION_DIAGNOSTICS_UNAVAILABLE"},{status:500});
