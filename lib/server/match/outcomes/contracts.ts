@@ -15,5 +15,7 @@ export function isAuraOutcomeValuesV1(value:unknown):value is AuraOutcomeValuesV
 export function isBuiltAuraOutcomeV1(value:unknown):value is BuiltAuraOutcomeV1{
   if(!object(value)||!exact(value,BUILD_KEYS)||value.outcomeSchemaVersion!==1||typeof value.viewerUserId!=="string"||typeof value.candidateUserId!=="string"||typeof value.anchorEventId!=="string"||typeof value.anchorAt!=="string"||typeof value.windowEndsAt!=="string"||typeof value.evaluatedAt!=="string"||!AURA_OUTCOME_WINDOWS.includes(value.windowType as never)||!isAuraOutcomeValuesV1(value.outcomes)||!object(value.anchorContext))return false;
   if(!exact(value.anchorContext,["source","position_bucket"])||![value.anchorContext.source,value.anchorContext.position_bucket].every(item=>item===null||typeof item==="string"))return false;
-  return value.scoreSnapshotId===null?value.scoreVersion===null&&value.featureSchemaVersion===null:typeof value.scoreSnapshotId==="string"&&value.scoreVersion===1&&value.featureSchemaVersion===1;
+  return value.scoreSnapshotId===null
+    ?value.scoreVersion===null&&value.featureSchemaVersion===null
+    :typeof value.scoreSnapshotId==="string"&&(value.scoreVersion===1||value.scoreVersion===2)&&value.featureSchemaVersion===1;
 }
