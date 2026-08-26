@@ -1,9 +1,9 @@
 import {NextResponse} from "next/server";
-import {authorizeAuraAdmin} from "../../../../../../lib/server/admin/aura";
-import {buildPairFeatures,buildUserFeatures,persistPairFeatureSnapshot,persistUserFeatureSnapshot} from "../../../../../../lib/server/match/features";
-import {scoreAuraMatchV2} from "../../../../../../lib/server/match/score/score-v2";
-import {persistAuraScore} from "../../../../../../lib/server/match/score/persistence";
-import {supabaseAdmin} from "../../../../../../lib/supabase-admin";
+import {authorizeAuraAdmin} from "../../../../../lib/server/admin/aura";
+import {buildPairFeatures,buildUserFeatures,persistPairFeatureSnapshot,persistUserFeatureSnapshot} from "../../../../../lib/server/match/features";
+import {scoreAuraMatchV2} from "../../../../../lib/server/match/score/score-v2";
+import {persistAuraScore} from "../../../../../lib/server/match/score/persistence";
+import {supabaseAdmin} from "../../../../../lib/supabase-admin";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
