@@ -26,12 +26,9 @@ export default function Page(){
     telegram?.ready?.();
     telegram?.expand?.();
 
-    // Temporary admin diagnostics: a Telegram Mini App launch with
-    // startapp=admin is routed here so we can inspect the actual signed
-    // Telegram context before the normal admin guard hides the page.
     const startParam=telegram?.initDataUnsafe?.start_param||new URLSearchParams(window.location.search).get("tgWebAppStartParam")||new URLSearchParams(window.location.search).get("startapp");
     if(startParam==="admin"){
-      getTelegramInitData().finally(()=>router.replace("/admin/aura/debug"));
+      getTelegramInitData().finally(()=>router.replace("/admin/aura"));
       return;
     }
 
