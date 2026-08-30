@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/aura-outcomes",
       "schedule": "15 3 * * *"
+    },
+    {
+      "path": "/api/cron/aura-shadow-evaluation",
+      "schedule": "45 3 * * *"
     }
   ]
 }

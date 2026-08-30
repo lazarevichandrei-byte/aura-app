@@ -1,0 +1,4 @@
+import {NextResponse} from "next/server";
+import {materializeAuraShadowEvaluationsV1} from "../../../../lib/server/match/evaluation/shadow-materializer-v1";
+export const runtime="nodejs";export const dynamic="force-dynamic";
+export async function GET(request:Request){const secret=process.env.CRON_SECRET;if(!secret||request.headers.get("authorization")!==`Bearer ${secret}`)return NextResponse.json({ok:false,error:"UNAUTHORIZED"},{status:401});try{const windows=await materializeAuraShadowEvaluationsV1();return NextResponse.json({ok:true,evaluatedAt:new Date().toISOString(),windows,policy:{productionRanking:"V2",promotion:"manual_only"}});}catch(error){console.error("AURA_SHADOW_EVALUATION_CRON_FAILED",{code:error instanceof Error?error.message:"UNKNOWN"});return NextResponse.json({ok:false,error:"SHADOW_EVALUATION_FAILED"},{status:500});}}
