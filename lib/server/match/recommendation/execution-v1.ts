@@ -6,8 +6,8 @@ import type {AuraPairFeaturesV2,FeatureSnapshotV2} from "../features/types-v2";
 import {persistAuraScore} from "../score/persistence";
 import {scoreAuraMatchV2} from "../score/score-v2";
 import {scoreAuraMatchV3} from "../score/score-v3";
-import {loadAuraTrainingExamplesV1} from "../learning/dataset-v1";
-import {createAuraCandidateShadowRuntimeV1,runAuraCandidateShadowV1} from "../learning/candidate-shadow-runtime-v1";
+import {loadLatestEligibleAuraLearningCandidateV1} from "../learning/candidate-model-registry-v1";
+import {scoreAuraLearningCandidateV1} from "../learning/candidate-v1";
 import {persistAuraCandidateShadowV1} from "../learning/candidate-shadow-persistence-v1";
 import type {AuraLearningInferenceInputV1} from "../learning/inference-input-v1";
 import {AURA_RANKING_V1} from "./rank-v1";
@@ -24,12 +24,11 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
   const viewerSnapshot=await dependencies.buildUserFeatures(viewerId,snapshotAt);
   await persistUserFeatureSnapshot(viewerId,viewerSnapshot);
 
-  let candidateRuntime:ReturnType<typeof createAuraCandidateShadowRuntimeV1>|null=null;
+  let candidateModel:Awaited<ReturnType<typeof loadLatestEligibleAuraLearningCandidateV1>>=null;
   try{
-    const trainingExamples=await loadAuraTrainingExamplesV1("24h",500);
-    candidateRuntime=createAuraCandidateShadowRuntimeV1(trainingExamples);
+    candidateModel=await loadLatestEligibleAuraLearningCandidateV1();
   }catch(error){
-    console.warn("AURA_CANDIDATE_SHADOW_RUNTIME_UNAVAILABLE",{code:error instanceof Error?error.message:"UNKNOWN"});
+    console.warn("AURA_CANDIDATE_REGISTRY_UNAVAILABLE",{code:error instanceof Error?error.message:"UNKNOWN"});
   }
 
   return Promise.all(boundedCandidates.map(async candidate=>{
@@ -69,13 +68,11 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
       persistAuraScore(viewerId,candidate.id,shadowScore),
     ]);
 
-    if(candidateRuntime){
+    if(candidateModel){
       try{
         const inferenceInput:AuraLearningInferenceInputV1={viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,featureSchemaVersion:2,pairFeatures:pairV2.features};
-        const candidateResult=runAuraCandidateShadowV1(candidateRuntime,inferenceInput);
-        if(candidateResult.executed&&candidateResult.score!==null){
-          await persistAuraCandidateShadowV1({viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,candidateScore:candidateResult.score,featureSchemaVersion:2,candidate:candidateRuntime.candidate});
-        }
+        const candidateScore=Number(scoreAuraLearningCandidateV1(inferenceInput,candidateModel).toFixed(4));
+        await persistAuraCandidateShadowV1({viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,candidateScore,featureSchemaVersion:2,candidate:candidateModel});
       }catch(error){
         console.warn("AURA_CANDIDATE_SHADOW_SCORE_FAILED",{candidateId:candidate.id,code:error instanceof Error?error.message:"UNKNOWN"});
       }
