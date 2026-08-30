@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/aura-shadow-evaluation",
       "schedule": "45 3 * * *"
+    },
+    {
+      "path": "/api/cron/aura-candidate-training",
+      "schedule": "15 4 * * *"
     }
   ]
 }
