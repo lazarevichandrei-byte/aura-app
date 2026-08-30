@@ -4,7 +4,7 @@ import path from "node:path";
 
 const compiledRoot=process.argv[2];
 if(!compiledRoot)throw new Error("MISSING_COMPILED_ROOT");
-const moduleUrl=pathToFileURL(path.join(compiledRoot,"read-signals.js")).href;
+const moduleUrl=pathToFileURL(path.join(compiledRoot,"read-signals-core.js")).href;
 const {aggregateConversationReadSignalsV1}=await import(moduleUrl);
 
 const viewer="00000000-0000-0000-0000-000000000001";
