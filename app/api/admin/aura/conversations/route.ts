@@ -27,9 +27,15 @@ export async function POST(request:Request){
       for(const row of (pairRows??[]) as PairRow[]){
         const key=pairKey(row.viewer_user_id,row.candidate_user_id);
         const existing=latest.get(key);
-        if(!existing||row.feature_schema_version>existing.feature_schema_version)latest.set(key,row);
+        if(!existing){
+          latest.set(key,row);
+          continue;
+        }
+        const rowTime=new Date(row.snapshot_at).getTime();
+        const existingTime=new Date(existing.snapshot_at).getTime();
+        if(rowTime>existingTime||(rowTime===existingTime&&row.feature_schema_version>existing.feature_schema_version))latest.set(key,row);
       }
-      const pairs=[...latest.values()].slice(0,60);
+      const pairs=[...latest.values()].sort((a,b)=>new Date(b.snapshot_at).getTime()-new Date(a.snapshot_at).getTime()).slice(0,60);
       const ids=[...new Set(pairs.flatMap(row=>[row.viewer_user_id,row.candidate_user_id]))];
       const [{data:users,error:userError},{data:scores,error:scoreError}]=await Promise.all([
         ids.length?supabaseAdmin.from("users").select("id,name,telegram_id").in("id",ids):Promise.resolve({data:[],error:null}),
