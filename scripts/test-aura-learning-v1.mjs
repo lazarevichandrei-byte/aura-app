@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import {pathToFileURL} from "node:url";
+import path from "node:path";
+const root=process.argv[2];if(!root)throw new Error("compiled test root required");
+const load=async p=>import(pathToFileURL(path.join(root,p)).href);
+const training=await load("training-example-v1.js");const inference=await load("inference-input-v1.js");const candidate=await load("candidate-v1.js");const offline=await load("offline-evaluation-v1.js");
+const label=training.buildAuraLearningLabelV1({matched:true,messages_sent_by_viewer:10,messages_sent_by_candidate:10});assert.equal(label.quality,1);assert.equal(label.risk,0);assert.equal(label.conversationDepth,1);
+const base={schemaVersion:1,windowType:"24h",featureSchemaVersion:2};const examples=Array.from({length:140},(_,i)=>({...base,viewerUserId:`v${i}`,candidateUserId:`c${i}`,anchorAt:new Date(Date.UTC(2026,0,1,0,i)).toISOString(),activeScore:50,shadowScore:50+(i%20),pairFeatures:{direct_message_count_30d:i%21},label:{quality:i%3===0?1:0,risk:i%17===0?1:0,conversationDepth:0}}));
+const input=candidate.toAuraLearningInferenceInputV1(examples[0]);assert.equal("label" in input,false);assert.equal(inference.conversationDepthProxyV1({direct_message_count_30d:20}),1);
+const model=candidate.trainAuraLearningCandidateV1(examples);assert.equal(model.version,1);assert.equal(model.eligible,true);const scored=candidate.scoreAuraLearningCandidateV1(input,model);assert.ok(scored>=0&&scored<=100);
+const evaluation=offline.evaluateAuraLearningCandidateOfflineV1(examples);assert.equal(evaluation.split.train,112);assert.equal(evaluation.split.test,28);for(const key of ["candidateQualityUplift","shadowQualityUplift","candidateTopRiskRate","shadowTopRiskRate"])assert.equal(Number.isFinite(evaluation.metrics[key]),true);assert.equal(typeof evaluation.gates.quartilesSampled,"boolean");assert.ok(["HOLD","SHADOW_ELIGIBLE"].includes(evaluation.verdict));
+console.log("AURA learning V1 regression tests passed");
