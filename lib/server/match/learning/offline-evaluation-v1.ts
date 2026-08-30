@@ -1,5 +1,5 @@
 import type {AuraTrainingExampleV1} from "./training-example-v1";
-import {scoreAuraLearningCandidateV1,trainAuraLearningCandidateV1} from "./candidate-v1";
+import {scoreAuraLearningCandidateV1,toAuraLearningInferenceInputV1,trainAuraLearningCandidateV1} from "./candidate-v1";
 
 const mean=(v:number[])=>v.length?v.reduce((a,b)=>a+b,0)/v.length:0;
 export function evaluateAuraLearningCandidateOfflineV1(examples:AuraTrainingExampleV1[]){
@@ -9,9 +9,10 @@ export function evaluateAuraLearningCandidateOfflineV1(examples:AuraTrainingExam
  const candidate=trainAuraLearningCandidateV1(train);
  const quality=test.filter(x=>x.label.quality===1&&x.label.risk===0);
  const risk=test.filter(x=>x.label.risk===1);
- const candidateQuality=mean(quality.map(x=>scoreAuraLearningCandidateV1(x,candidate)));
+ const score=(x:AuraTrainingExampleV1)=>scoreAuraLearningCandidateV1(toAuraLearningInferenceInputV1(x),candidate);
+ const candidateQuality=mean(quality.map(score));
  const shadowQuality=mean(quality.map(x=>x.shadowScore));
- const candidateRisk=mean(risk.map(x=>scoreAuraLearningCandidateV1(x,candidate)));
+ const candidateRisk=mean(risk.map(score));
  const shadowRisk=mean(risk.map(x=>x.shadowScore));
  const qualityDelta=candidateQuality-shadowQuality;
  const riskDelta=candidateRisk-shadowRisk;
