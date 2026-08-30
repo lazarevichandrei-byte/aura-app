@@ -4,9 +4,10 @@ import {supabaseAdmin} from "../../../supabase-admin";
 import {normalizeSnapshotAt} from "../features/time";
 import type {AuraScoreV1} from "./types";
 import type {AuraScoreV2} from "./score-v2";
+import type {AuraScoreV3} from "./score-v3";
 
-export type PersistableAuraScore=AuraScoreV1|AuraScoreV2;
-export type PersistedAuraScore={id:string;viewer_user_id:string;candidate_user_id:string;feature_schema_version:1;score_version:1|2;snapshot_at:string;total_score:number;components:AuraScoreV1["components"];reasons:AuraScoreV1["reasons"];flags:AuraScoreV1["flags"];created_at:string};
+export type PersistableAuraScore=AuraScoreV1|AuraScoreV2|AuraScoreV3;
+export type PersistedAuraScore={id:string;viewer_user_id:string;candidate_user_id:string;feature_schema_version:1|2;score_version:1|2|3;snapshot_at:string;total_score:number;components:AuraScoreV1["components"];reasons:AuraScoreV1["reasons"];flags:AuraScoreV1["flags"];created_at:string};
 
 export async function persistAuraScore(viewerUserId:string,candidateUserId:string,score:PersistableAuraScore):Promise<PersistedAuraScore>{
   if(viewerUserId===candidateUserId)throw new Error("SELF_PAIR_NOT_ALLOWED");
