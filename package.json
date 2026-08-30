@@ -1,50 +1,20 @@
 {
-  "name": "aura-app",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "test:events": "tsc lib/events/catalog.ts lib/events/validate.ts lib/telegram-auth.ts --outDir /tmp/aura-events-test --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-events.mjs /tmp/aura-events-test",
-    "test:features": "tsc lib/server/match/features/types.ts lib/server/match/features/contracts.ts lib/server/match/features/buckets.ts lib/server/match/features/time.ts --outDir /tmp/aura-feature-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-feature-snapshots.mjs /tmp/aura-feature-tests",
-    "test:read-signals": "tsc lib/server/match/features/read-signals-core.ts --outDir /tmp/aura-read-signal-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-read-signals-v1.mjs /tmp/aura-read-signal-tests",
-    "test:score": "tsc lib/server/match/features/types.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts --outDir /tmp/aura-score-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-score-v1.mjs /tmp/aura-score-tests",
-    "test:score:v2": "tsc lib/server/match/features/types.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts lib/server/match/score/score-v2.ts --outDir /tmp/aura-score-v2-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-score-v2.mjs /tmp/aura-score-v2-tests",
-    "test:score:v3": "tsc lib/server/match/features/types.ts lib/server/match/features/types-v2.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts lib/server/match/score/score-v2.ts lib/server/match/score/score-v3.ts --outDir /tmp/aura-score-v3-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-score-v3.mjs /tmp/aura-score-v3-tests",
-    "diagnose:score": "npm run test:score --silent && node scripts/aura-score-v1-distribution.mjs /tmp/aura-score-tests",
-    "test:ranking": "tsc lib/server/match/features/types.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts lib/server/match/score/score-v2.ts lib/server/match/recommendation/types.ts lib/server/match/recommendation/rank-v1.ts lib/server/match/recommendation/execution-v1.ts --outDir /tmp/aura-ranking-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-ranking-v1.mjs /tmp/aura-ranking-tests",
-    "test:outcomes": "tsc lib/server/match/outcomes/types.ts lib/server/match/outcomes/contracts.ts lib/server/match/outcomes/evaluate-v1.ts lib/server/match/outcomes/metrics.ts --outDir /tmp/aura-outcome-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-outcomes-v1.mjs /tmp/aura-outcome-tests",
-    "test:admin": "tsc lib/server/admin/aura/types.ts lib/server/admin/aura/contracts.ts lib/server/admin/aura/auth-core.ts --outDir /tmp/aura-admin-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-admin-v1.mjs /tmp/aura-admin-tests",
-    "test:aura": "npm run test:events && npm run test:features && npm run test:read-signals && npm run test:score && npm run test:score:v2 && npm run test:score:v3 && npm run test:ranking && npm run test:outcomes && npm run test:admin"
+  "name":"aura-app","version":"0.1.0","private":true,
+  "scripts":{
+    "dev":"next dev","build":"next build","start":"next start","lint":"eslint",
+    "test:events":"tsc lib/events/catalog.ts lib/events/validate.ts lib/telegram-auth.ts --outDir /tmp/aura-events-test --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-events.mjs /tmp/aura-events-test",
+    "test:features":"tsc lib/server/match/features/types.ts lib/server/match/features/contracts.ts lib/server/match/features/buckets.ts lib/server/match/features/time.ts --outDir /tmp/aura-feature-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-feature-snapshots.mjs /tmp/aura-feature-tests",
+    "test:read-signals":"tsc lib/server/match/features/read-signals-core.ts --outDir /tmp/aura-read-signal-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-read-signals-v1.mjs /tmp/aura-read-signal-tests",
+    "test:score":"tsc lib/server/match/features/types.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts --outDir /tmp/aura-score-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-score-v1.mjs /tmp/aura-score-tests",
+    "test:score:v2":"tsc lib/server/match/features/types.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts lib/server/match/score/score-v2.ts --outDir /tmp/aura-score-v2-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-score-v2.mjs /tmp/aura-score-v2-tests",
+    "test:score:v3":"tsc lib/server/match/features/types.ts lib/server/match/features/types-v2.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts lib/server/match/score/score-v2.ts lib/server/match/score/score-v3.ts --outDir /tmp/aura-score-v3-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-score-v3.mjs /tmp/aura-score-v3-tests",
+    "diagnose:score":"npm run test:score --silent && node scripts/aura-score-v1-distribution.mjs /tmp/aura-score-tests",
+    "test:ranking":"tsc lib/server/match/features/types.ts lib/server/match/score/types.ts lib/server/match/score/reasons.ts lib/server/match/score/weights-v1.ts lib/server/match/score/score-v1.ts lib/server/match/score/score-v2.ts lib/server/match/recommendation/types.ts lib/server/match/recommendation/rank-v1.ts lib/server/match/recommendation/execution-v1.ts --outDir /tmp/aura-ranking-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-ranking-v1.mjs /tmp/aura-ranking-tests",
+    "test:outcomes":"tsc lib/server/match/outcomes/types.ts lib/server/match/outcomes/contracts.ts lib/server/match/outcomes/evaluate-v1.ts lib/server/match/outcomes/metrics.ts --outDir /tmp/aura-outcome-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-outcomes-v1.mjs /tmp/aura-outcome-tests",
+    "test:admin":"tsc lib/server/admin/aura/types.ts lib/server/admin/aura/contracts.ts lib/server/admin/aura/auth-core.ts --outDir /tmp/aura-admin-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-admin-v1.mjs /tmp/aura-admin-tests",
+    "test:learning":"tsc lib/server/match/learning/training-example-v1.ts lib/server/match/learning/inference-input-v1.ts lib/server/match/learning/candidate-v1.ts lib/server/match/learning/offline-evaluation-v1.ts --outDir /tmp/aura-learning-tests --module commonjs --target es2022 --esModuleInterop --skipLibCheck && node scripts/test-aura-learning-v1.mjs /tmp/aura-learning-tests",
+    "test:aura":"npm run test:events && npm run test:features && npm run test:read-signals && npm run test:score && npm run test:score:v2 && npm run test:score:v3 && npm run test:ranking && npm run test:outcomes && npm run test:admin && npm run test:learning"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.104.0",
-    "@tanstack/react-query": "^5.100.9",
-    "framer-motion": "^12.38.0",
-    "iconsax-react": "^0.0.8",
-    "lucide-react": "^1.16.0",
-    "maplibre-gl": "^5.24.0",
-    "motion": "^12.42.2",
-    "next": "16.2.4",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-easy-crop": "^5.5.7",
-    "react-icons": "^5.6.0",
-    "react-map-gl": "^8.1.1",
-    "react-simple-pull-to-refresh": "^1.3.4",
-    "tailwindcss": "^3.4.1"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "autoprefixer": "^10.5.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4",
-    "postcss": "^8.5.10",
-    "typescript": "^5.3.3"
-  }
+  "dependencies":{"@supabase/supabase-js":"^2.104.0","@tanstack/react-query":"^5.100.9","framer-motion":"^12.38.0","iconsax-react":"^0.0.8","lucide-react":"^1.16.0","maplibre-gl":"^5.24.0","motion":"^12.42.2","next":"16.2.4","react":"19.2.4","react-dom":"19.2.4","react-easy-crop":"^5.5.7","react-icons":"^5.6.0","react-map-gl":"^8.1.1","react-simple-pull-to-refresh":"^1.3.4","tailwindcss":"^3.4.1"},
+  "devDependencies":{"@tailwindcss/postcss":"^4","@types/node":"^20","@types/react":"^19","@types/react-dom":"^19","autoprefixer":"^10.5.0","eslint":"^9","eslint-config-next":"16.2.4","postcss":"^8.5.10","typescript":"^5.3.3"}
 }
