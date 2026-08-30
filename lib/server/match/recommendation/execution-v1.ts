@@ -6,6 +6,10 @@ import type {AuraPairFeaturesV2,FeatureSnapshotV2} from "../features/types-v2";
 import {persistAuraScore} from "../score/persistence";
 import {scoreAuraMatchV2} from "../score/score-v2";
 import {scoreAuraMatchV3} from "../score/score-v3";
+import {loadAuraTrainingExamplesV1} from "../learning/dataset-v1";
+import {createAuraCandidateShadowRuntimeV1,runAuraCandidateShadowV1} from "../learning/candidate-shadow-runtime-v1";
+import {persistAuraCandidateShadowV1} from "../learning/candidate-shadow-persistence-v1";
+import type {AuraLearningInferenceInputV1} from "../learning/inference-input-v1";
 import {AURA_RANKING_V1} from "./rank-v1";
 import type {CandidateAuraScoreV1,RankableCandidate} from "./types";
 
@@ -19,6 +23,15 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
   if(boundedCandidates.length===0)return [];
   const viewerSnapshot=await dependencies.buildUserFeatures(viewerId,snapshotAt);
   await persistUserFeatureSnapshot(viewerId,viewerSnapshot);
+
+  let candidateRuntime:ReturnType<typeof createAuraCandidateShadowRuntimeV1>|null=null;
+  try{
+    const trainingExamples=await loadAuraTrainingExamplesV1("24h",500);
+    candidateRuntime=createAuraCandidateShadowRuntimeV1(trainingExamples);
+  }catch(error){
+    console.warn("AURA_CANDIDATE_SHADOW_RUNTIME_UNAVAILABLE",{code:error instanceof Error?error.message:"UNKNOWN"});
+  }
+
   return Promise.all(boundedCandidates.map(async candidate=>{
     const [candidateSnapshot,pairSnapshot,readSignals]=await Promise.all([
       dependencies.buildUserFeatures(candidate.id,snapshotAt),
@@ -31,7 +44,7 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
       persistPairFeatureSnapshot(viewerId,candidate.id,pairSnapshot),
     ]);
 
-    // Production score stays V2 until the shadow model proves itself on outcomes.
+    // Production score stays V2 until shadow models prove themselves on outcomes.
     const score=scoreAuraMatchV2({viewerFeatures:viewerSnapshot.features,candidateFeatures:candidateSnapshot.features,pairFeatures:pairSnapshot.features,featureSchemaVersion:1,snapshotAt});
     await persistAuraScore(viewerId,candidate.id,score);
 
@@ -55,6 +68,18 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
       persistPairFeatureSnapshotV2(viewerId,candidate.id,pairV2),
       persistAuraScore(viewerId,candidate.id,shadowScore),
     ]);
+
+    if(candidateRuntime){
+      try{
+        const inferenceInput:AuraLearningInferenceInputV1={viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,featureSchemaVersion:2,pairFeatures:pairV2.features};
+        const candidateResult=runAuraCandidateShadowV1(candidateRuntime,inferenceInput);
+        if(candidateResult.executed&&candidateResult.score!==null){
+          await persistAuraCandidateShadowV1({viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,candidateScore:candidateResult.score,featureSchemaVersion:2,candidate:candidateRuntime.candidate});
+        }
+      }catch(error){
+        console.warn("AURA_CANDIDATE_SHADOW_SCORE_FAILED",{candidateId:candidate.id,code:error instanceof Error?error.message:"UNKNOWN"});
+      }
+    }
 
     return {candidateId:candidate.id,totalScore:score.totalScore};
   }));
