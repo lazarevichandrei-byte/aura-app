@@ -1,8 +1,10 @@
 import type {AuraTrainingExampleV1} from "./training-example-v1";
+import type {AuraLearningInferenceInputV1} from "./inference-input-v1";
+import {conversationDepthProxyV1} from "./inference-input-v1";
 
 export type AuraLearningCandidateV1={
  version:1;sampleSize:number;eligible:boolean;
- weights:{shadowDelta:number;qualityBias:number;riskPenalty:number;conversationDepth:number};
+ weights:{shadowDelta:number;qualityBias:number;conversationDepth:number};
  diagnostics:{positiveRate:number;riskRate:number;meanShadowDelta:number};
 };
 
@@ -24,15 +26,19 @@ export function trainAuraLearningCandidateV1(examples:AuraTrainingExampleV1[]):A
   weights:{
    shadowDelta:Number(clamp(signal/20,-0.25,0.25).toFixed(4)),
    qualityBias:Number(clamp(positiveRate-0.5,-0.15,0.15).toFixed(4)),
-   riskPenalty:Number(clamp(riskRate*0.5,0,0.25).toFixed(4)),
    conversationDepth:Number(clamp(mean(positive.map(x=>x.label.conversationDepth))-mean(negative.map(x=>x.label.conversationDepth)),-0.2,0.2).toFixed(4)),
   },
   diagnostics:{positiveRate:Number(positiveRate.toFixed(4)),riskRate:Number(riskRate.toFixed(4)),meanShadowDelta:Number(meanShadowDelta.toFixed(4))},
  };
 }
 
-export function scoreAuraLearningCandidateV1(example:AuraTrainingExampleV1,candidate:AuraLearningCandidateV1){
- const delta=example.shadowScore-example.activeScore;
- const adjustment=delta*candidate.weights.shadowDelta+candidate.weights.qualityBias*5+example.label.conversationDepth*candidate.weights.conversationDepth*5-example.label.risk*candidate.weights.riskPenalty*10;
- return clamp(example.shadowScore+adjustment,0,100);
+export function toAuraLearningInferenceInputV1(example:AuraTrainingExampleV1):AuraLearningInferenceInputV1{
+ return {viewerUserId:example.viewerUserId,candidateUserId:example.candidateUserId,snapshotAt:example.anchorAt,activeScore:example.activeScore,shadowScore:example.shadowScore,featureSchemaVersion:2,pairFeatures:example.pairFeatures};
+}
+
+export function scoreAuraLearningCandidateV1(input:AuraLearningInferenceInputV1,candidate:AuraLearningCandidateV1){
+ const delta=input.shadowScore-input.activeScore;
+ const conversationDepth=conversationDepthProxyV1(input.pairFeatures);
+ const adjustment=delta*candidate.weights.shadowDelta+candidate.weights.qualityBias*5+conversationDepth*candidate.weights.conversationDepth*5;
+ return clamp(input.shadowScore+adjustment,0,100);
 }
