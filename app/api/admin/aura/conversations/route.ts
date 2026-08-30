@@ -5,8 +5,8 @@ import {supabaseAdmin} from "../../../../../lib/supabase-admin";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
 
-type PairRow={viewer_user_id:string;candidate_user_id:string;snapshot_at:string;features:Record<string,unknown>};
-type ScoreRow={viewer_user_id:string;candidate_user_id:string;score_version:number;snapshot_at:string;total_score:number;components:Record<string,unknown>;reasons:unknown[];flags:Record<string,unknown>};
+type PairRow={viewer_user_id:string;candidate_user_id:string;feature_schema_version:number;snapshot_at:string;features:Record<string,unknown>};
+type ScoreRow={viewer_user_id:string;candidate_user_id:string;feature_schema_version:number;score_version:number;snapshot_at:string;total_score:number;components:Record<string,unknown>;reasons:unknown[];flags:Record<string,unknown>};
 
 const pairKey=(a:string,b:string)=>`${a}:${b}`;
 
@@ -19,29 +19,37 @@ export async function POST(request:Request){
     const mode=body?.mode==="detail"?"detail":"list";
     if(mode==="list"){
       const {data:pairRows,error:pairError}=await supabaseAdmin.from("aura_pair_feature_snapshots")
-        .select("viewer_user_id,candidate_user_id,snapshot_at,features")
-        .order("snapshot_at",{ascending:false}).limit(250);
+        .select("viewer_user_id,candidate_user_id,feature_schema_version,snapshot_at,features")
+        .order("snapshot_at",{ascending:false}).limit(400);
       if(pairError)throw pairError;
 
       const latest=new Map<string,PairRow>();
       for(const row of (pairRows??[]) as PairRow[]){
         const key=pairKey(row.viewer_user_id,row.candidate_user_id);
-        if(!latest.has(key))latest.set(key,row);
+        const existing=latest.get(key);
+        if(!existing||row.feature_schema_version>existing.feature_schema_version)latest.set(key,row);
       }
       const pairs=[...latest.values()].slice(0,60);
       const ids=[...new Set(pairs.flatMap(row=>[row.viewer_user_id,row.candidate_user_id]))];
       const [{data:users,error:userError},{data:scores,error:scoreError}]=await Promise.all([
         ids.length?supabaseAdmin.from("users").select("id,name,telegram_id").in("id",ids):Promise.resolve({data:[],error:null}),
-        supabaseAdmin.from("aura_match_score_snapshots").select("viewer_user_id,candidate_user_id,score_version,snapshot_at,total_score,components,reasons,flags").order("snapshot_at",{ascending:false}).limit(500),
+        supabaseAdmin.from("aura_match_score_snapshots").select("viewer_user_id,candidate_user_id,feature_schema_version,score_version,snapshot_at,total_score,components,reasons,flags").order("snapshot_at",{ascending:false}).limit(800),
       ]);
       if(userError)throw userError;if(scoreError)throw scoreError;
       const userMap=new Map((users??[]).map((u:any)=>[u.id,u]));
-      const latestScores=new Map<string,ScoreRow>();
-      for(const row of (scores??[]) as ScoreRow[]){const key=pairKey(row.viewer_user_id,row.candidate_user_id);if(!latestScores.has(key))latestScores.set(key,row);}
+      const activeScores=new Map<string,ScoreRow>();
+      const shadowScores=new Map<string,ScoreRow>();
+      for(const row of (scores??[]) as ScoreRow[]){
+        const key=pairKey(row.viewer_user_id,row.candidate_user_id);
+        if(row.score_version===2&&!activeScores.has(key))activeScores.set(key,row);
+        if(row.score_version===3&&!shadowScores.has(key))shadowScores.set(key,row);
+      }
       return NextResponse.json({ok:true,pairs:pairs.map(row=>({
         viewer:userMap.get(row.viewer_user_id)??{id:row.viewer_user_id,name:"Unknown"},
         candidate:userMap.get(row.candidate_user_id)??{id:row.candidate_user_id,name:"Unknown"},
-        snapshotAt:row.snapshot_at,features:row.features,latestScore:latestScores.get(pairKey(row.viewer_user_id,row.candidate_user_id))??null,
+        snapshotAt:row.snapshot_at,featureSchemaVersion:row.feature_schema_version,features:row.features,
+        activeScore:activeScores.get(pairKey(row.viewer_user_id,row.candidate_user_id))??null,
+        shadowScore:shadowScores.get(pairKey(row.viewer_user_id,row.candidate_user_id))??null,
       }))});
     }
 
@@ -52,14 +60,14 @@ export async function POST(request:Request){
 
     const [usersResult,pairResult,scoresResult,chatResult]=await Promise.all([
       supabaseAdmin.from("users").select("id,name,telegram_id").in("id",[viewerUserId,candidateUserId]),
-      supabaseAdmin.from("aura_pair_feature_snapshots").select("snapshot_at,features").eq("viewer_user_id",viewerUserId).eq("candidate_user_id",candidateUserId).order("snapshot_at",{ascending:false}).limit(10),
-      supabaseAdmin.from("aura_match_score_snapshots").select("score_version,snapshot_at,total_score,components,reasons,flags").eq("viewer_user_id",viewerUserId).eq("candidate_user_id",candidateUserId).order("snapshot_at",{ascending:false}).limit(20),
+      supabaseAdmin.from("aura_pair_feature_snapshots").select("feature_schema_version,snapshot_at,features").eq("viewer_user_id",viewerUserId).eq("candidate_user_id",candidateUserId).order("snapshot_at",{ascending:false}).limit(20),
+      supabaseAdmin.from("aura_match_score_snapshots").select("feature_schema_version,score_version,snapshot_at,total_score,components,reasons,flags").eq("viewer_user_id",viewerUserId).eq("candidate_user_id",candidateUserId).order("snapshot_at",{ascending:false}).limit(40),
       supabaseAdmin.from("chats").select("id,user1_id,user2_id,event_id").is("event_id",null).or(`and(user1_id.eq.${viewerUserId},user2_id.eq.${candidateUserId}),and(user1_id.eq.${candidateUserId},user2_id.eq.${viewerUserId})`).maybeSingle(),
     ]);
     if(usersResult.error)throw usersResult.error;if(pairResult.error)throw pairResult.error;if(scoresResult.error)throw scoresResult.error;if(chatResult.error)throw chatResult.error;
     let messages:any[]=[];
     if(includeMessages&&chatResult.data?.id){
-      const messageResult=await supabaseAdmin.from("messages").select("id,sender_id,body,created_at,message_type").eq("chat_id",chatResult.data.id).order("created_at",{ascending:false}).limit(100);
+      const messageResult=await supabaseAdmin.from("messages").select("id,sender_id,body,created_at,message_type,is_read,read_at").eq("chat_id",chatResult.data.id).order("created_at",{ascending:false}).limit(100);
       if(messageResult.error)throw messageResult.error;
       messages=(messageResult.data??[]).reverse();
       console.info("AURA_ADMIN_RAW_MESSAGES_REVEALED",{adminTelegramId:authorization.telegramId,viewerUserId,candidateUserId,messageCount:messages.length});
