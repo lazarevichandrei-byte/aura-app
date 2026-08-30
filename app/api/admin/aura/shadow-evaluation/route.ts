@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {authorizeAuraAdmin} from "../../../../../lib/server/admin/aura";
 import {supabaseAdmin} from "../../../../../lib/supabase-admin";
 import {evaluateShadowV3,type ShadowScorePair} from "../../../../../lib/server/match/evaluation/shadow-v3";
-import {loadAuraShadowEvaluationHistoryV1,persistAuraShadowEvaluationV1} from "../../../../../lib/server/match/evaluation/shadow-history-v1";
+import {loadAuraShadowEvaluationHistoryV1} from "../../../../../lib/server/match/evaluation/shadow-history-v1";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -25,7 +25,6 @@ export async function POST(request:Request){try{
   for(const outcome of (outcomes??[]) as OutcomeRow[]){if(!outcome.score_snapshot_id)continue;const activeScore=activeById.get(outcome.score_snapshot_id);if(!activeScore)continue;const shadowScore=shadowByKey.get(key(activeScore.viewer_user_id,activeScore.candidate_user_id,activeScore.snapshot_at));if(!shadowScore)continue;grouped.get(outcome.window_type)?.push({activeScore:activeScore.total_score,shadowScore:shadowScore.total_score,outcomes:outcome.outcomes??{}});}
  }
  const evaluations=Object.fromEntries(WINDOWS.map(window=>[window,evaluateShadowV3(grouped.get(window)??[])])) as Record<WindowType,ReturnType<typeof evaluateShadowV3>>;
- await Promise.all(WINDOWS.map(window=>persistAuraShadowEvaluationV1(window,evaluations[window])));
  const history=await loadAuraShadowEvaluationHistoryV1(30);
- return NextResponse.json({ok:true,generatedAt:new Date().toISOString(),pairedCount:WINDOWS.reduce((n,w)=>n+evaluations[w].sampleSize,0),windows:evaluations,history,policy:{activeScoreVersion:2,shadowScoreVersion:3,minSampleForVerdict:40,qualityDefinition:"matched OR chat_started OR shared_meet_activity",riskDefinition:"blocked OR reported",promotion:"manual review only; this endpoint never changes production ranking"}});
+ return NextResponse.json({ok:true,generatedAt:new Date().toISOString(),pairedCount:WINDOWS.reduce((n,w)=>n+evaluations[w].sampleSize,0),windows:evaluations,history,policy:{activeScoreVersion:2,shadowScoreVersion:3,minSampleForVerdict:40,qualityDefinition:"matched OR chat_started OR shared_meet_activity",riskDefinition:"blocked OR reported",promotion:"manual review only; history is materialized by scheduled job; this endpoint never changes production ranking"}});
 }catch(error){console.error("AURA_ADMIN_SHADOW_EVALUATION_ERROR",{code:error instanceof Error?error.message:"UNKNOWN"});return NextResponse.json({ok:false,error:"SHADOW_EVALUATION_UNAVAILABLE"},{status:500});}}
