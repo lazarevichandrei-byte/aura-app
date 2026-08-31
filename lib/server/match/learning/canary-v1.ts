@@ -1,5 +1,6 @@
 import "server-only";
 import {evaluateAuraCandidatePromotionGateV1} from "./promotion-gate-v1";
+import {evaluateAuraCandidateCanarySafetyV1,loadAuraCandidateCanaryStateV1} from "./canary-safety-v1";
 
 const CACHE_MS=60_000;
 let cached:{at:number;ready:boolean}|null=null;
@@ -27,6 +28,10 @@ async function promotionReady(){
 export async function candidateCanaryDecisionV1(viewerId:string){
  const percent=boundedPercent();
  if(percent<=0)return {enabled:false,selected:false,percent,reason:"DISABLED" as const};
+ const state=await loadAuraCandidateCanaryStateV1();
+ if(state.status==="KILLED")return {enabled:false,selected:false,percent,reason:"KILL_SWITCH" as const};
+ const safety=await evaluateAuraCandidateCanarySafetyV1(new Date(),true);
+ if(safety.verdict==="KILL")return {enabled:false,selected:false,percent,reason:"AUTO_KILLED" as const};
  const ready=await promotionReady();
  if(!ready)return {enabled:true,selected:false,percent,reason:"PROMOTION_GATE_HOLD" as const};
  const selected=bucket(viewerId)<Math.round(percent*100);
