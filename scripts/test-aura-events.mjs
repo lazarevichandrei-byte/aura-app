@@ -37,5 +37,7 @@ const secret=crypto.createHmac("sha256","WebAppData").update(process.env.TELEGRA
 const hash=crypto.createHmac("sha256",secret).update(dataCheckString).digest("hex");
 const validInitData=new URLSearchParams({auth_date:String(authDate),user,hash}).toString();
 assert.equal(validateTelegramInitData(validInitData).ok,true);
-assert.equal(validateTelegramInitData(`${validInitData.slice(0,-1)}0`).ok,false);
+const tamperedHash=`${hash.slice(0,-1)}${hash.at(-1)==="0"?"1":"0"}`;
+const tamperedInitData=new URLSearchParams({auth_date:String(authDate),user,hash:tamperedHash}).toString();
+assert.equal(validateTelegramInitData(tamperedInitData).ok,false);
 console.log("AURA_EVENT_VALIDATOR_TESTS_PASS");
