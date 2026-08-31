@@ -33,9 +33,9 @@ create unique index if not exists aura_brain_runtime_events_dedupe_idx
     component,
     stage,
     code,
-    coalesce(viewer_user_id::text, ''),
-    coalesce(candidate_user_id::text, ''),
-    coalesce(snapshot_at::text, '')
+    coalesce(viewer_user_id, '00000000-0000-0000-0000-000000000000'::uuid),
+    coalesce(candidate_user_id, '00000000-0000-0000-0000-000000000000'::uuid),
+    coalesce(snapshot_at, '-infinity'::timestamptz)
   );
 
 alter table public.aura_brain_runtime_events enable row level security;
