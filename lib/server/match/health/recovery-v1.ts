@@ -36,11 +36,14 @@ async function retryPairShadowV1(row:AuraBrainRetryRowV1){
   ]);
 
   const model=await loadLatestEligibleAuraLearningCandidateV1();
-  if(model){
-    const input:AuraLearningInferenceInputV1={viewerUserId:row.viewerUserId,candidateUserId:row.candidateUserId,snapshotAt:row.snapshotAt,activeScore:activeScore.totalScore,shadowScore:shadowScore.totalScore,featureSchemaVersion:2,pairFeatures:pairV2.features};
-    const candidateScore=Number(scoreAuraLearningCandidateV1(input,model).toFixed(4));
-    await persistAuraCandidateShadowV1({viewerUserId:row.viewerUserId,candidateUserId:row.candidateUserId,snapshotAt:row.snapshotAt,activeScore:activeScore.totalScore,shadowScore:shadowScore.totalScore,candidateScore,featureSchemaVersion:2,candidate:model});
+  if(!model){
+    if(row.component==="CANDIDATE")throw new Error("CANDIDATE_MODEL_UNAVAILABLE");
+    return;
   }
+
+  const input:AuraLearningInferenceInputV1={viewerUserId:row.viewerUserId,candidateUserId:row.candidateUserId,snapshotAt:row.snapshotAt,activeScore:activeScore.totalScore,shadowScore:shadowScore.totalScore,featureSchemaVersion:2,pairFeatures:pairV2.features};
+  const candidateScore=Number(scoreAuraLearningCandidateV1(input,model).toFixed(4));
+  await persistAuraCandidateShadowV1({viewerUserId:row.viewerUserId,candidateUserId:row.candidateUserId,snapshotAt:row.snapshotAt,activeScore:activeScore.totalScore,shadowScore:shadowScore.totalScore,candidateScore,featureSchemaVersion:2,candidate:model});
 }
 
 async function retryRegistryV1(){
