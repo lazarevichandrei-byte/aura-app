@@ -8,16 +8,17 @@ import {scoreAuraMatchV3} from "../score/score-v3";
 import {persistAuraScore} from "../score/persistence";
 import {recordAuraBrainRuntimeEventV1} from "../health/runtime-events-v1";
 
+type WindowType="24h"|"7d"|"30d";
 type OutcomeRow={viewer_user_id:string;candidate_user_id:string;score_snapshot_id:string|null};
 type ScoreRow={id:string;viewer_user_id:string;candidate_user_id:string;snapshot_at:string;score_version:number};
 const key=(viewer:string,candidate:string,snapshotAt:string)=>`${viewer}:${candidate}:${snapshotAt}`;
 const errorCode=(error:unknown)=>error instanceof Error?error.message:"UNKNOWN";
 
-export async function backfillOutcomeLinkedAuraV3V1(limit=100){
+export async function backfillOutcomeLinkedAuraV3V1(windowType:WindowType="24h",limit=100){
   const bounded=Math.max(1,Math.min(500,limit));
   const {data:outcomes,error:oError}=await supabaseAdmin.from("aura_match_outcomes")
     .select("viewer_user_id,candidate_user_id,score_snapshot_id")
-    .eq("window_type","24h")
+    .eq("window_type",windowType)
     .eq("is_window_complete",true)
     .not("score_snapshot_id","is",null)
     .order("evaluated_at",{ascending:false})
@@ -25,7 +26,7 @@ export async function backfillOutcomeLinkedAuraV3V1(limit=100){
   if(oError)throw oError;
   const rows=(outcomes??[]) as OutcomeRow[];
   const ids=[...new Set(rows.map(row=>row.score_snapshot_id).filter(Boolean))] as string[];
-  if(ids.length===0)return {linkedV2:0,missing:0,materialized:0,failed:0};
+  if(ids.length===0)return {windowType,linkedV2:0,missing:0,materialized:0,failed:0};
 
   const {data:active,error:aError}=await supabaseAdmin.from("aura_match_score_snapshots")
     .select("id,viewer_user_id,candidate_user_id,snapshot_at,score_version")
@@ -34,7 +35,7 @@ export async function backfillOutcomeLinkedAuraV3V1(limit=100){
     .limit(bounded);
   if(aError)throw aError;
   const activeRows=(active??[]) as ScoreRow[];
-  if(activeRows.length===0)return {linkedV2:0,missing:0,materialized:0,failed:0};
+  if(activeRows.length===0)return {windowType,linkedV2:0,missing:0,materialized:0,failed:0};
 
   const times=[...new Set(activeRows.map(row=>row.snapshot_at))];
   const [{data:v3,error:v3Error},{data:pairs,error:pError}]=await Promise.all([
@@ -70,9 +71,9 @@ export async function backfillOutcomeLinkedAuraV3V1(limit=100){
       materialized+=1;
     }catch(error){
       failed+=1;
-      await recordAuraBrainRuntimeEventV1({component:"SHADOW_V3",stage:"LEARNING_BACKFILL",severity:"WARN",code:errorCode(error),viewerUserId:row.viewer_user_id,candidateUserId:row.candidate_user_id,snapshotAt:row.snapshot_at,retryable:true});
+      await recordAuraBrainRuntimeEventV1({component:"SHADOW_V3",stage:`LEARNING_BACKFILL_${windowType}`,severity:"WARN",code:errorCode(error),viewerUserId:row.viewer_user_id,candidateUserId:row.candidate_user_id,snapshotAt:row.snapshot_at,retryable:true,metadata:{windowType}});
     }
   }
 
-  return {linkedV2:activeRows.length,missing:missing.length,materialized,failed};
+  return {windowType,linkedV2:activeRows.length,missing:missing.length,materialized,failed};
 }
