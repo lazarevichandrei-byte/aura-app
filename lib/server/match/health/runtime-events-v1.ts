@@ -16,6 +16,17 @@ export type AuraBrainRuntimeEventV1={
   metadata?:Record<string,unknown>;
 };
 
+export type AuraBrainRetryRowV1={
+  id:string;
+  component:AuraBrainComponentV1;
+  stage:string;
+  code:string;
+  viewerUserId:string|null;
+  candidateUserId:string|null;
+  snapshotAt:string|null;
+  retryAttempts:number;
+};
+
 const sanitizeMetadata=(metadata:Record<string,unknown>|undefined)=>{
   if(!metadata)return {};
   const safe:Record<string,unknown>={};
@@ -44,6 +55,47 @@ export async function recordAuraBrainRuntimeEventV1(event:AuraBrainRuntimeEventV
   }catch(error){
     console.warn("AURA_BRAIN_HEALTH_EVENT_WRITE_FAILED",{code:error instanceof Error?error.message:"UNKNOWN"});
   }
+}
+
+export async function loadDueAuraBrainRetriesV1(limit=25):Promise<AuraBrainRetryRowV1[]>{
+  const bounded=Math.max(1,Math.min(100,limit));
+  const {data,error}=await supabaseAdmin.from("aura_brain_runtime_events")
+    .select("id,component,stage,code,viewer_user_id,candidate_user_id,snapshot_at,retry_attempts")
+    .eq("retryable",true)
+    .is("resolved_at",null)
+    .lte("next_retry_at",new Date().toISOString())
+    .lt("retry_attempts",3)
+    .order("next_retry_at",{ascending:true})
+    .limit(bounded);
+  if(error)throw error;
+  return (data??[]).map(row=>({
+    id:row.id,
+    component:row.component as AuraBrainComponentV1,
+    stage:row.stage,
+    code:row.code,
+    viewerUserId:row.viewer_user_id,
+    candidateUserId:row.candidate_user_id,
+    snapshotAt:row.snapshot_at,
+    retryAttempts:row.retry_attempts,
+  }));
+}
+
+export async function resolveAuraBrainRuntimeEventV1(id:string):Promise<void>{
+  const {error}=await supabaseAdmin.from("aura_brain_runtime_events").update({resolved_at:new Date().toISOString(),next_retry_at:null}).eq("id",id);
+  if(error)throw error;
+}
+
+export async function rescheduleAuraBrainRuntimeEventV1(id:string,currentAttempts:number,code:string):Promise<void>{
+  const nextAttempts=currentAttempts+1;
+  const delays=[5*60_000,30*60_000,2*60*60_000];
+  const exhausted=nextAttempts>=3;
+  const {error}=await supabaseAdmin.from("aura_brain_runtime_events").update({
+    retry_attempts:nextAttempts,
+    code:code.slice(0,200),
+    next_retry_at:exhausted?null:new Date(Date.now()+delays[Math.min(nextAttempts,delays.length-1)]).toISOString(),
+    retryable:!exhausted,
+  }).eq("id",id);
+  if(error)throw error;
 }
 
 export async function loadAuraBrainHealthSummaryV1(){
