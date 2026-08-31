@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
 import HomeSkeleton from "../components/HomeSkeleton";
 import LanguagePickerSheet from "../components/LanguagePickerSheet";
@@ -9,8 +9,13 @@ import {useI18n} from "../components/I18nProvider";
 import {LOCALE_BY_CODE} from "../lib/i18n/locales";
 import {DELETED_SESSION_KEY,loadCurrentUser,setCurrentUserCache} from "../lib/useCurrentUser";
 import {getTelegramInitData} from "../lib/telegram-init-data";
+import {savePendingRoute} from "../lib/auth/pendingRoute";
+import {hasAdminTelegramStartIntentV1,resolveTelegramStartupRouteV1,telegramLaunchContextV1} from "../lib/telegram-deep-link";
 
 type StartupState="loading"|"new_user"|"deleted_session"|"error";
+type TelegramWebApp={initDataUnsafe?:{user?:{id?:number};start_param?:string};ready?:()=>void;expand?:()=>void;close?:()=>void};
+type AuraWindow=Window&{Telegram?:{WebApp?:TelegramWebApp}};
+const telegramWebApp=()=>typeof window==="undefined"?undefined:(window as AuraWindow).Telegram?.WebApp;
 
 export default function Page(){
   const router=useRouter();
@@ -20,24 +25,25 @@ export default function Page(){
   const [languageOpen,setLanguageOpen]=useState(false);
   const [loginPending,setLoginPending]=useState(false);
 
+  const routeAuthenticatedUser=useCallback(async(user:{onboarding_completed:boolean|null},initData?:string)=>{
+    const signedInitData=initData||await getTelegramInitData();
+    const context=telegramLaunchContextV1(signedInitData,telegramWebApp());
+    if(hasAdminTelegramStartIntentV1(context)&&user.onboarding_completed!==true)savePendingRoute("/admin/aura");
+    const destination=resolveTelegramStartupRouteV1({context,userExists:true,onboardingCompleted:user.onboarding_completed===true,currentPath:window.location.pathname});
+    if(destination)router.replace(destination);
+  },[router]);
+
   useEffect(()=>{
     performance.mark("APP_START");
-    const telegram=(window as any).Telegram?.WebApp;
+    const telegram=telegramWebApp();
     telegram?.ready?.();
     telegram?.expand?.();
-
-    const startParam=telegram?.initDataUnsafe?.start_param||new URLSearchParams(window.location.search).get("tgWebAppStartParam")||new URLSearchParams(window.location.search).get("startapp");
-    if(startParam==="admin"){
-      getTelegramInitData().finally(()=>router.replace("/admin/aura"));
-      return;
-    }
-
-    if(sessionStorage.getItem(DELETED_SESSION_KEY)==="1"){setState("deleted_session");return;}
+    if(sessionStorage.getItem(DELETED_SESSION_KEY)==="1"){queueMicrotask(()=>setState("deleted_session"));return;}
     loadCurrentUser({force:true}).then((user)=>{
       if(!user){setState("new_user");return;}
-      router.replace(user.onboarding_completed?"/home":"/profile");
+      void routeAuthenticatedUser(user).catch(()=>router.replace(user.onboarding_completed?"/home":"/profile"));
     }).catch(()=>setState("error"));
-  },[router]);
+  },[routeAuthenticatedUser,router]);
 
   const login=async()=>{
     if(loginPending)return;
@@ -50,7 +56,7 @@ export default function Page(){
       if(!response.ok||!result?.ok||!result.user)throw new Error(result?.error||"AUTH_FAILED");
       sessionStorage.removeItem(DELETED_SESSION_KEY);
       setCurrentUserCache(result.user);
-      router.replace(result.user.onboarding_completed?"/home":"/profile");
+      await routeAuthenticatedUser(result.user,initData);
     }catch{
       showError(t("common.error"),t("auth.loginError"));
       setState("new_user");
@@ -59,7 +65,7 @@ export default function Page(){
 
   if(state==="loading")return <HomeSkeleton/>;
 
-  if(state==="deleted_session")return <main className="welcome-shell"><section className="welcome-center"><img className="welcome-mark" src="/favicon.ico" alt="Aura"/><h1>Aura</h1><p>{t("account.deleted")}</p><button className="welcome-cta" onClick={()=>{sessionStorage.removeItem(DELETED_SESSION_KEY);const telegram=(window as any).Telegram?.WebApp;if(typeof telegram?.close==="function")telegram.close();else setState("new_user");}}>{t("account.close")}</button></section></main>;
+  if(state==="deleted_session")return <main className="welcome-shell"><section className="welcome-center"><img className="welcome-mark" src="/favicon.ico" alt="Aura"/><h1>Aura</h1><p>{t("account.deleted")}</p><button className="welcome-cta" onClick={()=>{sessionStorage.removeItem(DELETED_SESSION_KEY);const telegram=telegramWebApp();if(typeof telegram?.close==="function")telegram.close();else setState("new_user");}}>{t("account.close")}</button></section></main>;
 
   return <main className="welcome-shell">
     <section className="welcome-center">
