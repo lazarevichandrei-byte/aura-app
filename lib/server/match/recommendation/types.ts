@@ -1,6 +1,6 @@
 export type AuraRankingMode="shadow"|"enabled";
 export type RankableCandidate={id:string};
-export type CandidateAuraScoreV1={candidateId:string;totalScore:number};
+export type CandidateAuraScoreV1={candidateId:string;totalScore:number;candidateScore?:number};
 
 export type AuraRankingDiagnosticsV1={
   candidateCount:number;
