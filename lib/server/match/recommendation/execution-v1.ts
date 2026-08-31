@@ -10,6 +10,7 @@ import {loadLatestEligibleAuraLearningCandidateV1} from "../learning/candidate-m
 import {scoreAuraLearningCandidateV1} from "../learning/candidate-v1";
 import {persistAuraCandidateShadowV1} from "../learning/candidate-shadow-persistence-v1";
 import type {AuraLearningInferenceInputV1} from "../learning/inference-input-v1";
+import {recordAuraBrainRuntimeEventV1} from "../health/runtime-events-v1";
 import {AURA_RANKING_V1} from "./rank-v1";
 import type {CandidateAuraScoreV1,RankableCandidate} from "./types";
 
@@ -17,6 +18,8 @@ export type AuraRankingDependencies={
   buildUserFeatures:(userId:string,snapshotAt:string)=>Promise<FeatureSnapshot<AuraUserFeaturesV1>>;
   buildPairFeatures:(viewerId:string,candidateId:string,snapshotAt:string)=>Promise<FeatureSnapshot<AuraPairFeaturesV1>>;
 };
+
+const errorCode=(error:unknown)=>error instanceof Error?error.message:"UNKNOWN";
 
 export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate>(viewerId:string,candidates:readonly T[],snapshotAt:string,dependencies:AuraRankingDependencies):Promise<CandidateAuraScoreV1[]>{
   const boundedCandidates=candidates.slice(0,AURA_RANKING_V1.MAX_CANDIDATES);
@@ -29,7 +32,17 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
   try{
     candidateModel=await loadLatestEligibleAuraLearningCandidateV1();
   }catch(error){
-    console.warn("AURA_CANDIDATE_REGISTRY_UNAVAILABLE",{code:error instanceof Error?error.message:"UNKNOWN"});
+    const code=errorCode(error);
+    console.warn("AURA_CANDIDATE_REGISTRY_UNAVAILABLE",{code});
+    await recordAuraBrainRuntimeEventV1({
+      component:"CANDIDATE_REGISTRY",
+      stage:"LOAD_MODEL",
+      severity:"WARN",
+      code,
+      viewerUserId:viewerId,
+      snapshotAt,
+      retryable:true,
+    });
   }
 
   const settled=await Promise.allSettled(boundedCandidates.map(async candidate=>{
@@ -103,16 +116,32 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
             candidate:candidateModel,
           });
         }catch(error){
-          console.warn("AURA_CANDIDATE_SHADOW_SCORE_FAILED",{
-            candidateId:candidate.id,
-            code:error instanceof Error?error.message:"UNKNOWN",
+          const code=errorCode(error);
+          console.warn("AURA_CANDIDATE_SHADOW_SCORE_FAILED",{candidateId:candidate.id,code});
+          await recordAuraBrainRuntimeEventV1({
+            component:"CANDIDATE",
+            stage:"SHADOW_INFERENCE",
+            severity:"WARN",
+            code,
+            viewerUserId:viewerId,
+            candidateUserId:candidate.id,
+            snapshotAt,
+            retryable:true,
           });
         }
       }
     }catch(error){
-      console.warn("AURA_SHADOW_PIPELINE_FAILED",{
-        candidateId:candidate.id,
-        code:error instanceof Error?error.message:"UNKNOWN",
+      const code=errorCode(error);
+      console.warn("AURA_SHADOW_PIPELINE_FAILED",{candidateId:candidate.id,code});
+      await recordAuraBrainRuntimeEventV1({
+        component:"SHADOW_V3",
+        stage:"READ_SIGNALS_AND_SCORE",
+        severity:"WARN",
+        code,
+        viewerUserId:viewerId,
+        candidateUserId:candidate.id,
+        snapshotAt,
+        retryable:true,
       });
     }
 
@@ -120,16 +149,26 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
   }));
 
   const scores:CandidateAuraScoreV1[]=[];
-  settled.forEach((result,index)=>{
+  for(let index=0;index<settled.length;index+=1){
+    const result=settled[index];
     if(result.status==="fulfilled"){
       scores.push(result.value);
-      return;
+      continue;
     }
-    console.warn("AURA_CANDIDATE_PRODUCTION_SCORE_FAILED",{
-      candidateId:boundedCandidates[index]?.id,
-      code:result.reason instanceof Error?result.reason.message:"UNKNOWN",
+    const candidateId=boundedCandidates[index]?.id;
+    const code=errorCode(result.reason);
+    console.warn("AURA_CANDIDATE_PRODUCTION_SCORE_FAILED",{candidateId,code});
+    await recordAuraBrainRuntimeEventV1({
+      component:"PRODUCTION_V2",
+      stage:"CANDIDATE_SCORE",
+      severity:"ERROR",
+      code,
+      viewerUserId:viewerId,
+      candidateUserId:candidateId??null,
+      snapshotAt,
+      retryable:false,
     });
-  });
+  }
 
   return scores;
 }
