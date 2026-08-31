@@ -34,15 +34,7 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
   }catch(error){
     const code=errorCode(error);
     console.warn("AURA_CANDIDATE_REGISTRY_UNAVAILABLE",{code});
-    await recordAuraBrainRuntimeEventV1({
-      component:"CANDIDATE_REGISTRY",
-      stage:"LOAD_MODEL",
-      severity:"WARN",
-      code,
-      viewerUserId:viewerId,
-      snapshotAt,
-      retryable:true,
-    });
+    await recordAuraBrainRuntimeEventV1({component:"CANDIDATE_REGISTRY",stage:"LOAD_MODEL",severity:"WARN",code,viewerUserId:viewerId,snapshotAt,retryable:true});
   }
 
   const settled=await Promise.allSettled(boundedCandidates.map(async candidate=>{
@@ -51,40 +43,23 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
       dependencies.buildPairFeatures(viewerId,candidate.id,snapshotAt),
     ]);
 
-    if(viewerSnapshot.snapshotAt!==snapshotAt||candidateSnapshot.snapshotAt!==snapshotAt||pairSnapshot.snapshotAt!==snapshotAt){
-      throw new Error("SNAPSHOT_AT_MISMATCH");
-    }
+    if(viewerSnapshot.snapshotAt!==snapshotAt||candidateSnapshot.snapshotAt!==snapshotAt||pairSnapshot.snapshotAt!==snapshotAt)throw new Error("SNAPSHOT_AT_MISMATCH");
 
     await Promise.all([
       persistUserFeatureSnapshot(candidate.id,candidateSnapshot),
       persistPairFeatureSnapshot(viewerId,candidate.id,pairSnapshot),
     ]);
 
-    // Production V2 is the required path. Shadow work below must not affect it.
-    const score=scoreAuraMatchV2({
-      viewerFeatures:viewerSnapshot.features,
-      candidateFeatures:candidateSnapshot.features,
-      pairFeatures:pairSnapshot.features,
-      featureSchemaVersion:1,
-      snapshotAt,
-    });
+    const score=scoreAuraMatchV2({viewerFeatures:viewerSnapshot.features,candidateFeatures:candidateSnapshot.features,pairFeatures:pairSnapshot.features,featureSchemaVersion:1,snapshotAt});
     await persistAuraScore(viewerId,candidate.id,score);
 
+    let candidateScore:number|undefined;
     try{
       const readSignals=await buildConversationReadSignalsV1(viewerId,candidate.id,snapshotAt);
-      const pairV2:FeatureSnapshotV2<AuraPairFeaturesV2>={
-        featureSchemaVersion:2,
-        snapshotAt,
-        features:{...pairSnapshot.features,...readSignals},
-      };
+      const pairV2:FeatureSnapshotV2<AuraPairFeaturesV2>={featureSchemaVersion:2,snapshotAt,features:{...pairSnapshot.features,...readSignals}};
       const viewerV2={featureSchemaVersion:2 as const,snapshotAt,features:viewerSnapshot.features};
       const candidateV2={featureSchemaVersion:2 as const,snapshotAt,features:candidateSnapshot.features};
-      const shadowScore=scoreAuraMatchV3({
-        viewerFeatures:viewerSnapshot.features,
-        candidateFeatures:candidateSnapshot.features,
-        pairFeatures:pairV2.features,
-        snapshotAt,
-      });
+      const shadowScore=scoreAuraMatchV3({viewerFeatures:viewerSnapshot.features,candidateFeatures:candidateSnapshot.features,pairFeatures:pairV2.features,snapshotAt});
 
       await Promise.all([
         persistUserFeatureSnapshotV2(viewerId,viewerV2),
@@ -95,79 +70,32 @@ export async function buildAuraScoresForCandidatesV1<T extends RankableCandidate
 
       if(candidateModel){
         try{
-          const inferenceInput:AuraLearningInferenceInputV1={
-            viewerUserId:viewerId,
-            candidateUserId:candidate.id,
-            snapshotAt,
-            activeScore:score.totalScore,
-            shadowScore:shadowScore.totalScore,
-            featureSchemaVersion:2,
-            pairFeatures:pairV2.features,
-          };
-          const candidateScore=Number(scoreAuraLearningCandidateV1(inferenceInput,candidateModel).toFixed(4));
-          await persistAuraCandidateShadowV1({
-            viewerUserId:viewerId,
-            candidateUserId:candidate.id,
-            snapshotAt,
-            activeScore:score.totalScore,
-            shadowScore:shadowScore.totalScore,
-            candidateScore,
-            featureSchemaVersion:2,
-            candidate:candidateModel,
-          });
+          const inferenceInput:AuraLearningInferenceInputV1={viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,featureSchemaVersion:2,pairFeatures:pairV2.features};
+          candidateScore=Number(scoreAuraLearningCandidateV1(inferenceInput,candidateModel).toFixed(4));
+          await persistAuraCandidateShadowV1({viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,activeScore:score.totalScore,shadowScore:shadowScore.totalScore,candidateScore,featureSchemaVersion:2,candidate:candidateModel});
         }catch(error){
           const code=errorCode(error);
           console.warn("AURA_CANDIDATE_SHADOW_SCORE_FAILED",{candidateId:candidate.id,code});
-          await recordAuraBrainRuntimeEventV1({
-            component:"CANDIDATE",
-            stage:"SHADOW_INFERENCE",
-            severity:"WARN",
-            code,
-            viewerUserId:viewerId,
-            candidateUserId:candidate.id,
-            snapshotAt,
-            retryable:true,
-          });
+          await recordAuraBrainRuntimeEventV1({component:"CANDIDATE",stage:"SHADOW_INFERENCE",severity:"WARN",code,viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,retryable:true});
         }
       }
     }catch(error){
       const code=errorCode(error);
       console.warn("AURA_SHADOW_PIPELINE_FAILED",{candidateId:candidate.id,code});
-      await recordAuraBrainRuntimeEventV1({
-        component:"SHADOW_V3",
-        stage:"READ_SIGNALS_AND_SCORE",
-        severity:"WARN",
-        code,
-        viewerUserId:viewerId,
-        candidateUserId:candidate.id,
-        snapshotAt,
-        retryable:true,
-      });
+      await recordAuraBrainRuntimeEventV1({component:"SHADOW_V3",stage:"READ_SIGNALS_AND_SCORE",severity:"WARN",code,viewerUserId:viewerId,candidateUserId:candidate.id,snapshotAt,retryable:true});
     }
 
-    return {candidateId:candidate.id,totalScore:score.totalScore};
+    return {candidateId:candidate.id,totalScore:score.totalScore,candidateScore};
   }));
 
   const scores:CandidateAuraScoreV1[]=[];
   for(let index=0;index<settled.length;index+=1){
     const result=settled[index];
-    if(result.status==="fulfilled"){
-      scores.push(result.value);
-      continue;
-    }
+    if(result.status==="fulfilled"){scores.push(result.value);continue;}
     const candidateId=boundedCandidates[index]?.id;
     const code=errorCode(result.reason);
     console.warn("AURA_CANDIDATE_PRODUCTION_SCORE_FAILED",{candidateId,code});
-    await recordAuraBrainRuntimeEventV1({
-      component:"PRODUCTION_V2",
-      stage:"CANDIDATE_SCORE",
-      severity:"ERROR",
-      code,
-      viewerUserId:viewerId,
-      candidateUserId:candidateId??null,
-      snapshotAt,
-      retryable:false,
-    });
+    await recordAuraBrainRuntimeEventV1({component:"PRODUCTION_V2",stage:"CANDIDATE_SCORE",severity:"ERROR",code,viewerUserId:viewerId,candidateUserId:candidateId??null,snapshotAt,retryable:false});
   }
 
   return scores;
